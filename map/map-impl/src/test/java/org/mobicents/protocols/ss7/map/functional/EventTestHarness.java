@@ -63,6 +63,8 @@ import org.mobicents.protocols.ss7.map.api.service.oam.ActivateTraceModeResponse
 import org.mobicents.protocols.ss7.map.api.service.oam.MAPServiceOamListener;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiRequest;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiResponse;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPServicePdpContextActivationListener;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsResponse;
@@ -781,6 +783,21 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     public void onSendRoutingInfoForGprsResponse(SendRoutingInfoForGprsResponse response) {
         this.logger.debug("onSendRoutingInfoForGprsResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.SendRoutingInfoForGprsResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onFailureReportRequest(FailureReportRequest request) {
+        this.logger.debug("onFailureReportRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.FailureReport, request, sequence++);
+        this.observerdEvents.add(te);
+
+    }
+
+    @Override
+    public void onFailureReportResponse(FailureReportResponse response) {
+        this.logger.debug("onFailureReportResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.FailureReportResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 

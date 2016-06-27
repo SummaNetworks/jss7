@@ -28,17 +28,32 @@ import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
+ * <code>
+ * MAP V3:
  *
- MAP V3:
+ * failureReport OPERATION ::= {    --Timer m
+ *          ARGUMENT
+ *              FailureReportArg
+ *          RESULT
+ *              FailureReportRes
+ *                  -- optional
+ *          ERRORS {
+ *              systemFailure |
+ *              dataMissing |
+ *              unexpectedDataValue |
+ *              unknownSubscriber}
+ *          CODE local:25 }
  *
- * failureReport OPERATION ::= { --Timer m ARGUMENT FailureReportArg RESULT FailureReportRes -- optional ERRORS { systemFailure
- * | dataMissing | unexpectedDataValue | unknownSubscriber} CODE local:25 }
- *
- * FailureReportArg ::= SEQUENCE { imsi [0] IMSI, ggsn-Number [1] ISDN-AddressString , ggsn-Address [2] GSN-Address OPTIONAL,
- * extensionContainer [3] ExtensionContainer OPTIONAL, ...}
- *
+ * FailureReportArg ::= SEQUENCE {
+ *          imsi                [0] IMSI,
+ *          ggsn-Number         [1] ISDN-AddressString,
+ *          ggsn-Address        [2] GSN-Address OPTIONAL,
+ *          extensionContainer  [3] ExtensionContainer     OPTIONAL,
+ *          ...}
+ * <code>
  *
  * @author sergey vetyutnev
+ * @author eva ogallar
  *
  */
 public interface FailureReportRequest extends PdpContextActivationMessage {

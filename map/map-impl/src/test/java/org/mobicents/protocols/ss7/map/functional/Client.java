@@ -1888,6 +1888,27 @@ public class Client extends EventTestHarness {
         clientDialogPdpContextActivation.send();
 
     }
+    public void sendFailureReportRequest() throws Exception {
+
+        this.mapProvider.getMAPServicePdpContextActivation().acivate();
+
+        MAPApplicationContext appCnt = null;
+
+        appCnt = MAPApplicationContext.getInstance(MAPApplicationContextName.gprsLocationInfoRetrievalContext, MAPApplicationContextVersion.version4);
+
+        clientDialogPdpContextActivation = this.mapProvider.getMAPServicePdpContextActivation().createNewDialog(appCnt, this.thisAddress, null, this.remoteAddress, null);
+
+        IMSI imsi = this.mapParameterFactory.createIMSI("88888777773333");
+        byte[] addressData = new byte[] { (byte) 192, (byte) 168, 4, 22 };
+        GSNAddress ggsnAddress = this.mapParameterFactory.createGSNAddress(GSNAddressAddressType.IPv4, addressData);
+        ISDNAddressString ggsnNumber = this.mapParameterFactory.createISDNAddressString(AddressNature.international_number, NumberingPlan.ISDN, "31628838002");
+        clientDialogPdpContextActivation.addFailureReportRequest(imsi, ggsnNumber, ggsnAddress, null);
+        //        IMSI imsi, GSNAddress ggsnAddress, ISDNAddressString ggsnNumber, MAPExtensionContainer extensionContainer
+
+        this.observerdEvents.add(TestEvent.createSentEvent(EventType.FailureReport, null, sequence++));
+        clientDialogPdpContextActivation.send();
+
+    }
 
     public void sendActivateTraceModeRequest_Oam() throws Exception {
 

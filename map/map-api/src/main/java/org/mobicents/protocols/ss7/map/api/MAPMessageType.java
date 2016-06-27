@@ -49,6 +49,6 @@ public enum MAPMessageType {
     sendIMSI_Request, sendIMSI_Response, activateTraceMode_Request, activateTraceMode_Response,
 
     // -- pdpContextActivation
-    sendRoutingInfoForGprs_Request, sendRoutingInfoForGprs_Response;
+    sendRoutingInfoForGprs_Request, sendRoutingInfoForGprs_Response, failureReport_Response, failureReport_Request;
 
 }
