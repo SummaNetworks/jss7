@@ -274,6 +274,10 @@ public class MAPApplicationContext implements Serializable {
                 else
                     return false;
             case failureReportContext:
+                if (contextVersion >= 3 && contextVersion <= 4)
+                    return true;
+                else
+                    return false;
             case gprsNotifyContext:
                 if (contextVersion == 3)
                     return true;

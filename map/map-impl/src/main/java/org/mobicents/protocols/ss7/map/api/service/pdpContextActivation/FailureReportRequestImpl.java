@@ -47,7 +47,13 @@ protected static final int _TAG_imsi = 0;
     public FailureReportRequestImpl() {
     }
 
-    public FailureReportRequestImpl(IMSI imsi, GSNAddress ggsnAddress, ISDNAddressString ggsnNumber, MAPExtensionContainer extensionContainer) {
+    /**
+     * @param imsi
+     * @param ggsnNumber
+     * @param ggsnAddress
+     * @param extensionContainer
+     */
+    public FailureReportRequestImpl(IMSI imsi, ISDNAddressString ggsnNumber, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) {
         this.imsi = imsi;
         this.ggsnAddress = ggsnAddress;
         this.ggsnNumber = ggsnNumber;

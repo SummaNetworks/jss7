@@ -8949,10 +8949,8 @@ TC-END + SendRoutingInformationResponse
                 assertEquals(request.getGgsnNumber().getAddress(), "31628838002");
 
                 try {
-                    GSNAddress sgsnAddress = this.mapParameterFactory.createGSNAddress(GSNAddressAddressType.IPv4, addressData);
-                    d.addFailureReportResponse(request.getInvokeId(), null, null);
-//                    GSNAddress sgsnAddress, GSNAddress ggsnAddress, Integer mobileNotReachableReason,
-//                    MAPExtensionContainer extensionContainer
+                    GSNAddress ggsnAddress = this.mapParameterFactory.createGSNAddress(GSNAddressAddressType.IPv4, addressData);
+                    d.addFailureReportResponse(request.getInvokeId(), ggsnAddress, null);
 
                 } catch (MAPException e) {
                     this.error("Error while adding FailureReportResponse", e);

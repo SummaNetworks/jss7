@@ -166,7 +166,7 @@ public class MAPDialogPdpContextActivationImpl extends MAPDialogImpl implements 
         oc.setLocalOperationCode((long) MAPOperationCode.failureReport);
         invoke.setOperationCode(oc);
 
-        FailureReportRequestImpl req = new FailureReportRequestImpl(imsi, ggsnAddress, ggsnNumber, extensionContainer);
+        FailureReportRequestImpl req = new FailureReportRequestImpl(imsi, ggsnNumber, ggsnAddress, extensionContainer);
         AsnOutputStream aos = new AsnOutputStream();
         req.encodeData(aos);
 
