@@ -327,7 +327,7 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
                                             + ".ipSmGwGuidanceIndicator: Parameter ipSmGwGuidanceIndicator is not primitive",
                                             MAPParsingComponentExceptionReason.MistypedParameter);
                                 ais.readNull();
-                                this.ipSmGwGuidanceIndicator = false;
+                                this.ipSmGwGuidanceIndicator = true;
                                 break;
 
                             case _TAG_imsi:
@@ -345,7 +345,7 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
                                             + ".t4TriggerIndicator: Parameter t4TriggerIndicator is not primitive",
                                             MAPParsingComponentExceptionReason.MistypedParameter);
                                 ais.readNull();
-                                this.t4TriggerIndicator = false;
+                                this.t4TriggerIndicator = true;
                                 break;
 
                             case _TAG_singleAttemptDelivery:
@@ -354,7 +354,7 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
                                             + ".singleAttemptDelivery: Parameter singleAttemptDelivery is not primitive",
                                             MAPParsingComponentExceptionReason.MistypedParameter);
                                 ais.readNull();
-                                this.singleAttemptDelivery = false;
+                                this.singleAttemptDelivery = true;
                                 break;
 
                             default:
