@@ -25,14 +25,8 @@ import java.io.IOException;
  * @author eva ogallar
  */
 public class FailureReportRequestImpl extends PdpContextActivationMessageImpl implements FailureReportRequest {
-/*
- *          imsi                [0] IMSI,
- *          ggsn-Number         [1] ISDN-AddressString,
- *          ggsn-Address        [2] GSN-Address OPTIONAL,
- *          extensionContainer  [3] ExtensionContainer     OPTIONAL,
 
- */
-protected static final int _TAG_imsi = 0;
+    protected static final int _TAG_imsi = 0;
     protected static final int _TAG_ggsnNumber = 1;
     protected static final int _TAG_ggsnAddress = 2;
     protected static final int _TAG_extensionContainer = 3;
