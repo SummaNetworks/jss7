@@ -170,6 +170,8 @@ import org.mobicents.protocols.ss7.map.api.service.oam.ActivateTraceModeResponse
 import org.mobicents.protocols.ss7.map.api.service.oam.MAPServiceOamListener;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiRequest;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiResponse;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPServicePdpContextActivationListener;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsResponse;
@@ -2714,6 +2716,18 @@ public class SS7TraceParser implements TraceReaderListener, MAPDialogListener, C
 
     @Override
     public void onSendRoutingInfoForGprsResponse(SendRoutingInfoForGprsResponse response) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onFailureReportRequest(FailureReportRequest request) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onFailureReportResponse(FailureReportResponse response) {
         // TODO Auto-generated method stub
 
     }

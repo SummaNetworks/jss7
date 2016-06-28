@@ -39,6 +39,8 @@ import org.mobicents.protocols.ss7.map.api.MAPServiceListener;
 import org.mobicents.protocols.ss7.map.api.dialog.ServingCheckData;
 import org.mobicents.protocols.ss7.map.api.dialog.ServingCheckResult;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequestImpl;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponseImpl;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPDialogPdpContextActivation;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPServicePdpContextActivation;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPServicePdpContextActivationListener;
@@ -118,6 +120,17 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
             } else {
                 return new ServingCheckDataImpl(ServingCheckResult.AC_VersionIncorrect);
             }
+        case failureReportContext:
+            if (vers >= 3 && vers <= 4) {
+                return new ServingCheckDataImpl(ServingCheckResult.AC_Serving);
+            } else if (vers > 4) {
+                long[] altOid = dialogApplicationContext.getOID();
+                altOid[7] = 2;
+                ApplicationContextName alt = TcapFactory.createApplicationContextName(altOid);
+                return new ServingCheckDataImpl(ServingCheckResult.AC_VersionIncorrect, alt);
+            } else {
+                return new ServingCheckDataImpl(ServingCheckResult.AC_VersionIncorrect);
+            }
         }
 
         return new ServingCheckDataImpl(ServingCheckResult.AC_NotServing);
@@ -147,11 +160,19 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
 
         switch (ocValueInt) {
         case MAPOperationCode.sendRoutingInfoForGprs:
-            if (acn == MAPApplicationContextName.gprsLocationInfoRetrievalContext || acn == MAPApplicationContextName.shortMsgMTRelayContext) {
+            if (acn == MAPApplicationContextName.gprsLocationInfoRetrievalContext) {
                 if (compType == ComponentType.Invoke)
                     this.sendRoutingInfoForGprsRequest(parameter, mapDialogPdpContextActivationImpl, invokeId);
                 else
                     this.sendRoutingInfoForGprsResponse(parameter, mapDialogPdpContextActivationImpl, invokeId);
+            }
+            break;
+        case MAPOperationCode.failureReport:
+            if (acn == MAPApplicationContextName.failureReportContext) {
+                if (compType == ComponentType.Invoke)
+                    this.failureReportRequest(parameter, mapDialogPdpContextActivationImpl, invokeId);
+                else
+                    this.failureReportResponse(parameter, mapDialogPdpContextActivationImpl, invokeId);
             }
             break;
         default:
@@ -219,6 +240,69 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
                 ((MAPServicePdpContextActivationListener) serLis).onSendRoutingInfoForGprsResponse(ind);
             } catch (Exception e) {
                 loger.error("Error processing onSendRoutingInfoForGprsResponse: " + e.getMessage(), e);
+            }
+        }
+    }
+    
+    private void failureReportRequest(Parameter parameter, MAPDialogPdpContextActivationImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding failureReportRequest: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding failureReportRequest: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+        FailureReportRequestImpl ind = new FailureReportRequestImpl();
+        ind.decodeData(ais, buf.length);
+
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                serLis.onMAPMessage(ind);
+                ((MAPServicePdpContextActivationListener) serLis).onFailureReportRequest(ind);
+            } catch (Exception e) {
+                loger.error("Error processing onFailureReportRequest: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    private void failureReportResponse(Parameter parameter, MAPDialogPdpContextActivationImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        FailureReportResponseImpl ind = new FailureReportResponseImpl();
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding failureReportResponse: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding failureReportResponse: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+        ind.decodeData(ais, buf.length);
+
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                serLis.onMAPMessage(ind);
+                ((MAPServicePdpContextActivationListener) serLis).onFailureReportResponse(ind);
+            } catch (Exception e) {
+                loger.error("Error processing onFailureReportResponse: " + e.getMessage(), e);
             }
         }
     }

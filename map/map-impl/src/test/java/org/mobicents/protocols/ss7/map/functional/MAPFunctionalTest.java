@@ -171,6 +171,8 @@ import org.mobicents.protocols.ss7.map.api.service.oam.ActivateTraceModeResponse
 import org.mobicents.protocols.ss7.map.api.service.oam.MAPDialogOam;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiRequest;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiResponse;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPDialogPdpContextActivation;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsResponse;
@@ -8908,6 +8910,105 @@ TC-END + SendRoutingInformationResponse
         serverExpectedEvents.add(te);
 
         client.sendSendRoutingInfoForGprsRequest();
+
+        waitForEnd();
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+
+    }
+
+    /**
+     * <code>
+     * TC-BEGIN + FailureReportRequest
+     * TC-END + FailureReportResponse
+     * </code>
+     */
+    @Test(groups = { "functional.flow", "dialog" })
+    public void testFailureReportRequest() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+
+            @Override
+            public void onFailureReportResponse(FailureReportResponse ind) {
+                super.onFailureReportResponse(ind);
+            }
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+
+            @Override
+            public void onFailureReportRequest(FailureReportRequest request) {
+                super.onFailureReportRequest(request);
+
+                MAPDialogPdpContextActivation d = request.getMAPDialog();
+
+                byte[] addressData = new byte[] { (byte) 192, (byte) 168, 4, 22 };
+                assertEquals(request.getImsi().getData(), "88888777773333");
+                assertEquals(request.getGgsnAddress().getGSNAddressAddressType(), GSNAddressAddressType.IPv4);
+                assertEquals(request.getGgsnAddress().getGSNAddressData(), addressData);
+                assertEquals(request.getGgsnNumber().getAddress(), "31628838002");
+
+                try {
+                    GSNAddress ggsnAddress = this.mapParameterFactory.createGSNAddress(GSNAddressAddressType.IPv4, addressData);
+                    d.addFailureReportResponse(request.getInvokeId(), ggsnAddress, null);
+
+                } catch (MAPException e) {
+                    this.error("Error while adding FailureReportResponse", e);
+                    fail("Error while adding FailureReportResponse");
+                }
+            }
+
+            @Override
+            public void onDialogDelimiter(MAPDialog mapDialog) {
+                super.onDialogDelimiter(mapDialog);
+                try {
+                    this.observerdEvents.add(TestEvent.createSentEvent(EventType.FailureReportResp, null, sequence++));
+                    mapDialog.close(false);
+                } catch (MAPException e) {
+                    this.error("Error while sending the empty FailureReportResponse", e);
+                    fail("Error while sending the empty FailureReportResponse");
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.FailureReport, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.FailureReportResp, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.FailureReport, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.FailureReportResp, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        client.sendFailureReportRequest();
 
         waitForEnd();
         client.compareEvents(clientExpectedEvents);

@@ -46,5 +46,5 @@ public enum EventType {
     SendImsi, SendImsiResp, ActivateTraceMode, ActivateTraceModeResp,
 
     // PdpContextActivation Service
-    SendRoutingInfoForGprs, SendRoutingInfoForGprsResp;
+    SendRoutingInfoForGprs, SendRoutingInfoForGprsResp, FailureReport, FailureReportResp;
 }

@@ -35,4 +35,7 @@ public interface MAPServicePdpContextActivationListener extends MAPServiceListen
 
     void onSendRoutingInfoForGprsResponse(SendRoutingInfoForGprsResponse response);
 
+    void onFailureReportRequest(FailureReportRequest request);
+
+    void onFailureReportResponse(FailureReportResponse response);
 }
