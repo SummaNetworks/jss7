@@ -96,6 +96,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.ReturnResultLast;
 /**
  *
  * @author sergey vetyutnev
+ * @author alerant appngin
  *
  */
 public class CAPDialogCircuitSwitchedCallImpl extends CAPDialogImpl implements CAPDialogCircuitSwitchedCall {
@@ -260,7 +261,7 @@ public class CAPDialogCircuitSwitchedCallImpl extends CAPDialogImpl implements C
                 && this.appCntx != CAPApplicationContext.CapV4_gsmSSF_scfGeneric
                 && this.appCntx != CAPApplicationContext.CapV4_scf_gsmSSFGeneric)
             throw new CAPException(
-                    "Bad application context name for addApplyChargingRequest: must be CapV2_gsmSSF_to_gsmSCF, CapV3_gsmSSF_scfGeneric, CapV4_gsmSSF_scfGeneric or CapV4_gsmSSF_scfGeneric");
+                    "Bad application context name for addApplyChargingRequest: must be CapV2_gsmSSF_to_gsmSCF, CapV3_gsmSSF_scfGeneric, CapV4_gsmSSF_scfGeneric or CapV4_scf_gsmSSFGeneric");
 
         Invoke invoke = this.capProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
                 .createTCInvokeRequest(InvokeClass.Class2);
@@ -414,12 +415,12 @@ public class CAPDialogCircuitSwitchedCallImpl extends CAPDialogImpl implements C
             RedirectionInformationInap redirectionInformation, ArrayList<GenericNumberCap> genericNumbers,
             ServiceInteractionIndicatorsTwo serviceInteractionIndicatorsTwo, LocationNumberCap chargeNumber,
             LegID legToBeConnected, CUGInterlock cugInterlock, boolean cugOutgoingAccess, boolean suppressionOfAnnouncement,
-            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested) throws CAPException {
+            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested, boolean suppressNCSI) throws CAPException {
 
         return addConnectRequest(_Timer_Default, destinationRoutingAddress, alertingPattern, originalCalledPartyID, extensions,
                 carrier, callingPartysCategory, redirectingPartyID, redirectionInformation, genericNumbers,
                 serviceInteractionIndicatorsTwo, chargeNumber, legToBeConnected, cugInterlock, cugOutgoingAccess,
-                suppressionOfAnnouncement, ocsIApplicable, naoliInfo, borInterrogationRequested);
+                suppressionOfAnnouncement, ocsIApplicable, naoliInfo, borInterrogationRequested, suppressNCSI);
     }
 
     @Override
@@ -429,7 +430,7 @@ public class CAPDialogCircuitSwitchedCallImpl extends CAPDialogImpl implements C
             RedirectionInformationInap redirectionInformation, ArrayList<GenericNumberCap> genericNumbers,
             ServiceInteractionIndicatorsTwo serviceInteractionIndicatorsTwo, LocationNumberCap chargeNumber,
             LegID legToBeConnected, CUGInterlock cugInterlock, boolean cugOutgoingAccess, boolean suppressionOfAnnouncement,
-            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested) throws CAPException {
+            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested, boolean suppressNCSI) throws CAPException {
 
         if (this.appCntx != CAPApplicationContext.CapV1_gsmSSF_to_gsmSCF
                 && this.appCntx != CAPApplicationContext.CapV2_gsmSSF_to_gsmSCF
@@ -453,7 +454,7 @@ public class CAPDialogCircuitSwitchedCallImpl extends CAPDialogImpl implements C
         ConnectRequestImpl req = new ConnectRequestImpl(destinationRoutingAddress, alertingPattern, originalCalledPartyID,
                 extensions, carrier, callingPartysCategory, redirectingPartyID, redirectionInformation, genericNumbers,
                 serviceInteractionIndicatorsTwo, chargeNumber, legToBeConnected, cugInterlock, cugOutgoingAccess,
-                suppressionOfAnnouncement, ocsIApplicable, naoliInfo, borInterrogationRequested);
+                suppressionOfAnnouncement, ocsIApplicable, naoliInfo, borInterrogationRequested, suppressNCSI);
         AsnOutputStream aos = new AsnOutputStream();
         req.encodeData(aos);
 
@@ -1916,5 +1917,72 @@ public class CAPDialogCircuitSwitchedCallImpl extends CAPDialogImpl implements C
         this.sendInvokeComponent(invoke);
 
         return invokeId;
+    }
+
+    public Long addSplitLegRequest(LegID legIDToSplit, Integer newCallSegmentId, CAPExtensions extensions)
+            throws CAPException {
+        return addSplitLegRequest(_Timer_Default, legIDToSplit, newCallSegmentId, extensions);
+    }
+
+    public Long addSplitLegRequest(int customInvokeTimeout, LegID legIDToSplit, Integer newCallSegmentId,
+            CAPExtensions extensions) throws CAPException {
+        if (this.appCntx != CAPApplicationContext.CapV4_gsmSSF_scfGeneric
+                && this.appCntx != CAPApplicationContext.CapV4_scf_gsmSSFGeneric)
+            throw new CAPException(
+                    "Bad application context for addSplitLegRequest: must be CapV4_gsmSSF_scfGeneric or CapV4_scf_gsmSSFGeneric");
+
+        Invoke invoke = this.capProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCInvokeRequest(InvokeClass.Class1);
+        if (customInvokeTimeout == _Timer_Default)
+            invoke.setTimeout(_Timer_CircuitSwitchedCallControl_Short);
+        else
+            invoke.setTimeout(customInvokeTimeout);
+
+        OperationCode oc = this.capProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) CAPOperationCode.splitLeg);
+        invoke.setOperationCode(oc);
+
+        SplitLegRequestImpl req = new SplitLegRequestImpl(legIDToSplit, newCallSegmentId, extensions);
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.capProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        invoke.setParameter(p);
+
+        Long invokeId;
+        try {
+            invokeId = this.tcapDialog.getNewInvokeId();
+            invoke.setInvokeId(invokeId);
+        } catch (TCAPException e) {
+            throw new CAPException(e.getMessage(), e);
+        }
+
+        this.sendInvokeComponent(invoke);
+
+        return invokeId;
+    }
+
+    public void addSplitLegResponse(long invokeId) throws CAPException {
+
+        if (this.appCntx != CAPApplicationContext.CapV4_gsmSSF_scfGeneric
+                && this.appCntx != CAPApplicationContext.CapV4_scf_gsmSSFGeneric)
+            throw new CAPException(
+                    "Bad application context for addSplitLegResponse: must be CapV4_gsmSSF_scfGeneric or CapV4_scf_gsmSSFGeneric");
+
+        ReturnResultLast resultLast = this.capProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCResultLastRequest();
+
+        resultLast.setInvokeId(invokeId);
+
+        // Operation Code
+        OperationCode oc = this.capProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) CAPOperationCode.splitLeg);
+        resultLast.setOperationCode(oc);
+
+        this.sendReturnResultLastComponent(resultLast);
     }
 }

@@ -244,6 +244,66 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
     }
 
     @Override
+    public double getCongControl_BackToNormalDelayThreshold_1() {
+        return this.wrappedSctpManagement.getCongControl_BackToNormalDelayThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalDelayThreshold_2() {
+        return this.wrappedSctpManagement.getCongControl_BackToNormalDelayThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalDelayThreshold_3() {
+        return this.wrappedSctpManagement.getCongControl_BackToNormalDelayThreshold_3();
+    }
+
+    @Override
+    public double getCongControl_DelayThreshold_1() {
+        return this.wrappedSctpManagement.getCongControl_DelayThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_DelayThreshold_2() {
+        return this.wrappedSctpManagement.getCongControl_DelayThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_DelayThreshold_3() {
+        return this.wrappedSctpManagement.getCongControl_DelayThreshold_3();
+    }
+
+    @Override
+    public void setCongControl_BackToNormalDelayThreshold_1(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_BackToNormalDelayThreshold_1(val);
+    }
+
+    @Override
+    public void setCongControl_BackToNormalDelayThreshold_2(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_BackToNormalDelayThreshold_2(val);
+    }
+
+    @Override
+    public void setCongControl_BackToNormalDelayThreshold_3(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_BackToNormalDelayThreshold_3(val);
+    }
+
+    @Override
+    public void setCongControl_DelayThreshold_1(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_DelayThreshold_1(val);
+    }
+
+    @Override
+    public void setCongControl_DelayThreshold_2(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_DelayThreshold_2(val);
+    }
+
+    @Override
+    public void setCongControl_DelayThreshold_3(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_DelayThreshold_3(val);
+    }
+
+    @Override
     public void setServerListener(ServerListener arg0) {
         // TODO Auto-generated method stub
 
@@ -257,6 +317,86 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
     @Override
     public void setWorkerThreads(int workerThreads) throws Exception {
         this.wrappedSctpManagement.setWorkerThreads(workerThreads);
+    }
+
+    @Override
+    public Boolean getOptionSctpDisableFragments() {
+        return this.wrappedSctpManagement.getOptionSctpDisableFragments();
+    }
+
+    @Override
+    public Integer getOptionSctpFragmentInterleave() {
+        return this.wrappedSctpManagement.getOptionSctpFragmentInterleave();
+    }
+
+    @Override
+    public Boolean getOptionSctpNodelay() {
+        return this.wrappedSctpManagement.getOptionSctpNodelay();
+    }
+
+    @Override
+    public Integer getOptionSoLinger() {
+        return this.wrappedSctpManagement.getOptionSoLinger();
+    }
+
+    @Override
+    public Integer getOptionSoRcvbuf() {
+        return this.wrappedSctpManagement.getOptionSoRcvbuf();
+    }
+
+    @Override
+    public Integer getOptionSoSndbuf() {
+        return this.wrappedSctpManagement.getOptionSoSndbuf();
+    }
+
+    @Override
+    public void setOptionSctpDisableFragments(Boolean val) {
+        this.wrappedSctpManagement.setOptionSctpDisableFragments(val);
+    }
+
+    @Override
+    public void setOptionSctpFragmentInterleave(Integer val) {
+        this.wrappedSctpManagement.setOptionSctpFragmentInterleave(val);
+    }
+
+    @Override
+    public void setOptionSctpNodelay(Boolean val) {
+        this.wrappedSctpManagement.setOptionSctpNodelay(val);
+    }
+
+    @Override
+    public void setOptionSoLinger(Integer val) {
+        this.wrappedSctpManagement.setOptionSoLinger(val);
+    }
+
+    @Override
+    public void setOptionSoRcvbuf(Integer val) {
+        this.wrappedSctpManagement.setOptionSoRcvbuf(val);
+    }
+
+    @Override
+    public void setOptionSoSndbuf(Integer val) {
+        this.wrappedSctpManagement.setOptionSoSndbuf(val);
+    }
+
+    @Override
+    public Integer getOptionSctpInitMaxstreams_MaxInStreams() {
+        return this.wrappedSctpManagement.getOptionSctpInitMaxstreams_MaxInStreams();
+    }
+
+    @Override
+    public Integer getOptionSctpInitMaxstreams_MaxOutStreams() {
+        return this.wrappedSctpManagement.getOptionSctpInitMaxstreams_MaxOutStreams();
+    }
+
+    @Override
+    public void setOptionSctpInitMaxstreams_MaxInStreams(Integer val) {
+        this.wrappedSctpManagement.setOptionSctpInitMaxstreams_MaxInStreams(val);
+    }
+
+    @Override
+    public void setOptionSctpInitMaxstreams_MaxOutStreams(Integer val) {
+        this.wrappedSctpManagement.setOptionSctpInitMaxstreams_MaxOutStreams(val);
     }
 
     @Override

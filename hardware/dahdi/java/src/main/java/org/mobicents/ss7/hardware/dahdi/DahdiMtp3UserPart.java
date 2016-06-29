@@ -29,6 +29,7 @@ import org.mobicents.protocols.ss7.mtp.Mtp3TransferPrimitiveFactory;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPartListener;
 import org.mobicents.protocols.ss7.mtp.RoutingLabelFormat;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 
 /**
  *
@@ -105,6 +106,24 @@ public class DahdiMtp3UserPart implements Mtp3UserPart {
     public void setUseLsbForLinksetSelection(boolean arg0) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public int getDeliveryMessageThreadCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

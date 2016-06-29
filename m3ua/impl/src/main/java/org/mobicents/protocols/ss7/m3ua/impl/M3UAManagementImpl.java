@@ -71,11 +71,13 @@ import org.mobicents.protocols.ss7.m3ua.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.m3ua.parameter.ProtocolData;
 import org.mobicents.protocols.ss7.m3ua.parameter.RoutingContext;
 import org.mobicents.protocols.ss7.m3ua.parameter.TrafficModeType;
+import org.mobicents.protocols.ss7.mtp.Mtp3EndCongestionPrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3PausePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3ResumePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3StatusPrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3TransferPrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPartBaseImpl;
+import org.mobicents.protocols.ss7.mtp.RoutingLabelFormat;
 
 /**
  * @author amit bhayani
@@ -115,6 +117,7 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
     protected MessageFactory messageFactory = new MessageFactoryImpl();
 
     protected Management transportManagement = null;
+    protected boolean sctpLibNettySupport = false;
 
     private ScheduledExecutorService fsmTicker;
 
@@ -168,8 +171,6 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
             maxSequenceNumber = MAX_SEQUENCE_NUMBER;
         }
         this.maxSequenceNumber = maxSequenceNumber;
-
-//        this.store();
     }
 
     public String getPersistDir() {
@@ -196,8 +197,6 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
         }
 
         this.maxAsForRoute = maxAsForRoute;
-
-//        this.store();
     }
 
     public int getHeartbeatTime() {
@@ -218,12 +217,44 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
         this.store();
     }
 
+    @Override
+    public void setUseLsbForLinksetSelection(boolean useLsbForLinksetSelection) throws Exception {
+        if (!this.isStarted)
+            throw new Exception("UseLsbForLinksetSelection parameter can be updated only when M3UA stack is running");
+
+        super.setUseLsbForLinksetSelection(useLsbForLinksetSelection);
+
+        this.store();
+    }
+
+    @Override
+    public void setRoutingLabelFormat(RoutingLabelFormat routingLabelFormat) throws Exception {
+        if (this.isStarted)
+            throw new Exception("RoutingLabelFormat parameter can be updated only when M3UA stack is NOT running");
+
+        super.setRoutingLabelFormat(routingLabelFormat);
+    }
+
+    @Override
+    public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) throws Exception {
+        if (this.isStarted)
+            throw new Exception("DeliveryMessageThreadCount parameter can be updated only when M3UA stack is NOT running");
+
+        super.setDeliveryMessageThreadCount(deliveryMessageThreadCount);
+    }
+
     public Management getTransportManagement() {
         return transportManagement;
     }
 
     public void setTransportManagement(Management transportManagement) {
         this.transportManagement = transportManagement;
+        if (transportManagement != null && transportManagement.getClass().getSimpleName().contains("Netty"))
+            sctpLibNettySupport = true;
+    }
+
+    public boolean isSctpLibNettySupport() {
+        return sctpLibNettySupport;
     }
 
     public void start() throws Exception {
@@ -934,6 +965,10 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
         super.sendStatusMessageToLocalUser(msg);
     }
 
+    public void sendEndCongestionMessageToLocalUser(Mtp3EndCongestionPrimitive msg) {
+        super.sendEndCongestionMessageToLocalUser(msg);
+    }
+
     private AspFactoryImpl getAspFactory(String aspName) {
         for (FastList.Node<AspFactory> n = aspfactories.head(), end = aspfactories.tail(); (n = n.getNext()) != end;) {
             AspFactoryImpl aspFactoryImpl = (AspFactoryImpl) n.getValue();
@@ -959,9 +994,8 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
             // writer.setReferenceResolver(new XMLReferenceResolver());
             writer.setIndentation(TAB_INDENT);
 
-//            writer.write(this.maxSequenceNumber, MAX_SEQUENCE_NUMBER_PROP, Integer.class);
-//            writer.write(this.maxAsForRoute, MAX_AS_FOR_ROUTE_PROP, Integer.class);
             writer.write(this.timeBetweenHeartbeat, HEART_BEAT_TIME_PROP, Integer.class);
+            writer.write(this.isUseLsbForLinksetSelection(), USE_LSB_FOR_LINKSET_SELECTION, Boolean.class);
 
             writer.write(aspfactories, ASP_FACTORY_LIST, FastList.class);
             writer.write(appServers, AS_LIST, FastList.class);
@@ -1010,75 +1044,81 @@ public class M3UAManagementImpl extends Mtp3UserPartBaseImpl implements M3UAMana
 
     private void loadActualData(XMLObjectReader reader ) throws XMLStreamException, IOException{
         try {
-//          this.maxSequenceNumber = reader.read(MAX_SEQUENCE_NUMBER_PROP, Integer.class);
-//          this.maxAsForRoute = reader.read(MAX_AS_FOR_ROUTE_PROP, Integer.class);
-          Integer vali = reader.read(MAX_SEQUENCE_NUMBER_PROP, Integer.class);
-          vali = reader.read(MAX_AS_FOR_ROUTE_PROP, Integer.class);
+            Integer vali = reader.read(MAX_SEQUENCE_NUMBER_PROP, Integer.class);
+            vali = reader.read(MAX_AS_FOR_ROUTE_PROP, Integer.class);
 
-          this.timeBetweenHeartbeat = reader.read(HEART_BEAT_TIME_PROP, Integer.class);
-      } catch (java.lang.Exception e) {
-          // ignore.
-          // For backward compatibility we can ignore if these values are not defined
-          logger.error("Errro while reading attribute", e);
-      }
+            this.timeBetweenHeartbeat = reader.read(HEART_BEAT_TIME_PROP, Integer.class);
+        } catch (java.lang.Exception e) {
+            // ignore.
+            // For backward compatibility we can ignore if these values are not defined
+            logger.error("Errro while reading attribute", e);
+        }
 
-      aspfactories = reader.read(ASP_FACTORY_LIST, FastList.class);
-      appServers = reader.read(AS_LIST, FastList.class);
-      this.routeManagement.route = reader.read(DPC_VS_AS_LIST, RouteMap.class);
+        String vals = reader.read(ROUTING_LABEL_FORMAT, String.class); // we do not store it - for backup compatibility
+        Boolean valb = reader.read(USE_LSB_FOR_LINKSET_SELECTION, Boolean.class);
+        if (valb != null) {
+            try {
+                super.setUseLsbForLinksetSelection(valb);
+            } catch (Exception e) {
+            }
+        }
 
-      this.routeManagement.reset();
+        aspfactories = reader.read(ASP_FACTORY_LIST, FastList.class);
+        appServers = reader.read(AS_LIST, FastList.class);
+        this.routeManagement.route = reader.read(DPC_VS_AS_LIST, RouteMap.class);
 
-      // Create Asp's and assign to each of the AS. Schedule the FSM's
-      for (FastList.Node<As> n = appServers.head(), end = appServers.tail(); (n = n.getNext()) != end;) {
-          AsImpl asImpl = (AsImpl) n.getValue();
-          asImpl.setM3UAManagement(this);
-          FSM asLocalFSM = asImpl.getLocalFSM();
-          m3uaScheduler.execute(asLocalFSM);
+        this.routeManagement.reset();
 
-          FSM asPeerFSM = asImpl.getPeerFSM();
-          m3uaScheduler.execute(asPeerFSM);
+        // Create Asp's and assign to each of the AS. Schedule the FSM's
+        for (FastList.Node<As> n = appServers.head(), end = appServers.tail(); (n = n.getNext()) != end;) {
+            AsImpl asImpl = (AsImpl) n.getValue();
+            asImpl.setM3UAManagement(this);
+            FSM asLocalFSM = asImpl.getLocalFSM();
+            m3uaScheduler.execute(asLocalFSM);
 
-          // All the Asp's for this As added in temp list
-          FastList<Asp> tempAsp = new FastList<Asp>();
-          tempAsp.addAll(asImpl.appServerProcs);
+            FSM asPeerFSM = asImpl.getPeerFSM();
+            m3uaScheduler.execute(asPeerFSM);
 
-          // Claer Asp's from this As
-          asImpl.appServerProcs.clear();
+            // All the Asp's for this As added in temp list
+            FastList<Asp> tempAsp = new FastList<Asp>();
+            tempAsp.addAll(asImpl.appServerProcs);
 
-          for (FastList.Node<Asp> n1 = tempAsp.head(), end1 = tempAsp.tail(); (n1 = n1.getNext()) != end1;) {
-              AspImpl aspImpl = (AspImpl) n1.getValue();
+            // Claer Asp's from this As
+            asImpl.appServerProcs.clear();
 
-              try {
-                  // Now let the Asp's be created from respective
-                  // AspFactory and added to As
-                  this.assignAspToAs(asImpl.getName(), aspImpl.getName());
-              } catch (Exception e) {
-                  logger.error("Error while assigning Asp to As on loading from xml file", e);
-              }
-          }
-      }
+            for (FastList.Node<Asp> n1 = tempAsp.head(), end1 = tempAsp.tail(); (n1 = n1.getNext()) != end1;) {
+                AspImpl aspImpl = (AspImpl) n1.getValue();
 
-      // Set the transportManagement
-      for (FastList.Node<AspFactory> n = aspfactories.head(), end = aspfactories.tail(); (n = n.getNext()) != end;) {
-          AspFactoryImpl factory = (AspFactoryImpl) n.getValue();
-          factory.setTransportManagement(this.transportManagement);
-          factory.setM3UAManagement(this);
-          try {
-              factory.setAssociation(this.transportManagement.getAssociation(factory.associationName));
-          } catch (Throwable e1) {
-              logger.error(String.format("Error setting Assciation=%s for the AspFactory=%s while loading from XML",
-                      factory.associationName, factory.getName()), e1);
-          }
+                try {
+                    // Now let the Asp's be created from respective
+                    // AspFactory and added to As
+                    this.assignAspToAs(asImpl.getName(), aspImpl.getName());
+                } catch (Exception e) {
+                    logger.error("Error while assigning Asp to As on loading from xml file", e);
+                }
+            }
+        }
 
-          if (factory.getStatus()) {
-              try {
-                  factory.start();
-              } catch (Exception e) {
-                  logger.error(
-                          String.format("Error starting the AspFactory=%s while loading from XML", factory.getName()), e);
-              }
-          }
-      }
+        // Set the transportManagement
+        for (FastList.Node<AspFactory> n = aspfactories.head(), end = aspfactories.tail(); (n = n.getNext()) != end;) {
+            AspFactoryImpl factory = (AspFactoryImpl) n.getValue();
+            factory.setTransportManagement(this.transportManagement);
+            factory.setM3UAManagement(this);
+            try {
+                factory.setAssociation(this.transportManagement.getAssociation(factory.associationName));
+            } catch (Throwable e1) {
+                logger.error(String.format("Error setting Assciation=%s for the AspFactory=%s while loading from XML",
+                        factory.associationName, factory.getName()), e1);
+            }
+
+            if (factory.getStatus()) {
+                try {
+                    factory.start();
+                } catch (Exception e) {
+                    logger.error(String.format("Error starting the AspFactory=%s while loading from XML", factory.getName()), e);
+                }
+            }
+        }
     }
 
     private void loadVer1(String fn) throws XMLStreamException, IOException{

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.mtp</groupId>
 		<artifactId>mtp-parent</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>7.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>mtp</artifactId>
@@ -29,6 +29,10 @@
 			<groupId>org.mobicents.protocols.ss7.scheduler</groupId>
 			<artifactId>scheduler</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mobicents.protocols.ss7.congestion</groupId>
+			<artifactId>congestion</artifactId>
+		</dependency>
 		<!-- non restcomm -->
 		<dependency>
 			<groupId>log4j</groupId>
@@ -48,6 +52,14 @@
 			<groupId>javolution</groupId>
 			<artifactId>javolution</artifactId>
 		</dependency>
+
+		<!-- netty -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>${netty.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>mtp-api</artifactId>

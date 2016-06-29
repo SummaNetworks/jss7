@@ -190,10 +190,37 @@ public class SccpRoutingControl {
         this.route(msg);
     }
 
+    private long lastCongAnnounseTime;
+
     protected ReturnCauseValue send(SccpMessageImpl message) throws Exception {
 
         int dpc = message.getOutgoingDpc();
         int sls = message.getSls();
+
+        // outgoing congestion control
+        RemoteSignalingPointCode remoteSpc = this.sccpStackImpl.getSccpResource().getRemoteSpcByPC(dpc);
+        int currentRestrictionLevel = remoteSpc.getCurrentRestrictionLevel();
+        int msgImportance = 8;
+        if (message instanceof SccpDataMessageImpl) {
+            // UDT, XUDT, LUDT
+            msgImportance = 5;
+        }
+        if (message instanceof SccpNoticeMessageImpl) {
+            // UDTS, XUDTS, LUDTS
+            msgImportance = 3;
+        }
+        if (this.sccpManagement.getSccpCongestionControl().isCongControl_blockingOutgoungScpMessages()
+                && msgImportance < currentRestrictionLevel) {
+            // we are dropping a message because of outgoing congestion
+
+            long curTime = System.currentTimeMillis();
+            if (lastCongAnnounseTime + 1000 < curTime) {
+                lastCongAnnounseTime = curTime;
+                logger.warn(String.format("Outgoing congestion control: SCCP: SccpMessage for sending=%s was dropped because of congestion level %d to dpc %d",
+                        message, currentRestrictionLevel, dpc));
+            }
+            return ReturnCauseValue.NETWORK_CONGESTION;
+        }
 
         Mtp3ServiceAccessPoint sap = this.sccpStackImpl.router.findMtp3ServiceAccessPoint(dpc, sls, message.getNetworkId());
         if (sap == null) {
@@ -306,7 +333,7 @@ public class SccpRoutingControl {
     }
 
     private enum TranslationAddressCheckingResult {
-        destinationAvailable, destinationUnavailable_SubsystemFailure, destinationUnavailable_MtpFailure, translationFailure;
+        destinationAvailable, destinationUnavailable_SubsystemFailure, destinationUnavailable_MtpFailure, destinationUnavailable_Congestion, translationFailure;
     }
 
     private TranslationAddressCheckingResult checkTranslationAddress(SccpAddressedMessageImpl msg, Rule rule,
@@ -368,6 +395,17 @@ public class SccpRoutingControl {
                         destName, translationAddress.getSignalingPointCode()));
             }
             return TranslationAddressCheckingResult.destinationUnavailable_MtpFailure;
+        }
+
+        // Check if the DPC is congested
+        if (remoteSpc.getCurrentRestrictionLevel() > 1) {
+            if (logger.isEnabledFor(Level.WARN)) {
+                logger.warn(String
+                        .format("Received SccpMessage=%s for Translation but %s Remote Signaling Pointcode = %d is congested with level %d ",
+                                msg, destName, translationAddress.getSignalingPointCode(),
+                                remoteSpc.getCurrentRestrictionLevel()));
+            }
+            return TranslationAddressCheckingResult.destinationUnavailable_Congestion;
         }
 
         if (translationAddress.getAddressIndicator().getRoutingIndicator() == RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN) {
@@ -440,13 +478,18 @@ public class SccpRoutingControl {
         }
 
         if (resPri != TranslationAddressCheckingResult.destinationAvailable
-                && resSec != TranslationAddressCheckingResult.destinationAvailable) {
+                && resPri != TranslationAddressCheckingResult.destinationUnavailable_Congestion
+                && resSec != TranslationAddressCheckingResult.destinationAvailable
+                && resSec != TranslationAddressCheckingResult.destinationUnavailable_Congestion) {
             switch (resPri) {
                 case destinationUnavailable_SubsystemFailure:
                     this.sendSccpError(msg, ReturnCauseValue.SUBSYSTEM_FAILURE);
                     return;
                 case destinationUnavailable_MtpFailure:
                     this.sendSccpError(msg, ReturnCauseValue.MTP_FAILURE);
+                    return;
+                case destinationUnavailable_Congestion:
+                    this.sendSccpError(msg, ReturnCauseValue.NETWORK_CONGESTION);
                     return;
                 default:
                     this.sendSccpError(msg, ReturnCauseValue.SCCP_FAILURE);
@@ -461,6 +504,12 @@ public class SccpRoutingControl {
             translationAddress = translationAddressPri;
         } else if (resPri != TranslationAddressCheckingResult.destinationAvailable
                 && resSec == TranslationAddressCheckingResult.destinationAvailable) {
+            translationAddress = translationAddressSec;
+        } else if (resPri == TranslationAddressCheckingResult.destinationUnavailable_Congestion
+                && resSec != TranslationAddressCheckingResult.destinationAvailable) {
+            translationAddress = translationAddressPri;
+        } else if (resPri != TranslationAddressCheckingResult.destinationAvailable
+                && resSec == TranslationAddressCheckingResult.destinationUnavailable_Congestion) {
             translationAddress = translationAddressSec;
         } else {
             switch (rule.getRuleType()) {

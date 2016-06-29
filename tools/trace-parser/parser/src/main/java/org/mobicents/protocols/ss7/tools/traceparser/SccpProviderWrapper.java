@@ -24,6 +24,9 @@ package org.mobicents.protocols.ss7.tools.traceparser;
 
 import java.io.IOException;
 
+import javolution.util.FastMap;
+
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.SccpListener;
 import org.mobicents.protocols.ss7.sccp.SccpManagementEventListener;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
@@ -35,6 +38,7 @@ import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.message.SccpMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 
 /**
  *
@@ -94,6 +98,24 @@ public class SccpProviderWrapper implements SccpProvider {
     public void deregisterManagementEventListener(SccpManagementEventListener listener) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void coordRequest(int ssn) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ExecutorCongestionMonitor[] getExecutorCongestionMonitorList() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

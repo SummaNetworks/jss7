@@ -24,12 +24,15 @@ package org.mobicents.protocols.ss7.sccp.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.SccpListener;
 import org.mobicents.protocols.ss7.sccp.SccpManagementEventListener;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
@@ -40,6 +43,7 @@ import org.mobicents.protocols.ss7.sccp.message.MessageFactory;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 
 /**
  *
@@ -149,5 +153,32 @@ public class SccpProviderImpl implements SccpProvider, Serializable {
 
     public int getMaxUserDataLength(SccpAddress calledPartyAddress, SccpAddress callingPartyAddress, int msgNetworkId) {
         return this.stack.getMaxUserDataLength(calledPartyAddress, callingPartyAddress, msgNetworkId);
+    }
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        return this.stack.router.getNetworkIdList(-1);
+    }
+
+    @Override
+    public void coordRequest(int ssn) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public ExecutorCongestionMonitor[] getExecutorCongestionMonitorList() {
+        ArrayList<ExecutorCongestionMonitor> res = new ArrayList<ExecutorCongestionMonitor>();
+        for (FastMap.Entry<Integer, Mtp3UserPart> e = this.stack.mtp3UserParts.head(), end = this.stack.mtp3UserParts.tail(); (e = e
+                .getNext()) != end;) {
+            Mtp3UserPart mup = e.getValue();
+            ExecutorCongestionMonitor ecm = mup.getExecutorCongestionMonitor();
+            if (ecm != null)
+                res.add(ecm);
+        }
+
+        ExecutorCongestionMonitor[] ress = new ExecutorCongestionMonitor[res.size()];
+        res.toArray(ress);
+        return ress;
     }
 }

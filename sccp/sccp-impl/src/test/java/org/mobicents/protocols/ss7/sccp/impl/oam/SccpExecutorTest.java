@@ -58,6 +58,7 @@ import org.mobicents.protocols.ss7.sccp.SccpResource;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0100;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -643,7 +644,7 @@ public class SccpExecutorTest {
         // test show
         rspCmd = "sccp rsp show";
         res = this.sccpExecutor.execute(rspCmd.split(" "));
-        assertEquals(res, "key=1  rsp=11 rsp-flag=0 mask=0 rsp-prohibited=false rsccp-prohibited=false\n");
+        assertEquals(res, "key=1  rsp=11 rsp-flag=0 mask=0 rsp-prohibited=false rsccp-prohibited=false rl=0 rsl=0\n");
 
         rspCmd = "sccp rsp create 1 12 0 0";
         res = this.sccpExecutor.execute(rspCmd.split(" "));
@@ -943,6 +944,24 @@ public class SccpExecutorTest {
         @Override
         public void setUseLsbForLinksetSelection(boolean arg0) {
 
+        }
+
+        @Override
+        public int getDeliveryMessageThreadCount() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 }

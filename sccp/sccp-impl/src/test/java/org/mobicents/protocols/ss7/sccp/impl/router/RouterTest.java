@@ -49,6 +49,7 @@ import org.mobicents.protocols.ss7.sccp.OriginationType;
 import org.mobicents.protocols.ss7.sccp.Router;
 import org.mobicents.protocols.ss7.sccp.Rule;
 import org.mobicents.protocols.ss7.sccp.RuleType;
+import org.mobicents.protocols.ss7.sccp.SccpCongestionControlAlgo;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.sccp.SccpResource;
@@ -57,6 +58,7 @@ import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -641,6 +643,60 @@ public class RouterTest {
             return null;
         }
 
+        @Override
+        public int getCongControlTIMER_A() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setCongControlTIMER_A(int value) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public int getCongControlTIMER_D() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setCongControlTIMER_D(int value) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public SccpCongestionControlAlgo getCongControl_Algo() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean isCongControl_blockingOutgoungSccpMessages() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void setCongControl_blockingOutgoungSccpMessages(boolean value) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setCongControl_Algo(SccpCongestionControlAlgo value) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public boolean isStarted() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
     }
 
     private class Mtp3UserPartImpl implements Mtp3UserPart {
@@ -697,6 +753,24 @@ public class RouterTest {
         public void setUseLsbForLinksetSelection(boolean arg0) {
             // TODO Auto-generated method stub
 
+        }
+
+        @Override
+        public int getDeliveryMessageThreadCount() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+            // TODO Auto-generated method stub
+            return null;
         }
 
     }

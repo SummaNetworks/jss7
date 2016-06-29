@@ -22,6 +22,10 @@
 
 package org.mobicents.protocols.ss7.tools.simulator.tests.sms;
 
+import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import org.apache.log4j.Level;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextName;
@@ -38,6 +42,7 @@ import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TeleserviceCode;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.ForwardShortMessageRequest;
@@ -56,6 +61,7 @@ import org.mobicents.protocols.ss7.map.api.service.sms.ReadyForSMRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.ReadyForSMResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusRequest;
 import org.mobicents.protocols.ss7.map.api.service.sms.ReportSMDeliveryStatusResponse;
+import org.mobicents.protocols.ss7.map.api.service.sms.SMDeliveryNotIntended;
 import org.mobicents.protocols.ss7.map.api.service.sms.SMDeliveryOutcome;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_DA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_OA;
@@ -91,10 +97,6 @@ import org.mobicents.protocols.ss7.tools.simulator.level3.MapMan;
 import org.mobicents.protocols.ss7.tools.simulator.level3.MapProtocolVersion;
 import org.mobicents.protocols.ss7.tools.simulator.level3.NumberingPlanMapType;
 import org.mobicents.protocols.ss7.tools.simulator.management.TesterHost;
-
-import java.nio.charset.Charset;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  *
@@ -481,8 +483,9 @@ public class TestSmsServerMan extends TesterBase implements TestSmsServerManMBea
             hostMessageData.mtMessageData = messageData;
             curDialog.setUserObject(hostMessageData);
 
-            curDialog.addSendRoutingInfoForSMRequest(msisdn, true, serviceCentreAddress, null, this.testerHost.getConfigurationData()
-                    .getTestSmsServerConfigurationData().isGprsSupportIndicator(), null, null, null, false, null, false, false, null);
+            curDialog.addSendRoutingInfoForSMRequest(msisdn, true, serviceCentreAddress, null, this.testerHost
+                    .getConfigurationData().getTestSmsServerConfigurationData().isGprsSupportIndicator(), null, null, null,
+                    false, null, false, false, null);
 
             // this cap helps us give SCCP error if any
             // curDialog.setReturnMessageOnError(true);

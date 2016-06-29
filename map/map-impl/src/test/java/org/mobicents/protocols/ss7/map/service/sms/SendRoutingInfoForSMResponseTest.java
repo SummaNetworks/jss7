@@ -22,6 +22,13 @@
 
 package org.mobicents.protocols.ss7.map.service.sms;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Arrays;
+
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -171,8 +178,8 @@ public class SendRoutingInfoForSMResponseTest {
         assertNull(li.getAdditionalNumber());
         assertNull(ind.getExtensionContainer());
         assertNotNull(ind.getIpSmGwGuidance());
-        assertEquals(ind.getIpSmGwGuidance().getMinimumDeliveryTimeValue(), new Integer(10));
-        assertEquals(ind.getIpSmGwGuidance().getRecommendedDeliveryTimeValue(), new Integer(20));
+        assertEquals(ind.getIpSmGwGuidance().getMinimumDeliveryTimeValue(), 10);
+        assertEquals(ind.getIpSmGwGuidance().getRecommendedDeliveryTimeValue(), 20);
         assertFalse(ind.getMwdSet());
     }
 

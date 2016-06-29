@@ -3,16 +3,26 @@
 	xmlns="urn:jboss:bean-deployer:2.0">
 
 
-	<bean name="SCTPManagement" class="org.mobicents.protocols.sctp.ManagementImpl">
+	<bean name="SCTPManagement" class="org.mobicents.protocols.sctp.netty.NettySctpManagementImpl">
 		<constructor>
 			<parameter>SCTPManagement</parameter>
 		</constructor>
 		<property name="persistDir">${jboss.server.data.dir}</property>
+<!-- extra options for SCTP channel parameters configuring
+		<property name="optionSctpDisableFragments">true</property>
+		<property name="optionSctpFragmentInterleave">0</property>
+		<property name="optionSctpNodelay">true</property>
+		<property name="optionSoSndbuf">4000</property>
+		<property name="optionSoRcvbuf">4000</property>
+		<property name="optionSoLinger">-1</property>
+		<property name="optionSctpInitMaxstreams_MaxOutStreams">8</property>
+		<property name="optionSctpInitMaxstreams_MaxInStreams">10</property>
+-->
 	</bean>
 
 	<bean name="SCTPShellExecutor" class="org.mobicents.protocols.ss7.m3ua.impl.oam.SCTPShellExecutor">
 		<property name="sctpManagements">
-			<map keyClass="java.lang.String" valueClass="org.mobicents.protocols.sctp.ManagementImpl">
+			<map keyClass="java.lang.String" valueClass="org.mobicents.protocols.sctp.netty.NettySctpManagementImpl">
 				<entry>
 					<key>SCTPManagement</key>
 					<value>
@@ -47,13 +57,12 @@
 		<property name="persistDir">${jboss.server.data.dir}</property>
 		<property name="maxSequenceNumber">256</property>
 		<property name="maxAsForRoute">2</property>
-		<property name="useLsbForLinksetSelection">false</property>
-		<property name="deliveryMessageThreadCount">8</property>
-		<property name="transportManagement">
-			<inject bean="SCTPManagement" />
-		</property>
+		<property name="deliveryMessageThreadCount">1</property>
 		<property name="routingLabelFormat">
 			<inject bean="RoutingLabelFormat" />
+		</property>
+		<property name="transportManagement">
+			<inject bean="SCTPManagement" />
 		</property>
 	</bean>
 
@@ -87,27 +96,49 @@
 	<!-- ==================================================================== -->
 	<!-- Dialogic Mtp3UserPart -->
 	<!-- ==================================================================== -->
-	<!-- <bean name="Mtp3UserPart" class="org.mobicents.ss7.hardware.dialogic.DialogicMtp3UserPart"> 
+<!--
+	<bean name="Mtp3UserPart"
+		class="org.mobicents.ss7.hardware.dialogic.DialogicMtp3UserPart">
 		<constructor>
 			<parameter>Restcomm-jSS7</parameter>
-		</constructor>	
-		<property name="sourceModuleId">61</property> <property name="destinationModuleId">34</property> 
-		<property name="routingLabelFormat"> <inject bean="RoutingLabelFormat" /> 
-		</property> </bean> -->
+		</constructor>
+		<property name="sourceModuleId">61</property>
+		<property name="destinationModuleId">34</property>
+		<property name="routingLabelFormat">
+			<inject bean="RoutingLabelFormat" />
+		</property>
+	</bean>
+-->
 
 	<!-- ==================================================================== -->
 	<!-- Linkset -->
 	<!-- ==================================================================== -->
-	<!-- <bean name="LinksetFactoryFactory" class="org.mobicents.ss7.linkset.oam.LinksetFactoryFactory"> 
-		<incallback method="addFactory" /> <uncallback method="removeFactory" /> 
-		</bean> <bean name="DahdiLinksetFactory" class="org.mobicents.ss7.hardware.dahdi.oam.DahdiLinksetFactory"> 
-		</bean> <bean name="LinksetManager" class="org.mobicents.ss7.linkset.oam.LinksetManagerImpl"> 
-		<constructor> <parameter>LinksetManager</parameter> </constructor> <property 
-		name="scheduler"> <inject bean="SS7Scheduler" /> </property> <property name="linksetFactoryFactory"> 
-		<inject bean="LinksetFactoryFactory" /> </property> <property name="persistDir">${jboss.server.data.dir}</property> 
-		</bean> <bean name="LinksetExecutor" class="org.mobicents.ss7.linkset.oam.LinksetExecutor"> 
-		<property name="linksetManager"> <inject bean="LinksetManager" /> </property> 
-		</bean> -->
+<!--
+	<bean name="LinksetFactoryFactory" class="org.mobicents.ss7.linkset.oam.LinksetFactoryFactory">
+		<incallback method="addFactory" />
+		<uncallback method="removeFactory" />
+	</bean>
+	<bean name="DahdiLinksetFactory"
+		class="org.mobicents.ss7.hardware.dahdi.oam.DahdiLinksetFactory">
+	</bean>
+	<bean name="LinksetManager" class="org.mobicents.ss7.linkset.oam.LinksetManagerImpl">
+		<constructor>
+			<parameter>LinksetManager</parameter>
+		</constructor>
+		<property name="scheduler">
+			<inject bean="SS7Scheduler" />
+		</property>
+		<property name="linksetFactoryFactory">
+			<inject bean="LinksetFactoryFactory" />
+		</property>
+		<property name="persistDir">${jboss.server.data.dir}</property>
+	</bean>
+	<bean name="LinksetExecutor" class="org.mobicents.ss7.linkset.oam.LinksetExecutor">
+		<property name="linksetManager">
+			<inject bean="LinksetManager" />
+		</property>
+	</bean>
+-->
 
 	<!-- ==================================================================== -->
 	<!-- SCCP Service -->
@@ -424,10 +455,20 @@
 				<inject bean="TcapStackCap" />
 			</parameter>
 		</constructor>
-	</bean>		
+	</bean>
 
-	<!-- <bean name="RestcommLinksetManagement" class="org.mobicents.protocols.ss7.oam.common.linkset.LinksetManagerJmx"> 
-		<constructor> <parameter><inject bean="Ss7Management" /></parameter> <parameter><inject 
-		bean="LinksetManager" /></parameter> </constructor> </bean> -->
+<!--
+	<bean name="RestcommLinksetManagement"
+		class="org.mobicents.protocols.ss7.oam.common.linkset.LinksetManagerJmx">
+		<constructor>
+			<parameter>
+				<inject bean="Ss7Management" />
+			</parameter>
+			<parameter>
+				<inject bean="LinksetManager" />
+			</parameter>
+		</constructor>
+	</bean>
+-->
 
 </deployment>

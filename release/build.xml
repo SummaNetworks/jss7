@@ -12,7 +12,7 @@
 
 	<!--Versions -->
 	<property name="checkout.asn.version" value="2.1.5" />
-	<property name="checkout.sctp.version" value="1.7.8" />
+	<property name="checkout.sctp.version" value="2.0.10" />
 	<property name="release.version" value="${jSS7.release.version}"/>
 
 
@@ -32,10 +32,14 @@
 	
 
 	<!-- Build dependencies-->
-	
+
 	<target name="build-asn">
 		<echo>Building ASN</echo>
-		
+
+		<exec failonerror="true" executable="${mvn.executable}" dir="${base.dir}">
+			<arg line="-version" />
+		</exec>
+
 		<exec failonerror="true" executable="git">
 		    <arg value="clone" />
 		    <arg value="https://github.com/Restcomm/jasn/" />
@@ -167,7 +171,7 @@
 		<copy file="${jss7.dir}/m3ua/cli/sctp/target/m3ua-cli-sctp.jar" todir="${restcomm.jss7.dist}/ss7/shell/lib" failonerror="true" />
 		<copy file="${jss7.dir}/sccp/sccp-cli/target/sccp-cli.jar" todir="${restcomm.jss7.dist}/ss7/shell/lib" failonerror="true" />
 		<copy file="${jss7.dir}/tcap/tcap-cli/target/tcap-cli.jar" todir="${restcomm.jss7.dist}/ss7/shell/lib" failonerror="true" />
-		<copy file="${jss7.dir}/tcap/tcap-cli/target/tcap-cli.jar" todir="${restcomm.jss7.dist}/ss7/shell/lib" failonerror="true" />
+		<copy file="${jss7.dir}/tcap-ansi/tcap-ansi-cli/target/tcap-ansi-cli.jar" todir="${restcomm.jss7.dist}/ss7/shell/lib" failonerror="true" />
 		<copy file="${jss7.dir}/release/release-build.xml" tofile="${restcomm.jss7.dist}/ss7/build.xml" failonerror="true" />
 
         <copy todir="${restcomm.jss7.dist}/ss7/template/META-INF-dialogic/" failonerror="true">
@@ -194,9 +198,9 @@
                 </fileset>
         </copy>
 
-        <echo>Copy Modified Jolokia War</echo>
-	<copy file="./jolokia.war" todir="${restcomm.jss7.dist}/oam/new-ui" failonerror="true" />
-    </target>
+		<echo>Copy Modified Jolokia War</echo>
+		<copy file="./jolokia.war" todir="${restcomm.jss7.dist}/oam/new-ui" failonerror="true" />
+	</target>
 
 	<target name="build-jss7">
 		<exec failonerror="true" executable="${mvn.executable}" dir="${base.dir}/../">
@@ -259,13 +263,13 @@
 		</copy>
 
 <!--
-		<copy todir="${docs.dir}" failonerror="true">
-                <fileset dir="${checkout.asn.dir}/docs/sources-asciidoc/target/generated-docs">
-                        <include name="*.*" />
+        <copy todir="${docs.dir}" failonerror="true">
+                <fileset dir="${checkout.asn.dir}/docs/jdocbook-mobicents/target/docbook/publish/en-US/pdf">
+                        <include name="*.pdf" />
                 </fileset>
         </copy>
 		<copy todir="${docs.dir}" failonerror="true">
-                <fileset dir="${checkout.sctp.dir}/docs/sources-asciidoc/target/generated-docs">
+                <fileset dir="${checkout.sctp.dir}/docs/jdocbook-mobicents/target/docbook/publish/en-US/pdf">
                         <include name="*.pdf" />
                 </fileset>
         </copy>

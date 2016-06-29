@@ -1790,6 +1790,11 @@ public class DialogImpl implements Dialog {
             this.dialogLock.lock();
 
             try {
+                if (this.remoteTransactionId == null) {
+                    // no remoteTransactionId - we can not send back TC-ABORT
+                    return;
+                }
+
                 // sending to the remote side
                 DialogPortion dp = TcapFactory.createDialogPortion();
                 dp.setUnidirectional(false);
@@ -2166,6 +2171,14 @@ public class DialogImpl implements Dialog {
 
     public PrevewDialogData getPrevewDialogData() {
         return this.prevewDialogData;
+    }
+
+    public long getIdleTaskTimeout() {
+        return this.idleTaskTimeout;
+    }
+
+    public void setIdleTaskTimeout(long idleTaskTimeoutMs) {
+        this.idleTaskTimeout = idleTaskTimeoutMs;
     }
 
     /*

@@ -23,6 +23,7 @@ package org.mobicents.protocols.ss7.m3ua.impl.oam;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import io.netty.buffer.ByteBufAllocator;
 
 import java.util.List;
 import java.util.Map;
@@ -346,6 +347,18 @@ public class M3UAShellExecutorTest {
             // TODO Auto-generated method stub
             return false;
         }
+
+        @Override
+        public ByteBufAllocator getByteBufAllocator() throws Exception {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public int getCongestionLevel() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
     }
 
     class TransportManagement implements Management {
@@ -553,6 +566,174 @@ public class M3UAShellExecutorTest {
         public boolean isStarted() {
             // TODO Auto-generated method stub
             return false;
+        }
+
+        @Override
+        public double getCongControl_BackToNormalDelayThreshold_1() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_BackToNormalDelayThreshold_2() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_BackToNormalDelayThreshold_3() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_DelayThreshold_1() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_DelayThreshold_2() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_DelayThreshold_3() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setCongControl_BackToNormalDelayThreshold_1(double arg0) throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setCongControl_BackToNormalDelayThreshold_2(double arg0) throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setCongControl_BackToNormalDelayThreshold_3(double arg0) throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setCongControl_DelayThreshold_1(double arg0) throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setCongControl_DelayThreshold_2(double arg0) throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setCongControl_DelayThreshold_3(double arg0) throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Boolean getOptionSctpDisableFragments() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Integer getOptionSctpFragmentInterleave() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Boolean getOptionSctpNodelay() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Integer getOptionSoLinger() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Integer getOptionSoRcvbuf() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Integer getOptionSoSndbuf() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void setOptionSctpDisableFragments(Boolean arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOptionSctpFragmentInterleave(Integer arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOptionSctpNodelay(Boolean arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOptionSoLinger(Integer arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOptionSoRcvbuf(Integer arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOptionSoSndbuf(Integer arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public Integer getOptionSctpInitMaxstreams_MaxInStreams() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Integer getOptionSctpInitMaxstreams_MaxOutStreams() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void setOptionSctpInitMaxstreams_MaxInStreams(Integer arg0) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOptionSctpInitMaxstreams_MaxOutStreams(Integer arg0) {
+            // TODO Auto-generated method stub
+            
         }
 
     }

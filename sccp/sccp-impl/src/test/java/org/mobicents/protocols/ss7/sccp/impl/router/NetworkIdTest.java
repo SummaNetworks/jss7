@@ -37,6 +37,7 @@ import org.mobicents.protocols.ss7.mtp.Mtp3UserPartListener;
 import org.mobicents.protocols.ss7.mtp.RoutingLabelFormat;
 import org.mobicents.protocols.ss7.sccp.LoadSharingAlgorithm;
 import org.mobicents.protocols.ss7.sccp.LongMessageRuleType;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.OriginationType;
 import org.mobicents.protocols.ss7.sccp.RemoteSccpStatus;
 import org.mobicents.protocols.ss7.sccp.RuleType;
@@ -59,6 +60,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.HopCounter;
 import org.mobicents.protocols.ss7.sccp.parameter.Importance;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -290,6 +292,24 @@ public class NetworkIdTest implements SccpListener {
             // TODO Auto-generated method stub
             return false;
         }
+
+        @Override
+        public int getDeliveryMessageThreadCount() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     @Override
@@ -309,13 +329,7 @@ public class NetworkIdTest implements SccpListener {
     }
 
     @Override
-    public void onCoordRequest(int dpc, int ssn, int multiplicityIndicator) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void onCoordResponse(int dpc, int ssn, int multiplicityIndicator) {
+    public void onCoordResponse(int ssn, int multiplicityIndicator) {
         // TODO Auto-generated method stub
         
     }
@@ -327,7 +341,14 @@ public class NetworkIdTest implements SccpListener {
     }
 
     @Override
-    public void onPcState(int dpc, SignallingPointStatus status, int restrictedImportanceLevel, RemoteSccpStatus remoteSccpStatus) {
+    public void onPcState(int dpc, SignallingPointStatus status, Integer restrictedImportanceLevel,
+            RemoteSccpStatus remoteSccpStatus) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onNetworkIdState(int networkId, NetworkIdState networkIdState) {
         // TODO Auto-generated method stub
         
     }

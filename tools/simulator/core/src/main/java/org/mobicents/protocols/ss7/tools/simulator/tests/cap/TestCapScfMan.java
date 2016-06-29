@@ -77,6 +77,8 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.RequestRe
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ResetTimerRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SendChargingInformationRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SpecializedResourceReportRequest;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegRequest;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegResponse;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CAMELAChBillingChargingCharacteristics;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CollectedDigits;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CollectedInfo;
@@ -300,7 +302,7 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
 
         try {
             CAMELAChBillingChargingCharacteristics aChBillingChargingCharacteristics = capProvider.getCAPParameterFactory()
-                    .createCAMELAChBillingChargingCharacteristics(1000, false, null, null, null, false);
+                    .createCAMELAChBillingChargingCharacteristics(1000, false, null, null, null, 2);
             SendingSideID partyToCharge = capProvider.getCAPParameterFactory().createSendingSideID(LegType.leg1);
             curDialog.addApplyChargingRequest(aChBillingChargingCharacteristics, partyToCharge, null, null);
 
@@ -369,7 +371,7 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
             DestinationRoutingAddress destinationRoutingAddress = capProvider.getCAPParameterFactory()
                     .createDestinationRoutingAddress(calledPartyNumber);
             curDialog.addConnectRequest(destinationRoutingAddress, null, null, null, null, null, null, null, null, null, null,
-                    null, null, false, false, false, null, false);
+                    null, null, false, false, false, null, false, false);
 
             curDialog.send();
 
@@ -889,6 +891,18 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
 
     @Override
     public void onCollectInformationRequest(CollectInformationRequest arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSplitLegRequest(SplitLegRequest ind) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSplitLegResponse(SplitLegResponse ind) {
         // TODO Auto-generated method stub
 
     }

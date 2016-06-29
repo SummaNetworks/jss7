@@ -24,6 +24,8 @@ package org.mobicents.protocols.ss7.mtp;
 
 import java.io.IOException;
 
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
+
 /**
  * @author amit bhayani
  * @author sergey vetyutnev
@@ -44,20 +46,6 @@ public interface Mtp3UserPart {
      * @param listener
      */
     void removeMtp3UserPartListener(Mtp3UserPartListener listener);
-
-    /**
-     * return PointCodeFormat
-     *
-     * @return
-     */
-    RoutingLabelFormat getRoutingLabelFormat();
-
-    /**
-     * Set PointCodeFormat
-     *
-     * @param length
-     */
-    void setRoutingLabelFormat(RoutingLabelFormat routingLabelFormat);
 
     /**
      * Get the Mtp3TransferPrimitiveFactory
@@ -82,12 +70,20 @@ public interface Mtp3UserPart {
      */
     void sendMessage(Mtp3TransferPrimitive msg) throws IOException;
 
+
     /**
-     * If set to true, lowest bit of SLS is used for loadbalancing between Linkset else highest bit of SLS is used.
+     * return PointCodeFormat
      *
-     * @param useLsbForLinksetSelection
+     * @return
      */
-    void setUseLsbForLinksetSelection(boolean useLsbForLinksetSelection);
+    RoutingLabelFormat getRoutingLabelFormat();
+
+    /**
+     * Set PointCodeFormat
+     *
+     * @param length
+     */
+    void setRoutingLabelFormat(RoutingLabelFormat routingLabelFormat) throws Exception;
 
     /**
      * Returns true if lowest bit of SLS is used for loadbalancing between Linkset else returns false
@@ -95,5 +91,28 @@ public interface Mtp3UserPart {
      * @return
      */
     boolean isUseLsbForLinksetSelection();
+
+    /**
+     * If set to true, lowest bit of SLS is used for loadbalancing between Linkset else highest bit of SLS is used.
+     *
+     * @param useLsbForLinksetSelection
+     */
+    void setUseLsbForLinksetSelection(boolean useLsbForLinksetSelection) throws Exception;
+
+    /**
+     * @return
+     */
+    int getDeliveryMessageThreadCount();
+
+    /**
+     * @param deliveryMessageThreadCount
+     */
+    void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) throws Exception;
+
+    /**
+     * @return ExecutorCongestionMonitor that is responsible for measuring of congestion of the thread Executor that processes
+     *         incoming messages (may be null if mtp3 is not started)
+     */
+    ExecutorCongestionMonitor getExecutorCongestionMonitor();
 
 }

@@ -27,5 +27,5 @@ package org.mobicents.protocols.ss7.sccp;
  * @author sergey vetyutnev
  */
 public enum SignallingPointStatus {
-    INACCESIBBLE, CONGESTED, ACCESSIBLE;
+    INACCESIBBLE, ACCESSIBLE, CONGESTED, CONGESTION_REDUCED;
 }

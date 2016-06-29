@@ -147,7 +147,7 @@ public interface CAPDialogCircuitSwitchedCall extends CAPDialog {
             RedirectionInformationInap redirectionInformation, ArrayList<GenericNumberCap> genericNumbers,
             ServiceInteractionIndicatorsTwo serviceInteractionIndicatorsTwo, LocationNumberCap chargeNumber,
             LegID legToBeConnected, CUGInterlock cugInterlock, boolean cugOutgoingAccess, boolean suppressionOfAnnouncement,
-            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested) throws CAPException;
+            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested, boolean suppressNCSI) throws CAPException;
 
     Long addConnectRequest(int customInvokeTimeout, DestinationRoutingAddress destinationRoutingAddress,
             AlertingPatternCap alertingPattern, OriginalCalledNumberCap originalCalledPartyID, CAPExtensions extensions,
@@ -155,7 +155,7 @@ public interface CAPDialogCircuitSwitchedCall extends CAPDialog {
             RedirectionInformationInap redirectionInformation, ArrayList<GenericNumberCap> genericNumbers,
             ServiceInteractionIndicatorsTwo serviceInteractionIndicatorsTwo, LocationNumberCap chargeNumber,
             LegID legToBeConnected, CUGInterlock cugInterlock, boolean cugOutgoingAccess, boolean suppressionOfAnnouncement,
-            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested) throws CAPException;
+            boolean ocsIApplicable, NAOliInfo naoliInfo, boolean borInterrogationRequested, boolean suppressNCSI) throws CAPException;
 
     Long addContinueRequest() throws CAPException;
 
@@ -349,4 +349,10 @@ public interface CAPDialogCircuitSwitchedCall extends CAPDialog {
 
     Long addCollectInformationRequest(int customInvokeTimeout) throws CAPException;
 
+    Long addSplitLegRequest(LegID legIDToSplit, Integer newCallSegmentId, CAPExtensions extensions) throws CAPException;
+
+    Long addSplitLegRequest(int customInvokeTimeout, LegID legIDToSplit, Integer newCallSegmentId,
+            CAPExtensions extensions) throws CAPException;
+
+    void addSplitLegResponse(long invokeId) throws CAPException;
 }

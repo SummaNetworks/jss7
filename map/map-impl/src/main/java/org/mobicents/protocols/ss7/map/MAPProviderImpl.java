@@ -83,6 +83,7 @@ import org.mobicents.protocols.ss7.map.service.oam.MAPServiceOamImpl;
 import org.mobicents.protocols.ss7.map.service.pdpContextActivation.MAPServicePdpContextActivationImpl;
 import org.mobicents.protocols.ss7.map.service.sms.MAPServiceSmsImpl;
 import org.mobicents.protocols.ss7.map.service.supplementary.MAPServiceSupplementaryImpl;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.tcap.DialogImpl;
 import org.mobicents.protocols.ss7.tcap.api.MessageType;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
@@ -142,10 +143,10 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
 
     protected transient FastMap<Long, MAPDialogImpl> dialogs = new FastMap<Long, MAPDialogImpl>().shared();
 
-    /**
-     * Congestion sources name list. Congestion is where this collection is not empty
-     */
-    protected transient FastMap<String, String> congSources = new FastMap<String, String>();
+//    /**
+//     * Congestion sources name list. Congestion is where this collection is not empty
+//     */
+//    protected transient FastMap<String, String> congSources = new FastMap<String, String>();
 
     private transient TCAPProvider tcapProvider = null;
 
@@ -265,24 +266,24 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
         //}
     }
 
-    public void onCongestionFinish(String congName) {
-        synchronized (this.congSources) {
-            this.congSources.put(congName, congName);
-        }
-    }
-
-    public void onCongestionStart(String congName) {
-        synchronized (this.congSources) {
-            this.congSources.remove(congName);
-        }
-    }
-
-    public boolean isCongested() {
-        if (this.congSources.size() > 0)
-            return true;
-        else
-            return false;
-    }
+//    public void onCongestionFinish(String congName) {
+//        synchronized (this.congSources) {
+//            this.congSources.put(congName, congName);
+//        }
+//    }
+//
+//    public void onCongestionStart(String congName) {
+//        synchronized (this.congSources) {
+//            this.congSources.remove(congName);
+//        }
+//    }
+//
+//    public boolean isCongested() {
+//        if (this.congSources.size() > 0)
+//            return true;
+//        else
+//            return false;
+//    }
 
     public void onTCBegin(TCBeginIndication tcBeginIndication) {
 
@@ -2149,6 +2150,16 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
         } catch (TCAPSendException e) {
             throw new MAPException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        return this.tcapProvider.getNetworkIdStateList();
+    }
+
+    @Override
+    public NetworkIdState getNetworkIdState(int networkId) {
+        return this.tcapProvider.getNetworkIdState(networkId);
     }
 
 }
