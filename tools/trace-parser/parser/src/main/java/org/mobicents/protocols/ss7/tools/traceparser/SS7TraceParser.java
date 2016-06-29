@@ -120,6 +120,8 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertRequest;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandRequest;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.MAPServiceCallHandlingListener;
@@ -2266,6 +2268,16 @@ public class SS7TraceParser implements TraceReaderListener, MAPDialogListener, C
 
     @Override
     public void onIstCommandResponse(IstCommandResponse response) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onIstAlertRequest(IstAlertRequest request) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onIstAlertResponse(IstAlertResponse response) {
         // TODO Auto-generated method stub
     }
 

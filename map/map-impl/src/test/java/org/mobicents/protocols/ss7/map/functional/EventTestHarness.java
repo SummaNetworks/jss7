@@ -13,6 +13,8 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertRequest;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandRequest;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.MAPServiceCallHandlingListener;
@@ -868,6 +870,20 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     public void onIstCommandResponse(IstCommandResponse response) {
         this.logger.debug("onSendIstCommandResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.IstCommandResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onIstAlertRequest(IstAlertRequest request) {
+        this.logger.debug("onSendIstAlertRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.IstAlert, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onIstAlertResponse(IstAlertResponse response) {
+        this.logger.debug("onSendIstAlertResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.IstAlertResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 }

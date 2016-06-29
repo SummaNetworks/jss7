@@ -22,6 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.api.service.callhandling;
 
+import java.util.ArrayList;
+
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.primitives.AlertingPattern;
@@ -42,8 +44,6 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SupportedCamelPhases;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ForwardingReason;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.SSCode;
-
-import java.util.ArrayList;
 
 /*
  *
@@ -123,4 +123,12 @@ public interface MAPDialogCallHandling extends MAPDialog {
      Long addIstCommandRequest(int customInvokeTimeout, IMSI imsi, MAPExtensionContainer extensionContainer) throws MAPException;
 
      void addIstCommandResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
+
+     Long addIstAlertRequest(IMSI imsi, MAPExtensionContainer extensionContainer) throws MAPException;
+
+     Long addIstAlertRequest(int customInvokeTimeout, IMSI imsi, MAPExtensionContainer extensionContainer) throws MAPException;
+
+     void addIstAlertResponse(long invokeId, Integer istAlertTimer, boolean istInformationWithdraw,
+                              CallTerminationIndicator callTerminationIndicator,
+                              MAPExtensionContainer extensionContainer) throws MAPException;
 }

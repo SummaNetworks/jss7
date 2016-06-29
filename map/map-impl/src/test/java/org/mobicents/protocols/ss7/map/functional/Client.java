@@ -1170,6 +1170,27 @@ public class Client extends EventTestHarness {
     }
 
 
+    public void sendIstAlert() throws Exception {
+
+        this.mapProvider.getMAPServiceCallHandling().acivate();
+
+        MAPApplicationContext appCnt = MAPApplicationContext.getInstance(MAPApplicationContextName.ServiceTerminationContext,
+                MAPApplicationContextVersion.version3);
+
+        clientDialogCallHandling = this.mapProvider.getMAPServiceCallHandling().createNewDialog(appCnt, this.thisAddress, null,
+                this.remoteAddress, null);
+
+        IMSI imsi = new IMSIImpl("011220200198227");
+
+        MAPExtensionContainer extensionContainer = MAPExtensionContainerTest.GetTestExtensionContainer();
+
+        clientDialogCallHandling.addIstAlertRequest(imsi, extensionContainer);
+        this.observerdEvents.add(TestEvent.createSentEvent(EventType.IstAlert, null, sequence++));
+        clientDialogCallHandling.send();
+
+    }
+
+
     public void sendAnyTimeInterrogation() throws Exception {
 
         this.mapProvider.getMAPServiceMobility().acivate();

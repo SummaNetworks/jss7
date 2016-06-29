@@ -75,8 +75,11 @@ import org.mobicents.protocols.ss7.map.api.service.callhandling.AllowedServices;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.CCBSIndicators;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.CUGCheckInfo;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.CallReferenceNumber;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.CallTerminationIndicator;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.ExtendedRoutingInfo;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.InterrogationType;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertRequest;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandRequest;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.MAPDialogCallHandling;
@@ -6436,6 +6439,108 @@ TC-END + provideSubscriberInfoResponse
         serverExpectedEvents.add(te);
 
         client.sendIstCommand();
+
+        waitForEnd();
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+//        System.out.println(client.observerdEvents);
+  //      System.out.println(server.observerdEvents);
+    }
+
+
+    /**
+     * TC-BEGIN + istAlertRequest  TC-END + istAlertResponse
+     */
+    @Test(groups = { "functional.flow", "dialog" })
+    public void testIstAlert() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+            @Override
+            public void onIstAlertResponse(IstAlertResponse ind) {
+
+                super.onIstAlertResponse(ind);
+                MAPExtensionContainer extensionContainer = ind.getExtensionContainer();
+                assertNotNull(extensionContainer);
+            }
+
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+            @Override
+            public void onIstAlertRequest(IstAlertRequest ind) {
+                super.onIstAlertRequest(ind);
+
+                MAPDialogCallHandling d = ind.getMAPDialog();
+
+                IMSI imsi = ind.getImsi();
+                MAPExtensionContainer extensionContainer = ind.getExtensionContainer();
+
+                assertNotNull(imsi);
+                assertEquals(imsi.getData(), "011220200198227");
+                assertNotNull(extensionContainer);
+
+                try {
+                    d.addIstAlertResponse(ind.getInvokeId(), 10, true,
+                            CallTerminationIndicator.terminateCallActivityReferred, extensionContainer);
+                } catch (MAPException e) {
+                    this.error("Error while adding IstAlertResponse", e);
+                    fail("Error while adding IstAlertResponse");
+                }
+            }
+
+            @Override
+            public void onDialogDelimiter(MAPDialog mapDialog) {
+                super.onDialogDelimiter(mapDialog);
+                try {
+                    this.observerdEvents.add(TestEvent.createSentEvent(EventType.IstAlertResp, null, sequence++));
+                    mapDialog.close(false);
+                } catch (MAPException e) {
+                    this.error("Error while sending the empty CancelLocationResponse", e);
+                    fail("Error while sending the empty CancelLocationResponse");
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.IstAlert, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.IstAlertResp, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.IstAlert, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.IstAlertResp, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        client.sendIstAlert();
 
         waitForEnd();
         client.compareEvents(clientExpectedEvents);
