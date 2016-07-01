@@ -72,9 +72,9 @@ public interface AnyTimeSubscriptionInterrogationResponse extends MobilityMessag
 
     CAMELSubscriptionInfo getCamelSubscriptionInfo();
 
-    SupportedCamelPhases getsupportedVlrCamelPhases();
+    SupportedCamelPhases getSupportedVlrCamelPhases();
 
-    SupportedCamelPhases getsupportedSgsnCamelPhases();
+    SupportedCamelPhases getSupportedSgsnCamelPhases();
 
     MAPExtensionContainer getExtensionContainer();
 
@@ -94,6 +94,6 @@ public interface AnyTimeSubscriptionInterrogationResponse extends MobilityMessag
 
     ClirData getClirData();
 
-    EctData getImsi();
+    EctData getEctData();
 
 }

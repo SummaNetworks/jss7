@@ -22,6 +22,16 @@
 
 package org.mobicents.protocols.ss7.tools.traceparser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import javolution.util.FastMap;
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -161,6 +171,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
@@ -268,16 +280,6 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.TCAbortMessage;
 import org.mobicents.protocols.ss7.tcap.asn.comp.TCBeginMessage;
 import org.mobicents.protocols.ss7.tcap.asn.comp.TCContinueMessage;
 import org.mobicents.protocols.ss7.tcap.asn.comp.TCEndMessage;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -2209,6 +2211,32 @@ public class SS7TraceParser implements TraceReaderListener, MAPDialogListener, C
      */
     @Override
     public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.mobicents.protocols.ss7.map.api.service.mobility.MAPServiceMobilityListener#onAnyTimeSubscriptionInterrogationRequest(org.mobicents
+     * .protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest)
+     */
+    @Override
+    public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.mobicents.protocols.ss7.map.api.service.mobility.MAPServiceMobilityListener#onAnyTimeSubscriptionInterrogationResponse(org.mobicents
+     * .protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse)
+     */
+    @Override
+    public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse arg0) {
         // TODO Auto-generated method stub
 
     }

@@ -64,6 +64,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.U
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UsedRATType;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.VLRCapability;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AccessRestrictionData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSAllocationRetentionPriority;
@@ -229,6 +230,19 @@ public interface MAPDialogMobility extends MAPDialog {
             throws MAPException;
 
     void addAnyTimeInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo,
+            MAPExtensionContainer extensionContainer) throws MAPException;
+
+    long addAnyTimeSubscriptionInterrogationRequest(
+            SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
+            ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean longFtnSupported) throws MAPException;
+
+    long addAnyTimeSubscriptionInterrogationRequest(
+            long customInvokeTimeout, SubscriberIdentity subscriberIdentity,
+            RequestedSubscriptionInfo requestedSubscriptionInfo, ISDNAddressString gsmSCFAddress,
+            MAPExtensionContainer extensionContainer, boolean longFtnSupported)
+            throws MAPException;
+
+    void addAnyTimeSubscriptionInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo,
             MAPExtensionContainer extensionContainer) throws MAPException;
 
     long addProvideSubscriberInfoRequest(IMSI imsi, LMSI lmsi, RequestedInfo requestedInfo, MAPExtensionContainer extensionContainer, EMLPPPriority callPriority)

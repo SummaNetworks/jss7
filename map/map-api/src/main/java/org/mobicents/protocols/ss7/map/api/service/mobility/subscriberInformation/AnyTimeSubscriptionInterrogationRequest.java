@@ -32,8 +32,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.MobilityMessage;
 <code>
 MAP V3:
 
-anyTimeSubscriptionInterrogation OPERATION ::= {
-  --Timer m
+anyTimeSubscriptionInterrogation OPERATION ::= {  --Timer m
   ARGUMENT AnyTimeSubscriptionInterrogationArg
   RESULT AnyTimeSubscriptionInterrogationRes
   ERRORS { atsi-NotAllowed | dataMissing | unexpectedDataValue | unknownSubscriber | bearerServiceNotProvisioned |

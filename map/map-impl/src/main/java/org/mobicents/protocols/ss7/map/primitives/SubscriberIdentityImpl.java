@@ -178,7 +178,7 @@ public class SubscriberIdentityImpl implements SubscriberIdentity, MAPAsnPrimiti
                 break;
             default:
                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                        + ": Expexted imsi [0] IMSI or msisdn [1] ISDN-AddressString, but found " + asnIS.getTag(),
+                        + ": Expected imsi [0] IMSI or msisdn [1] ISDN-AddressString, but found " + asnIS.getTag(),
                         MAPParsingComponentExceptionReason.MistypedParameter);
         }
     }
