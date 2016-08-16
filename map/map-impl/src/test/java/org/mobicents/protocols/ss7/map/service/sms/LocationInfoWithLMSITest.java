@@ -22,8 +22,6 @@
 
 package org.mobicents.protocols.ss7.map.service.sms;
 
-import static org.testng.Assert.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -43,6 +41,11 @@ import org.mobicents.protocols.ss7.map.primitives.LMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerTest;
 import org.mobicents.protocols.ss7.map.service.lsm.AdditionalNumberImpl;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  *
@@ -123,7 +126,7 @@ public class LocationInfoWithLMSITest {
         ISDNAddressStringImpl sgsnAn = new ISDNAddressStringImpl(AddressNature.network_specific_number, NumberingPlan.private_plan,
                 "987654321");
         lmsi = new LMSIImpl(new byte[] { 4, 3, 2, 1 });
-        AdditionalNumber an = new AdditionalNumberImpl(null, sgsnAn);
+        AdditionalNumber an = new AdditionalNumberImpl(sgsnAn, false);
         liw = new LocationInfoWithLMSIImpl(nnm, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), true, an);
 
         asnOS.reset();
