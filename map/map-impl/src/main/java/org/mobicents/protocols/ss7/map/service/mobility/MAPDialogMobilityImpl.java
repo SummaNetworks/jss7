@@ -71,6 +71,16 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.T
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UESRVCCCapability;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UsedRATType;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.VLRCapability;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CAMELSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallBarringData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallForwardingData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallHoldData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallWaitingData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClipData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClirData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.EctData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ODBInfo;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponseImpl;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
@@ -157,6 +167,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.ReturnResultLast;
 /**
  *
  * @author sergey vetyutnev
+ * @author eva ogallar
  *
  */
 public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMobility {
@@ -631,8 +642,13 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
      * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
      * MAPDialogSubscriberInformation#addAnyTimeSubscriptionInterrogationResponse(long)
      */
-    public void addAnyTimeSubscriptionInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo,
-            MAPExtensionContainer extensionContainer) throws MAPException {
+    public void addAnyTimeSubscriptionInterrogationResponse(long invokeId, CallForwardingData callForwardingData,
+                CallBarringData callBarringData, ODBInfo odbInfo, CAMELSubscriptionInfo camelSubscriptionInfo,
+                SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
+                MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr,
+                OfferedCamel4CSIs offeredCamel4CSIsInSgsn, ArrayList<MSISDNBS> msisdnBsList,
+                ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData, CallHoldData chData,
+                ClipData clipData, ClirData clirData, EctData ectData) throws MAPException {
 
         if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.anyTimeEnquiryContext)
                 || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
@@ -649,7 +665,10 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
         oc.setLocalOperationCode((long) MAPOperationCode.anyTimeSubscriptionInterrogation);
         resultLast.setOperationCode(oc);
 
-        AnyTimeSubscriptionInterrogationResponseImpl req = new AnyTimeSubscriptionInterrogationResponseImpl(subscriberInfo, extensionContainer);
+        AnyTimeSubscriptionInterrogationResponseImpl req = new AnyTimeSubscriptionInterrogationResponseImpl(
+                callForwardingData, callBarringData, odbInfo, camelSubscriptionInfo,
+                supportedVlrCamelPhases, supportedSgsnCamelPhases, extensionContainer, offeredCamel4CSIsInVlr,
+                offeredCamel4CSIsInSgsn, msisdnBsList, csgSubscriptionDataList, cwData, chData, clipData, clirData, ectData);
         AsnOutputStream aos = new AsnOutputStream();
         req.encodeData(aos);
 

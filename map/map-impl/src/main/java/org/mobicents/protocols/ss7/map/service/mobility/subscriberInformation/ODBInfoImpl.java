@@ -100,17 +100,17 @@ public class ODBInfoImpl extends AbstractMAPAsnPrimitive implements ODBInfo, MAP
                                 + ": Parameter 0 bad tag, tag class or primitive",
                                 MAPParsingComponentExceptionReason.MistypedParameter);
 
-                    this.odbData = new ObjectEncoderFacility<ODBDataImpl>(_PrimitiveName).
+                    this.odbData = (ODBData) ObjectEncoderFacility.
                             decodeObject(ais, new ODBDataImpl(), "odbData", getPrimitiveName());
                     break;
                 default:
                     if (ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
                         switch (tag) {
                             case Tag.NULL:
-                                this.notificationToCSE = new NullEncoderFacility(_PrimitiveName).decode(ais, "notificationToCSE", getPrimitiveName());
+                                this.notificationToCSE = NullEncoderFacility.decode(ais, "notificationToCSE", getPrimitiveName());
                                 break;
                             case Tag.SEQUENCE:
-                                extensionContainer = new ObjectEncoderFacility<MAPExtensionContainerImpl>(_PrimitiveName).
+                                extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
                                         decodeObject(ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
                                 break;
                             default:

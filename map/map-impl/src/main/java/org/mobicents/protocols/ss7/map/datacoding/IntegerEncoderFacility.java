@@ -30,7 +30,7 @@ public class IntegerEncoderFacility {
         return (int) ais.readInteger();
     }
 
-    public void encode(AsnOutputStream asnOs, Integer fieldValue, int tagClass, int tagPossition, final String fieldName) throws MAPException {
+    public static void encode(AsnOutputStream asnOs, Integer fieldValue, int tagClass, int tagPossition, final String fieldName) throws MAPException {
         try {
             asnOs.writeInteger(tagClass, tagPossition, fieldValue);
         } catch (IOException e) {
@@ -40,7 +40,7 @@ public class IntegerEncoderFacility {
         }
     }
 
-    public void encode(AsnOutputStream asnOs, Integer fieldValue, final String fieldName) throws MAPException {
+    public static void encode(AsnOutputStream asnOs, Integer fieldValue, final String fieldName) throws MAPException {
         try {
             asnOs.writeInteger(fieldValue);
         } catch (IOException e) {

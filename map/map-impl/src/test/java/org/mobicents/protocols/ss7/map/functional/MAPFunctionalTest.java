@@ -22,6 +22,12 @@
 
 package org.mobicents.protocols.ss7.map.functional;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -144,22 +150,41 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CAMELSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallBarringData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallForwardingData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallHoldData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallWaitingData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClipData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClirData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.EctData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtCwFeature;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.GeographicalInformation;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationInformation;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationInformationGPRS;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NumberPortabilityStatus;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ODBInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberState;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberStateChoice;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.BearerServiceCodeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSGSubscriptionData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.Category;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBasicServiceCode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBearerServiceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtCallBarringFeature;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwFeature;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwOptionsForwardingReason;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtSSStatus;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtTeleserviceCode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.InsertSubscriberDataRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.InsertSubscriberDataResponse;
@@ -205,6 +230,7 @@ import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRespo
 import org.mobicents.protocols.ss7.map.api.service.sms.SmsSignalInfo;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ActivateSSRequest;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ActivateSSResponse;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.CliRestrictionOption;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.DeactivateSSRequest;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.DeactivateSSResponse;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.EraseSSRequest;
@@ -216,6 +242,7 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.GuidanceInfo;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.InterrogateSSRequest;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.InterrogateSSResponse;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.OverrideCategory;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.Password;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSRequest;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ProcessUnstructuredSSResponse;
@@ -237,6 +264,7 @@ import org.mobicents.protocols.ss7.map.datacoding.CBSDataCodingSchemeImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerTest;
+import org.mobicents.protocols.ss7.map.primitives.TimeImpl;
 import org.mobicents.protocols.ss7.map.service.callhandling.RoutingInfoImpl;
 import org.mobicents.protocols.ss7.map.service.callhandling.SendRoutingInformationRequestImpl;
 import org.mobicents.protocols.ss7.map.service.callhandling.SendRoutingInformationResponseImpl;
@@ -246,6 +274,10 @@ import org.mobicents.protocols.ss7.map.service.mobility.imei.CheckImeiRequestImp
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.PurgeMSRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.SendIdentificationRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.UpdateGprsLocationRequestImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtBasicServiceCodeImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtBearerServiceCodeImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtCwFeatureImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtSSStatusImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.InsertSubscriberDataRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.InsertSubscriberDataResponseImpl;
 import org.mobicents.protocols.ss7.map.service.oam.SendImsiRequestImpl;
@@ -276,12 +308,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -4822,6 +4848,214 @@ TC-END + anyTimeInterrogationResponse
         serverExpectedEvents.add(te);
 
         client.sendAnyTimeInterrogation();
+        waitForEnd();
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+
+    }
+
+    /**
+<code>
+TC-BEGIN + anyTimeSubscriptionInterrogationRequest
+TC-END + anyTimeSubscriptionInterrogationResponse
+</code>
+     */
+    @Test(groups = { "functional.flow", "dialog" })
+    public void testAnyTimeSubscriptionInterrogation() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+            @Override
+            public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse ind) {
+                super.onAnyTimeSubscriptionInterrogationResponse(ind);
+
+                Assert.assertNotNull(ind.getCallForwardingData());
+                Assert.assertNotNull(ind.getCallBarringData());
+                Assert.assertNotNull(ind.getOdbInfo());
+                Assert.assertNotNull(ind.getCamelSubscriptionInfo());
+                Assert.assertNotNull(ind.getSupportedSgsnCamelPhases());
+                Assert.assertNotNull(ind.getSupportedVlrCamelPhases());
+                Assert.assertNull(ind.getExtensionContainer());
+                Assert.assertNotNull(ind.getOfferedCamel4CSIsInVlr());
+                Assert.assertNotNull(ind.getOfferedCamel4CSIsInSgsn());
+                Assert.assertNotNull(ind.getMsisdnBsList());
+                Assert.assertNotNull(ind.getCsgSubscriptionDataList());
+                Assert.assertNotNull(ind.getCwData());
+                Assert.assertNotNull(ind.getChData());
+                Assert.assertNotNull(ind.getClipData());
+                Assert.assertNotNull(ind.getClirData());
+                Assert.assertNotNull(ind.getEctData());
+            }
+
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+            @Override
+            public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest ind) {
+                super.onAnyTimeSubscriptionInterrogationRequest(ind);
+
+                MAPDialogMobility d = ind.getMAPDialog();
+                SubscriberIdentity subscriberIdentity = ind.getSubscriberIdentity();
+                Assert.assertTrue(subscriberIdentity.getIMSI().getData().equals("33334444"));
+
+                RequestedSubscriptionInfo requestedSubscriptionInfo = ind.getRequestedSubscriptionInfo();
+                Assert.assertNotNull(requestedSubscriptionInfo);
+                Assert.assertNotNull(requestedSubscriptionInfo.getRequestedSSInfo());
+                Assert.assertEquals(requestedSubscriptionInfo.getRequestedSSInfo().getSsCode().getSupplementaryCodeValue(), SupplementaryCodeValue.cfu);
+                Assert.assertEquals(requestedSubscriptionInfo.getRequestedSSInfo().getLongFtnSupported(), false);
+                Assert.assertNull(requestedSubscriptionInfo.getRequestedSSInfo().getBasicService());
+
+                ISDNAddressString gsmSCFAddress = ind.getGsmScfAddress();
+                Assert.assertTrue(gsmSCFAddress.getAddress().equals("11112222"));
+                Assert.assertEquals(gsmSCFAddress.getAddressNature(), AddressNature.international_number);
+                Assert.assertEquals(gsmSCFAddress.getNumberingPlan(), NumberingPlan.ISDN);
+
+                Assert.assertFalse(ind.getLongFTNSupported());
+
+                try {
+                    ArrayList<ExtForwFeature> forwardingFeatureList = new ArrayList<ExtForwFeature>();
+                    ExtSSStatus extSSStatus = mapParameterFactory.createExtSSStatus(true, true, true, true);
+                    forwardingFeatureList.add(mapParameterFactory.createExtForwFeature(
+                            mapParameterFactory.createExtBasicServiceCode(
+                                    mapParameterFactory.createExtBearerServiceCode(BearerServiceCodeValue.allAlternateSpeech_DataCDA)),
+                            extSSStatus,
+                            mapParameterFactory.createISDNAddressString(AddressNature.international_number, NumberingPlan.ISDN, "22556326543"),
+                            null, mapParameterFactory.createExtForwOptions(true, true, true, ExtForwOptionsForwardingReason.unconditional),
+                            25, null, null));
+
+                    CallForwardingData callForwardingData = mapParameterFactory.createCallForwardingData(forwardingFeatureList, true, null);
+
+                    ArrayList<ExtCallBarringFeature> callBarringFeatureList = new ArrayList<ExtCallBarringFeature>();
+                    callBarringFeatureList.add(mapParameterFactory.createExtCallBarringFeature(
+                            mapParameterFactory.createExtBasicServiceCode(
+                                    mapParameterFactory.createExtBearerServiceCode(BearerServiceCodeValue.allAlternateSpeech_DataCDA)),
+                            extSSStatus, null));
+                    CallBarringData callBarringData = mapParameterFactory.createCallBarringData(callBarringFeatureList,
+                            mapParameterFactory.createPassword("1234"), 3, true, null);
+
+                    ODBInfo odbInfo = mapParameterFactory.createODBInfo(mapParameterFactory.createODBData(
+                            mapParameterFactory.createODBGeneralData(true, true, true, true, true, true, true, true, true, true,
+                                    true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true),
+                            mapParameterFactory.createODBHPLMNData(true, true, true, true), null), true, null);
+                    CAMELSubscriptionInfo camelSubscriptionInfo = mapParameterFactory.createCamelSubscriptionInfo(null,
+                            null, null, null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null,
+                            null, null, null, null);
+
+                    SupportedCamelPhases supportedCamelPhases = mapParameterFactory.createSupportedCamelPhases(true, true, true, true);
+                    SupportedCamelPhases supportedCamelPhases1 = mapParameterFactory.createSupportedCamelPhases(true, true, true, true);
+                    OfferedCamel4CSIs offeredCamel4CSIs = mapParameterFactory.createOfferedCamel4CSIs(true, true, true, true, true, true, true);
+                    OfferedCamel4CSIs offeredCamel4CSIs1 = mapParameterFactory.createOfferedCamel4CSIs(true, true, true, true, true, true, true);
+
+
+                    ArrayList<ExtCwFeature> cwFeatureList = new ArrayList<ExtCwFeature>();
+                    ExtBasicServiceCodeImpl basicService = new ExtBasicServiceCodeImpl(
+                            new ExtBearerServiceCodeImpl(BearerServiceCodeValue.allAlternateSpeech_DataCDA));
+                    cwFeatureList.add(new ExtCwFeatureImpl(basicService,
+                            new ExtSSStatusImpl(true, true, true, true)));
+
+                    CallWaitingData callWaitingData = mapParameterFactory.createCallWaitingData(cwFeatureList, false);
+                    CallHoldData callHoldData = mapParameterFactory.createCallHoldData(true, extSSStatus);
+                    ClipData clipData = mapParameterFactory.createClipData(true, OverrideCategory.overrideDisabled, extSSStatus);
+                    ClirData clirData = mapParameterFactory.createClirData(true, CliRestrictionOption.permanent, extSSStatus);
+                    EctData ectData = mapParameterFactory.createEctData(true, extSSStatus);
+
+                    ArrayList<MSISDNBS> msisdnBsList = new ArrayList<MSISDNBS>();
+                    ArrayList<ExtBasicServiceCode> basicServiceList = new ArrayList<ExtBasicServiceCode>();
+                    basicServiceList.add(basicService);
+                    MSISDNBS msisdnBs = mapParameterFactory.createMsisdnBs(
+                            mapParameterFactory.createISDNAddressString(AddressNature.international_number, NumberingPlan.ISDN, "545454"),
+                            basicServiceList,null);
+                    msisdnBsList.add(msisdnBs);
+
+                    ArrayList<CSGSubscriptionData> csgSubscriptionDataList = new ArrayList<CSGSubscriptionData>();
+                    // correct data
+                    BitSetStrictLength bs = new BitSetStrictLength(28);
+                    bs.set(0);
+                    bs.set(1);
+                    bs.set(2);
+                    bs.set(3);
+                    bs.set(8);
+                    bs.set(9);
+                    bs.set(10);
+                    bs.set(11);
+                    bs.set(12);
+                    bs.set(13);
+                    bs.set(14);
+                    bs.set(15);
+                    bs.set(16);
+                    bs.set(17);
+                    bs.set(18);
+
+                    csgSubscriptionDataList.add(mapParameterFactory.createCSGSubscriptionData(
+                            mapParameterFactory.createCSGId(bs), new TimeImpl(1978,2,1,12,12,12), null, null));
+                    d.addAnyTimeSubscriptionInterrogationResponse(ind.getInvokeId(), callForwardingData,
+                            callBarringData, odbInfo,
+                            camelSubscriptionInfo, supportedCamelPhases,
+                            supportedCamelPhases1, null,
+                            offeredCamel4CSIs,
+                            offeredCamel4CSIs1,
+                            msisdnBsList, csgSubscriptionDataList,
+                            callWaitingData, callHoldData,
+                            clipData, clirData,
+                            ectData);
+                } catch (MAPException e) {
+                    this.error("Error while adding AnyTimeSubscriptionInterrogationResponse", e);
+                    fail("Error while adding AnyTimeSubscriptionInterrogationResponse");
+                }
+            }
+
+            @Override
+            public void onDialogDelimiter(MAPDialog mapDialog) {
+                super.onDialogDelimiter(mapDialog);
+                try {
+                    this.observerdEvents.add(TestEvent.createSentEvent(EventType.AnyTimeSubscriptionInterrogationResp, null, sequence++));
+                    mapDialog.close(false);
+                } catch (MAPException e) {
+                    this.error("Error while sending the empty AnyTimeSubscriptionInterrogationResponse", e);
+                    fail("Error while sending the empty AnyTimeSubscriptionInterrogationResponse");
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.AnyTimeSubscriptionInterrogation, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.AnyTimeSubscriptionInterrogationResp, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.AnyTimeSubscriptionInterrogation, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.AnyTimeSubscriptionInterrogationResp, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        client.sendAnyTimeSubscriptionInterrogation();
         waitForEnd();
         client.compareEvents(clientExpectedEvents);
         server.compareEvents(serverExpectedEvents);

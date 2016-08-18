@@ -155,7 +155,6 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
     }
 
     private void _decode(AsnInputStream ansIS, int length) throws MAPParsingComponentException, IOException, AsnException {
-        AsnInputStream ais = ansIS.readSequenceStreamData(length);
 
         this.subscriberIdentity = null;
         this.requestedSubscriptionInfo = null;
@@ -163,20 +162,46 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
         this.extensionContainer = null;
         this.longFtnSupported = false;
 
+        AsnInputStream ais = ansIS.readSequenceStreamData(length);
+
         while (true) {
             if (ais.available() == 0)
                 break;
 
-            int tag = ais.readTag();
+            int tag = ais.readTag(); //
             if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
                 switch (tag) {
                     case _TAG_SUBSCRIBER_IDENTITY:
+/*
                         subscriberIdentity = (SubscriberIdentity) ObjectEncoderFacility.
-                                decodePrimitiveObject(ais, new SubscriberIdentityImpl(), "subscriberIdentity", _PrimitiveName);
+                                decodeObject(ais, new SubscriberIdentityImpl(), "subscriberIdentity", _PrimitiveName);
                         break;
+                    // decode SubscriberIdentity
+*/
+                        if (ais.isTagPrimitive())
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter subscriberIdentity is primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+                        this.subscriberIdentity = new SubscriberIdentityImpl();
+                        AsnInputStream ais2 = ais.readSequenceStream();
+                        ais2.readTag();
+                        ((SubscriberIdentityImpl) this.subscriberIdentity).decodeAll(ais2);
+                        break;
+
                     case _TAG_REQUESTED_SUBSCRIPTION_INFO:
+/*
+                        // decode RequestedInfo
+                        if (ais.isTagPrimitive())
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter requestedInfo is primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        this.requestedSubscriptionInfo = new RequestedSubscriptionInfoImpl();
+                        ((RequestedSubscriptionInfoImpl) this.requestedSubscriptionInfo).decodeAll(ais);
+                        //break;
+*/
                         requestedSubscriptionInfo = (RequestedSubscriptionInfo) ObjectEncoderFacility.
-                                decodePrimitiveObject(ais, new RequestedSubscriptionInfoImpl(), "requestedSubscriptionInfo", _PrimitiveName);
+                                decodeObject(ais, new RequestedSubscriptionInfoImpl(), "requestedSubscriptionInfo", _PrimitiveName);
                         break;
                     case _TAG_GSM_SCF_ADDRESS:
                         gsmSCFAddress = (ISDNAddressString) ObjectEncoderFacility.
@@ -251,9 +276,16 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
                     + " the mandatory parameter gsmSCF-Address is not defined");
         }
 
-        ((RequestedInfoImpl) this.subscriberIdentity).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_SUBSCRIBER_IDENTITY);
+        try {
+            asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_SUBSCRIBER_IDENTITY);
+            int pos = asnOs.StartContentDefiniteLength();
+            ((SubscriberIdentityImpl) this.subscriberIdentity).encodeAll(asnOs);
+            asnOs.FinalizeContent(pos);
+        } catch (AsnException e) {
+            throw new MAPException("AsnException while encoding parameter targetMS [1] SubscriberIdentity");
+        }
 
-        ((RequestedInfoImpl) this.requestedSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
+        ((RequestedSubscriptionInfoImpl) this.requestedSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
 
         ((ISDNAddressStringImpl) this.gsmSCFAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GSM_SCF_ADDRESS);
 

@@ -14,26 +14,38 @@ import org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive;
 public class ObjectEncoderFacility {
 
 
-    public static MAPAsnPrimitive decodeObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive, String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
-        if (ais.isTagPrimitive())
+    public static MAPAsnPrimitive decodeObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive, String field, String primitiveName)
+            throws MAPParsingComponentException, AsnException, IOException {
+        if (ais.isTagPrimitive()) {
             throw new MAPParsingComponentException("Error while decoding " + primitiveName
                     + ": Parameter " + field + " is primitive",
                     MAPParsingComponentExceptionReason.MistypedParameter);
-        return decodeObject(ais, mapAsnPrimitive);
+        }
+        return decodeObjectNotFramed(ais, mapAsnPrimitive);
     }
 
-    public static MAPAsnPrimitive decodePrimitiveObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive, String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
-        if (!ais.isTagPrimitive())
+    public static MAPAsnPrimitive decodePrimitiveObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive,
+                                                        String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
+        if (!ais.isTagPrimitive()) {
             throw new MAPParsingComponentException("Error while decoding " + primitiveName
                     + ": Parameter " + field + " is not primitive",
                     MAPParsingComponentExceptionReason.MistypedParameter);
-        return decodeObject(ais, mapAsnPrimitive);
+        }
+        mapAsnPrimitive.decodeAll(ais);
+        return mapAsnPrimitive;
     }
 
-    private static MAPAsnPrimitive decodeObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive) throws AsnException, IOException, MAPParsingComponentException {
+    private static MAPAsnPrimitive decodeObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive)
+            throws AsnException, IOException, MAPParsingComponentException {
         AsnInputStream ais2 = ais.readSequenceStream();
         ais2.readTag();
         mapAsnPrimitive.decodeAll(ais2);
+        return mapAsnPrimitive;
+    }
+
+    private static MAPAsnPrimitive decodeObjectNotFramed(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive)
+            throws AsnException, IOException, MAPParsingComponentException {
+        mapAsnPrimitive.decodeAll(ais);
         return mapAsnPrimitive;
     }
 

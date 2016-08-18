@@ -52,6 +52,8 @@ public interface MAPErrorCode {
     int orNotAllowed = 48;
     int forwardingViolation = 14;
     int cugReject = 15;
+    //Any Time Interrogation Errors
+    int atiNotAllowed = 49;
 
     // -- identification and numbering errors
     int unknownSubscriber = 1;

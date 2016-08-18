@@ -1,5 +1,8 @@
 package org.mobicents.protocols.ss7.map.functional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
@@ -54,6 +57,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
@@ -110,9 +115,6 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSR
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSResponse;
 import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
@@ -444,15 +446,31 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
         this.observerdEvents.add(te);
     }
 
+    @Override
     public void onAnyTimeInterrogationRequest(AnyTimeInterrogationRequest request) {
         this.logger.debug("onAnyTimeInterrogationRequest");
         TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeInterrogation, request, sequence++);
         this.observerdEvents.add(te);
     }
 
+    @Override
     public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse response) {
         this.logger.debug("onAnyTimeInterrogationResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeInterrogationResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request) {
+        this.logger.debug("onAnyTimeSubscriptionInterrogationRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeSubscriptionInterrogation, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response) {
+        this.logger.debug("onAnyTimeInterrogationResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeSubscriptionInterrogationResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 

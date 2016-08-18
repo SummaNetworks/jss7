@@ -200,6 +200,7 @@ public class SubscriberIdentityImpl implements SubscriberIdentity, MAPAsnPrimiti
      * (org.mobicents.protocols.asn.AsnOutputStream, int, int)
      */
     public void encodeAll(AsnOutputStream asnOs, int tagClass, int tag) throws MAPException {
+
         try {
             asnOs.writeTag(tagClass, this.getIsPrimitive(), tag);
             int pos = asnOs.StartContentDefiniteLength();

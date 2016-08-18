@@ -99,10 +99,10 @@ public class CallForwardingDataImpl extends AbstractMAPAsnPrimitive implements C
             if (ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
                 switch (tag) {
                     case Tag.NULL:
-                        this.notificationToCSE = new NullEncoderFacility(_PrimitiveName).decode(ais, "notificationToCSE", getPrimitiveName());
+                        this.notificationToCSE = NullEncoderFacility.decode(ais, "notificationToCSE", getPrimitiveName());
                         break;
                     case Tag.SEQUENCE:
-                        this.forwardingFeatureList.add(new ObjectEncoderFacility<ExtForwFeatureImpl>(_PrimitiveName).
+                        this.forwardingFeatureList.add((ExtForwFeature) ObjectEncoderFacility.
                                 decodeObject(ais, new ExtForwFeatureImpl(), "forwardingFeatureList", getPrimitiveName()));
                         break;
                     default:
@@ -112,7 +112,7 @@ public class CallForwardingDataImpl extends AbstractMAPAsnPrimitive implements C
             } else if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
                 switch (tag) {
                     case _TAG_EXTENSION_CONTAINER:
-                        extensionContainer = new ObjectEncoderFacility<MAPExtensionContainerImpl>(_PrimitiveName).
+                        extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
                                 decodeObject(ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
                         break;
                     default:

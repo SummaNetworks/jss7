@@ -30,12 +30,12 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.CliRestrictionO
 /**
  *
 </code>
-ClirData ::= SEQUENCE {
-  ss-Status              [1] Ext-SS-Status,
-  cliRestrictionOption   [2] CliRestrictionOption OPTIONAL,
-  notificationToCSE      [3] NULL OPTIONAL,
-  ...
-}
+    ClirData ::= SEQUENCE {
+          ss-Status              [1] Ext-SS-Status,
+          cliRestrictionOption   [2] CliRestrictionOption OPTIONAL,
+          notificationToCSE      [3] NULL OPTIONAL,
+          ...
+    }
 </code>
  *
  *

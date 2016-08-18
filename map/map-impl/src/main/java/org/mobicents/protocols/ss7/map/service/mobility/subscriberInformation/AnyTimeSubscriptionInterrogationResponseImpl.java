@@ -31,10 +31,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OfferedCamel4CSIs;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SupportedCamelPhases;
 import org.mobicents.protocols.ss7.map.datacoding.ObjectEncoderFacility;
-import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
-import org.mobicents.protocols.ss7.map.primitives.SubscriberIdentityImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.MobilityMessageImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.CSGSubscriptionDataImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.MSISDNBSImpl;
@@ -256,33 +254,34 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
                                 ais, new CallForwardingDataImpl(), "callForwardingData", _PrimitiveName);
                         break;
                     case _TAG_callBarringData:
-                        callBarringData = (CallBarringData) ObjectEncoderFacility.decodeObject(ais, new CallBarringDataImpl(), "callBarringData", _PrimitiveName);
+                        callBarringData = (CallBarringData) ObjectEncoderFacility.decodeObject(
+                                ais, new CallBarringDataImpl(), "callBarringData", _PrimitiveName);
                         break;
                     case _TAG_odbInfo:
-                        odbInfo = (ODBInfo) ObjectEncoderFacility.decodeObject(ais, new CallBarringDataImpl(), "callBarringData", _PrimitiveName);
+                        odbInfo = (ODBInfo) ObjectEncoderFacility.decodeObject(ais, new ODBInfoImpl(), "odbInfo", _PrimitiveName);
                         break;
                     case _TAG_camelSubscriptionInfo:
                         camelSubscriptionInfo = (CAMELSubscriptionInfo) ObjectEncoderFacility.decodeObject(
                                 ais, new CAMELSubscriptionInfoImpl(), "camelSubscriptionInfo", _PrimitiveName);
                         break;
                     case _TAG_supportedVlrCamelPhases:
-                        supportedVlrCamelPhases = (SupportedCamelPhases) ObjectEncoderFacility.decodeObject(
+                        supportedVlrCamelPhases = (SupportedCamelPhases) ObjectEncoderFacility.decodePrimitiveObject(
                                 ais, new SupportedCamelPhasesImpl(), "supportedVlrCamelPhases", _PrimitiveName);
                         break;
                     case _TAG_supportedSgsnCamelPhases:
-                        supportedSgsnCamelPhases = (SupportedCamelPhases) ObjectEncoderFacility.decodeObject(
+                        supportedSgsnCamelPhases = (SupportedCamelPhases) ObjectEncoderFacility.decodePrimitiveObject(
                                 ais, new SupportedCamelPhasesImpl(), "supportedSgsnCamelPhases", _PrimitiveName);
                         break;
                     case _TAG_extensionContainer:
-                        extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.decodeObject(
+                        extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.decodePrimitiveObject(
                                 ais, new MAPExtensionContainerImpl(), "extensionContainer", _PrimitiveName);
                         break;
                     case _TAG_offeredCamel4CSIsInVlr:
-                        offeredCamel4CSIsInVlr = (OfferedCamel4CSIs) ObjectEncoderFacility.decodeObject(
+                        offeredCamel4CSIsInVlr = (OfferedCamel4CSIs) ObjectEncoderFacility.decodePrimitiveObject(
                                 ais, new OfferedCamel4CSIsImpl(), "offeredCamel4CSIsInVlr", _PrimitiveName);
                         break;
                     case _TAG_offeredCamel4CSIsInSgsn:
-                        offeredCamel4CSIsInSgsn = (OfferedCamel4CSIs) ObjectEncoderFacility.decodeObject(
+                        offeredCamel4CSIsInSgsn = (OfferedCamel4CSIs) ObjectEncoderFacility.decodePrimitiveObject(
                                 ais, new OfferedCamel4CSIsImpl(), "offeredCamel4CSIsInSgsn", _PrimitiveName);
                         break;
                     case _TAG_msisdnBsList:
@@ -297,7 +296,7 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
                                 break;
 
                             int tag2 = ais2.readTag();
-                            if (tag2 != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                            if (tag2 != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_CONTEXT_SPECIFIC || ais2.isTagPrimitive())
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
                                         + ": bad MSISDNBS tag or tagClass or is primitive ",
                                         MAPParsingComponentExceptionReason.MistypedParameter);
@@ -349,21 +348,20 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
                         break;
                     case _TAG_chData:
                         chData = (CallHoldData) ObjectEncoderFacility.decodeObject(
-                                ais, new CallHoldDataImpl(), "cwData", _PrimitiveName);
+                                ais, new CallHoldDataImpl(), "chData", _PrimitiveName);
                         break;
                     case _TAG_clirData:
                         clirData = (ClirData) ObjectEncoderFacility.decodeObject(
-                                ais, new ClirDataImpl(), "cwData", _PrimitiveName);
+                                ais, new ClirDataImpl(), "clirData", _PrimitiveName);
                         break;
                     case _TAG_clipData:
                         clipData = (ClipData) ObjectEncoderFacility.decodeObject(
-                                ais, new ClipDataImpl(), "cwData", _PrimitiveName);
+                                ais, new ClipDataImpl(), "clipData", _PrimitiveName);
                         break;
                     case _TAG_ectData:
                         ectData = (EctData) ObjectEncoderFacility.decodeObject(
-                                ais, new EctDataImpl(), "cwData", _PrimitiveName);
+                                ais, new EctDataImpl(), "ectData", _PrimitiveName);
                         break;
-
                     default:
                         ais.advanceElement();
                         break;
@@ -372,13 +370,6 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
                 ais.advanceElement();
             }
         }
-/*
-        if (this.subscriberIdentity == null || this.requestedSubscriptionInfo == null || this.gsmSCFAddress == null)
-            throw new MAPParsingComponentException(
-                    "Error while decoding " + _PrimitiveName + ": subscriberIdentity, requestedSubscriptionInfo " +
-                            "and gsmSCFAddress parameters are mandatory but some of them are not found",
-                    MAPParsingComponentExceptionReason.MistypedParameter);
-*/
     }
 
 
@@ -410,51 +401,91 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
     }
 
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
-        if (this.subscriberIdentity == null) {
-            throw new MAPException("Error while encoding " + _PrimitiveName
-                    + " the mandatory parameter subscriberIdentity is not defined");
-        }
-        if (this.requestedSubscriptionInfo == null) {
-            throw new MAPException("Error while encoding " + _PrimitiveName
-                    + " the mandatory parameter requestedSubscriptionInfo is not defined");
-        }
-        if (this.gsmSCFAddress == null) {
-            throw new MAPException("Error while encoding " + _PrimitiveName
-                    + " the mandatory parameter gsmSCF-Address is not defined");
-        }
 
         if (this.callForwardingData!=null) {
             ((CallForwardingDataImpl) this.callForwardingData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_callForwardingData);
         }
 
-        try {
-            asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_SUBSCRIBER_IDENTITY);
-            int pos = asnOs.StartContentDefiniteLength();
-            ((SubscriberIdentityImpl) this.subscriberIdentity).encodeAll(asnOs);
-            asnOs.FinalizeContent(pos);
-        } catch (AsnException e) {
-            throw new MAPException("AsnException while encoding " + _PrimitiveName
-                    + " parameter subscriberIdentity [0] SubscriberIdentity");
+        if (this.callBarringData!=null) {
+            ((CallBarringDataImpl) this.callBarringData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_callBarringData);
         }
 
-        ((RequestedInfoImpl) this.requestedSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
-
-        ((ISDNAddressStringImpl) this.gsmSCFAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GSM_SCF_ADDRESS);
-
-        if (this.extensionContainer != null) {
-            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
-                    _TAG_EXTENSION_CONTAINER);
+        if (this.odbInfo!=null) {
+            ((ODBInfoImpl) this.odbInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_odbInfo);
         }
 
-        try {
-            if (this.longFtnSupported) {
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_LONG_FTN_SUPPORTED);
+        if (this.camelSubscriptionInfo!=null) {
+            ((CAMELSubscriptionInfoImpl) this.camelSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_camelSubscriptionInfo);
+        }
+
+        if (this.supportedVlrCamelPhases!=null) {
+            ((SupportedCamelPhasesImpl) this.supportedVlrCamelPhases).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_supportedVlrCamelPhases);
+        }
+
+        if (this.supportedSgsnCamelPhases!=null) {
+            ((SupportedCamelPhasesImpl) this.supportedSgsnCamelPhases).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_supportedSgsnCamelPhases);
+        }
+
+        if (this.extensionContainer!=null) {
+            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_extensionContainer);
+        }
+
+        if (this.offeredCamel4CSIsInVlr!=null) {
+            ((OfferedCamel4CSIsImpl) this.offeredCamel4CSIsInVlr).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_offeredCamel4CSIsInVlr);
+        }
+
+        if (this.offeredCamel4CSIsInSgsn!=null) {
+            ((OfferedCamel4CSIsImpl) this.offeredCamel4CSIsInSgsn).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_offeredCamel4CSIsInSgsn);
+        }
+
+        if (this.cwData!=null) {
+            ((CallWaitingDataImpl) this.cwData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_cwData);
+        }
+
+        if (this.chData!=null) {
+            ((CallHoldDataImpl) this.chData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_chData);
+        }
+
+        if (this.clipData!=null) {
+            ((ClipDataImpl) this.clipData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_clipData);
+        }
+
+        if (this.clirData!=null) {
+            ((ClirDataImpl) this.clirData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_clirData);
+        }
+
+        if (this.ectData!=null) {
+            ((EctDataImpl) this.ectData).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_ectData);
+        }
+
+        if (this.msisdnBsList != null) {
+            try {
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_msisdnBsList);
+                int pos = asnOs.StartContentDefiniteLength();
+                for (MSISDNBS elem : this.msisdnBsList) {
+                    ((MSISDNBSImpl) elem).encodeAll(asnOs);
+                }
+                asnOs.FinalizeContent(pos);
+            } catch (AsnException e) {
+                throw new MAPException("AsnException when encoding " + _PrimitiveName + ".msisdnBsList: "
+                        + e.getMessage(), e);
             }
-        } catch (IOException e) {
-            throw new MAPException("IOException when encoding parameter longFtnSupported: ", e);
-        } catch (AsnException e) {
-            throw new MAPException("AsnException when encoding parameter longFtnSupported: ", e);
         }
+
+        if (this.csgSubscriptionDataList != null) {
+            try {
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_csgSubscriptionDataList);
+                int pos = asnOs.StartContentDefiniteLength();
+                for (CSGSubscriptionData elem : this.csgSubscriptionDataList) {
+                    ((CSGSubscriptionDataImpl) elem).encodeAll(asnOs);
+                }
+                asnOs.FinalizeContent(pos);
+            } catch (AsnException e) {
+                throw new MAPException("AsnException when encoding " + _PrimitiveName + ".csgSubscriptionDataList: "
+                        + e.getMessage(), e);
+            }
+        }
+
     }
 
     public MAPMessageType getMessageType() {

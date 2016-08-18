@@ -9,7 +9,6 @@ import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
-import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AbstractMAPAsnPrimitive;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallBarringData;
@@ -53,6 +52,15 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
     private MAPExtensionContainer extensionContainer;
 
     public CallBarringDataImpl() {
+    }
+
+    public CallBarringDataImpl(ArrayList<ExtCallBarringFeature> callBarringFeatureList, Password password,
+                               Integer wrongPasswordAttemptsCounter, boolean notificationToCSE, MAPExtensionContainer extensionContainer) {
+        this.callBarringFeatureList = callBarringFeatureList;
+        this.password = password;
+        this.wrongPasswordAttemptsCounter = wrongPasswordAttemptsCounter;
+        this.notificationToCSE = notificationToCSE;
+        this.extensionContainer = extensionContainer;
     }
 
     @Override
@@ -110,7 +118,38 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
                 break;
 
             int tag = ais.readTag();
-            switch (num) {
+
+            if (ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
+                switch (tag) {
+                    case Tag.SEQUENCE:
+                        if (num==0) {
+                            this.callBarringFeatureList.add((ExtCallBarringFeature) ObjectEncoderFacility.
+                                    decodeObject(ais, new ExtCallBarringFeatureImpl(), "callBarringFeatureList", getPrimitiveName()));
+                        }else {
+                            extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
+                                    decodeObject(ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
+                        }
+                        break;
+                    case Tag.INTEGER:
+                        this.wrongPasswordAttemptsCounter = new IntegerEncoderFacility(_PrimitiveName).decode(ais, "wrongPasswordAttemptsCounter");
+                        break;
+                    case Tag.STRING_NUMERIC:
+                        this.password = (Password) ObjectEncoderFacility.
+                                decodePrimitiveObject(ais, new PasswordImpl(), "password", getPrimitiveName());
+                        break;
+                    case Tag.NULL:
+                        this.notificationToCSE = NullEncoderFacility.decode(ais, "notificationToCSE", getPrimitiveName());
+                        break;
+                    default:
+                        ais.advanceElement();
+                        break;
+                }
+            }
+            num++;
+        }
+
+/*
+                switch (num) {
                 case 0:
                     if (tag != Tag.SEQUENCE || ais.getTagClass() != Tag.CLASS_UNIVERSAL || ais.isTagPrimitive())
                         throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
@@ -129,10 +168,10 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
 
                         if (tag2 != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": bad tag or tagClass or is primitive when decoding oBcsmCamelTDPDataList",
+                                    + ": bad tag or tagClass or is primitive when decoding callBarringFeatureList",
                                     MAPParsingComponentExceptionReason.MistypedParameter);
 
-                        this.callBarringFeatureList.add(new ObjectEncoderFacility<ExtCallBarringFeatureImpl>(_PrimitiveName).
+                        this.callBarringFeatureList.add((ExtCallBarringFeature) ObjectEncoderFacility.
                                 decodeObject(ais2, new ExtCallBarringFeatureImpl(), "callBarringFeatureList", getPrimitiveName()));
 
                         if (this.callBarringFeatureList.size() < 1 || this.callBarringFeatureList.size() > 32)
@@ -149,14 +188,14 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
                                 this.wrongPasswordAttemptsCounter = new IntegerEncoderFacility(_PrimitiveName).decode(ais, "wrongPasswordAttemptsCounter");
                                 break;
                             case Tag.STRING_NUMERIC:
-                                this.password = new ObjectEncoderFacility<PasswordImpl>(_PrimitiveName).
+                                this.password = (Password) ObjectEncoderFacility.
                                         decodePrimitiveObject(ais, new PasswordImpl(), "password", getPrimitiveName());
                                 break;
                             case Tag.NULL:
-                                this.notificationToCSE = new NullEncoderFacility(_PrimitiveName).decode(ais, "notificationToCSE", getPrimitiveName());
+                                this.notificationToCSE = NullEncoderFacility.decode(ais, "notificationToCSE", getPrimitiveName());
                                 break;
                             case Tag.SEQUENCE:
-                                extensionContainer = new ObjectEncoderFacility<MAPExtensionContainerImpl>(_PrimitiveName).
+                                extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
                                         decodeObject(ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
                                 break;
                             default:
@@ -171,6 +210,7 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
 
             num++;
         }
+*/
 
    }
 
@@ -178,7 +218,7 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
 
         if (this.callBarringFeatureList == null || this.callBarringFeatureList.size() < 1
                 || this.callBarringFeatureList.size() > 32) {
-            throw new MAPException("CallBarringFeatureList list must contains from 1 to 32 elemets");
+            throw new MAPException("CallBarringFeatureList list must contains from 1 to 32 elements");
         }
 
         for (ExtCallBarringFeature extCallBarringFeature : this.callBarringFeatureList) {

@@ -57,8 +57,7 @@ public enum MAPApplicationContextName {
     // networkLocUpContext(1), doubled in Location management services
 
     // --- Subscriber Information services
-    anyTimeEnquiryContext(29), subscriberInfoEnquiryContext(28), anyTimeInfoHandlingContext(43), subscriberDataModificationNotificationContext(
-            22),
+    anyTimeEnquiryContext(29), subscriberInfoEnquiryContext(28), anyTimeInfoHandlingContext(43), subscriberDataModificationNotificationContext(22),
 
     // -- oam
     tracingContext(17),

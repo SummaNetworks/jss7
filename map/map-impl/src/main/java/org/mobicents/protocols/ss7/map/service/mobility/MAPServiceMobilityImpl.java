@@ -69,6 +69,7 @@ import org.mobicents.protocols.ss7.map.service.mobility.oam.ActivateTraceModeRes
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeInterrogationRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeInterrogationResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequestImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ProvideSubscriberInfoRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ProvideSubscriberInfoResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.DeleteSubscriberDataRequestImpl;
@@ -425,6 +426,14 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
                     this.processAnyTimeInterrogationRequest(parameter, mapDialogMobilityImpl, invokeId);
                 else
                     this.processAnyTimeInterrogationResponse(parameter, mapDialogMobilityImpl, invokeId);
+            }
+            break;
+        case MAPOperationCode.anyTimeSubscriptionInterrogation:
+            if (acn == MAPApplicationContextName.anyTimeEnquiryContext) {
+                if (compType == ComponentType.Invoke)
+                    this.processAnyTimeSubscriptionInterrogationRequest(parameter, mapDialogMobilityImpl, invokeId);
+                else
+                    this.processAnyTimeSubscriptionInterrogationResponse(parameter, mapDialogMobilityImpl, invokeId);
             }
             break;
         case MAPOperationCode.provideSubscriberInfo:
