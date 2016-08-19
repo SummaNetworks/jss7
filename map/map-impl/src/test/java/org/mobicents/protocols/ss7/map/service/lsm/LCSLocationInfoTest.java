@@ -22,11 +22,6 @@
 
 package org.mobicents.protocols.ss7.map.service.lsm;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.util.Arrays;
 
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -47,6 +42,11 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  *
@@ -140,7 +140,7 @@ public class LCSLocationInfoTest {
         LMSIImpl lmsi = new LMSIImpl(getDataLmsi());
         ISDNAddressString mscNumber = MAPParameterFactory.createISDNAddressString(AddressNature.international_number,
                 NumberingPlan.ISDN, "2222112222");
-        AdditionalNumberImpl additionalNumber = new AdditionalNumberImpl(mscNumber, null);
+        AdditionalNumberImpl additionalNumber = new AdditionalNumberImpl(mscNumber, true);
         SupportedLCSCapabilitySetsImpl supportedLCSCapabilitySets = new SupportedLCSCapabilitySetsImpl(true, true, false,
                 false, false);
         SupportedLCSCapabilitySetsImpl additionalLCSCapabilitySets = new SupportedLCSCapabilitySetsImpl(true, true, true,

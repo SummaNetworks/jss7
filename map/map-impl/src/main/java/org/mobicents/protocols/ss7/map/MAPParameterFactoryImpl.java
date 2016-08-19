@@ -1138,11 +1138,11 @@ public class MAPParameterFactoryImpl implements MAPParameterFactory {
     }
 
     public AdditionalNumber createAdditionalNumberMscNumber(ISDNAddressString mSCNumber) {
-        return new AdditionalNumberImpl(mSCNumber, null);
+        return new AdditionalNumberImpl(mSCNumber, true);
     }
 
     public AdditionalNumber createAdditionalNumberSgsnNumber(ISDNAddressString sGSNNumber) {
-        return new AdditionalNumberImpl(null, sGSNNumber);
+        return new AdditionalNumberImpl(sGSNNumber, false);
     }
 
     public AreaDefinition createAreaDefinition(ArrayList<Area> areaList) {

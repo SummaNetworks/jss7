@@ -22,11 +22,6 @@
 
 package org.mobicents.protocols.ss7.map.service.lsm;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -47,6 +42,11 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * TODO Self generated trace. Please test from real trace
@@ -121,7 +121,7 @@ public class AdditionalNumberTest {
 
         ISDNAddressString isdnAdd = MAPParameterFactory.createISDNAddressString(AddressNature.international_number,
                 NumberingPlan.ISDN, "55619007");
-        AdditionalNumber addNum = new AdditionalNumberImpl(isdnAdd, null);
+        AdditionalNumber addNum = new AdditionalNumberImpl(isdnAdd, true);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
@@ -132,7 +132,7 @@ public class AdditionalNumberTest {
 
         data = getEncodedSgsnNumber();
 
-        addNum = new AdditionalNumberImpl(null, isdnAdd);
+        addNum = new AdditionalNumberImpl(null, true);
 
         asnOS = new AsnOutputStream();
         ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
@@ -146,7 +146,7 @@ public class AdditionalNumberTest {
     public void testSerialization() throws Exception {
         ISDNAddressString isdnAdd = MAPParameterFactory.createISDNAddressString(AddressNature.international_number,
                 NumberingPlan.ISDN, "55619007");
-        AdditionalNumber original = new AdditionalNumberImpl(isdnAdd, null);
+        AdditionalNumber original = new AdditionalNumberImpl(isdnAdd, true);
         // serialize
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(out);
