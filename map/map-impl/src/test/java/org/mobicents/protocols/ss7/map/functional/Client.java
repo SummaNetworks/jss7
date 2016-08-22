@@ -2165,6 +2165,7 @@ public class Client extends EventTestHarness {
         clientDialogPdpContextActivation.send();
 
     }
+
     public void sendFailureReportRequest() throws Exception {
 
         this.mapProvider.getMAPServicePdpContextActivation().acivate();
@@ -2184,6 +2185,30 @@ public class Client extends EventTestHarness {
         clientDialogPdpContextActivation.addFailureReportRequest(imsi, ggsnNumber, ggsnAddress, null);
 
         this.observerdEvents.add(TestEvent.createSentEvent(EventType.FailureReport, null, sequence++));
+        clientDialogPdpContextActivation.send();
+
+    }
+
+    public void sendNoteMsPresentForGprsRequest() throws Exception {
+
+        this.mapProvider.getMAPServicePdpContextActivation().acivate();
+
+        MAPApplicationContext appCnt = null;
+
+        appCnt = MAPApplicationContext.getInstance(MAPApplicationContextName.gprsNotifyContext,
+                MAPApplicationContextVersion.version3);
+
+        clientDialogPdpContextActivation = this.mapProvider.getMAPServicePdpContextActivation().
+                createNewDialog(appCnt, this.thisAddress, null, this.remoteAddress, null);
+
+        IMSI imsi = this.mapParameterFactory.createIMSI("88888777773333");
+        byte[] addressData = new byte[] { (byte) 192, (byte) 168, 4, 22 };
+        byte[] addressData2 = new byte[] { (byte) 92, (byte) 16, 4, 22 };
+        GSNAddress sgsnAddress = this.mapParameterFactory.createGSNAddress(GSNAddressAddressType.IPv4, addressData);
+        GSNAddress ggsnAddress = this.mapParameterFactory.createGSNAddress(GSNAddressAddressType.IPv4, addressData2);
+        clientDialogPdpContextActivation.addNoteMsPresentForGprsRequest(imsi, sgsnAddress, ggsnAddress, null);
+
+        this.observerdEvents.add(TestEvent.createSentEvent(EventType.NoteMsPresentForGprs, null, sequence++));
         clientDialogPdpContextActivation.send();
 
     }

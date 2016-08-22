@@ -38,4 +38,8 @@ public interface MAPServicePdpContextActivationListener extends MAPServiceListen
     void onFailureReportRequest(FailureReportRequest request);
 
     void onFailureReportResponse(FailureReportResponse response);
+
+    void onNoteMsPresentForGprsRequest(NoteMsPresentForGprsRequest request);
+
+    void onNoteMsPresentForGprsResponse(NoteMsPresentForGprsResponse response);
 }

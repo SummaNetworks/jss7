@@ -206,6 +206,8 @@ import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPDialogPdpContextActivation;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.NoteMsPresentForGprsRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.NoteMsPresentForGprsResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertReason;
@@ -9644,6 +9646,106 @@ TC-END + SendRoutingInformationResponse
         serverExpectedEvents.add(te);
 
         client.sendFailureReportRequest();
+
+        waitForEnd();
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+
+    }
+
+    /**
+     * <code>
+     * TC-BEGIN + NoteMsPresentForGprsRequest
+     * TC-END + NoteMsPresentForGprsResponse
+     * </code>
+     */
+    @Test(groups = { "functional.flow", "dialog" })
+    public void testNoteMsPresentForGprsRequest() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+
+            @Override
+            public void onNoteMsPresentForGprsResponse(NoteMsPresentForGprsResponse ind) {
+                super.onNoteMsPresentForGprsResponse(ind);
+            }
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+
+            @Override
+            public void onNoteMsPresentForGprsRequest(NoteMsPresentForGprsRequest request) {
+                super.onNoteMsPresentForGprsRequest(request);
+
+                MAPDialogPdpContextActivation d = request.getMAPDialog();
+
+                byte[] addressData = new byte[] { (byte) 192, (byte) 168, 4, 22 };
+                byte[] addressData2 = new byte[] { (byte) 92, (byte) 16, 4, 22 };
+                assertEquals(request.getImsi().getData(), "88888777773333");
+                assertEquals(request.getSgsnAddress().getGSNAddressAddressType(), GSNAddressAddressType.IPv4);
+                assertEquals(request.getSgsnAddress().getGSNAddressData(), addressData);
+                assertEquals(request.getGgsnAddress().getGSNAddressAddressType() , GSNAddressAddressType.IPv4);
+                assertEquals(request.getGgsnAddress().getGSNAddressData(), addressData2);
+
+                try {
+                    d.addNoteMsPresentForGprsResponse(request.getInvokeId(), null);
+
+                } catch (MAPException e) {
+                    this.error("Error while adding NoteMsPresentForGprsResponse", e);
+                    fail("Error while adding NoteMsPresentForGprsResponse");
+                }
+            }
+
+            @Override
+            public void onDialogDelimiter(MAPDialog mapDialog) {
+                super.onDialogDelimiter(mapDialog);
+                try {
+                    this.observerdEvents.add(TestEvent.createSentEvent(EventType.NoteMsPresentForGprsResp, null, sequence++));
+                    mapDialog.close(false);
+                } catch (MAPException e) {
+                    this.error("Error while sending the empty NoteMsPresentForGprsResponse", e);
+                    fail("Error while sending the empty NoteMsPresentForGprsResponse");
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.NoteMsPresentForGprs, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.NoteMsPresentForGprsResp, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.NoteMsPresentForGprs, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.NoteMsPresentForGprsResp, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        client.sendNoteMsPresentForGprsRequest();
 
         waitForEnd();
         client.compareEvents(clientExpectedEvents);

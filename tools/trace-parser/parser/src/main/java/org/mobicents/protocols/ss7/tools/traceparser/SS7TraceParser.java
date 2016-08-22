@@ -171,6 +171,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
@@ -189,6 +191,8 @@ import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPServicePdpContextActivationListener;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.NoteMsPresentForGprsRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.NoteMsPresentForGprsResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
@@ -2243,6 +2247,17 @@ public class SS7TraceParser implements TraceReaderListener, MAPDialogListener, C
 
     }
 
+
+    @Override
+    public void onAnyTimeModificationRequest(AnyTimeModificationRequest request) {
+
+    }
+
+    @Override
+    public void onAnyTimeModificationResponse(AnyTimeModificationResponse response) {
+
+    }
+
     @Override
     public void onCheckImeiRequest(CheckImeiRequest request) {
         // TODO Auto-generated method stub
@@ -2770,6 +2785,18 @@ public class SS7TraceParser implements TraceReaderListener, MAPDialogListener, C
 
     @Override
     public void onFailureReportResponse(FailureReportResponse response) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onNoteMsPresentForGprsRequest(NoteMsPresentForGprsRequest request) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onNoteMsPresentForGprsResponse(NoteMsPresentForGprsResponse response) {
         // TODO Auto-generated method stub
 
     }

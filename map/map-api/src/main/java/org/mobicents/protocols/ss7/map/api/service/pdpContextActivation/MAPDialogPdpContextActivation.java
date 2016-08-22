@@ -52,4 +52,10 @@ public interface MAPDialogPdpContextActivation extends MAPDialog {
                                  MAPExtensionContainer extensionContainer) throws MAPException;
 
     void addFailureReportResponse(long invokeId, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    Long addNoteMsPresentForGprsRequest(IMSI imsi, GSNAddress sgsnAddress, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    Long addNoteMsPresentForGprsRequest(int invokeId, IMSI imsi, GSNAddress sgsnAddress, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    void addNoteMsPresentForGprsResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
 }

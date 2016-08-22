@@ -223,4 +223,85 @@ public class MAPDialogPdpContextActivationImpl extends MAPDialogImpl implements 
 
         this.sendReturnResultLastComponent(resultLast);
     }
+
+    @Override
+    public Long addNoteMsPresentForGprsRequest(IMSI imsi, GSNAddress sgsnAddress,
+                                               GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException {
+        return addNoteMsPresentForGprsRequest(_Timer_Default, imsi, sgsnAddress, ggsnAddress, extensionContainer);
+    }
+
+        @Override
+    public Long addNoteMsPresentForGprsRequest(int customInvokeTimeout, IMSI imsi, GSNAddress sgsnAddress,
+                                               GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.gprsNotifyContext)
+                || this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3)
+            throw new MAPException("Bad application context name for addNoteMsPresentForGprsRequest: must be gprsNotifyContext_V3 ");
+
+        Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
+        if (customInvokeTimeout == _Timer_Default)
+            invoke.setTimeout(_Timer_m);
+        else
+            invoke.setTimeout(customInvokeTimeout);
+
+        OperationCode oc = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.noteMsPresentForGprs);
+        invoke.setOperationCode(oc);
+
+        NoteMsPresentForGprsRequestImpl req = new NoteMsPresentForGprsRequestImpl(imsi, sgsnAddress, ggsnAddress, extensionContainer);
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        invoke.setParameter(p);
+
+        Long invokeId;
+        try {
+            invokeId = this.tcapDialog.getNewInvokeId();
+            invoke.setInvokeId(invokeId);
+        } catch (TCAPException e) {
+            throw new MAPException(e.getMessage(), e);
+        }
+
+        this.sendInvokeComponent(invoke);
+
+        return invokeId;
+    }
+
+
+
+    @Override
+    public void addNoteMsPresentForGprsResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.gprsNotifyContext)
+                || this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3)
+            throw new MAPException("Bad application context name for addNoteMsPresentForGprsResponse: must be gprsNotifyContext_V3 ");
+
+        ReturnResultLast resultLast = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCResultLastRequest();
+
+        resultLast.setInvokeId(invokeId);
+
+        // Operation Code
+        OperationCode oc = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.noteMsPresentForGprs);
+        resultLast.setOperationCode(oc);
+
+        NoteMsPresentForGprsResponseImpl resp = new NoteMsPresentForGprsResponseImpl(extensionContainer);
+        AsnOutputStream aos = new AsnOutputStream();
+        resp.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(resp.getTagClass());
+        p.setPrimitive(resp.getIsPrimitive());
+        p.setTag(resp.getTag());
+        p.setData(aos.toByteArray());
+        resultLast.setParameter(p);
+
+        this.sendReturnResultLastComponent(resultLast);
+    }
 }

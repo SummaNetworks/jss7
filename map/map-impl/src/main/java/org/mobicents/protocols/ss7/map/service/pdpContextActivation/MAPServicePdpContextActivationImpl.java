@@ -131,6 +131,17 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
             } else {
                 return new ServingCheckDataImpl(ServingCheckResult.AC_VersionIncorrect);
             }
+        case gprsNotifyContext:
+            if (vers == 3 ) {
+                return new ServingCheckDataImpl(ServingCheckResult.AC_Serving);
+            } else if (vers >= 4) {
+                long[] altOid = dialogApplicationContext.getOID();
+                altOid[7] = 2;
+                ApplicationContextName alt = TcapFactory.createApplicationContextName(altOid);
+                return new ServingCheckDataImpl(ServingCheckResult.AC_VersionIncorrect, alt);
+            } else {
+                return new ServingCheckDataImpl(ServingCheckResult.AC_VersionIncorrect);
+            }
         }
 
         return new ServingCheckDataImpl(ServingCheckResult.AC_NotServing);
@@ -173,6 +184,14 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
                     this.failureReportRequest(parameter, mapDialogPdpContextActivationImpl, invokeId);
                 else
                     this.failureReportResponse(parameter, mapDialogPdpContextActivationImpl, invokeId);
+            }
+            break;
+        case MAPOperationCode.noteMsPresentForGprs:
+            if (acn == MAPApplicationContextName.gprsNotifyContext) {
+                if (compType == ComponentType.Invoke)
+                    this.noteMsPresentForGprsRequest(parameter, mapDialogPdpContextActivationImpl, invokeId);
+                else
+                    this.noteMsPresentForGprsResponse(parameter, mapDialogPdpContextActivationImpl, invokeId);
             }
             break;
         default:
@@ -303,6 +322,69 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
                 ((MAPServicePdpContextActivationListener) serLis).onFailureReportResponse(ind);
             } catch (Exception e) {
                 loger.error("Error processing onFailureReportResponse: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    private void noteMsPresentForGprsRequest(Parameter parameter, MAPDialogPdpContextActivationImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding noteMsPresentForGprsRequest: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding noteMsPresentForGprsRequest: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+        NoteMsPresentForGprsRequestImpl ind = new NoteMsPresentForGprsRequestImpl();
+        ind.decodeData(ais, buf.length);
+
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                serLis.onMAPMessage(ind);
+                ((MAPServicePdpContextActivationListener) serLis).onNoteMsPresentForGprsRequest(ind);
+            } catch (Exception e) {
+                loger.error("Error processing onNoteMsPresentForGprsRequest: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    private void noteMsPresentForGprsResponse(Parameter parameter, MAPDialogPdpContextActivationImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        NoteMsPresentForGprsResponseImpl ind = new NoteMsPresentForGprsResponseImpl();
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding noteMsPresentForGprsResponse: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding noteMsPresentForGprsResponse: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+        ind.decodeData(ais, buf.length);
+
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                serLis.onMAPMessage(ind);
+                ((MAPServicePdpContextActivationListener) serLis).onNoteMsPresentForGprsResponse(ind);
+            } catch (Exception e) {
+                loger.error("Error processing onNoteMsPresentForGprsResponse: " + e.getMessage(), e);
             }
         }
     }
