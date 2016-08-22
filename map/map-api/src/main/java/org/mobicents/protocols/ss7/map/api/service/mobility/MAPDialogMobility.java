@@ -71,6 +71,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClipData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClirData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.EctData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtCallBarringInfoForCSE;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtForwardingInfoForCSE;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtSSInfoForCSE;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCBInfo;
@@ -88,6 +90,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AccessRestrictionData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSAllocationRetentionPriority;
@@ -316,6 +319,23 @@ public interface MAPDialogMobility extends MAPDialog {
             EMLPPPriority callPriority) throws MAPException;
 
     void addProvideSubscriberInfoResponse(long invokeId, SubscriberInfo subscriberInfo, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    long addNoteSubscriberDataModifiedRequest(IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                              ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                              CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                              MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                              ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                              CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData)
+            throws MAPException;
+
+    long addNoteSubscriberDataModifiedRequest(long customInvokeTimeout, IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                              ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                              CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                              MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                              ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                              CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+
+    void addNoteSubscriberDataModifiedResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
 
     // -- Subscriber Management services
     Long addInsertSubscriberDataRequest(IMSI imsi, ISDNAddressString msisdn, Category category,

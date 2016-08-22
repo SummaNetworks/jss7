@@ -26,7 +26,7 @@ public class RequestedServingNodeImpl extends BitStringBase implements Requested
     }
 
     public boolean getMmeAndSgsn() {
-        return mmeAndSgsn;
+        return bitString.get(INDEX_MME_AND_SGSN);
     }
 
 

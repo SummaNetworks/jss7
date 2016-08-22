@@ -79,6 +79,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClipData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClirData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.EctData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtCallBarringInfoForCSE;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtForwardingInfoForCSE;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtSSInfoForCSE;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCBInfo;
@@ -96,6 +98,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AccessRestrictionData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSAllocationRetentionPriority;
@@ -164,6 +167,8 @@ import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.An
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeModificationResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponseImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequestImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ProvideSubscriberInfoRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ProvideSubscriberInfoResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.DeleteSubscriberDataRequestImpl;
@@ -886,6 +891,100 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
         resultLast.setOperationCode(oc);
 
         ProvideSubscriberInfoResponseImpl req = new ProvideSubscriberInfoResponseImpl(subscriberInfo, extensionContainer);
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        resultLast.setParameter(p);
+
+        this.sendReturnResultLastComponent(resultLast);
+    }
+
+    @Override
+    public long addNoteSubscriberDataModifiedRequest(IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                                     ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                                     CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                                     MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                                     ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                                     CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException {
+        return this.addNoteSubscriberDataModifiedRequest(_Timer_Default, imsi, msisdn, forwardingInfoForCSE, callBarringInfoForCSE, odbInfo,
+                camelSubscriptionInfo, allInformationSent, extensionContainer, ueReachable, csgSubscriptionDataList,
+                cwData, chData, clipData, clirData, ectData);
+    }
+
+    @Override
+    public long addNoteSubscriberDataModifiedRequest(long customInvokeTimeout, IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                                     ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                                     CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                                     MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                                     ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                                     CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.subscriberDataModificationNotificationContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException("Bad application context name for NoteSubscriberDataModifiedRequest: must be subscriberDataModificationNotificationContext_V3");
+
+        Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
+        if (customInvokeTimeout == _Timer_Default)
+            invoke.setTimeout(_Timer_m);
+        else
+            invoke.setTimeout(customInvokeTimeout);
+
+        // Operation Code
+        OperationCode oc = TcapFactory.createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.noteSubscriberDataModified);
+        invoke.setOperationCode(oc);
+
+        NoteSubscriberDataModifiedRequestImpl req = new NoteSubscriberDataModifiedRequestImpl(imsi, msisdn,
+                forwardingInfoForCSE, callBarringInfoForCSE, odbInfo, camelSubscriptionInfo, allInformationSent,
+                extensionContainer, ueReachable, csgSubscriptionDataList, cwData, chData, clipData, clirData, ectData);
+
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        invoke.setParameter(p);
+
+        Long invokeId;
+        try {
+            invokeId = this.tcapDialog.getNewInvokeId();
+            invoke.setInvokeId(invokeId);
+        } catch (TCAPException e) {
+            throw new MAPException(e.getMessage(), e);
+        }
+
+        this.sendInvokeComponent(invoke);
+
+        return invokeId;
+    }
+
+    @Override
+    public void addNoteSubscriberDataModifiedResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.subscriberDataModificationNotificationContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException(
+                    "Bad application context name for NoteSubscriberDataModifiedResponse: must be subscriberDataModificationNotificationContext_v3");
+
+        ReturnResultLast resultLast = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCResultLastRequest();
+
+        resultLast.setInvokeId(invokeId);
+
+        // Operation Code
+        OperationCode oc = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.noteSubscriberDataModified);
+        resultLast.setOperationCode(oc);
+
+        NoteSubscriberDataModifiedResponseImpl req = new NoteSubscriberDataModifiedResponseImpl(extensionContainer);
         AsnOutputStream aos = new AsnOutputStream();
         req.encodeData(aos);
 

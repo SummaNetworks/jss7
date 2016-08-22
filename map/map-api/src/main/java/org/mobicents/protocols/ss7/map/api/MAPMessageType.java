@@ -38,7 +38,8 @@ public enum MAPMessageType {
     deleteSubscriberData_Response, sendIdentification_Request, sendIdentification_Response, updateGprsLocation_Request,
     updateGprsLocation_Response, purgeMS_Request, purgeMS_Response, RestoreData_Request, RestoreData_Response, reset_Request,
     forwardCheckSSIndication_Request, provideSubscriberInfo_Request, provideSubscriberInfo_Response, authenticationFailureReport_Request,
-    authenticationFailureReport_Response, anyTimeModification_Request, anyTimeModification_Response,
+    authenticationFailureReport_Response, anyTimeModification_Request, anyTimeModification_Response, noteSubscriberDataModified_Request,
+    noteSubscriberDataModified_Response,
 
     // -- supplementary
     processUnstructuredSSRequest_Request, processUnstructuredSSRequest_Response, unstructuredSSRequest_Request, unstructuredSSRequest_Response, unstructuredSSNotify_Request, unstructuredSSNotify_Response, registerSS_Request, registerSS_Response, eraseSS_Request, eraseSS_Response, activateSS_Request, activateSS_Response, deactivateSS_Request, deactivateSS_Response, interrogateSS_Request, interrogateSS_Response, getPasswordRequest_Request, getPasswordRequest_Response, registerPasswordRequest_Request, registerPasswordRequest_Response,

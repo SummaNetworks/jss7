@@ -61,6 +61,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
@@ -501,6 +503,20 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     public void onProvideSubscriberInfoResponse(ProvideSubscriberInfoResponse response) {
         this.logger.debug("onProvideSubscriberInfoResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.ProvideSubscriberInfoResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onNoteSubscriberDataModifiedRequest(NoteSubscriberDataModifiedRequest request) {
+        this.logger.debug("onNoteSubscriberDataModifiedRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.NoteSubscriberDataModified, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onNoteSubscriberDataModifiedResponse(NoteSubscriberDataModifiedResponse response) {
+        this.logger.debug("onNoteSubscriberDataModifiedResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.NoteSubscriberDataModifiedResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 

@@ -167,6 +167,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationInformation;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationInformationGPRS;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NumberPortabilityStatus;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ODBInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
@@ -5365,6 +5367,117 @@ TC-END + provideSubscriberInfoResponse
         serverExpectedEvents.add(te);
 
         client.sendProvideSubscriberInfo();
+        waitForEnd();
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+
+    }
+
+
+    /**
+<code>
+TC-BEGIN + noteSubscriberDataModifiedRequest
+TC-END + noteSubscriberDataModifiedResponse
+</code>
+     */
+    @Test(groups = { "functional.flow", "dialog" })
+    public void testNoteSubscriberDataModified() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+            @Override
+            public void onNoteSubscriberDataModifiedResponse(NoteSubscriberDataModifiedResponse ind) {
+                super.onNoteSubscriberDataModifiedResponse(ind);
+
+                assertNotNull(ind);
+            }
+
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+            @Override
+            public void onNoteSubscriberDataModifiedRequest(NoteSubscriberDataModifiedRequest ind) {
+                super.onNoteSubscriberDataModifiedRequest(ind);
+
+                MAPDialogMobility d = ind.getMAPDialog();
+                assertNotNull(ind.getImsi());
+                assertNotNull(ind.getMsisdn());
+                assertNotNull(ind.getForwardingInfoForCSE());
+                assertNotNull(ind.getCallBarringInfoForCSE());
+                assertNotNull(ind.getOdbInfo());
+                assertNotNull(ind.getCamelSubscriptionInfo());
+                assertTrue(ind.getAllInformationSent());
+                assertNull(ind.getExtensionContainer());
+                assertNotNull(ind.getUeReachable());
+                assertTrue(ind.getUeReachable().getSgsn());
+                assertTrue(ind.getUeReachable().getMme());
+                assertTrue(ind.getCsgSubscriptionDataList().size()>0);
+                assertNotNull(ind.getCwData());
+                assertNotNull(ind.getChData());
+                assertNotNull(ind.getClipData());
+                assertNotNull(ind.getClirData());
+                assertNotNull(ind.getEctData());
+
+                try {
+                    d.addNoteSubscriberDataModifiedResponse(ind.getInvokeId(), null);
+                } catch (MAPException e) {
+                    this.error("Error while adding NoteSubscriberDataModifiedResponse", e);
+                    fail("Error while adding NoteSubscriberDataModifiedResponse");
+                }
+            }
+
+            @Override
+            public void onDialogDelimiter(MAPDialog mapDialog) {
+                super.onDialogDelimiter(mapDialog);
+                try {
+                    this.observerdEvents.add(TestEvent.createSentEvent(EventType.NoteSubscriberDataModifiedResp, null, sequence++));
+                    mapDialog.close(false);
+                } catch (MAPException e) {
+                    this.error("Error while sending the empty NoteSubscriberDataModifiedResponse", e);
+                    fail("Error while sending the empty NoteSubscriberDataModifiedResponse");
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.NoteSubscriberDataModified, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.NoteSubscriberDataModifiedResp, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.NoteSubscriberDataModified, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.NoteSubscriberDataModifiedResp, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        client.sendNoteSubscriberDataModified();
         waitForEnd();
         client.compareEvents(clientExpectedEvents);
         server.compareEvents(serverExpectedEvents);

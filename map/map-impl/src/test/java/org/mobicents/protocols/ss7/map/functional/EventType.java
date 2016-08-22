@@ -28,7 +28,9 @@ public enum EventType {
     Reset, ForwardCheckSSIndication, RestoreData, RestoreDataResp,
 
     // mobility.subscriberInformation EventType
-    AnyTimeInterrogation, AnyTimeInterrogationResp, AnyTimeModification, AnyTimeModificationResp, AnyTimeSubscriptionInterrogation, AnyTimeSubscriptionInterrogationResp, ProvideSubscriberInfo, ProvideSubscriberInfoResp,
+    AnyTimeInterrogation, AnyTimeInterrogationResp, AnyTimeModification, AnyTimeModificationResp, AnyTimeSubscriptionInterrogation,
+    AnyTimeSubscriptionInterrogationResp, ProvideSubscriberInfo, ProvideSubscriberInfoResp, NoteSubscriberDataModified,
+    NoteSubscriberDataModifiedResp,
 
     // mobility.SubscriberManagementServices EventType
     InsertSubscriberData, InsertSubscriberDataResp, DeleteSubscriberData, DeleteSubscriberDataResp,

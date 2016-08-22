@@ -51,6 +51,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
@@ -120,6 +122,10 @@ public interface MAPServiceMobilityListener extends MAPServiceListener {
     void onProvideSubscriberInfoRequest(ProvideSubscriberInfoRequest request);
 
     void onProvideSubscriberInfoResponse(ProvideSubscriberInfoResponse response);
+
+    void onNoteSubscriberDataModifiedRequest(NoteSubscriberDataModifiedRequest request);
+
+    void onNoteSubscriberDataModifiedResponse(NoteSubscriberDataModifiedResponse response);
 
     // -- Subscriber Management services
     void onInsertSubscriberDataRequest(InsertSubscriberDataRequest request);
