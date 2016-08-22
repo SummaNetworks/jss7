@@ -21,8 +21,14 @@ public class IntegerEncoderFacility {
     }
 
     public int decode(AsnInputStream ais, String field) throws MAPParsingComponentException, AsnException, IOException {
+        if (!ais.isTagPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding " + primitiveName +" : Parameter " + field + " is not primitive",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+        return (int) ais.readInteger();
+    }
 
-
+    public static int decode(AsnInputStream ais, String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
         if (!ais.isTagPrimitive())
             throw new MAPParsingComponentException(
                     "Error while decoding " + primitiveName +" : Parameter " + field + " is not primitive",

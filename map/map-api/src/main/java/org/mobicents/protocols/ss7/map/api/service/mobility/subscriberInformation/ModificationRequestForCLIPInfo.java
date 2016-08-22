@@ -30,15 +30,15 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.OverrideCategor
 
 /**
  *
-<code>
-ModificationRequestFor-CLIP-Info ::= SEQUENCE {
-  ss-Status                [0] Ext-SS-Status OPTIONAL,
-  overrideCategory         [1] OverrideCategory OPTIONAL,
-  modifyNotificationToCSE  [2] ModificationInstruction OPTIONAL,
-  extensionContainer       [3] ExtensionContainer OPTIONAL,
-  ...
-}
-</code>
+ * <code>
+ * ModificationRequestFor-CLIP-Info ::= SEQUENCE {
+ *    ss-Status                [0] Ext-SS-Status OPTIONAL,
+ *    overrideCategory         [1] OverrideCategory OPTIONAL,
+ *    modifyNotificationToCSE  [2] ModificationInstruction OPTIONAL,
+ *    extensionContainer       [3] ExtensionContainer OPTIONAL,
+ *    ...
+ * }
+ * </code>
  *
  *
  * @author sergey vetyutnev

@@ -92,6 +92,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.T
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UESRVCCCapability;
 import org.mobicents.protocols.ss7.map.api.service.mobility.locationManagement.UsedRATType;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AdditionalRequestedCAMELSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationInstruction;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedCAMELSubscriptionInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
@@ -106,6 +107,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.EPSSubscriptionData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBasicServiceCode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBearerServiceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwOptionsForwardingReason;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtSSInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtTeleserviceCode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSSubscriptionData;
@@ -114,6 +116,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MCSSInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.NetworkAccessMode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ODBData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ODBGeneralData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ODBHPLMNData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SGSNCAMELSubscriptionInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SubscriberStatus;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SupportedCamelPhases;
@@ -134,14 +138,17 @@ import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_DA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_MTI;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_OA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SmsSignalInfo;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.CliRestrictionOption;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ForwardingReason;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPDialogSupplementary;
+import org.mobicents.protocols.ss7.map.api.service.supplementary.OverrideCategory;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.SSCode;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.SSForBSCode;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.SupplementaryCodeValue;
 import org.mobicents.protocols.ss7.map.api.smstpdu.NumberingPlanIdentification;
 import org.mobicents.protocols.ss7.map.api.smstpdu.TypeOfNumber;
 import org.mobicents.protocols.ss7.map.datacoding.CBSDataCodingSchemeImpl;
+import org.mobicents.protocols.ss7.map.primitives.AddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.AlertingPatternImpl;
 import org.mobicents.protocols.ss7.map.primitives.ExtExternalSignalInfoImpl;
 import org.mobicents.protocols.ss7.map.primitives.ExternalSignalInfoImpl;
@@ -149,9 +156,11 @@ import org.mobicents.protocols.ss7.map.primitives.GSNAddressImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMEIImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
+import org.mobicents.protocols.ss7.map.primitives.ISDNSubaddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.LMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerTest;
 import org.mobicents.protocols.ss7.map.primitives.SignalInfoImpl;
+import org.mobicents.protocols.ss7.map.primitives.SubscriberIdentityImpl;
 import org.mobicents.protocols.ss7.map.primitives.TMSIImpl;
 import org.mobicents.protocols.ss7.map.service.callhandling.CallReferenceNumberImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.ADDInfoImpl;
@@ -162,11 +171,33 @@ import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.LACIm
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.LocationAreaImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.PagingAreaImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.SGSNCapabilityImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCBInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCFInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCHInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCLIPInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCLIRInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCSGImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCSIImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForCWInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForECTInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForIPSMGWDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ModificationRequestForODBdataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.RequestedServingNodeImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtBasicServiceCodeImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtBearerServiceCodeImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtForwFeatureImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtForwOptionsImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtSSStatusImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ODBDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ODBGeneralDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ODBHPLMNDataImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.OfferedCamel4CSIsImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.SupportedCamelPhasesImpl;
 import org.mobicents.protocols.ss7.map.service.sms.AlertServiceCentreRequestImpl;
 import org.mobicents.protocols.ss7.map.service.sms.SM_RP_SMEAImpl;
 import org.mobicents.protocols.ss7.map.service.sms.SmsSignalInfoImpl;
+import org.mobicents.protocols.ss7.map.service.supplementary.PasswordImpl;
+import org.mobicents.protocols.ss7.map.service.supplementary.SSCodeImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.AddressFieldImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.DataCodingSchemeImpl;
 import org.mobicents.protocols.ss7.map.smstpdu.ProtocolIdentifierImpl;
@@ -1219,6 +1250,83 @@ public class Client extends EventTestHarness {
         clientDialogMobility.send();
     }
 
+    public void sendAnyTimeModification() throws Exception {
+
+        this.mapProvider.getMAPServiceMobility().acivate();
+
+        MAPApplicationContext appCnt = null;
+
+        appCnt = MAPApplicationContext.getInstance(MAPApplicationContextName.anyTimeInfoHandlingContext,
+                MAPApplicationContextVersion.version3);
+
+        clientDialogMobility = this.mapProvider.getMAPServiceMobility().createNewDialog(appCnt, this.thisAddress, null,
+                this.remoteAddress, null);
+
+
+        ISDNAddressString isdnAdd = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN,
+                "553499775190");
+        SubscriberIdentity subsId = new SubscriberIdentityImpl(isdnAdd);
+        ISDNAddressString gscmSCFAddress = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN,
+                "553496629943");
+
+        SSCodeImpl ssCode = new SSCodeImpl(SupplementaryCodeValue.mc);
+        ExtBasicServiceCodeImpl basicService = new ExtBasicServiceCodeImpl(
+                new ExtBearerServiceCodeImpl(BearerServiceCodeValue.allAlternateSpeech_DataCDA));
+        ExtSSStatusImpl ssStatus = new ExtSSStatusImpl(true, true, true, true);
+        new ExtForwFeatureImpl(
+                basicService,
+                ssStatus,
+                new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "22556326543"),
+                null, new ExtForwOptionsImpl(true, true, true, ExtForwOptionsForwardingReason.unconditional),
+                25, null, null);
+
+        AddressStringImpl addressString = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "89898989");
+        ISDNSubaddressStringImpl isdnSubaddressString = new ISDNSubaddressStringImpl(new byte[]{22});
+
+        ModificationRequestForCFInfoImpl modificationRequestForCfInfo = new ModificationRequestForCFInfoImpl(
+                ssCode, basicService, ssStatus, addressString, isdnSubaddressString, 12, ModificationInstruction.activate, null);
+
+        ModificationRequestForCBInfoImpl modificationRequestForCbInfo = new ModificationRequestForCBInfoImpl(ssCode, basicService,
+                ssStatus, new PasswordImpl("1524"), 12, ModificationInstruction.activate, null);
+
+        ModificationRequestForCSIImpl modificationRequestForCSI = new ModificationRequestForCSIImpl(RequestedCAMELSubscriptionInfo.mCSI,
+                ModificationInstruction.activate, ModificationInstruction.activate, null, null);
+        // odbData
+        ODBGeneralData oDBGeneralData = new ODBGeneralDataImpl(false, true, false, true, false, true, false, true, false, true, false, true, false, true,
+                false, true, false, true, false, true, false, true, false, true, false, true, false, true, false);
+        ODBHPLMNData odbHplmnData = new ODBHPLMNDataImpl(false, true, false, true);
+        ODBData odbData = new ODBDataImpl(oDBGeneralData, odbHplmnData, null);
+        ModificationRequestForODBdataImpl modificationRequestForODBdata = new ModificationRequestForODBdataImpl(
+                odbData, ModificationInstruction.activate, null);
+
+        ModificationRequestForIPSMGWDataImpl modificationRequestForIpSmGwData = new ModificationRequestForIPSMGWDataImpl(
+                ModificationInstruction.activate, null);
+
+        RequestedServingNodeImpl activationRequestForUEReachability = new RequestedServingNodeImpl(true);
+        ModificationRequestForCSGImpl modificationRequestForCSG = new ModificationRequestForCSGImpl(ModificationInstruction.activate, null);
+        ModificationRequestForCWInfoImpl modificationRequestForCwData = new ModificationRequestForCWInfoImpl(basicService,
+                ssStatus, ModificationInstruction.activate, null);
+        ModificationRequestForCLIPInfoImpl modificationRequestForClipData = new ModificationRequestForCLIPInfoImpl(ssStatus,
+                OverrideCategory.overrideDisabled, ModificationInstruction.activate, null);
+
+        ModificationRequestForCLIRInfoImpl modificationRequestForClirData = new ModificationRequestForCLIRInfoImpl(ssStatus,
+                CliRestrictionOption.permanent, ModificationInstruction.activate, null);
+
+        ModificationRequestForCHInfoImpl modificationRequestForHoldData = new ModificationRequestForCHInfoImpl(ssStatus,
+                ModificationInstruction.activate, null);
+
+        ModificationRequestForECTInfoImpl modificationRequestForEctData = new ModificationRequestForECTInfoImpl(ssStatus,
+                ModificationInstruction.activate, null);
+        clientDialogMobility.addAnyTimeModificationRequest(subsId, gscmSCFAddress, modificationRequestForCfInfo, modificationRequestForCbInfo,
+                modificationRequestForCSI, null, true, modificationRequestForODBdata, modificationRequestForIpSmGwData,
+                activationRequestForUEReachability, modificationRequestForCSG, modificationRequestForCwData,
+                modificationRequestForClipData, modificationRequestForClirData, modificationRequestForHoldData,
+                modificationRequestForEctData);
+
+        this.observerdEvents.add(TestEvent.createSentEvent(EventType.AnyTimeModification, null, sequence++));
+        clientDialogMobility.send();
+    }
+
 
     public void sendAnyTimeSubscriptionInterrogation() throws Exception {
 
@@ -1226,7 +1334,7 @@ public class Client extends EventTestHarness {
 
         MAPApplicationContext appCnt = null;
 
-        appCnt = MAPApplicationContext.getInstance(MAPApplicationContextName.anyTimeEnquiryContext,
+        appCnt = MAPApplicationContext.getInstance(MAPApplicationContextName.anyTimeInfoHandlingContext,
                 MAPApplicationContextVersion.version3);
 
         clientDialogMobility = this.mapProvider.getMAPServiceMobility().createNewDialog(appCnt, this.thisAddress, null,

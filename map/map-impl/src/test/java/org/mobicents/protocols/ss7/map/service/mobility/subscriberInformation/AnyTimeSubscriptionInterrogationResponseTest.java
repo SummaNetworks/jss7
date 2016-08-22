@@ -173,11 +173,3 @@ public class AnyTimeSubscriptionInterrogationResponseTest {
     }
 
 }
-
-/*
-    ArrayList<MSISDNBS> msisdnBsList = new ArrayList<MSISDNBS>();
-    MSISDNBS msisdnBs = new MsisdnBs(new ISDNAddressString(),
-            mapParameterFactory.);
-    msisdnBsList.add(msisdnBs);
-*/
-

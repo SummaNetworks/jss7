@@ -29,14 +29,14 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 
 /**
  *
-<code>
-ModificationRequestFor-ECT-Info ::= SEQUENCE {
-  ss-Status                [0] Ext-SS-Status OPTIONAL,
-  modifyNotificationToCSE  [1] ModificationInstruction OPTIONAL,
-  extensionContainer       [2] ExtensionContainer OPTIONAL,
-  ...
-}
-</code>
+ * <code>
+ *  ModificationRequestFor-ECT-Info ::= SEQUENCE {
+ *    ss-Status                [0] Ext-SS-Status OPTIONAL,
+ *    modifyNotificationToCSE  [1] ModificationInstruction OPTIONAL,
+ *    extensionContainer       [2] ExtensionContainer OPTIONAL,
+ *    ...
+ *  }
+ * </code>
  *
  *
  * @author sergey vetyutnev

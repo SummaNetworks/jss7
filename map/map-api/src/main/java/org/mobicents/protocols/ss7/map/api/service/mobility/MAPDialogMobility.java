@@ -71,9 +71,22 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClipData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClirData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.EctData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtSSInfoForCSE;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCBInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCFInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCHInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCLIPInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCLIRInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCSG;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCWInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForECTInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForIPSMGWData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForODBdata;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ODBInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AccessRestrictionData;
@@ -241,6 +254,42 @@ public interface MAPDialogMobility extends MAPDialog {
 
     void addAnyTimeInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo,
             MAPExtensionContainer extensionContainer) throws MAPException;
+
+    long addAnyTimeModificationRequest(SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
+                                       ModificationRequestForCFInfo modificationRequestForCfInfo,
+                                       ModificationRequestForCBInfo modificationRequestForCbInfo,
+                                       ModificationRequestForCSI modificationRequestForCSI,
+                                       MAPExtensionContainer extensionContainer, boolean longFtnSupported,
+                                       ModificationRequestForODBdata modificationRequestForODBdata,
+                                       ModificationRequestForIPSMGWData modificationRequestForIpSmGwData,
+                                       RequestedServingNode activationRequestForUEReachability,
+                                       ModificationRequestForCSG modificationRequestForCSG,
+                                       ModificationRequestForCWInfo modificationRequestForCwData,
+                                       ModificationRequestForCLIPInfo modificationRequestForClipData,
+                                       ModificationRequestForCLIRInfo modificationRequestForClirData,
+                                       ModificationRequestForCHInfo modificationRequestForHoldData,
+                                       ModificationRequestForECTInfo modificationRequestForEctData) throws MAPException;
+
+    long addAnyTimeModificationRequest(long customInvokeTimeout, SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
+                                       ModificationRequestForCFInfo modificationRequestForCfInfo,
+                                       ModificationRequestForCBInfo modificationRequestForCbInfo,
+                                       ModificationRequestForCSI modificationRequestForCSI,
+                                       MAPExtensionContainer extensionContainer, boolean longFtnSupported,
+                                       ModificationRequestForODBdata modificationRequestForODBdata,
+                                       ModificationRequestForIPSMGWData modificationRequestForIpSmGwData,
+                                       RequestedServingNode activationRequestForUEReachability,
+                                       ModificationRequestForCSG modificationRequestForCSG,
+                                       ModificationRequestForCWInfo modificationRequestForCwData,
+                                       ModificationRequestForCLIPInfo modificationRequestForClipData,
+                                       ModificationRequestForCLIRInfo modificationRequestForClirData,
+                                       ModificationRequestForCHInfo modificationRequestForHoldData,
+                                       ModificationRequestForECTInfo modificationRequestForEctData)
+            throws MAPException;
+
+    void addAnyTimeModificationResponse(long invokeId, ExtSSInfoForCSE ssInfoForCSE, CAMELSubscriptionInfo camelSubscriptionInfo,
+                                        MAPExtensionContainer extensionContainer, ODBInfo odbInfo, CallWaitingData cwData,
+                                        CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData,
+                                        AddressString serviceCentreAddress) throws MAPException;
 
     long addAnyTimeSubscriptionInterrogationRequest(
             SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,

@@ -24,6 +24,16 @@ public class ObjectEncoderFacility {
         return decodeObjectNotFramed(ais, mapAsnPrimitive);
     }
 
+    public static MAPAsnPrimitive decodeNestedObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive, String field, String primitiveName)
+            throws MAPParsingComponentException, AsnException, IOException {
+        if (ais.isTagPrimitive()) {
+            throw new MAPParsingComponentException("Error while decoding " + primitiveName
+                    + ": Parameter " + field + " is primitive",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+        }
+        return decodeNestedObject(ais, mapAsnPrimitive);
+    }
+
     public static MAPAsnPrimitive decodePrimitiveObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive,
                                                         String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
         if (!ais.isTagPrimitive()) {
@@ -35,7 +45,20 @@ public class ObjectEncoderFacility {
         return mapAsnPrimitive;
     }
 
-    private static MAPAsnPrimitive decodeObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive)
+    public static MAPAsnPrimitive decodeNestedPrimitiveObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive,
+                                                        String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
+        if (!ais.isTagPrimitive()) {
+            throw new MAPParsingComponentException("Error while decoding " + primitiveName
+                    + ": Parameter " + field + " is not primitive",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+        }
+        AsnInputStream ais2 = ais.readSequenceStream();
+        ais2.readTag();
+        mapAsnPrimitive.decodeAll(ais);
+        return mapAsnPrimitive;
+    }
+
+    private static MAPAsnPrimitive decodeNestedObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive)
             throws AsnException, IOException, MAPParsingComponentException {
         AsnInputStream ais2 = ais.readSequenceStream();
         ais2.readTag();

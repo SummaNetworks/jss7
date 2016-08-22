@@ -57,6 +57,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
@@ -457,6 +459,20 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse response) {
         this.logger.debug("onAnyTimeInterrogationResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeInterrogationResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onAnyTimeModificationRequest(AnyTimeModificationRequest request) {
+        this.logger.debug("onAnyTimeModificationRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeModification, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onAnyTimeModificationResponse(AnyTimeModificationResponse response) {
+        this.logger.debug("onAnyTimeModificationResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeModificationResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 

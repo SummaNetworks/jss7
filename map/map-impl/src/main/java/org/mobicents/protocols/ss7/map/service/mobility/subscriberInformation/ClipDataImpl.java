@@ -142,14 +142,7 @@ public class ClipDataImpl extends AbstractMAPAsnPrimitive implements ClipData, M
 
         IntegerEncoderFacility.encode(asnOs, overrideCategory.getCode(), Tag.CLASS_CONTEXT_SPECIFIC,
                 _TAG_OVERRIDE_CATEGORY, "overrideCategory");
-        /*try {
-            asnOs.writeInteger(this.overrideCategory.getCode(), Tag.CLASS_CONTEXT_SPECIFIC, _TAG_OVERRIDE_CATEGORY);
-        } catch (IOException e) {
-            throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
-        } catch (AsnException e) {
-            throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
-        }
-*/
+
         NullEncoderFacility.encode(asnOs, this.notificationToCSE, Tag.CLASS_CONTEXT_SPECIFIC,
                 _TAG_NOTIFICATION_TO_CSE, "notificationToCSE");
 

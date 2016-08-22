@@ -147,71 +147,6 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
             }
             num++;
         }
-
-/*
-                switch (num) {
-                case 0:
-                    if (tag != Tag.SEQUENCE || ais.getTagClass() != Tag.CLASS_UNIVERSAL || ais.isTagPrimitive())
-                        throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                + ": Parameter 0 bad tag, tag class or primitive",
-                                MAPParsingComponentExceptionReason.MistypedParameter);
-
-                    this.callBarringFeatureList = new ArrayList<ExtCallBarringFeature>();
-
-                    AsnInputStream ais2 = ais.readSequenceStream();
-
-                    while (true) {
-                        if (ais2.available() == 0)
-                            break;
-
-                        int tag2 = ais2.readTag();
-
-                        if (tag2 != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": bad tag or tagClass or is primitive when decoding callBarringFeatureList",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.callBarringFeatureList.add((ExtCallBarringFeature) ObjectEncoderFacility.
-                                decodeObject(ais2, new ExtCallBarringFeatureImpl(), "callBarringFeatureList", getPrimitiveName()));
-
-                        if (this.callBarringFeatureList.size() < 1 || this.callBarringFeatureList.size() > 32)
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".callBarringFeatureList elements count must be from 1 to 32, found: "
-                                    + this.callBarringFeatureList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                    }
-
-                    break;
-                default:
-                    if (ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
-                        switch (tag) {
-                            case Tag.INTEGER:
-                                this.wrongPasswordAttemptsCounter = new IntegerEncoderFacility(_PrimitiveName).decode(ais, "wrongPasswordAttemptsCounter");
-                                break;
-                            case Tag.STRING_NUMERIC:
-                                this.password = (Password) ObjectEncoderFacility.
-                                        decodePrimitiveObject(ais, new PasswordImpl(), "password", getPrimitiveName());
-                                break;
-                            case Tag.NULL:
-                                this.notificationToCSE = NullEncoderFacility.decode(ais, "notificationToCSE", getPrimitiveName());
-                                break;
-                            case Tag.SEQUENCE:
-                                extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
-                                        decodeObject(ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
-                                break;
-                            default:
-                                ais.advanceElement();
-                                break;
-                        }
-                    } else {
-                        ais.advanceElement();
-                    }
-                    break;
-            }
-
-            num++;
-        }
-*/
-
    }
 
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
@@ -230,7 +165,7 @@ public class CallBarringDataImpl extends AbstractMAPAsnPrimitive implements Call
         }
 
         if (this.wrongPasswordAttemptsCounter != null) {
-            new IntegerEncoderFacility(_PrimitiveName).encode(asnOs, wrongPasswordAttemptsCounter, "wrongPasswordAttemptsCounter");
+            IntegerEncoderFacility.encode(asnOs, wrongPasswordAttemptsCounter, "wrongPasswordAttemptsCounter");
         }
 
         NullEncoderFacility.encode(asnOs, this.notificationToCSE, "notificationToCSE");

@@ -150,6 +150,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CAMELSubscriptionInfo;
@@ -261,6 +263,7 @@ import org.mobicents.protocols.ss7.map.api.smstpdu.NumberingPlanIdentification;
 import org.mobicents.protocols.ss7.map.api.smstpdu.SmsSubmitTpdu;
 import org.mobicents.protocols.ss7.map.api.smstpdu.TypeOfNumber;
 import org.mobicents.protocols.ss7.map.datacoding.CBSDataCodingSchemeImpl;
+import org.mobicents.protocols.ss7.map.primitives.AddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerTest;
@@ -274,16 +277,33 @@ import org.mobicents.protocols.ss7.map.service.mobility.imei.CheckImeiRequestImp
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.PurgeMSRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.SendIdentificationRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.locationManagement.UpdateGprsLocationRequestImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.CAMELSubscriptionInfoImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.CallHoldDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.CallWaitingDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ClipDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ClirDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.EctDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ExtCallBarringInfoForCSEImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ExtSSInfoForCSEImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ODBInfoImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtBasicServiceCodeImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtBearerServiceCodeImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtCallBarringFeatureImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtCwFeatureImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtForwFeatureImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtForwOptionsImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtSSStatusImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.InsertSubscriberDataRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.InsertSubscriberDataResponseImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ODBDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ODBGeneralDataImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ODBHPLMNDataImpl;
 import org.mobicents.protocols.ss7.map.service.oam.SendImsiRequestImpl;
 import org.mobicents.protocols.ss7.map.service.sms.SmsSignalInfoImpl;
+import org.mobicents.protocols.ss7.map.service.supplementary.PasswordImpl;
 import org.mobicents.protocols.ss7.map.service.supplementary.ProcessUnstructuredSSResponseImpl;
 import org.mobicents.protocols.ss7.map.service.supplementary.RegisterSSRequestImpl;
+import org.mobicents.protocols.ss7.map.service.supplementary.SSCodeImpl;
 import org.mobicents.protocols.ss7.sccp.impl.SccpHarness;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
@@ -4733,10 +4753,10 @@ public class MAPFunctionalTest extends SccpHarness {
     }
 
     /**
-<code>
-TC-BEGIN + anyTimeInterrogationRequest
-TC-END + anyTimeInterrogationResponse
-</code>
+    <code>
+    TC-BEGIN + anyTimeInterrogationRequest
+    TC-END + anyTimeInterrogationResponse
+    </code>
      */
     @Test(groups = { "functional.flow", "dialog" })
     public void testAnyTimeInterrogation() throws Exception {
@@ -4848,6 +4868,169 @@ TC-END + anyTimeInterrogationResponse
         serverExpectedEvents.add(te);
 
         client.sendAnyTimeInterrogation();
+        waitForEnd();
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+
+    }
+
+    /**
+    <code>
+    TC-BEGIN + anyTimeModificationRequest
+    TC-END + anyTimeModificationResponse
+    </code>
+     */
+    @Test(groups = { "functional.flow", "dialog" })
+    public void testAnyTimeModification() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+            @Override
+            public void onAnyTimeModificationResponse(AnyTimeModificationResponse ind) {
+                super.onAnyTimeModificationResponse(ind);
+
+                assertNotNull(ind.getSsInfoForCSE());
+                assertNotNull(ind.getCamelSubscriptionInfo());
+                assertNull(ind.getExtensionContainer());
+                assertNotNull(ind.getOdbInfo());
+                assertNotNull(ind.getCwData());
+                assertNotNull(ind.getChData());
+                assertNotNull(ind.getClipData());
+                assertNotNull(ind.getClirData());
+                assertNotNull(ind.getEctData());
+                assertNotNull(ind.getServiceCentreAddress());
+                assertNull(ind.getExtensionContainer());
+            }
+
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+            @Override
+            public void onAnyTimeModificationRequest(AnyTimeModificationRequest ind) {
+                super.onAnyTimeModificationRequest(ind);
+
+                MAPDialogMobility d = ind.getMAPDialog();
+
+
+                assertNotNull(ind.getSubscriberIdentity());
+                assertNotNull(ind.getGsmSCFAddress());
+                assertNotNull(ind.getModificationRequestForCfInfo());
+                assertNotNull(ind.getModificationRequestForCbInfo());
+                assertNotNull(ind.getModificationRequestForCSI());
+                assertNull(ind.getExtensionContainer());
+                assertNotNull(ind.getLongFTNSupported());
+                assertNotNull(ind.getModificationRequestForODBdata());
+                assertNotNull(ind.getModificationRequestForIpSmGwData());
+                assertNotNull(ind.getActivationRequestForUEReachability());
+                assertNotNull(ind.getModificationRequestForCSG());
+                assertNotNull(ind.getModificationRequestForCwData());
+                assertNotNull(ind.getModificationRequestForClipData());
+                assertNotNull(ind.getModificationRequestForClirData());
+                assertNotNull(ind.getModificationRequestForHoldData());
+                assertNotNull(ind.getModificationRequestForEctData());
+                
+
+                try {
+
+                    SSCodeImpl ssCode = new SSCodeImpl(SupplementaryCodeValue.mc);
+                    ExtBasicServiceCodeImpl basicService = new ExtBasicServiceCodeImpl(
+                            new ExtBearerServiceCodeImpl(BearerServiceCodeValue.allAlternateSpeech_DataCDA));
+                    ExtSSStatusImpl ssStatus = new ExtSSStatusImpl(true, true, true, true);
+                    new ExtForwFeatureImpl(
+                            basicService,
+                            ssStatus,
+                            new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "22556326543"),
+                            null, new ExtForwOptionsImpl(true, true, true, ExtForwOptionsForwardingReason.unconditional),
+                            25, null, null);
+
+                    AddressStringImpl addressString = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "89898989");
+
+                    ArrayList<ExtCwFeature> cwFeatureList = new ArrayList<ExtCwFeature>();
+                    cwFeatureList.add(new ExtCwFeatureImpl(new ExtBasicServiceCodeImpl(
+                            new ExtBearerServiceCodeImpl(BearerServiceCodeValue.allAlternateSpeech_DataCDA)),
+                            new ExtSSStatusImpl(true, true, true, true)));
+                    CallWaitingData callWaitingData = new CallWaitingDataImpl(cwFeatureList, false);
+                    CallHoldData callHoldData = new CallHoldDataImpl(true, new ExtSSStatusImpl(true, true, true, true));
+                    ClipData clipData = new ClipDataImpl(new ExtSSStatusImpl(true, true, true, true), OverrideCategory.overrideDisabled, true);
+                    ClirData clirData = new ClirDataImpl(true, CliRestrictionOption.permanent, new ExtSSStatusImpl(true, true, true, true));
+                    EctData ectData = new EctDataImpl(true, new ExtSSStatusImpl(true, true, true, true));
+
+                    ODBInfo odbInfo = new ODBInfoImpl(new ODBDataImpl(
+                            new ODBGeneralDataImpl(true, true, true, true, true, true, true, true, true, true,
+                                    true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true),
+                            new ODBHPLMNDataImpl(true, true, true, true), null), true, null);
+                    CAMELSubscriptionInfo camelSubscriptionInfo = new CAMELSubscriptionInfoImpl(null,
+                            null, null, null, null, null, null, false, false, null, null, null, null, null, null, null, null, null, null,
+                            null, null, null, null);
+
+                    ArrayList<ExtCallBarringFeature> callBarringFeatureList = new ArrayList<ExtCallBarringFeature>();
+                    callBarringFeatureList.add(new ExtCallBarringFeatureImpl(
+                            new ExtBasicServiceCodeImpl(
+                                    new ExtBearerServiceCodeImpl(BearerServiceCodeValue.allAlternateSpeech_DataCDA)),
+                            new ExtSSStatusImpl(true, true, true, true), null));
+
+                    ExtSSInfoForCSEImpl ssInfoForCSE = new ExtSSInfoForCSEImpl(new ExtCallBarringInfoForCSEImpl(ssCode,
+                            callBarringFeatureList, new PasswordImpl("1212"), 12, true, null));
+                    d.addAnyTimeModificationResponse(ind.getInvokeId(), ssInfoForCSE, camelSubscriptionInfo, null,odbInfo,
+                            callWaitingData, callHoldData, clipData, clirData, ectData, addressString);
+                } catch (MAPException e) {
+                    this.error("Error while adding AnyTimeModificationResponse", e);
+                    fail("Error while adding AnyTimeModificationResponse");
+                }
+            }
+
+            @Override
+            public void onDialogDelimiter(MAPDialog mapDialog) {
+                super.onDialogDelimiter(mapDialog);
+                try {
+                    this.observerdEvents.add(TestEvent.createSentEvent(EventType.AnyTimeModificationResp, null, sequence++));
+                    mapDialog.close(false);
+                } catch (MAPException e) {
+                    this.error("Error while sending the empty AnyTimeModificationResponse", e);
+                    fail("Error while sending the empty AnyTimeModificationResponse");
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.AnyTimeModification, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.AnyTimeModificationResp, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.AnyTimeModification, null, count++,
+                (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.AnyTimeModificationResp, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+        client.sendAnyTimeModification();
         waitForEnd();
         client.compareEvents(clientExpectedEvents);
         server.compareEvents(serverExpectedEvents);

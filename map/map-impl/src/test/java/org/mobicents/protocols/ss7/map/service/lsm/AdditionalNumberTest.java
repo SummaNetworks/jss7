@@ -32,11 +32,13 @@ import java.util.Arrays;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.ss7.map.MAPParameterFactoryImpl;
+import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan;
 import org.mobicents.protocols.ss7.map.api.service.lsm.AdditionalNumber;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
@@ -135,11 +137,12 @@ public class AdditionalNumberTest {
         addNum = new AdditionalNumberImpl(null, true);
 
         asnOS = new AsnOutputStream();
-        ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
-
-        encodedData = asnOS.toByteArray();
-
-        assertTrue(Arrays.equals(data, encodedData));
+        try {
+            ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
+            Assert.fail("Address can not be null");
+        } catch (MAPException e){
+            assertTrue(e.getMessage().contains("both mscNumber and sgsnNumber must not be null"));
+        }
     }
 
     @Test(groups = { "functional.serialize", "service.lsm" })
