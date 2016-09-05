@@ -61,8 +61,12 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
@@ -656,6 +660,14 @@ public class TestCheckImeiClientMan extends TesterBase implements TestCheckImeiC
 
     }
 
+    public void onAnyTimeModificationRequest(AnyTimeModificationRequest request) {
+
+    }
+
+    public void onAnyTimeModificationResponse(AnyTimeModificationResponse response) {
+
+    }
+
     @Override
     public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request) {
         // TODO Auto-generated method stub
@@ -677,6 +689,14 @@ public class TestCheckImeiClientMan extends TesterBase implements TestCheckImeiC
     @Override
     public void onProvideSubscriberInfoResponse(ProvideSubscriberInfoResponse response) {
         // TODO Auto-generated method stub
+
+    }
+
+    public void onNoteSubscriberDataModifiedRequest(NoteSubscriberDataModifiedRequest request) {
+
+    }
+
+    public void onNoteSubscriberDataModifiedResponse(NoteSubscriberDataModifiedResponse response) {
 
     }
 
