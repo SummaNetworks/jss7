@@ -78,12 +78,12 @@ public class ExtCallBarringInfoForCSEImpl extends AbstractMAPAsnPrimitive implem
     private MAPExtensionContainer extensionContainer;
 
 
-    private final static int TAG_SS_CODE = 0;
-    private final static int TAG_CALL_BARRING_FEATURE_LIST = 1;
-    private final static int TAG_PASSWORD = 2;
-    private final static int TAG_WRONG_PASSWORD_ATTEMPTS_COUNTER = 3;
-    private final static int TAG_NOTIFICATION_TO_CSE = 4;
-    private final static int TAG_EXTENSION_CONTAINER = 5;
+    private static final int TAG_SS_CODE = 0;
+    private static final int TAG_CALL_BARRING_FEATURE_LIST = 1;
+    private static final int TAG_PASSWORD = 2;
+    private static final int TAG_WRONG_PASSWORD_ATTEMPTS_COUNTER = 3;
+    private static final int TAG_NOTIFICATION_TO_CSE = 4;
+    private static final int TAG_EXTENSION_CONTAINER = 5;
 
     public ExtCallBarringInfoForCSEImpl() {
     }

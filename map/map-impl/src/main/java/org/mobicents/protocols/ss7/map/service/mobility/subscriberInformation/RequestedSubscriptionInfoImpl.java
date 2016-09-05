@@ -41,7 +41,6 @@ import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
 import org.mobicents.protocols.ss7.map.service.supplementary.SSForBSCodeImpl;
 
 /**
- * 
  * <code>
  RequestedSubscriptionInfo ::= SEQUENCE {
          requestedSS-Info                           [1] SS-ForBS-Code OPTIONAL,
@@ -377,7 +376,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
             ((SSForBSCodeImpl) this.requestedSSInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
                     _ID_requestedSS_Info);
         }
-        
+
         try {
             if (this.odb) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_odb);
@@ -387,7 +386,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter odb: ", e);
         }
-        
+
         try {
             if (this.requestedCAMELSubscriptionInfo!=null) {
                 asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _ID_requestedCAMEL_SubscriptionInfo, this.requestedCAMELSubscriptionInfo.getCode());
@@ -433,7 +432,6 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
             throw new MAPException("AsnException when encoding parameter additionalRequestedCamelSubscriptionInfo: ", e);
         }
 
-
         try {
             if (this.msisdnBsList) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_msisdn_BS_List);
@@ -443,7 +441,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter msisdnBsList: ", e);
         }
-        
+
         try {
             if (this.csgSubscriptionDataRequested) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_csg_SubscriptionDataRequested);
@@ -453,7 +451,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter csgSubscriptionDataRequested: ", e);
         }
-        
+
         try {
             if (this.cwInfo) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_cw_Info);
@@ -463,7 +461,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter cwInfo: ", e);
         }
-        
+
         try {
             if (this.clipInfo) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_clip_Info);
@@ -473,7 +471,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter clipInfo: ", e);
         }
-        
+
         try {
             if (this.clirInfo) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_clir_Info);
@@ -483,7 +481,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter clirInfo: ", e);
         }
-        
+
         try {
             if (this.holdInfo) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_hold_Info);
@@ -493,7 +491,7 @@ public class RequestedSubscriptionInfoImpl implements RequestedSubscriptionInfo,
         } catch (AsnException e) {
             throw new MAPException("AsnException when encoding parameter holdInfo: ", e);
         }
-        
+
         try {
             if (this.ectInfo) {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _ID_ect_Info);

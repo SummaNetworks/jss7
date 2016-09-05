@@ -62,14 +62,14 @@ public class ModificationRequestForCFInfoImpl extends AbstractMAPAsnPrimitive im
     private ModificationInstruction modifyNotificationToCSE;
     private MAPExtensionContainer extensionContainer;
 
-    private final static int TAG_SS_CODE = 0;
-    private final static int TAG_BASIC_SERVICE = 1;
-    private final static int TAG_SS_STATUS = 2;
-    private final static int TAG_FORWARDED_TO_NUMBER = 3;
-    private final static int TAG_FORWARDED_TO_SUBADDRESS = 4;
-    private final static int TAG_NO_REPLY_CONDITION_TIME = 5;
-    private final static int TAG_MODIFY_NOTIFICATION_TO_CSE = 6;
-    private final static int TAG_EXTENSION_CONTAINER = 7;
+    private static final int TAG_SS_CODE = 0;
+    private static final int TAG_BASIC_SERVICE = 1;
+    private static final int TAG_SS_STATUS = 2;
+    private static final int TAG_FORWARDED_TO_NUMBER = 3;
+    private static final int TAG_FORWARDED_TO_SUBADDRESS = 4;
+    private static final int TAG_NO_REPLY_CONDITION_TIME = 5;
+    private static final int TAG_MODIFY_NOTIFICATION_TO_CSE = 6;
+    private static final int TAG_EXTENSION_CONTAINER = 7;
 
 
     public static final String PRIMITIVE_NAME = "ModificationRequestForCFInfo";

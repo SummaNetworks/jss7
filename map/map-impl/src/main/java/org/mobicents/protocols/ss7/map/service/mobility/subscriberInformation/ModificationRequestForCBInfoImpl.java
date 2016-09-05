@@ -53,13 +53,13 @@ public class ModificationRequestForCBInfoImpl extends AbstractMAPAsnPrimitive im
     private ModificationInstruction modifyNotificationToCSE;
     private MAPExtensionContainer extensionContainer;
 
-    private final static int TAG_SS_CODE = 0;
-    private final static int TAG_BASIC_SERVICE = 1;
-    private final static int TAG_SS_STATUS = 2;
-    private final static int TAG_PASSWORD = 3;
-    private final static int TAG_WRONG_PASSWORD_ATTEMPTS_COUNTER = 4;
-    private final static int TAG_MODIFY_NOTIFICATION_TO_CSE = 5;
-    private final static int TAG_EXTENSION_CONTAINER = 6;
+    private static final int TAG_SS_CODE = 0;
+    private static final int TAG_BASIC_SERVICE = 1;
+    private static final int TAG_SS_STATUS = 2;
+    private static final int TAG_PASSWORD = 3;
+    private static final int TAG_WRONG_PASSWORD_ATTEMPTS_COUNTER = 4;
+    private static final int TAG_MODIFY_NOTIFICATION_TO_CSE = 5;
+    private static final int TAG_EXTENSION_CONTAINER = 6;
 
 
     public static final String PRIMITIVE_NAME = "ModificationRequestForCBInfo";

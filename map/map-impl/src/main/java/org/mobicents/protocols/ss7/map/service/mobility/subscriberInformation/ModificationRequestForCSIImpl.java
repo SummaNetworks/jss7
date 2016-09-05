@@ -43,11 +43,11 @@ public class ModificationRequestForCSIImpl extends AbstractMAPAsnPrimitive imple
     private MAPExtensionContainer extensionContainer;
     private AdditionalRequestedCAMELSubscriptionInfo additionalRequestedCAMELSubscriptionInfo;
 
-    private final static int TAG_REQUESTED_CAMEL_SUBSCRIPTION_INFO = 0;
-    private final static int TAG_MODIFY_NOTIFICATION_TO_CSE = 1;
-    private final static int TAG_MODIFY_CSI_STATE = 2;
-    private final static int TAG_EXTENSION_CONTAINER = 3;
-    private final static int TAG_ADDITIONAL_REQUESTED_CAMEL_SUBSCRIPTION_INFO = 4;
+    private static final int TAG_REQUESTED_CAMEL_SUBSCRIPTION_INFO = 0;
+    private static final int TAG_MODIFY_NOTIFICATION_TO_CSE = 1;
+    private static final int TAG_MODIFY_CSI_STATE = 2;
+    private static final int TAG_EXTENSION_CONTAINER = 3;
+    private static final int TAG_ADDITIONAL_REQUESTED_CAMEL_SUBSCRIPTION_INFO = 4;
 
 
     public static final String PRIMITIVE_NAME = "ModificationRequestForCSI";

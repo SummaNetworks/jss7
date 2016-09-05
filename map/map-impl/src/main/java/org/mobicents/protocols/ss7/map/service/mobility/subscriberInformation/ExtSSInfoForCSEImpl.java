@@ -51,7 +51,7 @@ public class ExtSSInfoForCSEImpl extends AbstractMAPAsnPrimitive implements ExtS
 
     public static final int _TAG_forwardingInfoFor_CSE = 0;
     public static final int _TAG_callBarringInfoFor_CSE = 1;
-    
+
     private static final String DEFAULT_STRING_VALUE = null;
 
     public static final String _PrimitiveName = "ExtSSInfoForCSE";

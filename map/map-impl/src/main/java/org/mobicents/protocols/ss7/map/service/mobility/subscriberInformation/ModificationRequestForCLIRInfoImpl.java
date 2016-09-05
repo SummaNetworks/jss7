@@ -39,10 +39,10 @@ public class ModificationRequestForCLIRInfoImpl extends AbstractMAPAsnPrimitive 
     private ModificationInstruction modifyNotificationToCSE;
     private MAPExtensionContainer extensionContainer;
 
-    private final static int TAG_SS_STATUS = 0;
-    private final static int TAG_CLI_RESTRICTION_OPTION = 1;
-    private final static int TAG_MODIFY_NOTIFICATION_TO_CSE = 2;
-    private final static int TAG_EXTENSION_CONTAINER = 3;
+    private static final int TAG_SS_STATUS = 0;
+    private static final int TAG_CLI_RESTRICTION_OPTION = 1;
+    private static final int TAG_MODIFY_NOTIFICATION_TO_CSE = 2;
+    private static final int TAG_EXTENSION_CONTAINER = 3;
 
 
     public static final String PRIMITIVE_NAME = "ModificationRequestForCLIRInfo";

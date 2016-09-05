@@ -36,9 +36,9 @@ public class ModificationRequestForECTInfoImpl extends AbstractMAPAsnPrimitive i
     private ModificationInstruction modifyNotificationToCSE;
     private MAPExtensionContainer extensionContainer;
 
-    private final static int TAG_SS_STATUS = 0;
-    private final static int TAG_MODIFY_NOTIFICATION_TO_CSE = 1;
-    private final static int TAG_EXTENSION_CONTAINER = 2;
+    private static final int TAG_SS_STATUS = 0;
+    private static final int TAG_MODIFY_NOTIFICATION_TO_CSE = 1;
+    private static final int TAG_EXTENSION_CONTAINER = 2;
 
 
     public static final String PRIMITIVE_NAME = "ModificationRequestForECTInfo";

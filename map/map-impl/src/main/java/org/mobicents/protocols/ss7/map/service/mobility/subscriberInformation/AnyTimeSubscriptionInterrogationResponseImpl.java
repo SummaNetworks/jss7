@@ -1,10 +1,7 @@
 package org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -80,29 +77,7 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
     private ClipData clipData;
     private ClirData clirData;
     private EctData ectData;
-
-    private Map<Integer, Field> getContextSpecificMap() throws NoSuchFieldException {
-        HashMap<Integer, Field> integerFieldHashMap = new HashMap<Integer, Field>();
-        integerFieldHashMap.put(1,  this.getClass().getDeclaredField("callForwardingData"));
-        integerFieldHashMap.put(2,  this.getClass().getDeclaredField("callBarringData"));
-        integerFieldHashMap.put(3,  this.getClass().getDeclaredField("odbInfo"));
-        integerFieldHashMap.put(4,  this.getClass().getDeclaredField("camelSubscriptionInfo"));
-        integerFieldHashMap.put(5,  this.getClass().getDeclaredField("supportedVlrCamelPhases"));
-        integerFieldHashMap.put(6,  this.getClass().getDeclaredField("supportedSgsnCamelPhases"));
-        integerFieldHashMap.put(7,  this.getClass().getDeclaredField("extensionContainer"));
-        integerFieldHashMap.put(8,  this.getClass().getDeclaredField("offeredCamel4CSIsInVlr"));
-        integerFieldHashMap.put(9,  this.getClass().getDeclaredField("offeredCamel4CSIsInSgsn"));
-        integerFieldHashMap.put(10, this.getClass().getDeclaredField("msisdnBsList"));
-        integerFieldHashMap.put(11, this.getClass().getDeclaredField("csgSubscriptionDataList"));
-        integerFieldHashMap.put(12, this.getClass().getDeclaredField("cwData"));
-        integerFieldHashMap.put(13, this.getClass().getDeclaredField("chData"));
-        integerFieldHashMap.put(14, this.getClass().getDeclaredField("clipData"));
-        integerFieldHashMap.put(15, this.getClass().getDeclaredField("clirData"));
-        integerFieldHashMap.put(16, this.getClass().getDeclaredField("ectData"));
-        return integerFieldHashMap;
-    }
-
-
+    
     public AnyTimeSubscriptionInterrogationResponseImpl() {
     }
 
@@ -495,4 +470,77 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
     public int getOperationCode() {
         return MAPOperationCode.anyTimeSubscriptionInterrogation;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(_PrimitiveName);
+        sb.append(" [");
+        if (this.callForwardingData != null) {
+            sb.append("callForwardingData=");
+            sb.append(this.callForwardingData);
+        }
+        if (this.callBarringData != null) {
+            sb.append(", callBarringData=");
+            sb.append(this.callBarringData);
+        }
+        if (this.odbInfo != null) {
+            sb.append(", odbInfo=");
+            sb.append(this.odbInfo);
+        }
+        if (this.camelSubscriptionInfo != null) {
+            sb.append(", camelSubscriptionInfo=");
+            sb.append(this.camelSubscriptionInfo);
+        }
+        if (this.supportedVlrCamelPhases != null) {
+            sb.append(", supportedVlrCamelPhases=");
+            sb.append(this.supportedVlrCamelPhases);
+        }
+        if (this.supportedSgsnCamelPhases != null) {
+            sb.append(", supportedSgsnCamelPhases=");
+            sb.append(this.supportedSgsnCamelPhases);
+        }
+        if (this.extensionContainer != null) {
+            sb.append(", extensionContainer=");
+            sb.append(this.extensionContainer);
+        }
+        if (this.offeredCamel4CSIsInVlr != null) {
+            sb.append(", offeredCamel4CSIsInVlr=");
+            sb.append(this.offeredCamel4CSIsInVlr);
+        }
+        if (this.offeredCamel4CSIsInSgsn != null) {
+            sb.append(", offeredCamel4CSIsInSgsn=");
+            sb.append(this.offeredCamel4CSIsInSgsn);
+        }
+        if (this.msisdnBsList != null) {
+            sb.append(", msisdnBsList=");
+            sb.append(this.msisdnBsList);
+        }
+        if (this.csgSubscriptionDataList != null) {
+            sb.append(", csgSubscriptionDataList=");
+            sb.append(this.csgSubscriptionDataList);
+        }
+        if (this.cwData != null) {
+            sb.append(", cwData=");
+            sb.append(this.cwData);
+        }
+        if (this.chData != null) {
+            sb.append(", chData=");
+            sb.append(this.chData);
+        }
+        if (this.clipData != null) {
+            sb.append(", clipData=");
+            sb.append(this.clipData);
+        }
+        if (this.clirData != null) {
+            sb.append(", clirData=");
+            sb.append(this.clirData);
+        }
+        if (this.ectData != null) {
+            sb.append(", ectData=");
+            sb.append(this.ectData);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
 }

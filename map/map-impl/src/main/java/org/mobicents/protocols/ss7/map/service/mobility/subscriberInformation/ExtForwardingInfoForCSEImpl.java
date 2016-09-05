@@ -68,10 +68,10 @@ public class ExtForwardingInfoForCSEImpl extends AbstractMAPAsnPrimitive impleme
     private boolean notificationToCSE;
     private MAPExtensionContainer extensionContainer;
 
-    private final static int TAG_SS_CODE = 0;
-    private final static int TAG_FORWARDING_FEATURE_LIST = 1;
-    private final static int TAG_NOTIFICATION_TO_CSE = 2;
-    private final static int TAG_EXTENSION_CONTAINER = 3;
+    private static final int TAG_SS_CODE = 0;
+    private static final int TAG_FORWARDING_FEATURE_LIST = 1;
+    private static final int TAG_NOTIFICATION_TO_CSE = 2;
+    private static final int TAG_EXTENSION_CONTAINER = 3;
 
     public ExtForwardingInfoForCSEImpl() {
     }

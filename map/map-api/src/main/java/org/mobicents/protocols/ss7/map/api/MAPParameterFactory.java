@@ -196,7 +196,145 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.TEID;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.TransactionId;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.UserCSGInformation;
-import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.*;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AMBR;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.APN;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.APNConfiguration;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.APNConfigurationProfile;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.APNOIReplacement;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AccessRestrictionData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AdditionalInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AdditionalSubscriptions;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AllocationRetentionPriority;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.BasicServiceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.BearerServiceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.BearerServiceCodeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSAllocationRetentionPriority;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSGId;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSGSubscriptionData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CUGFeature;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CUGIndex;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CUGInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CUGInterlock;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CUGSubscription;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CallTypeCriteria;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.Category;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CategoryValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CauseValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CauseValueCodeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ChargingCharacteristics;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DPAnalysedInfoCriterium;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DefaultCallHandling;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DefaultGPRSHandling;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DefaultSMSHandling;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DestinationNumberCriteria;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.EMLPPInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.EPSQoSSubscribed;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.EPSSubscriptionData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.EPSSubscriptionDataWithdraw;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.Ext2QoSSubscribed;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.Ext2QoSSubscribed_SourceStatisticsDescriptor;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.Ext3QoSSubscribed;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.Ext4QoSSubscribed;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBasicServiceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBearerServiceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtCallBarInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtCallBarringFeature;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwFeature;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwOptions;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtForwOptionsForwardingReason;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtPDPType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_BitRate;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_BitRateExtended;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_DeliveryOfErroneousSdus;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_DeliveryOrder;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_MaximumSduSize;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_ResidualBER;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_SduErrorRatio;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_TrafficClass;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_TrafficHandlingPriority;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtQoSSubscribed_TransferDelay;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtSSData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtSSInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtSSStatus;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtTeleserviceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExternalClient;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.FQDN;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GMLCRestriction;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSCamelTDPData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSSubscriptionData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSSubscriptionDataWithdraw;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSTriggerDetectionPoint;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GroupId;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.InterCUGRestrictions;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.InterCUGRestrictionsValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.IntraCUGOptions;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LCSInformation;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LCSPrivacyClass;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAAttributes;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAIdentificationPriorityValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAIdentity;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAInformation;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAInformationWithdraw;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LSAOnlyAccessIndicator;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.LongGroupId;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MCSSInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MGCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MMCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MMCodeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MOLRClass;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MTSMSTPDUType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MTsmsCAMELTDPCriteria;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.MatchType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.NotificationToMSUser;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OBcsmCamelTDPData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OBcsmCamelTdpCriteria;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OBcsmTriggerDetectionPoint;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ODBData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ODBGeneralData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ODBHPLMNData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OfferedCamel4CSIs;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.OfferedCamel4Functionalities;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDNGWAllocationType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDNGWIdentity;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDNType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDNTypeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDPAddress;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDPType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.PDPTypeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSClassIdentifier;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSSubscribed;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSSubscribed_DelayClass;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSSubscribed_MeanThroughput;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSSubscribed_PeakThroughput;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSSubscribed_PrecedenceClass;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.QoSSubscribed_ReliabilityClass;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SGSNCAMELSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SMSCAMELTDPData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SMSCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SMSTriggerDetectionPoint;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SSCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SSCamelData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ServiceType;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SpecificAPNInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SpecificCSIWithdraw;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SupportedCamelPhases;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TBcsmCamelTDPData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TBcsmCamelTdpCriteria;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TBcsmTriggerDetectionPoint;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TeleserviceCode;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TeleserviceCodeValue;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.VlrCamelSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.VoiceBroadcastData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.VoiceGroupCallData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ZoneCode;
 import org.mobicents.protocols.ss7.map.api.service.oam.AreaScope;
 import org.mobicents.protocols.ss7.map.api.service.oam.BMSCEventList;
 import org.mobicents.protocols.ss7.map.api.service.oam.BMSCInterfaceList;
@@ -311,7 +449,7 @@ public interface MAPParameterFactory {
      * ussdString String
      *
      * @param ussdString The USSD String
-     * @param charSet The Charset used for encoding the passed USSD String
+     * @param dataCodingScheme The Charset used for encoding the passed USSD String
      * @return new instance of {@link USSDString}
      */
     USSDString createUSSDString(String ussdString, CBSDataCodingScheme dataCodingScheme, Charset gsm8Charset)
@@ -331,7 +469,7 @@ public interface MAPParameterFactory {
      * ussdString byte[]
      *
      * @param ussdString The byte[] of the USSD String
-     * @param charSet The Charset used for encoding the passed USSD String byte[]
+     * @param dataCodingScheme The Charset used for encoding the passed USSD String byte[]
      * @return new instance of {@link USSDString}
      */
     USSDString createUSSDString(byte[] ussdString, CBSDataCodingScheme dataCodingScheme, Charset gsm8Charset);
@@ -1150,7 +1288,7 @@ public interface MAPParameterFactory {
     LongGroupId createLongGroupId(String data);
 
     LSAAttributes createLSAAttributes(LSAIdentificationPriorityValue value, boolean preferentialAccessAvailable,
-            boolean activeModeSupportAvailable);
+                                      boolean activeModeSupportAvailable);
 
     LSAAttributes createLSAAttributes(int data);
 

@@ -72,7 +72,7 @@ public class CAMELSubscriptionInfoImpl extends AbstractMAPAsnPrimitive implement
     public static final int _TAG_d_IM_CSI                          = 20;
     public static final int _TAG_vt_IM_CSI                         = 21;
     public static final int _TAG_vt_IM_BCSM_CAMEL_TDP_CriteriaList = 22;
-    
+
     private OCSI oCsi;
     private ArrayList<OBcsmCamelTdpCriteria> oBcsmCamelTDPCriteriaList;
     private DCSI dCsi;
