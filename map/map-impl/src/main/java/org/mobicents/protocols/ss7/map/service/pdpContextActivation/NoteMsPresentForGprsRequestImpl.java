@@ -43,18 +43,18 @@ import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
 
 /**
- *
- * NoteMsPresentForGprsArg ::= SEQUENCE { 
- *          imsi [0] IMSI, 
- *          sgsn-Address [1] GSN-Address, 
- *          ggsn-Address [2] GSN-Address OPTIONAL,
- *          extensionContainer [3] ExtensionContainer OPTIONAL, 
- *          ...}
- * @author eva ogallar
- *
- */
+*
+* NoteMsPresentForGprsArg ::= SEQUENCE {
+*          imsi [0] IMSI,
+*          sgsn-Address [1] GSN-Address,
+*          ggsn-Address [2] GSN-Address OPTIONAL,
+*          extensionContainer [3] ExtensionContainer OPTIONAL,
+*          ...}
+* @author eva ogallar
+*
+*/
 public class NoteMsPresentForGprsRequestImpl extends PdpContextActivationMessageImpl implements NoteMsPresentForGprsRequest {
-    
+
     protected static final int _TAG_imsi = 0;
     protected static final int _TAG_sgsnAddress = 1;
     protected static final int _TAG_ggsnAddress = 2;

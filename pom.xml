@@ -36,7 +36,7 @@
 		<!-- restcomm but not strictly ss7 -->
 		<asn.version>2.1.5</asn.version> <!-- 2.0.3.FINAL -->
 		<stream.version>1.0.0.CR1</stream.version>
-		<sctp.version>1.7.8</sctp.version> <!-- 1.6.0.FINAL -->
+		<sctp.version>1.6.0.1</sctp.version> <!-- 1.6.0.FINAL -->
 		<commons.version>1.0.0.CR1</commons.version>
 		<dialogic.version>6.7.1</dialogic.version>
 
@@ -438,6 +438,23 @@
 		</license>
 	</licenses>
 
+
+	<distributionManagement>
+        <site>
+            <id>onevox</id>
+            <name>Onevox Cloud Software archive</name>
+            <url>
+                dav:https://devel.onevox.io/archive/${project.artifactId}/${project.version}
+            </url>
+        </site>
+		<repository>
+			<id>onevox</id>
+			<name>Onevox Repository</name>
+			<url>dav:https://devel.onevox.io/repository</url>
+		</repository>
+	</distributionManagement>
+
+
 	<build>
 		<plugins>
 			<plugin>
@@ -522,7 +539,13 @@
 	</scm>
 	<!-- repositories -->
 	<repositories>
-		<repository>
+        <repository>
+            <id>onevox</id>
+            <name>Onevox repository</name>
+            <url>http://devel.onevox.io/repository</url>
+        </repository>
+
+        <repository>
 			<id>restcomm-public-repository-group</id>
 			<name>Restcomm Public Maven Repository Group</name>
 			<url>https://oss.sonatype.org/content/groups/public/</url>

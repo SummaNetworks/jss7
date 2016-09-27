@@ -77,7 +77,7 @@ public class AnyTimeSubscriptionInterrogationResponseImpl extends MobilityMessag
     private ClipData clipData;
     private ClirData clirData;
     private EctData ectData;
-    
+
     public AnyTimeSubscriptionInterrogationResponseImpl() {
     }
 
