@@ -317,11 +317,30 @@ public class MAPDialogSmsImpl extends MAPDialogImpl implements MAPDialogSms {
                 t4TriggerIndicator, singleAttemptDelivery, teleservice);
     }
 
+    public Long addSendRoutingInfoForSMRequest(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
+                                               MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator, SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA,
+                                               SMDeliveryNotIntended smDeliveryNotIntended, boolean ipSmGwGuidanceIndicator, IMSI imsi, boolean t4TriggerIndicator,
+                                               boolean singleAttemptDelivery, TeleserviceCode teleservice, Long invokeId) throws MAPException {
+        return this.addSendRoutingInfoForSMRequest(_Timer_Default, msisdn, sm_RP_PRI, serviceCentreAddress, extensionContainer,
+                gprsSupportIndicator, sM_RP_MTI, sM_RP_SMEA, smDeliveryNotIntended, ipSmGwGuidanceIndicator, imsi,
+                t4TriggerIndicator, singleAttemptDelivery, teleservice, invokeId);
+    }
+
+    public Long addSendRoutingInfoForSMRequest(int customInvokeTimeout, ISDNAddressString msisdn, boolean sm_RP_PRI,
+                                               AddressString serviceCentreAddress, MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator,
+                                               SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA, SMDeliveryNotIntended smDeliveryNotIntended,
+                                               boolean ipSmGwGuidanceIndicator, IMSI imsi, boolean t4TriggerIndicator, boolean singleAttemptDelivery,
+                                               TeleserviceCode teleservice) throws MAPException {
+        return addSendRoutingInfoForSMRequest(customInvokeTimeout, msisdn, sm_RP_PRI, serviceCentreAddress, extensionContainer,
+                gprsSupportIndicator, sM_RP_MTI, sM_RP_SMEA, smDeliveryNotIntended, ipSmGwGuidanceIndicator, imsi,
+                t4TriggerIndicator, singleAttemptDelivery, teleservice, null);
+    }
+
     public Long addSendRoutingInfoForSMRequest(int customInvokeTimeout, ISDNAddressString msisdn, boolean sm_RP_PRI,
             AddressString serviceCentreAddress, MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator,
             SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA, SMDeliveryNotIntended smDeliveryNotIntended,
             boolean ipSmGwGuidanceIndicator, IMSI imsi, boolean t4TriggerIndicator, boolean singleAttemptDelivery,
-            TeleserviceCode teleservice) throws MAPException {
+            TeleserviceCode teleservice, Long invokeId) throws MAPException {
 
         MAPApplicationContextVersion vers = this.appCntx.getApplicationContextVersion();
         if (this.appCntx.getApplicationContextName() != MAPApplicationContextName.shortMsgGatewayContext
@@ -354,7 +373,12 @@ public class MAPDialogSmsImpl extends MAPDialogImpl implements MAPDialogSms {
             p.setData(aos.toByteArray());
             invoke.setParameter(p);
 
-            Long invokeId = this.tcapDialog.getNewInvokeId();
+            if (invokeId != null){
+                invoke.setInvokeId(invokeId);
+            } else {
+                invokeId = this.tcapDialog.getNewInvokeId();
+            }
+
             invoke.setInvokeId(invokeId);
 
             this.sendInvokeComponent(invoke);

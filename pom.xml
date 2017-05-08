@@ -9,7 +9,7 @@
 
 	<artifactId>ss7-parent</artifactId>
 	<groupId>org.mobicents.protocols.ss7</groupId>
-	<version>7.0.0-SUMMA</version>
+	<version>7.0.1-SUMMA-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -439,23 +439,33 @@
 	</licenses>
 
 
-	<distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>onevox</id>
+            <name>Onevox Repository</name>
+            <url>dav:https://devel.onevox.io/repository</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot</id>
+            <name>Onevox Repository</name>
+            <url>dav:https://devel.onevox.io/repository-snapshots</url>
+        </snapshotRepository>
         <site>
             <id>onevox</id>
-            <name>Onevox Cloud Software archive</name>
-            <url>
-                dav:https://devel.onevox.io/archive/${project.artifactId}/${project.version}
-            </url>
+            <name>Onevox archive</name>
+            <url>dav:http://devel.onevox.io/archive/${project.artifactId}/${project.version}</url>
         </site>
-		<repository>
-			<id>onevox</id>
-			<name>Onevox Repository</name>
-			<url>dav:https://devel.onevox.io/repository</url>
-		</repository>
-	</distributionManagement>
-
+    </distributionManagement>
 
 	<build>
+
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav-jackrabbit</artifactId>
+                <version>1.0</version>
+            </extension>
+        </extensions>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -528,8 +538,25 @@
 					<debug>${compile.debug}</debug>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>restcomm-releases-repository</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy-to-sonatype</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
 
-		</plugins>
+
+        </plugins>
 	</build>
 
 	<scm>
