@@ -1380,13 +1380,15 @@ public interface MAPParameterFactory {
 
     CallBarringFeature createCallBarringFeature(BasicServiceCode basicService, SSStatus ssStatus);
 
-    ForwardingFeature createForwardingFeature(BasicServiceCode basicService, SSStatus ssStatus, ISDNAddressString torwardedToNumber,
-            ISDNAddressString forwardedToSubaddress, ForwardingOptions forwardingOptions, Integer noReplyConditionTime, FTNAddressString longForwardedToNumber);
+    ForwardingFeature createForwardingFeature(
+            BasicServiceCode basicService, SSStatus ssStatus, ISDNAddressString torwardedToNumber,
+            ISDNSubaddressString forwardedToSubaddress, ForwardingOptions forwardingOptions,
+            Integer noReplyConditionTime, FTNAddressString longForwardedToNumber);
 
     ForwardingInfo createForwardingInfo(SSCode ssCode, ArrayList<ForwardingFeature> forwardingFeatureList);
 
-    SSData createSSData(SSCode ssCode, SSStatus ssStatus, SSSubscriptionOption ssSubscriptionOption, ArrayList<BasicServiceCode> basicServiceGroupList,
-            EMLPPPriority defaultPriority, Integer nbrUser);
+    SSData createSSData(SSCode ssCode, SSStatus ssStatus, SSSubscriptionOption ssSubscriptionOption,
+                        ArrayList<BasicServiceCode> basicServiceGroupList, EMLPPPriority defaultPriority, Integer nbrUser);
 
     CallBarringInfo createCallBarringInfo(SSCode ssCode, ArrayList<CallBarringFeature> callBarringFeatureList);
 

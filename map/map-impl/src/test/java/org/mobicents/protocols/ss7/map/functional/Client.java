@@ -2024,7 +2024,12 @@ public class Client extends EventTestHarness {
         SSCode ssCode = this.mapParameterFactory.createSSCode(SupplementaryCodeValue.cfu);
         BearerServiceCode bearerService = this.mapParameterFactory.createBearerServiceCode(BearerServiceCodeValue.padAccessCA_9600bps);
         BasicServiceCode basicService = this.mapParameterFactory.createBasicServiceCode(bearerService);
-        clientDialog.addRegisterSSRequest(ssCode, basicService, null, null, null, null, null, null);
+
+        AddressString forwardedToNumber = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "1110001");
+        ISDNAddressString forwardedToSubaddress = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "1110002");
+        boolean longFTNSupported = true;
+
+        clientDialog.addRegisterSSRequest(ssCode, basicService, forwardedToNumber, forwardedToSubaddress, null, null, null, longFTNSupported);
 
         this.observerdEvents.add(TestEvent.createSentEvent(EventType.RegisterSS, null, sequence++));
         clientDialog.send();

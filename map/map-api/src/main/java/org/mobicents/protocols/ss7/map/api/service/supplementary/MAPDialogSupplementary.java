@@ -43,11 +43,11 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 public interface MAPDialogSupplementary extends MAPDialog {
 
     Long addRegisterSSRequest(SSCode ssCode, BasicServiceCode basicService, AddressString forwardedToNumber, ISDNAddressString forwardedToSubaddress,
-            Integer noReplyConditionTime, EMLPPPriority defaultPriority, Integer nbrUser, ISDNAddressString longFTNSupported) throws MAPException;
+                              Integer noReplyConditionTime, EMLPPPriority defaultPriority, Integer nbrUser, boolean longFTNSupported) throws MAPException;
 
     Long addRegisterSSRequest(int customInvokeTimeout, SSCode ssCode, BasicServiceCode basicService, AddressString forwardedToNumber,
-            ISDNAddressString forwardedToSubaddress, Integer noReplyConditionTime, EMLPPPriority defaultPriority, Integer nbrUser,
-            ISDNAddressString longFTNSupported) throws MAPException;
+                              ISDNAddressString forwardedToSubaddress, Integer noReplyConditionTime, EMLPPPriority defaultPriority, Integer nbrUser,
+                              boolean longFTNSupported) throws MAPException;
 
     void addRegisterSSResponse(long invokeId, SSInfo ssInfo) throws MAPException;
 

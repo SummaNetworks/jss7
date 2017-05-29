@@ -54,10 +54,10 @@ public class AllowedServicesImpl implements AllowedServices, MAPAsnPrimitive {
     public AllowedServicesImpl() {
     }
 
-    public AllowedServicesImpl(boolean suppressCUG, boolean suppressCCBS) {
-        if (suppressCUG)
+    public AllowedServicesImpl(boolean firstServiceAllowed, boolean secondServiceAllowed) {
+        if (firstServiceAllowed)
             this.bitString.set(_INDEX_FirstServiceAllowed);
-        if (suppressCCBS)
+        if (secondServiceAllowed)
             this.bitString.set(_INDEX_SecondServiceAllowed);
     }
 
