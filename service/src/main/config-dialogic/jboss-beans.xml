@@ -157,7 +157,7 @@
 			<parameter>
 				<inject bean="SccpStack" property="sccpProvider" />
 			</parameter>
-			<parameter>8</parameter>
+			<parameter>6</parameter>
 		</constructor>
 		<property name="persistDir">${jboss.server.data.dir}</property>
 		<property name="previewMode">false</property>

@@ -420,7 +420,7 @@ The other properties of the Stack are defined below:
                         <parameter>
                                 <inject bean="SccpStack" property="sccpProvider" />
                         </parameter>
-                        <parameter>8</parameter>
+                        <parameter>6</parameter>
                 </constructor>
                 <property name="dialogIdleTimeout">60000</property>
                 <property name="invokeTimeout">30000</property>
