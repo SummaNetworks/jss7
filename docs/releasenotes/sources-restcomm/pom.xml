@@ -14,10 +14,10 @@
 	<properties>
 		<THIS.PLATFORM>Restcomm</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
-		<THIS.ISSUE_TRACKER_URL>https://github.com/Restcomm/jss7/issues</THIS.ISSUE_TRACKER_URL>
-		<THIS.RELEASE_SOURCE_CODE_URL>https://github.com/Restcomm/jss7</THIS.RELEASE_SOURCE_CODE_URL>
-		<THIS.TRUNK_SOURCE_CODE_URL>https://github.com/Restcomm/jss7</THIS.TRUNK_SOURCE_CODE_URL>
-		<THIS.RELEASE_BINARY_URL>https://github.com/Restcomm/jss7</THIS.RELEASE_BINARY_URL>
+		<THIS.ISSUE_TRACKER_URL>https://github.com/SummaNetworks/jss7/issues</THIS.ISSUE_TRACKER_URL>
+		<THIS.RELEASE_SOURCE_CODE_URL>https://github.com/SummaNetworks/jss7</THIS.RELEASE_SOURCE_CODE_URL>
+		<THIS.TRUNK_SOURCE_CODE_URL>https://github.com/SummaNetworks/jss7</THIS.TRUNK_SOURCE_CODE_URL>
+		<THIS.RELEASE_BINARY_URL>https://github.com/SummaNetworks/jss7</THIS.RELEASE_BINARY_URL>
 		<author.email.amit>amit.bhayani (at) telestax.com</author.email.amit>
 		<author.email.bartosz>baranowb (at) telestax.com</author.email.bartosz>
 		<author.email.sergey>serg.vetyutnev (at) telestax.com</author.email.sergey>
