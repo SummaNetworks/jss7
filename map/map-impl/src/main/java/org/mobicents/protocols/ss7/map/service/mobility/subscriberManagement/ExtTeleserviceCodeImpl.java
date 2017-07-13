@@ -53,8 +53,9 @@ public class ExtTeleserviceCodeImpl extends OctetStringBase implements ExtTelese
     }
 
     public void setTeleserviceCode(TeleserviceCodeValue value) {
-        if (value != null)
-            this.data = new byte[] { (byte) (value.getCode()) };
+        if (value != null) {
+            this.data = new byte[]{(byte) (value.getCode())};
+        }
     }
 
     public byte[] getData() {
@@ -62,10 +63,11 @@ public class ExtTeleserviceCodeImpl extends OctetStringBase implements ExtTelese
     }
 
     public TeleserviceCodeValue getTeleserviceCodeValue() {
-        if (data == null || data.length < 1)
+        if (data == null || data.length < 1) {
             return null;
-        else
-            return TeleserviceCodeValue.getInstance(this.data[0]);
+        } else {
+            return TeleserviceCodeValue.getInstance(this.data[0] & 0xFF);
+        }
     }
 
     @Override

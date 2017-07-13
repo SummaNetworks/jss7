@@ -56,8 +56,9 @@ public class ExtBearerServiceCodeImpl extends OctetStringBase implements ExtBear
 //        if (value != null)
 //            this.data = new byte[] { (byte) (value.getBearerServiceCode()) };
 
-        if (value != null)
-            this.data = new byte[] { (byte) (value.getCode()) };
+        if (value != null) {
+            this.data = new byte[]{(byte) (value.getCode())};
+        }
     }
 
     public byte[] getData() {
@@ -68,7 +69,7 @@ public class ExtBearerServiceCodeImpl extends OctetStringBase implements ExtBear
         if (data == null || data.length < 1)
             return null;
         else
-            return BearerServiceCodeValue.getInstance(this.data[0]);
+            return BearerServiceCodeValue.getInstance(this.data[0] & 0xFF);
     }
 
     @Override
