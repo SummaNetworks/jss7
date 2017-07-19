@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastMap;
 
@@ -108,7 +109,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private transient TCAPStackImpl stack; // originating TX id ~=Dialog, its direct
     // mapping, but not described
     // explicitly...
-    private transient FastMap<Long, DialogImpl> dialogs = new FastMap<Long, DialogImpl>();
+    private transient ConcurrentHashMap<Long, DialogImpl> dialogs = new ConcurrentHashMap <Long, DialogImpl>();
+    //private transient FastMap<Long, DialogImpl> dialogs = new FastMap<Long, DialogImpl>();
     protected transient FastMap<PrevewDialogDataKey, PrevewDialogData> dialogPreviewList = new FastMap<PrevewDialogDataKey, PrevewDialogData>();
 
     private int seqControl = 0;
