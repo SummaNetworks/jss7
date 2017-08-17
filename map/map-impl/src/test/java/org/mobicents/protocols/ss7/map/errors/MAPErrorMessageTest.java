@@ -22,19 +22,12 @@
 
 package org.mobicents.protocols.ss7.map.errors;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
-
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -82,6 +75,12 @@ import org.mobicents.protocols.ss7.map.service.supplementary.SSStatusImpl;
 import org.mobicents.protocols.ss7.tcap.asn.ParameterImpl;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Parameter;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  *
@@ -531,7 +530,7 @@ public class MAPErrorMessageTest {
         assertTrue(emSsErrorStatus.getPBit());
         assertTrue(emSsErrorStatus.getRBit());
         assertFalse(emSsErrorStatus.getABit());
-        assertEquals(emSsErrorStatus.getData(), 6);
+        assertEquals(emSsErrorStatus.getData(), (Integer) 6);
 
         p = getDataSsIncompatibilityFull();
         em = (MAPErrorMessageImpl) fact.createMessageFromErrorCode((long) MAPErrorCode.ssIncompatibility);

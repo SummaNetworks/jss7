@@ -24,9 +24,6 @@ package org.mobicents.protocols.ss7.map.errors;
 
 import java.io.IOException;
 
-import javolution.xml.XMLFormat;
-import javolution.xml.stream.XMLStreamException;
-
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -38,7 +35,6 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorCode;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageSsErrorStatus;
 
 /**
- *
  * @author sergey vetyutnev
  * @author amit bhayani
  */
@@ -54,11 +50,11 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
     public static final int _mask_RBit = 0x02;
     public static final int _mask_ABit = 0x01;
 
-    private int data;
+    private Integer data;
 
     protected String _PrimitiveName = "MAPErrorMessageSsErrorStatus";
 
-    public MAPErrorMessageSsErrorStatusImpl(int data) {
+    public MAPErrorMessageSsErrorStatusImpl(Integer data) {
         super((long) MAPErrorCode.ssErrorStatus);
 
         this.data = data;
@@ -83,37 +79,40 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
     }
 
     @Override
-    public int getData() {
+    public Integer getData() {
         return data;
     }
 
     @Override
     public boolean getQBit() {
-        return (this.data & _mask_QBit) != 0;
+        return data != null && (this.data & _mask_QBit) != 0;
     }
 
     @Override
     public boolean getPBit() {
-        return (this.data & _mask_PBit) != 0;
+        return data != null && (this.data & _mask_PBit) != 0;
     }
 
     @Override
     public boolean getRBit() {
-        return (this.data & _mask_RBit) != 0;
+        return data != null && (this.data & _mask_RBit) != 0;
     }
 
     @Override
     public boolean getABit() {
-        return (this.data & _mask_ABit) != 0;
+        return data != null && (this.data & _mask_ABit) != 0;
     }
 
     @Override
-    public void setData(int val) {
+    public void setData(Integer val) {
         this.data = val;
     }
 
     @Override
     public void setQBit(boolean val) {
+        if (data == null) {
+            data = 0;
+        }
         if (val) {
             this.data |= _mask_QBit;
         } else {
@@ -123,6 +122,9 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
 
     @Override
     public void setPBit(boolean val) {
+        if (data == null) {
+            data = 0;
+        }
         if (val) {
             this.data |= _mask_PBit;
         } else {
@@ -132,6 +134,9 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
 
     @Override
     public void setRBit(boolean val) {
+        if (data == null) {
+            data = 0;
+        }
         if (val) {
             this.data |= _mask_RBit;
         } else {
@@ -141,6 +146,9 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
 
     @Override
     public void setABit(boolean val) {
+        if (data == null) {
+            data = 0;
+        }
         if (val) {
             this.data |= _mask_ABit;
         } else {
@@ -262,7 +270,7 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
 
     /**
      * XML Serialization/Deserialization
-     */
+     *//*
     protected static final XMLFormat<MAPErrorMessageSsErrorStatusImpl> MAP_ERROR_MESSAGE_SS_ERROR_STATUS_XML = new XMLFormat<MAPErrorMessageSsErrorStatusImpl>(
             MAPErrorMessageSsErrorStatusImpl.class) {
 
@@ -288,5 +296,5 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
             xml.add(errorMessage.getABit(), A_BIT, Boolean.class);
         }
     };
-
+*/
 }

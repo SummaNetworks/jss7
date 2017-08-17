@@ -40,7 +40,7 @@ package org.mobicents.protocols.ss7.map.api.errors;
  */
 public interface MAPErrorMessageSsErrorStatus extends MAPErrorMessage {
 
-    int getData();
+    Integer getData();
 
     boolean getQBit();
 
@@ -50,7 +50,7 @@ public interface MAPErrorMessageSsErrorStatus extends MAPErrorMessage {
 
     boolean getABit();
 
-    void setData(int val);
+    void setData(Integer val);
 
     void setQBit(boolean val);
 
