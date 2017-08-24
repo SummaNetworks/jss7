@@ -118,6 +118,9 @@ public class AsImpl implements XMLSerializable, As {
 
     protected State state = AsState.DOWN;
 
+    //Used to alternate between expected 2 ASP.
+    private static int staticSLS = 0;
+
     public AsImpl() {
 
     }
@@ -613,8 +616,9 @@ public class AsImpl implements XMLSerializable, As {
             isASPLocalFsm = false;
         }
 
-        int sls = message.getData().getSLS();
-
+        //int sls = message.getData().getSLS();
+        //This will be change ASP between the 2 connected ASP. SLS Mask must be set to get the last bit.
+        int sls = staticSLS++;
         switch (AsState.getState(fsm.getState().getName())) {
             case ACTIVE:
                 boolean aspFound = false;
