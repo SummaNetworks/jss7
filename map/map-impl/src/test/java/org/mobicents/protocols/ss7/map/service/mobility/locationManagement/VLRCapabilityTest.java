@@ -71,7 +71,7 @@ public class VLRCapabilityTest {
     }
 
     private byte[] getEncodedDataFull() {
-        return new byte[] { 48, 16, -126, 0, -124, 0, -122, 2, 1, 14, -121, 2, 3, 80, -120, 0, -119, 0 };
+        return new byte[] { 48, 18, -126, 0, -124, 0, -122, 2, 1, 14, -121, 2, 3, 80, -120, 0, -119, 0, -118, 0 };
     }
 
     @Test(groups = { "functional.decode" })
@@ -223,7 +223,7 @@ public class VLRCapabilityTest {
         SupportedCamelPhases scp = new SupportedCamelPhasesImpl(true, true, false, false);
         SupportedLCSCapabilitySets slcs = new SupportedLCSCapabilitySetsImpl(true, true, true, true, false);
         VLRCapabilityImpl asc = new VLRCapabilityImpl(scp, null, false, ISTSupportIndicator.istCommandSupported, null, false,
-                slcs, null, null, false, false);
+                slcs, null, null, false, false, false);
         // SupportedCamelPhases supportedCamelPhases, MAPExtensionContainer extensionContainer, boolean solsaSupportIndicator,
         // IstSupportIndicator istSupportIndicator, SuperChargerInfo superChargerSupportedInServingNetworkEntity, boolean
         // longFtnSupported,
@@ -243,7 +243,7 @@ public class VLRCapabilityTest {
         MAPPrivateExtensionImpl pe = new MAPPrivateExtensionImpl(getECOid(), getECData());
         privateExtensionList.add(pe);
         MAPExtensionContainerImpl ext = new MAPExtensionContainerImpl(privateExtensionList, null);
-        asc = new VLRCapabilityImpl(scp, ext, false, null, null, false, null, null, null, false, false);
+        asc = new VLRCapabilityImpl(scp, ext, false, null, null, false, null, null, null, false, false, false);
 
         asnOS = new AsnOutputStream();
         asc.encodeAll(asnOS);
@@ -253,7 +253,7 @@ public class VLRCapabilityTest {
         assertTrue(Arrays.equals(rawData, encodedData));
 
         SuperChargerInfo sci = new SuperChargerInfoImpl(true);
-        asc = new VLRCapabilityImpl(null, null, false, null, sci, false, null, null, null, false, false);
+        asc = new VLRCapabilityImpl(null, null, false, null, sci, false, null, null, null, false, false, false);
 
         asnOS = new AsnOutputStream();
         asc.encodeAll(asnOS);
@@ -264,7 +264,7 @@ public class VLRCapabilityTest {
 
         OfferedCamel4CSIsImpl offeredCamel4CSIs = new OfferedCamel4CSIsImpl(false, false, false, false, true, true, true);
         SupportedRATTypesImpl rat = new SupportedRATTypesImpl(false, true, false, true, false);
-        asc = new VLRCapabilityImpl(null, null, true, null, null, true, null, offeredCamel4CSIs, rat, true, true);
+        asc = new VLRCapabilityImpl(null, null, true, null, null, true, null, offeredCamel4CSIs, rat, true, true, true);
 
         asnOS = new AsnOutputStream();
         asc.encodeAll(asnOS);

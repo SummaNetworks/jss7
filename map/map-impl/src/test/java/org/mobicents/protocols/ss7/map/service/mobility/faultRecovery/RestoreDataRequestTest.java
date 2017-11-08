@@ -126,7 +126,7 @@ public class RestoreDataRequestTest {
 
         LMSI lmsi = new LMSIImpl(getLmsiData());
         SupportedCamelPhases supportedCamelPhases = new SupportedCamelPhasesImpl(true, true, false, false);
-        VLRCapability vlrCapability = new VLRCapabilityImpl(supportedCamelPhases, null, false, null, null, false, null, null, null, false, false);
+        VLRCapability vlrCapability = new VLRCapabilityImpl(supportedCamelPhases, null, false, null, null, false, null, null, null, false, false, false);
 //      SupportedCamelPhases supportedCamelPhases, MAPExtensionContainer extensionContainer,
 //      boolean solsaSupportIndicator, ISTSupportIndicator istSupportIndicator,
 //      SuperChargerInfo superChargerSupportedInServingNetworkEntity, boolean longFtnSupported,

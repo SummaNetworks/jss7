@@ -61,6 +61,7 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
     public static final int _TAG_supportedRATTypesIndicator = 7;
     public static final int _TAG_longGroupIDSupported = 8;
     public static final int _TAG_mtRoamingForwardingSupported = 9;
+    public static final int _TAG_msisdnLessOperationSupported = 10;
 
     public static final String _PrimitiveName = "VlrCapability";
 
@@ -75,6 +76,7 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
     private SupportedRATTypes supportedRATTypesIndicator;
     private boolean longGroupIDSupported;
     private boolean mtRoamingForwardingSupported;
+    private boolean msisdnLessOperationSupported;
 
     public VLRCapabilityImpl() {
     }
@@ -83,7 +85,8 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
             boolean solsaSupportIndicator, ISTSupportIndicator istSupportIndicator,
             SuperChargerInfo superChargerSupportedInServingNetworkEntity, boolean longFtnSupported,
             SupportedLCSCapabilitySets supportedLCSCapabilitySets, OfferedCamel4CSIs offeredCamel4CSIs,
-            SupportedRATTypes supportedRATTypesIndicator, boolean longGroupIDSupported, boolean mtRoamingForwardingSupported) {
+            SupportedRATTypes supportedRATTypesIndicator, boolean longGroupIDSupported, boolean mtRoamingForwardingSupported,
+            boolean msisdnLessOperationSupported) {
         this.supportedCamelPhases = supportedCamelPhases;
         this.extensionContainer = extensionContainer;
         this.solsaSupportIndicator = solsaSupportIndicator;
@@ -95,6 +98,7 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
         this.supportedRATTypesIndicator = supportedRATTypesIndicator;
         this.longGroupIDSupported = longGroupIDSupported;
         this.mtRoamingForwardingSupported = mtRoamingForwardingSupported;
+        this.msisdnLessOperationSupported = msisdnLessOperationSupported;
     }
 
     public SupportedCamelPhases getSupportedCamelPhases() {
@@ -139,6 +143,16 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
 
     public boolean getMtRoamingForwardingSupported() {
         return mtRoamingForwardingSupported;
+    }
+
+    @Override
+    public boolean msisdnLessOperationSupported() {
+        return msisdnLessOperationSupported;
+    }
+
+    @Override
+    public boolean getMsisdnLessOperationSupported() {
+        return msisdnLessOperationSupported;
     }
 
     public int getTag() throws MAPException {
@@ -193,6 +207,7 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
         supportedRATTypesIndicator = null;
         longGroupIDSupported = false;
         mtRoamingForwardingSupported = false;
+        msisdnLessOperationSupported = false;
 
         AsnInputStream ais = ansIS.readSequenceStreamData(length);
         while (true) {
@@ -285,10 +300,20 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
                         // mtRoamingForwardingSupported
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".longFTNSupported: Parameter is not primitive",
+                                    + ".mtRoamingForwardingSupported: Parameter is not primitive",
                                     MAPParsingComponentExceptionReason.MistypedParameter);
                         ais.readNull();
                         this.mtRoamingForwardingSupported = true;
+                        break;
+
+                    case _TAG_msisdnLessOperationSupported:
+                        // msisdnLessOperationSupported
+                        if (!ais.isTagPrimitive())
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ".msisdnLessOperationSupported: Parameter is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        ais.readNull();
+                        this.msisdnLessOperationSupported = true;
                         break;
 
                     default:
@@ -364,6 +389,8 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_longGroupIDSupported);
             if (mtRoamingForwardingSupported)
                 asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mtRoamingForwardingSupported);
+            if (msisdnLessOperationSupported)
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_msisdnLessOperationSupported);
 
         } catch (IOException e) {
             throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
@@ -424,6 +451,9 @@ public class VLRCapabilityImpl implements VLRCapability, MAPAsnPrimitive {
         }
         if (this.mtRoamingForwardingSupported) {
             sb.append("mtRoamingForwardingSupported, ");
+        }
+        if (this.msisdnLessOperationSupported) {
+            sb.append("msisdnLessOperationSupported, ");
         }
 
         sb.append("]");

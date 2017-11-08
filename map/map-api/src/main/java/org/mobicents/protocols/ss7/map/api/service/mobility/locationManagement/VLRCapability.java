@@ -43,7 +43,8 @@ VLR-Capability ::= SEQUENCE{
   offeredCamel4CSIs             [6] OfferedCamel4CSIs OPTIONAL,
   supportedRAT-TypesIndicator   [7] SupportedRAT-Types OPTIONAL,
   longGroupID-Supported         [8] NULL OPTIONAL,
-  mtRoamingForwardingSupported  [9] NULL OPTIONAL
+  mtRoamingForwardingSupported  [9] NULL OPTIONAL,
+  msisdn-lessOperation-Supported [10] NULL OPTIONAL
 }
 </code>
  *
@@ -75,4 +76,7 @@ public interface VLRCapability extends Serializable {
 
     boolean getMtRoamingForwardingSupported();
 
+    boolean msisdnLessOperationSupported();
+
+    boolean getMsisdnLessOperationSupported();
 }
