@@ -50,14 +50,16 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
     public static final int _mask_RBit = 0x02;
     public static final int _mask_ABit = 0x01;
 
-    private Integer data;
+    private Integer data = 0;
 
     protected String _PrimitiveName = "MAPErrorMessageSsErrorStatus";
 
     public MAPErrorMessageSsErrorStatusImpl(Integer data) {
         super((long) MAPErrorCode.ssErrorStatus);
-
-        this.data = data;
+        if(data != null)
+            this.data = data;
+        else
+            this.data = 0;
     }
 
     public MAPErrorMessageSsErrorStatusImpl(boolean qBit, boolean pBit, boolean rBit, boolean aBit) {
@@ -106,6 +108,8 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
     @Override
     public void setData(Integer val) {
         this.data = val;
+        if(val == null)
+            this.data = 0;
     }
 
     @Override
