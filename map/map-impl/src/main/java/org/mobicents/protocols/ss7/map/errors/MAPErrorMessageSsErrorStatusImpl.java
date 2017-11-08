@@ -236,8 +236,9 @@ public class MAPErrorMessageSsErrorStatusImpl extends MAPErrorMessageImpl implem
 
     @Override
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
-
-        asnOs.write(this.data);
+        if (this.data != null) {
+            asnOs.write(this.data);
+        }
     }
 
     @Override
