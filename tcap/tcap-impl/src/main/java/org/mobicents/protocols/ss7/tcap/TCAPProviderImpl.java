@@ -116,7 +116,25 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private int seqControl = 0;
     private int ssn;
     private long curDialogId = 0;
+    private int minSls = 0;
+    private int maxSls = 256;
 
+
+    /**
+     *
+     * @param sccpProvider
+     * @param stack
+     * @param ssn
+     * @param minSls Min value for sls. Default is 0 (inclusive)
+     * @param maxSls Max value for sls. Default is 256 (inclusive)
+     */
+    protected TCAPProviderImpl(SccpProvider sccpProvider, TCAPStackImpl stack, int ssn, int minSls, int maxSls) {
+        this(sccpProvider, stack, ssn);
+        if(minSls < maxSls && minSls >= 0 ) {
+            this.maxSls = minSls;
+            this.maxSls = maxSls;
+        }
+    }
     protected TCAPProviderImpl(SccpProvider sccpProvider, TCAPStackImpl stack, int ssn) {
         super();
         this.sccpProvider = sccpProvider;
@@ -144,8 +162,9 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         } else {
             this.tcListeners.add(lst);
         }
-
     }
+
+
 
     /*
      * (non-Javadoc)
@@ -183,9 +202,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     // get next Seq Control value available
     private synchronized int getNextSeqControl() {
         seqControl++;
-        if (seqControl > 255) {
-            seqControl = 0;
-
+        if (seqControl > maxSls) {
+            seqControl = minSls;
         }
         return seqControl;
     }
