@@ -47,6 +47,7 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
  */
 public class TCAPStackImpl implements TCAPStack {
 
+
     private final Logger logger;
 
     protected static final String TCAP_MANAGEMENT_PERSIST_DIR_KEY = "tcapmanagement.persist.dir";
@@ -63,7 +64,8 @@ public class TCAPStackImpl implements TCAPStack {
     private static final String PREVIEW_MODE = "previewmode";
     private static final String DO_NOT_SEND_PROTOCOL_VERSION = "donotsendprotocolversion";
     private static final String STATISTICS_ENABLED = "statisticsenabled";
-
+    //private static final int MIN_DIALOGS_AMOUNT = 10000;
+    private static final int MIN_DIALOGS_AMOUNT = 10;
 
     private static final XMLBinding binding = new XMLBinding();
 
@@ -189,7 +191,7 @@ public class TCAPStackImpl implements TCAPStack {
             throw new IllegalArgumentException("Range start value must be greater or equal 1");
         if (rangeEnd > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range end value must be less or equal " + Integer.MAX_VALUE);
-        if ((rangeEnd - rangeStart) < 10000)
+        if ((rangeEnd - rangeStart) < MIN_DIALOGS_AMOUNT)
             throw new IllegalArgumentException("Range \"end - start\" must has at least 10000 possible dialogs");
         if ((rangeEnd - rangeStart) <= this.maxDialogs)
             throw new IllegalArgumentException("MaxDialog must be less than DialogIdRange");
