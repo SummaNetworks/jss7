@@ -82,6 +82,8 @@ public class AsImpl implements XMLSerializable, As {
     // List of As state listeners
     private FastSet<AsStateListener> asStateListeners = new FastSet<AsStateListener>();
 
+    private AspTrafficListener aspTrafficListener;
+
     protected String name;
     protected RoutingContext rc;
     protected TrafficModeType trMode;
@@ -203,7 +205,8 @@ public class AsImpl implements XMLSerializable, As {
         this.peerFSM.createTransition(TransitionState.AS_STATE_CHANGE_INACTIVE, AsState.DOWN.toString(),
                 AsState.INACTIVE.toString());
         this.peerFSM.createTransition(TransitionState.ASP_DOWN, AsState.DOWN.toString(), AsState.DOWN.toString());
-
+        this.peerFSM.createTransition(TransitionState.AS_STATE_CHANGE_ACTIVE, AsState.DOWN.toString(),
+                AsState.ACTIVE.toString()).setHandler(new THPeerAsInActToAct(this, this.peerFSM));
         // ******************************************************************/
         // STATE INACTIVE /
         // ******************************************************************/
@@ -333,6 +336,14 @@ public class AsImpl implements XMLSerializable, As {
      */
     public String getName() {
         return this.name;
+    }
+
+    public AspTrafficListener getAspTrafficListener() {
+        return aspTrafficListener;
+    }
+
+    public void setAspTrafficListener(AspTrafficListener aspTrafficListener) {
+        this.aspTrafficListener = aspTrafficListener;
     }
 
     public boolean isConnected() {
@@ -624,6 +635,7 @@ public class AsImpl implements XMLSerializable, As {
                 int aspIndex = (sls & this.aspSlsMask);
                 aspIndex = (aspIndex >> this.aspSlsShiftPlaces);
 
+                AspImpl aspCong = null;
                 for (int i = 0; i < this.appServerProcs.size(); i++) {
 
                     AspImpl aspTemp = (AspImpl) this.appServerProcs.get(this.slsVsAspTable[aspIndex++]);
@@ -637,11 +649,43 @@ public class AsImpl implements XMLSerializable, As {
                     }
 
                     if (AspState.getState(aspFsm.getState().getName()) == AspState.ACTIVE) {
-                        aspTemp.getAspFactory().write(message);
-                        aspFound = true;
-                        break;
+                        if (aspTemp.getAspFactory().getAssociation().getCongestionLevel() > 1) {
+                            aspCong = aspTemp;
+                        } else {
+                            aspTemp.getAspFactory().write(message);
+                            aspFound = true;
+
+                            if (aspTrafficListener != null) {
+                                try {
+                                    aspTrafficListener.onAspMessage(aspTemp.getName(), message.getData().getData());
+                                } catch (Exception e) {
+                                    logger.error(String.format(
+                                            "Error while calling aspTrafficListener=%s onAspMessage method for Asp=%s",
+                                            aspTrafficListener, aspTemp));
+                                }
+                            }
+
+                            break;
+                        }
                     }
                 }// for
+
+                if (!aspFound) {
+                    if (aspCong != null) {
+                        aspCong.getAspFactory().write(message);
+                        aspFound = true;
+
+                        if (aspTrafficListener != null) {
+                            try {
+                                aspTrafficListener.onAspMessage(aspCong.getName(), message.getData().getData());
+                            } catch (Exception e) {
+                                logger.error(String.format(
+                                        "Error while calling aspTrafficListener=%s onAspMessage method for Asp=%s",
+                                        aspTrafficListener, aspCong));
+                            }
+                        }
+                    }
+                }
 
                 if (!aspFound) {
                     // This should never happen.

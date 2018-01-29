@@ -64,6 +64,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.DomainType;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.GPRSMSClass;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.GeodeticInformation;
@@ -74,6 +76,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationNumberMap;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MNPInfoRes;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSClassmark2;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NotReachableReason;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NumberPortabilityStatus;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.PSSubscriberState;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.PSSubscriberStateChoice;
@@ -318,6 +321,20 @@ public class TestAtiServerMan extends TesterBase implements TestAtiServerManMBea
                     this.testerHost.sendNotif(SOURCE_NAME, "Sent: atiResp", uData, Level.DEBUG);
                     break;
 
+                case ATIReaction.VAL_RETURN_SUCCESS_SUBSCRIBER_STATE:
+                    subscriberState = mapProvider.getMAPParameterFactory().createSubscriberState(
+                            SubscriberStateChoice.netDetNotReachable, NotReachableReason.notRegistered);
+
+                    subscriberInfo = mapProvider.getMAPParameterFactory().createSubscriberInfo(null, subscriberState, null,
+                            null, null, null, null, null, null);
+
+                    curDialog.addAnyTimeInterrogationResponse(invokeId, subscriberInfo, null);
+
+                    this.countAtiResp++;
+                    uData = this.createAtiRespData(curDialog.getLocalDialogId());
+                    this.testerHost.sendNotif(SOURCE_NAME, "Sent: atiRespSubscriberState", uData, Level.DEBUG);
+                    break;
+
                 case ATIReaction.VAL_ERROR_UNKNOWN_SUBSCRIBER:
                     MAPErrorMessage mapErrorMessage = null;
 
@@ -444,6 +461,14 @@ public class TestAtiServerMan extends TesterBase implements TestAtiServerManMBea
     @Override
     public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse arg0) {
         // TODO Auto-generated method stub
+
+    }
+
+    public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request) {
+
+    }
+
+    public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response) {
 
     }
 

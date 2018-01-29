@@ -258,7 +258,7 @@ public interface CAPParameterFactory {
 
     CAMELAChBillingChargingCharacteristics createCAMELAChBillingChargingCharacteristics(long maxCallPeriodDuration,
             boolean releaseIfdurationExceeded, Long tariffSwitchInterval, AudibleIndicator audibleIndicator,
-            CAPExtensions extensions, boolean isCAPVersion3orLater);
+            CAPExtensions extensions, int capVersion);
 
     DateAndTime createDateAndTime(int year, int month, int day, int hour, int minute, int second);
 
@@ -398,7 +398,7 @@ public interface CAPParameterFactory {
             BearerCapability bearerCapability2, ExtBasicServiceCode extBasicServiceCode2,
             HighLayerCompatibilityInap highLayerCompatibility2, LowLayerCompatibility lowLayerCompatibility,
             LowLayerCompatibility lowLayerCompatibility2, boolean enhancedDialledServicesAllowed, UUData uuData,
-            boolean isCAPVersion3orLater);
+            boolean collectInformationAllowed, boolean releaseCallArgExtensionAllowed, boolean isCAPVersion3orLater);
 
     AlertingPatternCap createAlertingPatternCap(AlertingPattern alertingPattern);
 

@@ -22,11 +22,7 @@
 
 package org.mobicents.protocols.ss7.sccp.impl;
 
-import java.io.IOException;
-import java.util.Map;
-
 import javolution.util.FastMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -57,6 +53,10 @@ import org.mobicents.protocols.ss7.sccp.parameter.ReturnCause;
 import org.mobicents.protocols.ss7.sccp.parameter.ReturnCauseValue;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  *
  * @author amit bhayani
@@ -72,6 +72,9 @@ public class SccpRoutingControl {
     private SccpManagement sccpManagement = null;
 
     private MessageFactoryImpl messageFactory;
+    private ConcurrentHashMap<Integer, Integer> opcSscCounters = new ConcurrentHashMap<Integer, Integer>();
+
+    private ConcurrentHashMap<Integer, Long> prohibitedSpcs = new ConcurrentHashMap<Integer, Long>();
 
     public SccpRoutingControl(SccpProviderImpl sccpProviderImpl, SccpStackImpl sccpStackImpl) {
         this.messageFactory = sccpStackImpl.messageFactory;
@@ -110,16 +113,40 @@ public class SccpRoutingControl {
             for (Map.Entry<Integer, SccpListener> val : lstListn.entrySet()) {
                 SccpListener listener = val.getValue();
                 if (msg instanceof SccpDataMessage) {
-                    SccpDataMessage dataMsg = (SccpDataMessage) msg;
-                    listener.onMessage(dataMsg);
+//                    SccpDataMessage dataMsg = (SccpDataMessage) msg;
+//                    listener.onMessage(dataMsg);
+                    deliverMessageToSccpUser(listener, (SccpDataMessage) msg);
                 }
             }
 
             return;
         }
 
-        // TODO if the local SCCP or node is in an overload condition, SCRC
+        //if the local SCCP or node is in an overload condition, SCRC
         // shall inform SCMG
+        int subsystemNumber = msg.getCalledPartyAddress().getSubsystemNumber();
+        Integer congestionLevel = this.sccpProviderImpl.getCongestionSsn().get(subsystemNumber);
+        if(congestionLevel != null) {
+            int inOpc = msg.getIncomingOpc();
+            if(congestionLevel > 0) {
+                if(subsystemNumber != 1)
+                    if(msg instanceof SccpDataMessage) {
+                        Integer counter = opcSscCounters.get(inOpc);
+                        if(counter == null) {
+                            counter = 0;
+                            opcSscCounters.put(inOpc, counter);
+                        }
+                        else {
+                            opcSscCounters.put(inOpc, ++counter);
+                        }
+                        if((counter % 8) == 0)
+                            this.sccpManagement.receivedForCongestionUser(msg, subsystemNumber, congestionLevel);
+                    }
+            }
+            else if (congestionLevel == 0) {
+                opcSscCounters.put(inOpc, 0);
+            }
+        }
 
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
         RoutingIndicator ri = calledPartyAddress.getAddressIndicator().getRoutingIndicator();
@@ -153,7 +180,8 @@ public class SccpRoutingControl {
                         if (logger.isDebugEnabled()) {
                             logger.debug(String.format("Local deliver : SCCP Data Message=%s", msg.toString()));
                         }
-                        listener.onMessage((SccpDataMessage) msg);
+//                        listener.onMessage((SccpDataMessage) msg);
+                        deliverMessageToSccpUser(listener, (SccpDataMessage) msg);
                     } else if (msg instanceof SccpNoticeMessage) {
                         if (logger.isDebugEnabled()) {
                             logger.debug(String.format("Local deliver : SCCP Notice Message=%s", msg.toString()));
@@ -190,10 +218,37 @@ public class SccpRoutingControl {
         this.route(msg);
     }
 
+    private long lastCongAnnounseTime;
+
     protected ReturnCauseValue send(SccpMessageImpl message) throws Exception {
 
         int dpc = message.getOutgoingDpc();
         int sls = message.getSls();
+
+        // outgoing congestion control
+        RemoteSignalingPointCode remoteSpc = this.sccpStackImpl.getSccpResource().getRemoteSpcByPC(dpc);
+        int currentRestrictionLevel = remoteSpc.getCurrentRestrictionLevel();
+        int msgImportance = 8;
+        if (message instanceof SccpDataMessageImpl) {
+            // UDT, XUDT, LUDT
+            msgImportance = 5;
+        }
+        if (message instanceof SccpNoticeMessageImpl) {
+            // UDTS, XUDTS, LUDTS
+            msgImportance = 3;
+        }
+        if (this.sccpManagement.getSccpCongestionControl().isCongControl_blockingOutgoungScpMessages()
+                && msgImportance < currentRestrictionLevel) {
+            // we are dropping a message because of outgoing congestion
+
+            long curTime = System.currentTimeMillis();
+            if (lastCongAnnounseTime + 1000 < curTime) {
+                lastCongAnnounseTime = curTime;
+                logger.warn(String.format("Outgoing congestion control: SCCP: SccpMessage for sending=%s was dropped because of congestion level %d to dpc %d",
+                        message, currentRestrictionLevel, dpc));
+            }
+            return ReturnCauseValue.NETWORK_CONGESTION;
+        }
 
         Mtp3ServiceAccessPoint sap = this.sccpStackImpl.router.findMtp3ServiceAccessPoint(dpc, sls, message.getNetworkId());
         if (sap == null) {
@@ -306,7 +361,7 @@ public class SccpRoutingControl {
     }
 
     private enum TranslationAddressCheckingResult {
-        destinationAvailable, destinationUnavailable_SubsystemFailure, destinationUnavailable_MtpFailure, translationFailure;
+        destinationAvailable, destinationUnavailable_SubsystemFailure, destinationUnavailable_MtpFailure, destinationUnavailable_Congestion, translationFailure;
     }
 
     private TranslationAddressCheckingResult checkTranslationAddress(SccpAddressedMessageImpl msg, Rule rule,
@@ -362,12 +417,29 @@ public class SccpRoutingControl {
         }
 
         if (remoteSpc.isRemoteSpcProhibited()) {
-            if (logger.isEnabledFor(Level.WARN)) {
-                logger.warn(String.format(
-                        "Received SccpMessage=%s for Translation but %s Remote Signaling Pointcode = %d is prohibited ", msg,
-                        destName, translationAddress.getSignalingPointCode()));
+            Long lastTimeLog = prohibitedSpcs.get(remoteSpc.getRemoteSpc());
+            if(lastTimeLog == null || System.currentTimeMillis() - lastTimeLog > sccpStackImpl.getPeriodOfLogging())
+            {
+                prohibitedSpcs.put(remoteSpc.getRemoteSpc(), System.currentTimeMillis());
+                if (logger.isEnabledFor(Level.WARN)) {
+                    logger.warn(String.format(
+                            "Received SccpMessage=%s for Translation but %s Remote Signaling Pointcode = %d is prohibited ", msg,
+                            destName, translationAddress.getSignalingPointCode()));
+                }
             }
+
             return TranslationAddressCheckingResult.destinationUnavailable_MtpFailure;
+        }
+
+        // Check if the DPC is congested
+        if (remoteSpc.getCurrentRestrictionLevel() > 1) {
+            if (logger.isEnabledFor(Level.WARN)) {
+                logger.warn(String
+                        .format("Received SccpMessage=%s for Translation but %s Remote Signaling Pointcode = %d is congested with level %d ",
+                                msg, destName, translationAddress.getSignalingPointCode(),
+                                remoteSpc.getCurrentRestrictionLevel()));
+            }
+            return TranslationAddressCheckingResult.destinationUnavailable_Congestion;
         }
 
         if (translationAddress.getAddressIndicator().getRoutingIndicator() == RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN) {
@@ -407,8 +479,9 @@ public class SccpRoutingControl {
         }
 
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
+        SccpAddress callingPartyAddress = msg.getCallingPartyAddress();
 
-        Rule rule = this.sccpStackImpl.router.findRule(calledPartyAddress, msg.getIsMtpOriginated(), msg.getNetworkId());
+        Rule rule = this.sccpStackImpl.router.findRule(calledPartyAddress, callingPartyAddress, msg.getIsMtpOriginated(), msg.getNetworkId());
         if (rule == null) {
             if (logger.isEnabledFor(Level.WARN)) {
                 logger.warn(String.format(
@@ -440,13 +513,18 @@ public class SccpRoutingControl {
         }
 
         if (resPri != TranslationAddressCheckingResult.destinationAvailable
-                && resSec != TranslationAddressCheckingResult.destinationAvailable) {
+                && resPri != TranslationAddressCheckingResult.destinationUnavailable_Congestion
+                && resSec != TranslationAddressCheckingResult.destinationAvailable
+                && resSec != TranslationAddressCheckingResult.destinationUnavailable_Congestion) {
             switch (resPri) {
                 case destinationUnavailable_SubsystemFailure:
                     this.sendSccpError(msg, ReturnCauseValue.SUBSYSTEM_FAILURE);
                     return;
                 case destinationUnavailable_MtpFailure:
                     this.sendSccpError(msg, ReturnCauseValue.MTP_FAILURE);
+                    return;
+                case destinationUnavailable_Congestion:
+                    this.sendSccpError(msg, ReturnCauseValue.NETWORK_CONGESTION);
                     return;
                 default:
                     this.sendSccpError(msg, ReturnCauseValue.SCCP_FAILURE);
@@ -461,6 +539,12 @@ public class SccpRoutingControl {
             translationAddress = translationAddressPri;
         } else if (resPri != TranslationAddressCheckingResult.destinationAvailable
                 && resSec == TranslationAddressCheckingResult.destinationAvailable) {
+            translationAddress = translationAddressSec;
+        } else if (resPri == TranslationAddressCheckingResult.destinationUnavailable_Congestion
+                && resSec != TranslationAddressCheckingResult.destinationAvailable) {
+            translationAddress = translationAddressPri;
+        } else if (resPri != TranslationAddressCheckingResult.destinationAvailable
+                && resSec == TranslationAddressCheckingResult.destinationUnavailable_Congestion) {
             translationAddress = translationAddressSec;
         } else {
             switch (rule.getRuleType()) {
@@ -610,7 +694,8 @@ public class SccpRoutingControl {
                             if (logger.isDebugEnabled()) {
                                 logger.debug(String.format("Local deliver : SCCP Data Message=%s", msg.toString()));
                             }
-                            listener.onMessage((SccpDataMessage) msg);
+//                            listener.onMessage((SccpDataMessage) msg);
+                            deliverMessageToSccpUser(listener, (SccpDataMessage) msg);
                         } else if (msg instanceof SccpNoticeMessage) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug(String.format("Local deliver : SCCP Notice Message=%s", msg.toString()));
@@ -766,6 +851,18 @@ public class SccpRoutingControl {
         }
     }
 
+    private void deliverMessageToSccpUser(SccpListener listener, SccpDataMessage msg) {
+        if (msg.getIsMtpOriginated()) {
+            listener.onMessage(msg);
+        } else {
+            // we need to make asynch delivering for local user originated messages
+            int seqControl = msg.getSls();
+            SccpTransferDeliveryHandler hdl = new SccpTransferDeliveryHandler(msg, listener);
+            seqControl = seqControl & this.sccpStackImpl.slsFilter;
+            this.sccpStackImpl.msgDeliveryExecutors[this.sccpStackImpl.slsTable[seqControl]].execute(hdl);
+        }
+    }
+
     protected void sendMessageToMtp(SccpAddressedMessageImpl msg) throws Exception {
 
         msg.setOutgoingDpc(msg.getCalledPartyAddress().getSignalingPointCode());
@@ -827,6 +924,30 @@ public class SccpRoutingControl {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private class SccpTransferDeliveryHandler implements Runnable {
+        private SccpDataMessage msg;
+        private SccpListener listener;
+
+        public SccpTransferDeliveryHandler(SccpDataMessage msg, SccpListener listener) {
+            this.msg = msg;
+            this.listener = listener;
+        }
+
+        @Override
+        public void run() {
+            if (sccpStackImpl.isStarted()) {
+                try {
+                    listener.onMessage(msg);
+                } catch (Exception e) {
+                    logger.error("Exception while delivering a system messages to the SCCP-user: " + e.getMessage(), e);
+                }
+            } else {
+                logger.error(String.format("Received SccpDataMessage=%s but SccpStack is not started. Message will be dropped",
+                        msg));
             }
         }
     }

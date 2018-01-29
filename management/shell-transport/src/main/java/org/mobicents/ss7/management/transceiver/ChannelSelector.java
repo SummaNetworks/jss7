@@ -48,8 +48,8 @@ import javolution.util.FastSet;
  * <li>
  * <p>
  * The <i>selected-key set</i> is the set of keys such that each key's channel was detected to be ready for at least one of the
- * operations identified in the key's interest set during a selection operation. This set is returned by the
- * {@link #selectNow() selectNow} method.
+ * operations identified in the key's interest set during a selection operation. This set is returned by the {@link #selectNow()
+ * selectNow} method.
  * </p>
  * </li>
  * </ul>
@@ -67,8 +67,6 @@ import javolution.util.FastSet;
 public class ChannelSelector {
 
     protected Selector selector;
-
-    private FastSet<ChannelSelectionKey> selectedKey = new FastSet<ChannelSelectionKey>();
 
     protected ChannelSelector(Selector selector) {
         this.selector = selector;
@@ -102,32 +100,39 @@ public class ChannelSelector {
      * @throws IOException If an I/O error occurs
      */
     public FastSet<ChannelSelectionKey> selectNow() throws IOException {
-        selectedKey.clear();
+        FastSet<ChannelSelectionKey> selectedKey = new FastSet<ChannelSelectionKey>();
         selector.selectNow();
         Set<SelectionKey> selection = selector.selectedKeys();
         for (SelectionKey key : selection) {
-            if (key.isAcceptable()) {
-                ChannelSelectionKey k = (ChannelSelectionKey) key.attachment();
-                selectedKey.add(k);
-            } else {
-
-                if (key.isReadable()) {
-                    ChannelSelectionKey k = (ChannelSelectionKey) key.attachment();
-                    ((ShellChannel) k.channel()).doRead();
-                    if (k.isReadable()) {
+            ChannelSelectionKey k = (ChannelSelectionKey) key.attachment();
+            try {
+                if (key.isValid()) {
+                    if (key.isValid() && key.isAcceptable()) {
                         selectedKey.add(k);
-                    }
-                }
+                    } else {
 
-                if (key.isWritable()) {
-                    ChannelSelectionKey k = (ChannelSelectionKey) key.attachment();
-                    ((ShellChannel) k.channel()).doWrite();
-                    if (k.isWritable()) {
-                        selectedKey.add(k);
+                        if (key.isValid() && key.isReadable()) {
+                            ((ShellChannel) k.channel()).doRead();
+                            if (k.isValid() && k.isReadable()) {
+                                selectedKey.add(k);
+                            }
+                        }
+
+                        if (key.isValid() && key.isWritable()) {
+                            ((ShellChannel) k.channel()).doWrite();
+                            if (k.isValid() && k.isWritable()) {
+                                selectedKey.add(k);
+                            }
+                        }
                     }
+                } else {
+                    // adding invalid channel to allow its removal
+                    selectedKey.add(k);
                 }
+            } catch (IOException ioe) {
+                throw new ChannelException(k, ioe.getMessage());
             }
-        }// for
+        } // for
         selection.clear();
         return selectedKey;
     }

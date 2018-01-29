@@ -22,9 +22,6 @@
 
 package org.mobicents.protocols.ss7.sccp.impl;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-
 import org.mobicents.protocols.ss7.Util;
 import org.mobicents.protocols.ss7.sccp.ConcernedSignalingPointCode;
 import org.mobicents.protocols.ss7.sccp.RemoteSignalingPointCode;
@@ -34,6 +31,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.*;
 
 /**
  * @author amit bhayani
@@ -89,6 +88,12 @@ public class SccpResourceTest {
         RemoteSignalingPointCode rsp1Temp = resource1.getRemoteSpc(1);
         assertNotNull(rsp1Temp);
         assertEquals(rsp1Temp.getRemoteSpc(), 6034);
+
+        assertFalse(resource1.getRemoteSpc(1).isRemoteSpcProhibited());
+        assertFalse(resource1.getRemoteSpc(1).isRemoteSccpProhibited());
+
+        assertFalse(resource1.getRemoteSpc(2).isRemoteSpcProhibited());
+        assertFalse(resource1.getRemoteSpc(2).isRemoteSccpProhibited());
 
         assertEquals(resource1.getRemoteSsns().size(), 2);
         RemoteSubSystem rss1Temp = resource1.getRemoteSsn(1);

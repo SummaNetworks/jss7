@@ -23,15 +23,14 @@
 package org.mobicents.protocols.ss7.sccp.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.mobicents.protocols.ss7.Util;
 import org.mobicents.protocols.ss7.mtp.Mtp3;
+import org.mobicents.protocols.ss7.mtp.Mtp3EndCongestionPrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3PausePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3ResumePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3StatusCause;
@@ -304,9 +303,14 @@ public class Mtp3UserPartImpl extends Mtp3UserPartBaseImpl {
         this.sendResumeMessageToLocalUser(msg);
     }
 
-    public void sendStatusMessageToLocalUser(int affectedDpc, Mtp3StatusCause cause, int congestionLevel) {
-        Mtp3StatusPrimitive msg = new Mtp3StatusPrimitive(affectedDpc, cause, congestionLevel);
+    public void sendStatusMessageToLocalUser(int affectedDpc, Mtp3StatusCause cause, int congestionLevel, int userPartIdentity) {
+        Mtp3StatusPrimitive msg = new Mtp3StatusPrimitive(affectedDpc, cause, congestionLevel, userPartIdentity);
         this.sendStatusMessageToLocalUser(msg);
+    }
+
+    public void sendEndCongestionMessageToLocalUser(int affectedDpc) {
+        Mtp3EndCongestionPrimitive msg = new Mtp3EndCongestionPrimitive(affectedDpc);
+        this.sendEndCongestionMessageToLocalUser(msg);
     }
 
     public List<Mtp3TransferPrimitive> getMessages() {

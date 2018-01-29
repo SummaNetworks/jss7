@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.management</groupId>
 		<artifactId>management</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>8.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>shell-client</artifactId>
@@ -81,7 +81,7 @@
 	<profiles>
 		<profile>
 			<!-- Adds the files to JBoss AS -->
-			<id>jboss</id>
+			<id>deploy-module-jboss5</id>
 			<build>
 				<plugins>
 					<plugin>

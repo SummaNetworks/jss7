@@ -132,9 +132,9 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
         // BEGIN indication primitive but is not acceptable from a load
         // control point of view, the MAP PM
         // shall ignore this dialogue request. The MAP-user is not informed.
-        if (compType == ComponentType.Invoke && this.mapProviderImpl.isCongested()) {
-            // TODO: we need to care of conjection control
-        }
+//        if (compType == ComponentType.Invoke && this.mapProviderImpl.isCongested()) {
+//            // TODO: we need to care of conjection control
+//        }
 
         MAPDialogPdpContextActivationImpl mapDialogPdpContextActivationImpl = (MAPDialogPdpContextActivationImpl) mapDialog;
 
@@ -146,17 +146,19 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
         int ocValueInt = (int) (long) ocValue;
 
         switch (ocValueInt) {
-        case MAPOperationCode.sendRoutingInfoForGprs:
-            if (acn == MAPApplicationContextName.gprsLocationInfoRetrievalContext || acn == MAPApplicationContextName.shortMsgMTRelayContext) {
-                if (compType == ComponentType.Invoke)
-                    this.sendRoutingInfoForGprsRequest(parameter, mapDialogPdpContextActivationImpl, invokeId);
-                else
-                    this.sendRoutingInfoForGprsResponse(parameter, mapDialogPdpContextActivationImpl, invokeId);
-            }
-            break;
-        default:
-            throw new MAPParsingComponentException("MAPServicePdpContextActivation: unknown incoming operation code: " + ocValueInt,
-                    MAPParsingComponentExceptionReason.UnrecognizedOperation);
+            case MAPOperationCode.sendRoutingInfoForGprs:
+                if (acn == MAPApplicationContextName.gprsLocationInfoRetrievalContext
+                        || acn == MAPApplicationContextName.shortMsgMTRelayContext) {
+                    if (compType == ComponentType.Invoke)
+                        this.sendRoutingInfoForGprsRequest(parameter, mapDialogPdpContextActivationImpl, invokeId);
+                    else
+                        this.sendRoutingInfoForGprsResponse(parameter, mapDialogPdpContextActivationImpl, invokeId,
+                                compType == ComponentType.ReturnResult);
+                }
+                break;
+            default:
+                throw new MAPParsingComponentException("MAPServicePdpContextActivation: unknown incoming operation code: "
+                        + ocValueInt, MAPParsingComponentExceptionReason.UnrecognizedOperation);
         }
     }
 
@@ -191,8 +193,8 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
         }
     }
 
-    private void sendRoutingInfoForGprsResponse(Parameter parameter, MAPDialogPdpContextActivationImpl mapDialogImpl, Long invokeId)
-            throws MAPParsingComponentException {
+    private void sendRoutingInfoForGprsResponse(Parameter parameter, MAPDialogPdpContextActivationImpl mapDialogImpl,
+            Long invokeId, boolean returnResultNotLast) throws MAPParsingComponentException {
 
         SendRoutingInfoForGprsResponseImpl ind = new SendRoutingInfoForGprsResponseImpl();
 
@@ -212,6 +214,7 @@ public class MAPServicePdpContextActivationImpl extends MAPServiceBaseImpl imple
 
         ind.setInvokeId(invokeId);
         ind.setMAPDialog(mapDialogImpl);
+        ind.setReturnResultNotLast(returnResultNotLast);
 
         for (MAPServiceListener serLis : this.serviceListeners) {
             try {

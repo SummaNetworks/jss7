@@ -31,7 +31,11 @@ import org.mobicents.protocols.ss7.statistics.api.LongValue;
 import org.mobicents.protocols.ss7.statistics.api.StatDataCollection;
 import org.mobicents.protocols.ss7.statistics.api.StatDataCollectorType;
 import org.mobicents.protocols.ss7.statistics.api.StatResult;
+import org.mobicents.protocols.ss7.tcap.api.TCAPCounterEventsListener;
 import org.mobicents.protocols.ss7.tcap.api.TCAPCounterProvider;
+import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
+import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
+import org.mobicents.protocols.ss7.tcap.asn.comp.PAbortCauseType;
 
 /**
  *
@@ -90,6 +94,18 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
     private static String MIN_DIALOGS_COUNT = "MinDialogsCount";
     private static String MAX_DIALOGS_COUNT = "MaxDialogsCount";
 
+    private static String MAX_NETWORK_ID_AREAS_NOT_AVAILABLE = "MaxNetworkIdAreasNotAvailable";
+    private static String MAX_NETWORK_ID_AREAS_CONGLEVEL_1 = "MaxNetworkIdAreasCongLevel_1";
+    private static String MAX_NETWORK_ID_AREAS_CONGLEVEL_2 = "MaxNetworkIdAreasCongLevel_2";
+    private static String MAX_NETWORK_ID_AREAS_CONGLEVEL_3 = "MaxNetworkIdAreasCongLevel_3";
+    private static String MAX_EXECUTORS_CONG_LEVEL_1 = "MaxExecutorsCongLevel_1";
+    private static String MAX_EXECUTORS_CONG_LEVEL_2 = "MaxExecutorsCongLevel_2";
+    private static String MAX_EXECUTORS_CONG_LEVEL_3 = "MaxExecutorsCongLevel_3";
+    private static String MAX_MEMORY_CONG_LEVEL = "MaxMemoryCongLevel";
+    private static String MAX_USER_PARTS_CONG_LEVEL_1 = "MaxUserPartsCongLevel_1";
+    private static String MAX_USER_PARTS_CONG_LEVEL_2 = "MaxUserPartsCongLevel_2";
+    private static String MAX_USER_PARTS_CONG_LEVEL_3 = "MaxUserPartsCongLevel_3";
+
     public TCAPCounterProviderImpl(TCAPProviderImpl provider) {
         this.provider = provider;
 
@@ -104,6 +120,18 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         this.statDataCollection.registerStatCounterCollector(INCOMING_ERRORS_PER_ERROR_CODE, StatDataCollectorType.StringLongMap);
         this.statDataCollection.registerStatCounterCollector(OUTGOING_REJECT_PER_PROBLEM, StatDataCollectorType.StringLongMap);
         this.statDataCollection.registerStatCounterCollector(INCOMING_REJECT_PER_PROBLEM, StatDataCollectorType.StringLongMap);
+
+        this.statDataCollection.registerStatCounterCollector(MAX_NETWORK_ID_AREAS_NOT_AVAILABLE, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_NETWORK_ID_AREAS_CONGLEVEL_1, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_NETWORK_ID_AREAS_CONGLEVEL_2, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_NETWORK_ID_AREAS_CONGLEVEL_3, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_EXECUTORS_CONG_LEVEL_1, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_EXECUTORS_CONG_LEVEL_2, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_EXECUTORS_CONG_LEVEL_3, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_MEMORY_CONG_LEVEL, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_USER_PARTS_CONG_LEVEL_1, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_USER_PARTS_CONG_LEVEL_2, StatDataCollectorType.MAX);
+        this.statDataCollection.registerStatCounterCollector(MAX_USER_PARTS_CONG_LEVEL_3, StatDataCollectorType.MAX);
     }
 
 
@@ -118,8 +146,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcUniReceivedCount.get();
     }
 
-    public void updateTcUniReceivedCount() {
+    public void updateTcUniReceivedCount(Dialog dialog) {
         tcUniReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcUniReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -127,8 +159,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcUniSentCount.get();
     }
 
-    public void updateTcUniSentCount() {
+    public void updateTcUniSentCount(Dialog dialog) {
         tcUniSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcUniSentCount(dialog);
+        }
     }
 
     @Override
@@ -136,8 +172,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcBeginReceivedCount.get();
     }
 
-    public void updateTcBeginReceivedCount() {
+    public void updateTcBeginReceivedCount(Dialog dialog) {
         tcBeginReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcBeginReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -145,8 +185,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcBeginSentCount.get();
     }
 
-    public void updateTcBeginSentCount() {
+    public void updateTcBeginSentCount(Dialog dialog) {
         tcBeginSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcBeginSentCount(dialog);
+        }
     }
 
     @Override
@@ -154,8 +198,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcContinueReceivedCount.get();
     }
 
-    public void updateTcContinueReceivedCount() {
+    public void updateTcContinueReceivedCount(Dialog dialog) {
         tcContinueReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcContinueReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -163,8 +211,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcContinueSentCount.get();
     }
 
-    public void updateTcContinueSentCount() {
+    public void updateTcContinueSentCount(Dialog dialog) {
         tcContinueSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcContinueSentCount(dialog);
+        }
     }
 
     @Override
@@ -172,8 +224,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcEndReceivedCount.get();
     }
 
-    public void updateTcEndReceivedCount() {
+    public void updateTcEndReceivedCount(Dialog dialog) {
         tcEndReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcContinueSentCount(dialog);
+        }
     }
 
     @Override
@@ -181,8 +237,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcEndSentCount.get();
     }
 
-    public void updateTcEndSentCount() {
+    public void updateTcEndSentCount(Dialog dialog) {
         tcEndSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcEndSentCount(dialog);
+        }
     }
 
     @Override
@@ -190,8 +250,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcPAbortReceivedCount.get();
     }
 
-    public void updateTcPAbortReceivedCount() {
+    public void updateTcPAbortReceivedCount(Dialog dialog, PAbortCauseType cause) {
         tcPAbortReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcPAbortReceivedCount(dialog, cause);
+        }
     }
 
     @Override
@@ -199,8 +263,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcPAbortSentCount.get();
     }
 
-    public void updateTcPAbortSentCount() {
+    public void updateTcPAbortSentCount(byte[] originatingTransactionId, PAbortCauseType cause) {
         tcPAbortSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcPAbortSentCount(originatingTransactionId, cause);
+        }
     }
 
     @Override
@@ -208,8 +276,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcUserAbortReceivedCount.get();
     }
 
-    public void updateTcUserAbortReceivedCount() {
+    public void updateTcUserAbortReceivedCount(Dialog dialog) {
         tcUserAbortReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcUserAbortReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -217,8 +289,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return tcUserAbortSentCount.get();
     }
 
-    public void updateTcUserAbortSentCount() {
+    public void updateTcUserAbortSentCount(Dialog dialog) {
         tcUserAbortSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateTcUserAbortSentCount(dialog);
+        }
     }
 
     @Override
@@ -226,8 +302,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return invokeReceivedCount.get();
     }
 
-    public void updateInvokeReceivedCount() {
+    public void updateInvokeReceivedCount(Dialog dialog, Invoke invoke) {
         invokeReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateInvokeReceivedCount(dialog, invoke);
+        }
     }
 
     @Override
@@ -235,8 +315,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return invokeSentCount.get();
     }
 
-    public void updateInvokeSentCount() {
+    public void updateInvokeSentCount(Dialog dialog, Invoke invoke) {
         invokeSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateInvokeSentCount(dialog, invoke);
+        }
     }
 
     @Override
@@ -244,8 +328,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return returnResultReceivedCount.get();
     }
 
-    public void updateReturnResultReceivedCount() {
+    public void updateReturnResultReceivedCount(Dialog dialog) {
         returnResultReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateReturnResultReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -253,8 +341,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return returnResultSentCount.get();
     }
 
-    public void updateReturnResultSentCount() {
+    public void updateReturnResultSentCount(Dialog dialog) {
         returnResultSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateReturnResultSentCount(dialog);
+        }
     }
 
     @Override
@@ -262,8 +354,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return returnResultLastReceivedCount.get();
     }
 
-    public void updateReturnResultLastReceivedCount() {
+    public void updateReturnResultLastReceivedCount(Dialog dialog) {
         returnResultLastReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateReturnResultLastReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -271,8 +367,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return returnResultLastSentCount.get();
     }
 
-    public void updateReturnResultLastSentCount() {
+    public void updateReturnResultLastSentCount(Dialog dialog) {
         returnResultLastSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateReturnResultLastSentCount(dialog);
+        }
     }
 
     @Override
@@ -280,8 +380,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return returnErrorReceivedCount.get();
     }
 
-    public void updateReturnErrorReceivedCount() {
+    public void updateReturnErrorReceivedCount(Dialog dialog) {
         returnErrorReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateReturnErrorReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -289,8 +393,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return returnErrorSentCount.get();
     }
 
-    public void updateReturnErrorSentCount() {
+    public void updateReturnErrorSentCount(Dialog dialog) {
         returnErrorSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateReturnErrorSentCount(dialog);
+        }
     }
 
     @Override
@@ -298,8 +406,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return rejectReceivedCount.get();
     }
 
-    public void updateRejectReceivedCount() {
+    public void updateRejectReceivedCount(Dialog dialog) {
         rejectReceivedCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateRejectReceivedCount(dialog);
+        }
     }
 
     @Override
@@ -307,8 +419,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return rejectSentCount.get();
     }
 
-    public void updateRejectSentCount() {
+    public void updateRejectSentCount(Dialog dialog) {
         rejectSentCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateRejectSentCount(dialog);
+        }
     }
 
     @Override
@@ -316,8 +432,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return dialogTimeoutCount.get();
     }
 
-    public void updateDialogTimeoutCount() {
+    public void updateDialogTimeoutCount(Dialog dialog) {
         dialogTimeoutCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateDialogTimeoutCount(dialog);
+        }
     }
 
     @Override
@@ -325,8 +445,12 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
         return dialogReleaseCount.get();
     }
 
-    public void updateDialogReleaseCount() {
+    public void updateDialogReleaseCount(Dialog dialog) {
         dialogReleaseCount.addAndGet(1);
+        TCAPCounterEventsListener listener = provider.getStack().getTCAPCounterEventsListener();
+        if (listener != null) {
+            listener.updateDialogReleaseCount(dialog);
+        }
     }
 
 
@@ -509,6 +633,160 @@ public class TCAPCounterProviderImpl implements TCAPCounterProvider {
 
     public void updateIncomingRejectPerProblem(String name) {
         this.statDataCollection.updateData(INCOMING_REJECT_PER_PROBLEM, name);
+    }
+
+    @Override
+    public Long getMaxNetworkIdAreasNotAvailable(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_NETWORK_ID_AREAS_NOT_AVAILABLE, compainName);
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_NOT_AVAILABLE, provider.getNetworkIdAreasNotAvailableCount());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxNetworkIdAreasNotAvailable(long newVal) {
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_NOT_AVAILABLE, newVal);
+    }
+
+    @Override
+    public Long getMaxNetworkIdAreasCongLevel_1(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_NETWORK_ID_AREAS_CONGLEVEL_1, compainName);
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_CONGLEVEL_1, provider.getNetworkIdAreasCongLevel_1_Count());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxNetworkIdAreasCongLevel_1(long newVal) {
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_CONGLEVEL_1, newVal);
+    }
+
+    @Override
+    public Long getMaxNetworkIdAreasCongLevel_2(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_NETWORK_ID_AREAS_CONGLEVEL_2, compainName);
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_CONGLEVEL_2, provider.getNetworkIdAreasCongLevel_2_Count());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxNetworkIdAreasCongLevel_2(long newVal) {
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_CONGLEVEL_2, newVal);
+    }
+
+    @Override
+    public Long getMaxNetworkIdAreasCongLevel_3(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_NETWORK_ID_AREAS_CONGLEVEL_3, compainName);
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_CONGLEVEL_3, provider.getNetworkIdAreasCongLevel_3_Count());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxNetworkIdAreasCongLevel_3(long newVal) {
+        this.statDataCollection.updateData(MAX_NETWORK_ID_AREAS_CONGLEVEL_3, newVal);
+    }
+
+    @Override
+    public Long getMaxExecutorsCongLevel_1(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_EXECUTORS_CONG_LEVEL_1, compainName);
+        this.statDataCollection.updateData(MAX_EXECUTORS_CONG_LEVEL_1, provider.getExecutorCountWithCongestionLevel_1());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxExecutorsCongLevel_1(long newVal) {
+        this.statDataCollection.updateData(MAX_EXECUTORS_CONG_LEVEL_1, newVal);
+    }
+
+    @Override
+    public Long getMaxExecutorsCongLevel_2(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_EXECUTORS_CONG_LEVEL_2, compainName);
+        this.statDataCollection.updateData(MAX_EXECUTORS_CONG_LEVEL_2, provider.getExecutorCountWithCongestionLevel_2());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxExecutorsCongLevel_2(long newVal) {
+        this.statDataCollection.updateData(MAX_EXECUTORS_CONG_LEVEL_2, newVal);
+    }
+
+    @Override
+    public Long getMaxExecutorsCongLevel_3(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_EXECUTORS_CONG_LEVEL_3, compainName);
+        this.statDataCollection.updateData(MAX_EXECUTORS_CONG_LEVEL_3, provider.getExecutorCountWithCongestionLevel_3());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxExecutorsCongLevel_3(long newVal) {
+        this.statDataCollection.updateData(MAX_EXECUTORS_CONG_LEVEL_3, newVal);
+    }
+
+    @Override
+    public Long getMaxMemoryCongLevel(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_MEMORY_CONG_LEVEL, compainName);
+        this.statDataCollection.updateData(MAX_MEMORY_CONG_LEVEL, provider.getMemoryCongestionLevel());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxMemoryCongLevel(long newVal) {
+        this.statDataCollection.updateData(MAX_MEMORY_CONG_LEVEL, newVal);
+    }
+
+    @Override
+    public Long getMaxUserPartsCongLevel_1(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_USER_PARTS_CONG_LEVEL_1, compainName);
+        this.statDataCollection.updateData(MAX_USER_PARTS_CONG_LEVEL_1, provider.getUserPartCongestionLevel_1());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxUserPartsCongLevel_1(long newVal) {
+        this.statDataCollection.updateData(MAX_USER_PARTS_CONG_LEVEL_1, newVal);
+    }
+
+    @Override
+    public Long getMaxUserPartsCongLevel_2(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_USER_PARTS_CONG_LEVEL_2, compainName);
+        this.statDataCollection.updateData(MAX_USER_PARTS_CONG_LEVEL_2, provider.getUserPartCongestionLevel_2());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxUserPartsCongLevel_2(long newVal) {
+        this.statDataCollection.updateData(MAX_USER_PARTS_CONG_LEVEL_2, newVal);
+    }
+
+    @Override
+    public Long getMaxUserPartsCongLevel_3(String compainName) {
+        StatResult res = this.statDataCollection.restartAndGet(MAX_USER_PARTS_CONG_LEVEL_3, compainName);
+        this.statDataCollection.updateData(MAX_USER_PARTS_CONG_LEVEL_3, provider.getUserPartCongestionLevel_3());
+        if (res != null)
+            return res.getLongValue();
+        else
+            return null;
+    }
+
+    public void updateMaxUserPartsCongLevel_3(long newVal) {
+        this.statDataCollection.updateData(MAX_USER_PARTS_CONG_LEVEL_3, newVal);
     }
 
 }

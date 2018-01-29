@@ -21,9 +21,9 @@
  */
 package org.mobicents.protocols.ss7.sccp;
 
-import java.util.Map;
-
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+
+import java.util.Map;
 
 /**
  *
@@ -42,9 +42,9 @@ public interface Router {
 
     SccpAddress getRoutingAddress(int id);
 
-    void addMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId) throws Exception;
+    void addMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId, String localGtDigits) throws Exception;
 
-    void modifyMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId) throws Exception;
+    void modifyMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId, String localGtDigits) throws Exception;
 
     void removeMtp3ServiceAccessPoint(int id) throws Exception;
 
@@ -71,14 +71,15 @@ public interface Router {
     Map<Integer, LongMessageRule> getLongMessageRules();
 
     void addRule(int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType originationType, SccpAddress pattern, String mask, int pAddressId,
-            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId) throws Exception;
+            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId, SccpAddress patternCallingAddress) throws Exception;
 
     void modifyRule(int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType originationType, SccpAddress pattern, String mask, int pAddressId,
-            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId) throws Exception;
+            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId, SccpAddress patternCallingAddress) throws Exception;
 
     Rule getRule(int id);
 
     void removeRule(int id) throws Exception;
 
     Map<Integer, Rule> getRules();
+
 }

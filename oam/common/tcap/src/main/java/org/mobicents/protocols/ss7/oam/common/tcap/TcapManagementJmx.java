@@ -22,6 +22,7 @@
 
 package org.mobicents.protocols.ss7.oam.common.tcap;
 
+import java.util.List;
 import java.util.Map;
 
 import javolution.util.FastMap;
@@ -42,7 +43,9 @@ import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterDefSet;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterMediator;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterType;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.SourceValueSet;
+import org.mobicents.protocols.ss7.sccp.SccpStack;
 import org.mobicents.protocols.ss7.statistics.api.LongValue;
+import org.mobicents.protocols.ss7.tcap.api.TCAPCounterEventsListener;
 import org.mobicents.protocols.ss7.tcap.api.TCAPCounterProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
@@ -191,6 +194,16 @@ public class TcapManagementJmx implements TcapManagementJmxMBean, CounterMediato
     }
 
     @Override
+    public void setSlsRange(String val) throws Exception{
+        this.wrappedTCAPStack.setSlsRange(val);
+    }
+
+    @Override
+    public String getSlsRange() {
+        return this.wrappedTCAPStack.getSlsRange();
+    }
+
+    @Override
     public void setStatisticsEnabled(boolean val) throws Exception {
         this.wrappedTCAPStack.setStatisticsEnabled(val);
     }
@@ -198,6 +211,136 @@ public class TcapManagementJmx implements TcapManagementJmxMBean, CounterMediato
     @Override
     public boolean getStatisticsEnabled() {
         return this.wrappedTCAPStack.getStatisticsEnabled();
+    }
+
+    @Override
+    public boolean isCongControl_blockingIncomingTcapMessages() {
+        return this.wrappedTCAPStack.isCongControl_blockingIncomingTcapMessages();
+    }
+
+    @Override
+    public void setCongControl_blockingIncomingTcapMessages(boolean value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_blockingIncomingTcapMessages(value);
+    }
+
+    @Override
+    public double getCongControl_ExecutorDelayThreshold_1() {
+        return this.wrappedTCAPStack.getCongControl_ExecutorDelayThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_ExecutorDelayThreshold_2() {
+        return this.wrappedTCAPStack.getCongControl_ExecutorDelayThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_ExecutorDelayThreshold_3() {
+        return this.wrappedTCAPStack.getCongControl_ExecutorDelayThreshold_3();
+    }
+
+    @Override
+    public void setCongControl_ExecutorDelayThreshold_1(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_ExecutorDelayThreshold_1(value);
+    }
+
+    @Override
+    public void setCongControl_ExecutorDelayThreshold_2(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_ExecutorDelayThreshold_2(value);
+    }
+
+    @Override
+    public void setCongControl_ExecutorDelayThreshold_3(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_ExecutorDelayThreshold_3(value);
+    }
+
+    @Override
+    public double getCongControl_ExecutorBackToNormalDelayThreshold_1() {
+        return this.wrappedTCAPStack.getCongControl_ExecutorBackToNormalDelayThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_ExecutorBackToNormalDelayThreshold_2() {
+        return this.wrappedTCAPStack.getCongControl_ExecutorBackToNormalDelayThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_ExecutorBackToNormalDelayThreshold_3() {
+        return this.wrappedTCAPStack.getCongControl_ExecutorBackToNormalDelayThreshold_3();
+    }
+
+    @Override
+    public void setCongControl_ExecutorBackToNormalDelayThreshold_1(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_ExecutorBackToNormalDelayThreshold_1(value);
+    }
+
+    @Override
+    public void setCongControl_ExecutorBackToNormalDelayThreshold_2(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_ExecutorBackToNormalDelayThreshold_2(value);
+    }
+
+    @Override
+    public void setCongControl_ExecutorBackToNormalDelayThreshold_3(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_ExecutorBackToNormalDelayThreshold_3(value);
+    }
+
+    @Override
+    public double getCongControl_MemoryThreshold_1() {
+        return this.wrappedTCAPStack.getCongControl_MemoryThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_MemoryThreshold_2() {
+        return this.wrappedTCAPStack.getCongControl_MemoryThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_MemoryThreshold_3() {
+        return this.wrappedTCAPStack.getCongControl_MemoryThreshold_3();
+    }
+
+    @Override
+    public void setCongControl_MemoryThreshold_1(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_MemoryThreshold_1(value);
+    }
+
+    @Override
+    public void setCongControl_MemoryThreshold_2(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_MemoryThreshold_2(value);
+    }
+
+    @Override
+    public void setCongControl_MemoryThreshold_3(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_MemoryThreshold_3(value);
+    }
+
+    @Override
+    public double getCongControl_BackToNormalMemoryThreshold_1() {
+        return this.wrappedTCAPStack.getCongControl_BackToNormalMemoryThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalMemoryThreshold_2() {
+        return this.wrappedTCAPStack.getCongControl_BackToNormalMemoryThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalMemoryThreshold_3() {
+        return this.wrappedTCAPStack.getCongControl_BackToNormalMemoryThreshold_3();
+    }
+
+    @Override
+    public void setCongControl_BackToNormalMemoryThreshold_1(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_BackToNormalMemoryThreshold_1(value);
+    }
+
+    @Override
+    public void setCongControl_BackToNormalMemoryThreshold_2(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_BackToNormalMemoryThreshold_2(value);
+    }
+
+    @Override
+    public void setCongControl_BackToNormalMemoryThreshold_3(double value) throws Exception {
+        this.wrappedTCAPStack.setCongControl_BackToNormalMemoryThreshold_3(value);
     }
 
     // Statistics part
@@ -294,6 +437,29 @@ public class TcapManagementJmx implements TcapManagementJmxMBean, CounterMediato
         cd = new CounterDefImpl(CounterType.ComplexValue, "OutgoingRejectPerProblem", "An outgoing Reject count per Problem");
         cds.addCounterDef(cd);
         cd = new CounterDefImpl(CounterType.ComplexValue, "IncomingRejectPerProblem", "An incoming Reject count per Problem");
+        cds.addCounterDef(cd);
+
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxNetworkIdAreasNotAvailable", "A max count of networkID areas that are not available");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxNetworkIdAreasCongLevel_1", "A max count of networkID areas that are congested with level at least 1");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxNetworkIdAreasCongLevel_2", "A max count of networkID areas that are congested with level at least 2");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxNetworkIdAreasCongLevel_3", "A max count of networkID areas that are congested with level at least 3");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxExecutorsCongLevel_1", "A max count of Executors that are congested with level at least 1");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxExecutorsCongLevel_2", "A max count of Executors that are congested with level at least 2");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxExecutorsCongLevel_3", "A max count of Executors that are congested with level at least 3");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxMemoryCongLevel", "A max memory congestion level");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxUserPartsCongLevel_1", "Max count of TcapUserParts that are congested with level at least 1");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxUserPartsCongLevel_2", "Max count of TcapUserParts that are congested with level at least 2");
+        cds.addCounterDef(cd);
+        cd = new CounterDefImpl(CounterType.Maximal, "MaxUserPartsCongLevel_3", "Max count of TcapUserParts that are congested with level at least 3");
         cds.addCounterDef(cd);
 
         lstCounters = lst;
@@ -430,6 +596,52 @@ public class TcapManagementJmx implements TcapManagementJmxMBean, CounterMediato
                     svo = createComplexValue(cp.getOutgoingRejectPerProblem(campaignName));
                 } else if (cd.getCounterName().equals("IncomingRejectPerProblem")) {
                     svo = createComplexValue(cp.getIncomingRejectPerProblem(campaignName));
+
+                } else if (cd.getCounterName().equals("MaxNetworkIdAreasNotAvailable")) {
+                    Long res = cp.getMaxNetworkIdAreasNotAvailable(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxNetworkIdAreasCongLevel_1")) {
+                    Long res = cp.getMaxNetworkIdAreasCongLevel_1(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxNetworkIdAreasCongLevel_2")) {
+                    Long res = cp.getMaxNetworkIdAreasCongLevel_2(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxNetworkIdAreasCongLevel_3")) {
+                    Long res = cp.getMaxNetworkIdAreasCongLevel_3(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxExecutorsCongLevel_1")) {
+                    Long res = cp.getMaxExecutorsCongLevel_1(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxExecutorsCongLevel_2")) {
+                    Long res = cp.getMaxExecutorsCongLevel_2(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxExecutorsCongLevel_3")) {
+                    Long res = cp.getMaxExecutorsCongLevel_3(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxMemoryCongLevel")) {
+                    Long res = cp.getMaxMemoryCongLevel(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxUserPartsCongLevel_1")) {
+                    Long res = cp.getMaxUserPartsCongLevel_1(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxUserPartsCongLevel_2")) {
+                    Long res = cp.getMaxUserPartsCongLevel_2(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+                } else if (cd.getCounterName().equals("MaxUserPartsCongLevel_3")) {
+                    Long res = cp.getMaxUserPartsCongLevel_3(campaignName);
+                    if (res != null)
+                        svo = new SourceValueObjectImpl(this.getName(), res);
+
                 }
                 if (svo != null)
                     scs.addObject(svo);
@@ -486,6 +698,41 @@ public class TcapManagementJmx implements TcapManagementJmxMBean, CounterMediato
 
             return null;
         }
+    }
+
+    @Override
+    public TCAPCounterEventsListener getTCAPCounterEventsListener() {
+        return this.wrappedTCAPStack.getTCAPCounterEventsListener();
+    }
+
+    @Override
+    public void setTCAPCounterEventsListener(TCAPCounterEventsListener tcapCounterEventsListener) {
+        this.wrappedTCAPStack.setTCAPCounterEventsListener(tcapCounterEventsListener);
+    }
+
+    @Override
+    public void setExtraSsns(List<Integer> extraSsnsNew) throws Exception {
+        this.wrappedTCAPStack.setExtraSsns(extraSsnsNew);
+    }
+
+    @Override
+    public List<Integer> getExtraSsns() {
+        return this.wrappedTCAPStack.getExtraSsns();
+    }
+
+    @Override
+    public boolean isExtraSsnPresent(int ssn) {
+        return this.wrappedTCAPStack.isExtraSsnPresent(ssn);
+    }
+
+    @Override
+    public String getSubSystemNumberList() {
+        return this.wrappedTCAPStack.getSubSystemNumberList();
+    }
+
+    @Override
+    public SccpStack getSccpStack() {
+        return this.wrappedTCAPStack.getSccpStack();
     }
 
 }

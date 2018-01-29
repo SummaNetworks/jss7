@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterCampaign;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterDefSet;
+import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterOutputFormat;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterValueSet;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.SourceValueSet;
 
@@ -44,12 +45,14 @@ public class CounterCampaignImpl implements CounterCampaign {
     private static final String NAME = "name";
     private static final String COUNTER_SET_NAME = "counterSetName";
     private static final String DURATION = "duration";
+    private static final String OUTPUT_FORMAT = "outputFormat";
     private static final String SHORT_CAMPAIGN = "shortCampaign";
 
     private String name;
     private CounterDefSet counterSet;
     private String counterSetName;
     private int duration;
+    private CounterOutputFormat outputFormat = CounterOutputFormat.VERBOSE;
     private boolean shortCampaign;
 
     private Date startTime;
@@ -60,11 +63,15 @@ public class CounterCampaignImpl implements CounterCampaign {
     public CounterCampaignImpl() {
     }
 
-    public CounterCampaignImpl(String name, String counterSetName, CounterDefSet counterSet, int duration, boolean shortCampaign) {
+    public CounterCampaignImpl(String name, String counterSetName, CounterDefSet counterSet, int duration, boolean shortCampaign, CounterOutputFormat outputFormat) {
         this.name = name;
         this.counterSetName = counterSetName;
         this.counterSet = counterSet;
         this.duration = duration;
+        if (outputFormat != null)
+            this.outputFormat = outputFormat;
+        else
+            this.outputFormat = CounterOutputFormat.VERBOSE;
         this.shortCampaign = shortCampaign;
     }
 
@@ -81,6 +88,16 @@ public class CounterCampaignImpl implements CounterCampaign {
     @Override
     public int getDuration() {
        return duration;
+    }
+
+    @Override
+    public CounterOutputFormat getOutputFormat() {
+        return outputFormat;
+    }
+
+    @Override
+    public int getOutputFormatInt() {
+        return outputFormat.getCode();
     }
 
     @Override
@@ -140,6 +157,13 @@ public class CounterCampaignImpl implements CounterCampaign {
             counterCampaign.counterSetName = xml.getAttribute(COUNTER_SET_NAME, "");
             counterCampaign.shortCampaign = xml.getAttribute(SHORT_CAMPAIGN, false);
             counterCampaign.duration = xml.getAttribute(DURATION, 60);
+
+            String val = xml.getAttribute(OUTPUT_FORMAT, "VERBOSE");
+            try {
+                counterCampaign.outputFormat = Enum.valueOf(CounterOutputFormat.class, val);
+            } catch (Exception e) {
+                counterCampaign.outputFormat = CounterOutputFormat.VERBOSE;
+            }
         }
 
         public void write(CounterCampaignImpl counterCampaign, javolution.xml.XMLFormat.OutputElement xml) throws XMLStreamException {
@@ -147,6 +171,7 @@ public class CounterCampaignImpl implements CounterCampaign {
             xml.setAttribute(COUNTER_SET_NAME, counterCampaign.getCounterSetName());
             xml.setAttribute(SHORT_CAMPAIGN, counterCampaign.isShortCampaign());
             xml.setAttribute(DURATION, counterCampaign.getDuration());
+            xml.setAttribute(OUTPUT_FORMAT, counterCampaign.getOutputFormat().toString());
         }
     };
 

@@ -31,6 +31,7 @@ import javolution.util.FastList;
 import javolution.util.FastMap;
 
 import org.mobicents.protocols.api.Association;
+import org.mobicents.protocols.api.CongestionListener;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
 import org.mobicents.protocols.api.ManagementEventListener;
@@ -53,7 +54,7 @@ import org.mobicents.protocols.ss7.oam.common.jmxss7.Ss7Layer;
  * @author amit bhayani
  *
  */
-public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEventListener, AlarmMediator {
+public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEventListener, AlarmMediator, CongestionListener {
 
     private final MBeanHost ss7Management;
     private final Management wrappedSctpManagement;
@@ -88,9 +89,34 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
 
     @Override
     public Association addSctpAssociation(String hostAddress, int hostPort, String peerAddress, int peerPort, String assocName,
-            IpChannelType ipChannelType, String extraHostAddresses) throws Exception {
-        this.wrappedSctpManagement.addAssociation(hostAddress, hostPort, peerAddress, peerPort, assocName, ipChannelType,
+            String ipChannelType, String extraHostAddresses) throws Exception {
+        this.wrappedSctpManagement.addAssociation(hostAddress, hostPort, peerAddress, peerPort, assocName, IpChannelType.valueOf(ipChannelType.toUpperCase()),
                 (extraHostAddresses != null && !extraHostAddresses.isEmpty()) ? extraHostAddresses.split(",") : null);
+        return null;
+    }
+
+    @Override
+    public Association modifySctpAssociation(String hostAddress, String hostPort, String peerAddress, String peerPort,
+            String assocName, String ipChannelType, String extraHostAddresses) throws Exception {
+        String currHostAddress = null;
+        if(hostAddress!=null && !hostAddress.isEmpty())
+            currHostAddress = hostAddress;
+        Integer currHostPort = null;
+        if(hostPort!=null && !hostPort.isEmpty())
+            currHostPort = Integer.valueOf(hostPort);
+        String currPeerAddress = null;
+        if(peerAddress!=null && !peerAddress.isEmpty())
+            currPeerAddress = peerAddress;
+        Integer currPeerPort = null;
+        if(peerPort!=null && !peerPort.isEmpty())
+            currPeerPort = Integer.valueOf(peerPort);
+        IpChannelType currIpChannelType = null;
+        if(ipChannelType!=null && !ipChannelType.isEmpty())
+            currIpChannelType = IpChannelType.valueOf(ipChannelType.toUpperCase());
+        String[] currExtraHostAddresses = null;
+        if(extraHostAddresses != null && !extraHostAddresses.isEmpty())
+            currExtraHostAddresses = extraHostAddresses.split(",");
+        this.wrappedSctpManagement.modifyAssociation(currHostAddress, currHostPort, currPeerAddress, currPeerPort, assocName, currIpChannelType, currExtraHostAddresses);
         return null;
     }
 
@@ -122,12 +148,49 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
         return null;
     }
 
+//    @Override
+//    public Server addSctpServer(String serverName, String hostAddress, int port, IpChannelType ipChannelType,
+//            boolean acceptAnonymousConnections, int maxConcurrentConnectionsCount, String extraHostAddresses) throws Exception {
+//        this.wrappedSctpManagement.addServer(serverName, hostAddress, port, ipChannelType, acceptAnonymousConnections,
+//                maxConcurrentConnectionsCount,
+//                (extraHostAddresses != null && !extraHostAddresses.isEmpty()) ? extraHostAddresses.split(",") : null);
+//        return null;
+//    }
     @Override
-    public Server addSctpServer(String serverName, String hostAddress, int port, IpChannelType ipChannelType,
-            boolean acceptAnonymousConnections, int maxConcurrentConnectionsCount, String extraHostAddresses) throws Exception {
-        this.wrappedSctpManagement.addServer(serverName, hostAddress, port, ipChannelType, acceptAnonymousConnections,
+    public Server addSctpServer(String serverName, String hostAddress, int port, String ipChannelType,
+       boolean acceptAnonymousConnections, int maxConcurrentConnectionsCount, String extraHostAddresses)
+       throws Exception {
+    this.wrappedSctpManagement.addServer(serverName, hostAddress, port, IpChannelType.valueOf(ipChannelType.toUpperCase()), acceptAnonymousConnections,
                 maxConcurrentConnectionsCount,
                 (extraHostAddresses != null && !extraHostAddresses.isEmpty()) ? extraHostAddresses.split(",") : null);
+        return null;
+    }
+
+    @Override
+    public Server modifySctpServer(String serverName, String hostAddress, String port, String ipChannelType,
+            String acceptAnonymousConnections, String maxConcurrentConnectionsCount, String extraHostAddresses) throws Exception {
+
+        String currHostAddress = null;
+        if(hostAddress!=null && !hostAddress.isEmpty())
+            currHostAddress = hostAddress;
+        Integer currPort = null;
+        if(port!=null && !port.isEmpty())
+            currPort = Integer.valueOf(port);
+        IpChannelType currIpChannelType = null;
+        if(ipChannelType!=null && !ipChannelType.isEmpty())
+            currIpChannelType = IpChannelType.valueOf(ipChannelType.toUpperCase());
+        Boolean currAcceptAnonymousConnections = null;
+        if(acceptAnonymousConnections!=null && !acceptAnonymousConnections.isEmpty())
+            currAcceptAnonymousConnections = Boolean.valueOf(acceptAnonymousConnections);
+        Integer currMaxConcurrentConnectionsCount = null;
+        if(maxConcurrentConnectionsCount!=null && !maxConcurrentConnectionsCount.isEmpty())
+            currMaxConcurrentConnectionsCount = Integer.valueOf(maxConcurrentConnectionsCount);
+        String[] currExtraHostAddresses = null;
+        if(extraHostAddresses != null && !extraHostAddresses.isEmpty())
+            currExtraHostAddresses = extraHostAddresses.split(",");
+
+        this.wrappedSctpManagement.modifyServer(serverName, currHostAddress, currPort, currIpChannelType, currAcceptAnonymousConnections,
+                currMaxConcurrentConnectionsCount, currExtraHostAddresses);
         return null;
     }
 
@@ -137,7 +200,6 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
         this.wrappedSctpManagement.addServerAssociation(peerAddress, peerPort, serverName, assocName);
         return null;
     }
-
     @Override
     public Association addServerAssociation(String peerAddress, int peerPort, String serverName, String assocName,
             IpChannelType ipChannelType) throws Exception {
@@ -147,8 +209,27 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
 
     @Override
     public Association addSctpServerAssociation(String peerAddress, int peerPort, String serverName, String assocName,
-            IpChannelType ipChannelType) throws Exception {
-        this.wrappedSctpManagement.addServerAssociation(peerAddress, peerPort, serverName, assocName, ipChannelType);
+            String ipChannelType) throws Exception {
+        this.wrappedSctpManagement.addServerAssociation(peerAddress, peerPort, serverName, assocName, IpChannelType.valueOf(ipChannelType.toUpperCase()));
+        return null;
+    }
+
+    @Override
+    public Association modifySctpServerAssociation(String peerAddress, String peerPort, String serverName, String assocName,
+            String ipChannelType) throws Exception {
+        String currPeerAddress = null;
+        if(peerAddress!=null && !peerAddress.isEmpty())
+            currPeerAddress = peerAddress;
+        Integer currPeerPort = null;
+        if(peerPort!=null && !peerPort.isEmpty())
+            currPeerPort = Integer.valueOf(peerPort);
+        String currServerName = null;
+        if(serverName!=null && !serverName.isEmpty())
+            currServerName = serverName;
+        IpChannelType currIpChannelType = null;
+        if(ipChannelType!=null && !ipChannelType.isEmpty())
+            currIpChannelType = IpChannelType.valueOf(ipChannelType.toUpperCase());
+        this.wrappedSctpManagement.modifyServerAssociation(assocName, currPeerAddress, currPeerPort, currServerName, currIpChannelType);
         return null;
     }
 
@@ -203,6 +284,11 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
     }
 
     @Override
+    public int getBufferSize() {
+        return this.wrappedSctpManagement.getBufferSize();
+    }
+
+    @Override
     public boolean isSingleThread() {
         return this.wrappedSctpManagement.isSingleThread();
     }
@@ -244,6 +330,66 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
     }
 
     @Override
+    public double getCongControl_BackToNormalDelayThreshold_1() {
+        return this.wrappedSctpManagement.getCongControl_BackToNormalDelayThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalDelayThreshold_2() {
+        return this.wrappedSctpManagement.getCongControl_BackToNormalDelayThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalDelayThreshold_3() {
+        return this.wrappedSctpManagement.getCongControl_BackToNormalDelayThreshold_3();
+    }
+
+    @Override
+    public double getCongControl_DelayThreshold_1() {
+        return this.wrappedSctpManagement.getCongControl_DelayThreshold_1();
+    }
+
+    @Override
+    public double getCongControl_DelayThreshold_2() {
+        return this.wrappedSctpManagement.getCongControl_DelayThreshold_2();
+    }
+
+    @Override
+    public double getCongControl_DelayThreshold_3() {
+        return this.wrappedSctpManagement.getCongControl_DelayThreshold_3();
+    }
+
+    @Override
+    public void setCongControl_BackToNormalDelayThreshold_1(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_BackToNormalDelayThreshold_1(val);
+    }
+
+    @Override
+    public void setCongControl_BackToNormalDelayThreshold_2(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_BackToNormalDelayThreshold_2(val);
+    }
+
+    @Override
+    public void setCongControl_BackToNormalDelayThreshold_3(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_BackToNormalDelayThreshold_3(val);
+    }
+
+    @Override
+    public void setCongControl_DelayThreshold_1(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_DelayThreshold_1(val);
+    }
+
+    @Override
+    public void setCongControl_DelayThreshold_2(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_DelayThreshold_2(val);
+    }
+
+    @Override
+    public void setCongControl_DelayThreshold_3(double val) throws Exception {
+        this.wrappedSctpManagement.setCongControl_DelayThreshold_3(val);
+    }
+
+    @Override
     public void setServerListener(ServerListener arg0) {
         // TODO Auto-generated method stub
 
@@ -260,6 +406,91 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
     }
 
     @Override
+    public void setBufferSize(int bufferSize) throws Exception {
+        this.wrappedSctpManagement.setBufferSize(bufferSize);
+    }
+
+    @Override
+    public Boolean getOptionSctpDisableFragments() {
+        return this.wrappedSctpManagement.getOptionSctpDisableFragments();
+    }
+
+    @Override
+    public Integer getOptionSctpFragmentInterleave() {
+        return this.wrappedSctpManagement.getOptionSctpFragmentInterleave();
+    }
+
+    @Override
+    public Boolean getOptionSctpNodelay() {
+        return this.wrappedSctpManagement.getOptionSctpNodelay();
+    }
+
+    @Override
+    public Integer getOptionSoLinger() {
+        return this.wrappedSctpManagement.getOptionSoLinger();
+    }
+
+    @Override
+    public Integer getOptionSoRcvbuf() {
+        return this.wrappedSctpManagement.getOptionSoRcvbuf();
+    }
+
+    @Override
+    public Integer getOptionSoSndbuf() {
+        return this.wrappedSctpManagement.getOptionSoSndbuf();
+    }
+
+    @Override
+    public void setOptionSctpDisableFragments(Boolean val) {
+        this.wrappedSctpManagement.setOptionSctpDisableFragments(val);
+    }
+
+    @Override
+    public void setOptionSctpFragmentInterleave(Integer val) {
+        this.wrappedSctpManagement.setOptionSctpFragmentInterleave(val);
+    }
+
+    @Override
+    public void setOptionSctpNodelay(Boolean val) {
+        this.wrappedSctpManagement.setOptionSctpNodelay(val);
+    }
+
+    @Override
+    public void setOptionSoLinger(Integer val) {
+        this.wrappedSctpManagement.setOptionSoLinger(val);
+    }
+
+    @Override
+    public void setOptionSoRcvbuf(Integer val) {
+        this.wrappedSctpManagement.setOptionSoRcvbuf(val);
+    }
+
+    @Override
+    public void setOptionSoSndbuf(Integer val) {
+        this.wrappedSctpManagement.setOptionSoSndbuf(val);
+    }
+
+    @Override
+    public Integer getOptionSctpInitMaxstreams_MaxInStreams() {
+        return this.wrappedSctpManagement.getOptionSctpInitMaxstreams_MaxInStreams();
+    }
+
+    @Override
+    public Integer getOptionSctpInitMaxstreams_MaxOutStreams() {
+        return this.wrappedSctpManagement.getOptionSctpInitMaxstreams_MaxOutStreams();
+    }
+
+    @Override
+    public void setOptionSctpInitMaxstreams_MaxInStreams(Integer val) {
+        this.wrappedSctpManagement.setOptionSctpInitMaxstreams_MaxInStreams(val);
+    }
+
+    @Override
+    public void setOptionSctpInitMaxstreams_MaxOutStreams(Integer val) {
+        this.wrappedSctpManagement.setOptionSctpInitMaxstreams_MaxOutStreams(val);
+    }
+
+    @Override
     public void start() throws Exception {
         synchronized (this) {
             lstServers.clear();
@@ -267,6 +498,7 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
 
             this.ss7Management.registerMBean(Ss7Layer.SCTP, SctpManagementType.MANAGEMENT, this.getName(), this);
             this.wrappedSctpManagement.addManagementEventListener(this);
+            this.wrappedSctpManagement.addCongestionListener(this);
 
             List<Server> lstSrv = wrappedSctpManagement.getServers();
             for (Server srv : lstSrv) {
@@ -331,7 +563,7 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
 
     @Override
     public void onAssociationStarted(Association ass) {
-        if (!ass.isConnected()) {
+        if (!ass.isUp()) {
             AlarmMessage alm = this.generateAssociationAlarm(ass, false, false, "onAssociationStarted");
             this.alc.onAlarm(alm);
         }
@@ -339,7 +571,7 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
 
     @Override
     public void onAssociationStopped(Association ass) {
-        if (!ass.isConnected()) {
+        if (!ass.isUp()) {
             AlarmMessage alm = this.generateAssociationAlarm(ass, true, false, "onAssociationStopped");
             this.alc.onAlarm(alm);
         }
@@ -395,11 +627,20 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
         if (wrappedSctpManagement.isStarted()) {
             Map<String, Association> lstAss = wrappedSctpManagement.getAssociations();
             for (Association ass : lstAss.values()) {
-                if (ass.isStarted() && !ass.isConnected()) {
-                    AlarmMessage alm = this.generateAssociationAlarm(ass, false, true, "");
-                    this.alc.prepareAlarm(alm);
+                if (ass.isStarted()) {
+                    if (!ass.isConnected()) {
+                        AlarmMessage alm = this.generateAssociationAlarm(ass, false, true, "");
+                        this.alc.prepareAlarm(alm);
 
-                    al.addAlarm(alm);
+                        al.addAlarm(alm);
+                    }
+                    int congLevel = ass.getCongestionLevel();
+                    if (congLevel > 0) {
+                        AlarmMessage alm = this.generateCongestionAlarm(ass, congLevel, false, true, "");
+                        this.alc.prepareAlarm(alm);
+
+                        al.addAlarm(alm);
+                    }
                 }
             }
         }
@@ -444,6 +685,44 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
         alm.setObjectName("Association: " + ass.getName());
         alm.setObjectPath("/Sctp:" + this.getName() + "/Associations/Association:" + ass.getName());
         alm.setProblemName("SCTP association is down");
+        alm.setCause(event);
+        alm.setTimeAlarm(Calendar.getInstance());
+
+        if (!isCurrentAlarmList) {
+            if (isCleared)
+                alm.setCurentTimeClear();
+            else
+                alm.setCurentTimeAlarm();
+        }
+
+        return alm;
+    }
+
+    private AlarmMessage generateCongestionAlarm(Association ass, int congLevel, boolean isCleared, boolean isCurrentAlarmList,
+            String event) {
+        if (congLevel < 1 || congLevel > 3)
+            return null;
+
+        AlarmMessageImpl alm = new AlarmMessageImpl();
+
+        alm.setIsCleared(isCleared);
+        switch (congLevel) {
+            case 1:
+                alm.setAlarmSeverity(AlarmSeverity.minor);
+                alm.setProblemName("SCTP association congestion level 1 (minor)");
+                break;
+            case 2:
+                alm.setAlarmSeverity(AlarmSeverity.major);
+                alm.setProblemName("SCTP association congestion level 2 (major)");
+                break;
+            case 3:
+                alm.setAlarmSeverity(AlarmSeverity.critical);
+                alm.setProblemName("SCTP association congestion level 3 (critical)");
+                break;
+        }
+        alm.setAlarmSource("SS7_SCTP_" + this.getName());
+        alm.setObjectName("Association: " + ass.getName());
+        alm.setObjectPath("/Sctp:" + this.getName() + "/Associations/Association:" + ass.getName());
         alm.setCause(event);
         alm.setTimeAlarm(Calendar.getInstance());
 
@@ -502,4 +781,64 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
             lstServers.add(srvBean);
         }
     }
+
+    @Override
+    public void addCongestionListener(CongestionListener listener) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void removeCongestionListener(CongestionListener listener) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onCongLevelChanged(Association association, int oldCongLevel, int newCongLevel) {
+        if (association.isStarted()) {
+            if (oldCongLevel > 0) {
+                AlarmMessage alm = this.generateCongestionAlarm(association, oldCongLevel, true, false, "onCongLevelChanged");
+                this.alc.onAlarm(alm);
+            }
+
+            if (newCongLevel > 0) {
+                AlarmMessage alm = this.generateCongestionAlarm(association, newCongLevel, false, false, "onCongLevelChanged");
+                this.alc.onAlarm(alm);
+            }
+        }
+    }
+
+    @Override
+    public void modifyServer(String serverName, String hostAddress, Integer port, IpChannelType ipChannelType,
+            Boolean acceptAnonymousConnections, Integer maxConcurrentConnectionsCount, String[] extraHostAddresses)
+            throws Exception {
+        this.wrappedSctpManagement.modifyServer(serverName, hostAddress, port, ipChannelType, acceptAnonymousConnections, maxConcurrentConnectionsCount, extraHostAddresses);
+    }
+
+    @Override
+    public void modifyServerAssociation(String assocName, String peerAddress, Integer peerPort, String serverName,
+            IpChannelType ipChannelType) throws Exception {
+        this.wrappedSctpManagement.modifyServerAssociation(assocName, peerAddress, peerPort, serverName, ipChannelType);
+
+    }
+
+    @Override
+    public void modifyAssociation(String hostAddress, Integer hostPort, String peerAddress, Integer peerPort, String assocName,
+            IpChannelType ipChannelType, String[] extraHostAddresses) throws Exception {
+        this.wrappedSctpManagement.modifyAssociation(hostAddress, hostPort, peerAddress, peerPort, assocName, ipChannelType, extraHostAddresses);
+
+    }
+
+    @Override
+    public void onServerModified(Server removeServer) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onAssociationModified(Association association) {
+        // TODO Auto-generated method stub
+    }
+
 }

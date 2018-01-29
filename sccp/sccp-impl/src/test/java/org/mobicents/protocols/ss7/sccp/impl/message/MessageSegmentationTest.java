@@ -76,7 +76,7 @@ public class MessageSegmentationTest {
     }
 
     @BeforeMethod
-    public void setUp() {
+    public void setUp() throws Exception {
         this.stack.setPersistDir(Util.getTmpTestDir());
         this.stack.start();
         this.messageFactory = new MessageFactoryImpl(stack);
@@ -274,7 +274,7 @@ public class MessageSegmentationTest {
         bufx = new byte[226];
         msg = (SccpDataMessageImpl) messageFactory.createDataMessageClass1(bigAdr, bigAdr, bufx, 0, 8, true, null, imp);
 
-        res = msg.encode(stack,LongMessageRuleType.XUDT_ENABLED, 272, logger, false, SccpProtocolVersion.ITU);
+        res = msg.encode(stack,LongMessageRuleType.XUDT_ENABLED, 191, logger, false, SccpProtocolVersion.ITU);
         assertEquals(res.getEncodingResult(), EncodingResult.Success);
         assertEquals(res.getSegementedData().size(), 2);
 

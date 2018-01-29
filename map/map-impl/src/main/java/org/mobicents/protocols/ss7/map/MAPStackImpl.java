@@ -28,14 +28,13 @@ import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.tcap.TCAPStackImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
-import org.mobicents.ss7.congestion.CongestionListener;
 
 /**
  *
  * @author amit bhayani
  *
  */
-public class MAPStackImpl implements MAPStack, CongestionListener {
+public class MAPStackImpl implements MAPStack {
 
     protected TCAPStack tcapStack = null;
 
@@ -57,6 +56,7 @@ public class MAPStackImpl implements MAPStack, CongestionListener {
     public MAPStackImpl(String name, TCAPProvider tcapProvider) {
         this.name = name;
         mapProvider = new MAPProviderImpl(name, tcapProvider);
+        this.tcapStack = tcapProvider.getStack();
         this.state = State.CONFIGURED;
     }
 
@@ -121,11 +121,11 @@ public class MAPStackImpl implements MAPStack, CongestionListener {
         return this.tcapStack;
     }
 
-    public void onCongestionStart(String congName) {
-        this.mapProvider.onCongestionStart(congName);
-    }
-
-    public void onCongestionFinish(String congName) {
-        this.mapProvider.onCongestionFinish(congName);
-    }
+//    public void onCongestionStart(String congName) {
+//        this.mapProvider.onCongestionStart(congName);
+//    }
+//
+//    public void onCongestionFinish(String congName) {
+//        this.mapProvider.onCongestionFinish(congName);
+//    }
 }

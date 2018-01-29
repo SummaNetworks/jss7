@@ -53,7 +53,7 @@ public class UserDataHeaderImpl implements UserDataHeader {
         if (udhl > encodedData.length)
             udhl = encodedData.length;
         int ind = 1;
-        while (ind <= udhl - 2) {
+        while (ind <= udhl - 1) {
             int id = encodedData[ind++];
             int len = encodedData[ind++];
             if (len <= udhl + 1 - ind) {
@@ -143,7 +143,7 @@ public class UserDataHeaderImpl implements UserDataHeader {
     @Override
     public ApplicationPortAddressing16BitAddress getApplicationPortAddressing16BitAddress() {
         byte[] buf = this.data.get(_InformationElementIdentifier_ApplicationPortAddressingScheme16BitAddress);
-        if (buf != null && buf.length == 1)
+        if (buf != null && buf.length == 4)
             return new ApplicationPortAddressing16BitAddressImpl(buf);
         else
             return null;

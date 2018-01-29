@@ -24,22 +24,30 @@ package org.mobicents.protocols.ss7.sccp.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.SccpListener;
 import org.mobicents.protocols.ss7.sccp.SccpManagementEventListener;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.sccp.SccpStack;
 import org.mobicents.protocols.ss7.sccp.impl.message.MessageFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.impl.message.SccpDataMessageImpl;
+import org.mobicents.protocols.ss7.sccp.impl.message.SccpNoticeMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.message.MessageFactory;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
+import org.mobicents.protocols.ss7.sccp.message.SccpNoticeMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 
 /**
  *
@@ -57,6 +65,9 @@ public class SccpProviderImpl implements SccpProvider, Serializable {
 
     private MessageFactoryImpl messageFactory;
     private ParameterFactoryImpl parameterFactory;
+
+    //<ssn - congestion level>
+    private ConcurrentHashMap<Integer, Integer> congestionSsn = new ConcurrentHashMap<Integer, Integer>();
 
     SccpProviderImpl(SccpStackImpl stack) {
         this.stack = stack;
@@ -138,6 +149,7 @@ public class SccpProviderImpl implements SccpProvider, Serializable {
         return ssnToListener;
     }
 
+    @Override
     public void send(SccpDataMessage message) throws IOException {
         try{
             SccpDataMessageImpl msg = ((SccpDataMessageImpl) message);
@@ -147,7 +159,59 @@ public class SccpProviderImpl implements SccpProvider, Serializable {
         }
     }
 
+    @Override
+    public void send(SccpNoticeMessage message) throws IOException {
+        try{
+            SccpNoticeMessageImpl msg = ((SccpNoticeMessageImpl) message);
+            stack.send(msg);
+        }catch(Exception e){
+            throw new IOException(e);
+        }
+    }
+
     public int getMaxUserDataLength(SccpAddress calledPartyAddress, SccpAddress callingPartyAddress, int msgNetworkId) {
         return this.stack.getMaxUserDataLength(calledPartyAddress, callingPartyAddress, msgNetworkId);
     }
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        return this.stack.router.getNetworkIdList(-1);
+    }
+
+    @Override
+    public void coordRequest(int ssn) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public ExecutorCongestionMonitor[] getExecutorCongestionMonitorList() {
+        ArrayList<ExecutorCongestionMonitor> res = new ArrayList<ExecutorCongestionMonitor>();
+        for (FastMap.Entry<Integer, Mtp3UserPart> e = this.stack.mtp3UserParts.head(), end = this.stack.mtp3UserParts.tail(); (e = e
+                .getNext()) != end;) {
+            Mtp3UserPart mup = e.getValue();
+            ExecutorCongestionMonitor ecm = mup.getExecutorCongestionMonitor();
+            if (ecm != null)
+                res.add(ecm);
+        }
+
+        ExecutorCongestionMonitor[] ress = new ExecutorCongestionMonitor[res.size()];
+        res.toArray(ress);
+        return ress;
+    }
+
+    @Override
+    public SccpStack getSccpStack() {
+        return this.stack;
+    }
+
+    public ConcurrentHashMap<Integer, Integer> getCongestionSsn() {
+        return this.congestionSsn;
+    }
+
+    @Override
+    public void updateSPCongestion(Integer ssn, Integer congestionLevel) {
+        congestionSsn.put(ssn, congestionLevel);
+    }
+
 }

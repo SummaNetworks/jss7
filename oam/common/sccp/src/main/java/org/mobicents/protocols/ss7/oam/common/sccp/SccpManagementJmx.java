@@ -21,12 +21,26 @@
  */
 package org.mobicents.protocols.ss7.oam.common.sccp;
 
+import java.util.Calendar;
 import java.util.Map;
 
+
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
+import org.mobicents.protocols.ss7.oam.common.alarm.AlarmListener;
+import org.mobicents.protocols.ss7.oam.common.alarm.AlarmListenerCollection;
+import org.mobicents.protocols.ss7.oam.common.alarm.AlarmMediator;
+import org.mobicents.protocols.ss7.oam.common.alarm.AlarmMessage;
+import org.mobicents.protocols.ss7.oam.common.alarm.AlarmMessageImpl;
+import org.mobicents.protocols.ss7.oam.common.alarm.AlarmSeverity;
+import org.mobicents.protocols.ss7.oam.common.alarm.CurrentAlarmList;
+import org.mobicents.protocols.ss7.oam.common.alarm.CurrentAlarmListImpl;
 import org.mobicents.protocols.ss7.oam.common.jmx.MBeanHost;
 import org.mobicents.protocols.ss7.oam.common.jmxss7.Ss7Layer;
+import org.mobicents.protocols.ss7.sccp.RemoteSignalingPointCode;
+import org.mobicents.protocols.ss7.sccp.RemoteSubSystem;
 import org.mobicents.protocols.ss7.sccp.Router;
+import org.mobicents.protocols.ss7.sccp.SccpCongestionControlAlgo;
+import org.mobicents.protocols.ss7.sccp.SccpManagementEventListener;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.sccp.SccpResource;
@@ -36,11 +50,12 @@ import org.mobicents.protocols.ss7.sccp.SccpStack;
  * @author Amit Bhayani
  *
  */
-public class SccpManagementJmx implements SccpManagementJmxMBean {
+public class SccpManagementJmx implements SccpManagementJmxMBean, SccpManagementEventListener, AlarmMediator {
 
     private final MBeanHost ss7Management;
     private final SccpStack wrappedSccpStack;
 
+    private AlarmListenerCollection alc = new AlarmListenerCollection();
 
     public SccpManagementJmx(MBeanHost ss7Management, SccpStack wrappedSccpStack) {
         this.ss7Management = ss7Management;
@@ -61,6 +76,8 @@ public class SccpManagementJmx implements SccpManagementJmxMBean {
 
         SccpResourceJmx sccpResourceJmx = new SccpResourceJmx(this.wrappedSccpStack.getSccpResource());
         this.ss7Management.registerMBean(Ss7Layer.SCCP, SccpManagementType.RESOURCE, this.getName(), sccpResourceJmx);
+
+        this.wrappedSccpStack.getSccpProvider().registerManagementEventListener(this);
     }
 
     public void stop() {
@@ -70,6 +87,11 @@ public class SccpManagementJmx implements SccpManagementJmxMBean {
     @Override
     public int getMaxDataMessage() {
         return this.wrappedSccpStack.getMaxDataMessage();
+    }
+
+    @Override
+    public int getPeriodOfLogging() {
+        return this.wrappedSccpStack.getPeriodOfLogging();
     }
 
     @Override
@@ -143,12 +165,12 @@ public class SccpManagementJmx implements SccpManagementJmxMBean {
     }
 
     @Override
-    public void setRemoveSpc(boolean removeSpc) {
+    public void setRemoveSpc(boolean removeSpc) throws Exception {
         this.wrappedSccpStack.setRemoveSpc(removeSpc);
     }
 
     @Override
-    public void setPreviewMode(boolean previewMode) {
+    public void setPreviewMode(boolean previewMode) throws Exception {
         this.wrappedSccpStack.setPreviewMode(previewMode);
     }
 
@@ -158,32 +180,37 @@ public class SccpManagementJmx implements SccpManagementJmxMBean {
     }
 
     @Override
-    public void setSstTimerDuration_Min(int sstTimerDuration_Min) {
+    public void setSstTimerDuration_Min(int sstTimerDuration_Min) throws Exception {
         this.wrappedSccpStack.setSstTimerDuration_Min(sstTimerDuration_Min);
     }
 
     @Override
-    public void setSstTimerDuration_Max(int sstTimerDuration_Max) {
+    public void setSstTimerDuration_Max(int sstTimerDuration_Max) throws Exception {
         this.wrappedSccpStack.setSstTimerDuration_Max(sstTimerDuration_Max);
     }
 
     @Override
-    public void setSstTimerDuration_IncreaseFactor(double sstTimerDuration_IncreaseFactor) {
+    public void setSstTimerDuration_IncreaseFactor(double sstTimerDuration_IncreaseFactor) throws Exception {
         this.wrappedSccpStack.setSstTimerDuration_IncreaseFactor(sstTimerDuration_IncreaseFactor);
     }
 
     @Override
-    public void setZMarginXudtMessage(int zMarginXudtMessage) {
+    public void setZMarginXudtMessage(int zMarginXudtMessage) throws Exception {
         this.wrappedSccpStack.setZMarginXudtMessage(zMarginXudtMessage);
     }
 
     @Override
-    public void setMaxDataMessage(int maxDataMessage) {
+    public void setMaxDataMessage(int maxDataMessage) throws Exception {
         this.wrappedSccpStack.setMaxDataMessage(maxDataMessage);
     }
 
     @Override
-    public void setReassemblyTimerDelay(int reassemblyTimerDelay) {
+    public void setPeriodOfLogging(int periodOfLogging) throws Exception {
+        this.wrappedSccpStack.setPeriodOfLogging(periodOfLogging);
+    }
+
+    @Override
+    public void setReassemblyTimerDelay(int reassemblyTimerDelay) throws Exception {
         this.wrappedSccpStack.setReassemblyTimerDelay(reassemblyTimerDelay);
     }
 
@@ -194,13 +221,205 @@ public class SccpManagementJmx implements SccpManagementJmxMBean {
     }
 
     @Override
-    public void setSccpProtocolVersion(SccpProtocolVersion sccpProtocolVersion) {
+    public void setSccpProtocolVersion(SccpProtocolVersion sccpProtocolVersion) throws Exception {
         this.wrappedSccpStack.setSccpProtocolVersion(sccpProtocolVersion);
     }
 
     @Override
     public SccpProtocolVersion getSccpProtocolVersion() {
         return this.wrappedSccpStack.getSccpProtocolVersion();
+    }
+
+    @Override
+    public int getCongControlTIMER_A() {
+        return this.wrappedSccpStack.getCongControlTIMER_A();
+    }
+
+    @Override
+    public void setCongControlTIMER_A(int value) throws Exception {
+        this.wrappedSccpStack.setCongControlTIMER_A(value);
+    }
+
+    @Override
+    public int getCongControlTIMER_D() {
+        return this.wrappedSccpStack.getCongControlTIMER_D();
+    }
+
+    @Override
+    public void setCongControlTIMER_D(int value) throws Exception {
+        this.wrappedSccpStack.setCongControlTIMER_D(value);
+    }
+
+    @Override
+    public SccpCongestionControlAlgo getCongControl_Algo() {
+        return this.wrappedSccpStack.getCongControl_Algo();
+    }
+
+    @Override
+    public void setCongControl_Algo(SccpCongestionControlAlgo value) throws Exception {
+        this.wrappedSccpStack.setCongControl_Algo(value);
+    }
+
+    @Override
+    public boolean isCongControl_blockingOutgoungSccpMessages() {
+        return this.wrappedSccpStack.isCongControl_blockingOutgoungSccpMessages();
+    }
+
+    @Override
+    public void setCongControl_blockingOutgoungSccpMessages(boolean value) throws Exception {
+        this.wrappedSccpStack.setCongControl_blockingOutgoungSccpMessages(value);
+    }
+
+    @Override
+    public boolean isStarted() {
+        return this.wrappedSccpStack.isStarted();
+    }
+
+    @Override
+    public void onServiceStarted() {
+
+    }
+
+    @Override
+    public void onServiceStopped() {
+
+    }
+
+    @Override
+    public void onRemoveAllResources() {
+
+    }
+
+    @Override
+    public void onRemoteSubSystemUp(RemoteSubSystem rss) {
+        //do we need to check previous state?
+        AlarmMessage alm = this.generateRemoteSubSystemAlarm(rss, true);
+        this.alc.onAlarm(alm);
+
+    }
+
+    @Override
+    public void onRemoteSubSystemDown(RemoteSubSystem rss) {
+        AlarmMessage alm = this.generateRemoteSubSystemAlarm(rss, false);
+        this.alc.onAlarm(alm);
+    }
+
+    @Override
+    public void onRemoteSpcUp(RemoteSignalingPointCode remoteSpc) {
+        AlarmMessage alm = this.generateRemoteSpcAlarm(remoteSpc, true);
+        this.alc.onAlarm(alm);
+    }
+
+    @Override
+    public void onRemoteSpcDown(RemoteSignalingPointCode remoteSpc) {
+        AlarmMessage alm = this.generateRemoteSpcAlarm(remoteSpc, false);
+        this.alc.onAlarm(alm);
+    }
+
+    @Override
+    public void onRemoteSccpUp(RemoteSignalingPointCode remoteSpc) {
+        AlarmMessage alm = this.generateRemoteSccpAlarm(remoteSpc, true);
+        this.alc.onAlarm(alm);
+
+    }
+
+    @Override
+    public void onRemoteSccpDown(RemoteSignalingPointCode remoteSpc) {
+        AlarmMessage alm = this.generateRemoteSccpAlarm(remoteSpc, false);
+        this.alc.onAlarm(alm);
+
+    }
+
+    @Override
+    public void registerAlarmListener(AlarmListener al) {
+        this.alc.registerAlarmListener(al);
+
+    }
+
+    @Override
+    public void unregisterAlarmListener(AlarmListener al) {
+        this.alc.unregisterAlarmListener(al);
+
+    }
+
+    @Override
+    public CurrentAlarmList getCurrentAlarmList() {
+        CurrentAlarmListImpl all = new CurrentAlarmListImpl();
+        //check ssns
+        Map<Integer, RemoteSubSystem> remoteSsns = wrappedSccpStack.getSccpResource().getRemoteSsns();
+        for (RemoteSubSystem rss : remoteSsns.values()) {
+            if(rss.isRemoteSsnProhibited()) {
+                AlarmMessage alm = this.generateRemoteSubSystemAlarm(rss, false);
+                all.addAlarm(alm);
+            }
+        }
+        //Check spcs
+        Map<Integer, RemoteSignalingPointCode> remoteSpcs = wrappedSccpStack.getSccpResource().getRemoteSpcs();
+        for (RemoteSignalingPointCode rspc : remoteSpcs.values()) {
+            if(rspc.isRemoteSpcProhibited()) {
+                AlarmMessage alm = this.generateRemoteSpcAlarm(rspc, false);
+                all.addAlarm(alm);
+            }
+            if(rspc.isRemoteSccpProhibited()) {
+                AlarmMessage alm = this.generateRemoteSccpAlarm(rspc, false);
+                all.addAlarm(alm);
+            }
+        }
+
+        return all;
+    }
+
+    @Override
+    public String getAlarmProviderObjectPath() {
+        return this.alc.getAlarmProviderObjectPath();
+    }
+
+    @Override
+    public void setAlarmProviderObjectPath(String value) {
+        this.alc.setAlarmProviderObjectPath(value);
+
+    }
+
+    private AlarmMessage generateRemoteSubSystemAlarm(RemoteSubSystem rss, boolean isCleared) {
+
+        AlarmMessageImpl alm = new AlarmMessageImpl();
+        alm.setIsCleared(isCleared);
+        alm.setAlarmSeverity(AlarmSeverity.major);
+        alm.setAlarmSource("SS7_SCCP_" + this.getName());
+        alm.setObjectName("RemoteSubSystem: " + rss.getRemoteSsn());
+        alm.setObjectPath("/Sccp:" + this.getName() + "/Rss:" + rss.getRemoteSsn());
+        alm.setProblemName("Remote subsystem state is down");
+        alm.setTimeAlarm(Calendar.getInstance());
+
+        return alm;
+    }
+
+    private AlarmMessage generateRemoteSpcAlarm(RemoteSignalingPointCode rspc, boolean isCleared) {
+
+        AlarmMessageImpl alm = new AlarmMessageImpl();
+        alm.setIsCleared(isCleared);
+        alm.setAlarmSeverity(AlarmSeverity.major);
+        alm.setAlarmSource("SS7_SCCP_" + this.getName());
+        alm.setObjectName("RemoteSpc: " + rspc.getRemoteSpc());
+        alm.setObjectPath("/Sccp:" + this.getName() + "/Rspc:" + rspc.getRemoteSpc());
+        alm.setProblemName("Remote signaling point code state is down");
+        alm.setTimeAlarm(Calendar.getInstance());
+
+        return alm;
+    }
+
+    private AlarmMessage generateRemoteSccpAlarm(RemoteSignalingPointCode rspc, boolean isCleared) {
+
+        AlarmMessageImpl alm = new AlarmMessageImpl();
+        alm.setIsCleared(isCleared);
+        alm.setAlarmSeverity(AlarmSeverity.major);
+        alm.setAlarmSource("SS7_SCCP_" + this.getName());
+        alm.setObjectName("RemoteSccp: " + rspc.getRemoteSpc());
+        alm.setObjectPath("/Sccp:" + this.getName() + "/Rsccp:" + rspc.getRemoteSpc());
+        alm.setProblemName("Remote SCCP state is down");
+        alm.setTimeAlarm(Calendar.getInstance());
+
+        return alm;
     }
 
 }

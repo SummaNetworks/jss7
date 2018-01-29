@@ -41,7 +41,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.ReturnResultLast;
  */
 public class Server extends EventTestHarness {
 
-    private Component[] components;
+    protected Component[] components;
 
     /**
      * @param stack
@@ -100,5 +100,11 @@ public class Server extends EventTestHarness {
 
     public void sendContinue2() throws TCAPSendException, TCAPException {
         super.sendContinue();
+    }
+
+    public void releaseDialog() {
+        if (this.dialog != null)
+            this.dialog.release();
+        this.dialog = null;
     }
 }

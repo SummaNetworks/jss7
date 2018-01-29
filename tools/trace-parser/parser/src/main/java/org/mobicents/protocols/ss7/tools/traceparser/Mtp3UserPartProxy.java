@@ -29,6 +29,7 @@ import org.mobicents.protocols.ss7.mtp.Mtp3TransferPrimitiveFactory;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPartListener;
 import org.mobicents.protocols.ss7.mtp.RoutingLabelFormat;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 
 /**
 *
@@ -89,6 +90,36 @@ public class Mtp3UserPartProxy implements Mtp3UserPart {
     public boolean isUseLsbForLinksetSelection() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public int getDeliveryMessageThreadCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void start() throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void stop() throws Exception {
+        // TODO Auto-generated method stub
+
     }
 
 }

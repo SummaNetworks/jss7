@@ -1,28 +1,28 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and/or its affiliates, and individual
- * contributors as indicated by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
+ * TeleStax, Open Source Cloud Communications  Copyright 2012.
+ * and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
  *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.mobicents.protocols.ss7.map.load;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -35,8 +35,6 @@ import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.m3ua.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.MAPServiceSupplementaryListener;
-import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
-import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
 /**
  * @author abhayani
@@ -45,6 +43,10 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 public abstract class TestHarness implements MAPDialogListener, MAPServiceSupplementaryListener {
 
     private static final Logger logger = Logger.getLogger("map.test");
+
+    protected static final String CREATED_DIALOGS = "CreatedScenario";
+    protected static final String SUCCESSFUL_DIALOGS = "CompletedScenario";
+    protected static final String ERROR_DIALOGS = "FailedScenario";
 
     protected static final String LOG_FILE_NAME = "log.file.name";
     protected static String logFileName = "maplog.txt";
@@ -71,20 +73,28 @@ public abstract class TestHarness implements MAPDialogListener, MAPServiceSupple
 
     protected static int ROUTING_CONTEXT = 100;
 
+    protected static int DELIVERY_TRANSFER_MESSAGE_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 2;
+
+    protected static int RAMP_UP_PERIOD = -100;
+
     protected final String SERVER_ASSOCIATION_NAME = "serverAsscoiation";
     protected final String CLIENT_ASSOCIATION_NAME = "clientAsscoiation";
 
     protected final String SERVER_NAME = "testserver";
 
-    //TCAP Details
+    // TCAP Details
     protected static final int MAX_DIALOGS = 500000;
 
-    protected final SccpAddress SCCP_CLIENT_ADDRESS = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN,
-            null, CLIENT_SPC, SSN);
-    protected final SccpAddress SCCP_SERVER_ADDRESS = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN,
-            null, SERVET_SPC, SSN);
+    protected static String SCCP_CLIENT_ADDRESS = null;
+    protected static String SCCP_SERVER_ADDRESS = null;
+
+    protected static RoutingIndicator ROUTING_INDICATOR = RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN;
 
     protected final ParameterFactoryImpl factory = new ParameterFactoryImpl();
+
+    protected static int TEST_START_DELAY = 20000;
+    protected static int TEST_END_DELAY = 3000;
+    protected static int PRINT_WRITER_PERIOD = 2000;
 
     protected TestHarness() {
         init();
@@ -102,7 +112,7 @@ public abstract class TestHarness implements MAPDialogListener, MAPServiceSupple
             try {
                 propertiesLog4j.load(inStreamLog4j);
                 PropertyConfigurator.configure(propertiesLog4j);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 BasicConfigurator.configure();
             }

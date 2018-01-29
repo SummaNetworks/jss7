@@ -89,6 +89,13 @@ public interface Dialog extends Serializable {
     void setRemoteAddress(SccpAddress remoteAddress);
 
     /**
+     * Gets ssn dialog value
+     *
+     * @return
+     */
+    int getLocalSsn();
+
+    /**
      * Last sent/received ACN
      *
      * @return the acn
@@ -120,6 +127,27 @@ public interface Dialog extends Serializable {
      *            NetworkId to which virtual network Dialog belongs to
      */
     void setNetworkId(int networkId);
+
+    /**
+     * Option responsible for presence of the protocol version in
+     * this dialogue portion.
+     *
+     * @return boolean true if protocol version must be omitted,
+     * false when it should be included and null if not defined at the
+     * dialog level and global option should be used.
+     */
+    Boolean isDoNotSendProtcolVersion();
+
+    /**
+     * Modifies option responsible for presence of the protocol version in
+     * this dialogue portion.
+     *
+     * @param doNotSendProtocolVersion
+     * boolean true if protocol version must be omitted,
+     * false when it should be included and null if not defined at the
+     * dialog level and global option should be used.
+     */
+    void setDoNotSendProtocolVersion(Boolean doNotSendProtocolVersion);
 
     /**
      * Cancels INVOKE pending to be sent. It is equivalent to TC-U-CANCEL.
@@ -303,5 +331,16 @@ public interface Dialog extends Serializable {
      * @return This ReentrantLock object should for synchronizing of Dialog using in multithread environment
      */
     ReentrantLock getDialogLock();
+
+    /**
+    *
+    * @return IdleTaskTimeout value in milliseconds
+    */
+   long getIdleTaskTimeout();
+
+    /**
+     * Set IdleTaskTimeout in milliseconds.
+     */
+    void setIdleTaskTimeout(long idleTaskTimeoutMs);
 
 }

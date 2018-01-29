@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
@@ -69,6 +70,7 @@ import org.mobicents.protocols.ss7.isup.ISUPParameterFactory;
 import org.mobicents.protocols.ss7.isup.impl.message.parameter.ISUPParameterFactoryImpl;
 import org.mobicents.protocols.ss7.map.MAPParameterFactoryImpl;
 import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.tcap.DialogImpl;
 import org.mobicents.protocols.ss7.tcap.api.MessageType;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
@@ -122,7 +124,8 @@ public class CAPProviderImpl implements CAPProvider, TCListener {
 
     private transient Collection<CAPDialogListener> dialogListeners = new FastList<CAPDialogListener>().shared();
 
-    protected transient FastMap<Long, CAPDialogImpl> dialogs = new FastMap<Long, CAPDialogImpl>().shared();
+//    protected transient FastMap<Long, CAPDialogImpl> dialogs = new FastMap<Long, CAPDialogImpl>().shared();
+    protected transient ConcurrentHashMap<Long, CAPDialogImpl> dialogs = new ConcurrentHashMap<Long, CAPDialogImpl>();
 
     private transient TCAPProvider tcapProvider = null;
 
@@ -1297,4 +1300,40 @@ public class CAPProviderImpl implements CAPProvider, TCListener {
             throw new CAPException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        return this.tcapProvider.getNetworkIdStateList();
+    }
+
+    @Override
+    public NetworkIdState getNetworkIdState(int networkId) {
+        return this.tcapProvider.getNetworkIdState(networkId);
+    }
+
+    @Override
+    public void setUserPartCongestionLevel(String congObject, int level) {
+        this.tcapProvider.setUserPartCongestionLevel(congObject, level);
+    }
+
+    @Override
+    public int getMemoryCongestionLevel() {
+        return this.tcapProvider.getMemoryCongestionLevel();
+    }
+
+    @Override
+    public int getExecutorCongestionLevel() {
+        return this.tcapProvider.getExecutorCongestionLevel();
+    }
+
+    @Override
+    public int getCumulativeCongestionLevel() {
+        return this.tcapProvider.getCumulativeCongestionLevel();
+    }
+
+    @Override
+    public int getCurrentDialogsCount() {
+        return this.tcapProvider.getCurrentDialogsCount();
+    }
+
 }

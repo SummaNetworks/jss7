@@ -147,6 +147,8 @@ public class GSMCharsetTest {
         this.doTestDecode("[88]", new byte[] { 27, 60, 56, 56, 27, 62 }, Gsm7EncodingStyle.bit8_smpp_style, 0, 0);
         this.doTestDecode("[88]", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 27, 60, 56, 56, 27, 62 },
                 Gsm7EncodingStyle.bit8_smpp_style, 0, octetOffset);
+
+        this.doTestDecode("He l", new byte[] { 72, 101, (byte) 200, 108 }, Gsm7EncodingStyle.bit8_smpp_style, 0, 0);
     }
 
     private void doTestEncode(String decodedString, byte[] encodedData, Gsm7EncodingStyle gsm7EncodingStyle, byte[] bufUDH,
@@ -185,6 +187,21 @@ public class GSMCharsetTest {
         CharBuffer bf = null;
         bf = decoder.decode(bb);
         String s1 = bf.toString();
+
+//        int i11 = s1.charAt(0);
+//        int i12 = s1.charAt(1);
+//        int i13 = s1.charAt(2);
+//        int i14 = s1.charAt(3);
+//        int j11 = decodedString.charAt(0);
+//        int j12 = decodedString.charAt(1);
+//        int j13 = decodedString.charAt(2);
+//        int j14 = decodedString.charAt(3);
+//
+//        assertEquals(s1.length(), decodedString.length());
+//        assertEquals(s1.charAt(0), decodedString.charAt(0));
+//        assertEquals(s1.charAt(1), decodedString.charAt(1));
+//        assertEquals(s1.charAt(2), decodedString.charAt(2));
+//        assertEquals(s1.charAt(3), decodedString.charAt(3));
 
         assertEquals(s1, decodedString);
     }
@@ -279,7 +296,7 @@ public class GSMCharsetTest {
 
         assertTrue(gsm7Charset.checkAllCharsCanBeEncoded(""));
         assertTrue(gsm7Charset.checkAllCharsCanBeEncoded("[ **]"));
-        assertFalse(gsm7Charset.checkAllCharsCanBeEncoded("wûw"));
+        assertFalse(gsm7Charset.checkAllCharsCanBeEncoded("w\u044Bw"));
     }
 
     @Test(groups = { "datacoding" })
@@ -287,7 +304,7 @@ public class GSMCharsetTest {
         GSMCharset gsm7Charset = new GSMCharset("GSM", new String[] {});
 
         assertEquals(gsm7Charset.checkEncodedDataLengthInChars(""), 0);
-        assertEquals(gsm7Charset.checkEncodedDataLengthInChars("123[]û4"), 9);
+        assertEquals(gsm7Charset.checkEncodedDataLengthInChars("123[]\u044B4"), 9);
     }
 
     @Test(groups = { "datacoding" })
@@ -338,11 +355,26 @@ public class GSMCharsetTest {
         assertEquals(ss[2], "3");
         assertEquals(ss[3], "]");
 
-        ss = gsm7Charset.sliceString("12û3", 3);
+        ss = gsm7Charset.sliceString("12\u044B3", 3);
         assertEquals(ss.length, 2);
-        assertEquals(ss[0], "12û");
+        assertEquals(ss[0], "12\u044B");
         assertEquals(ss[1], "3");
 
+    }
+
+    @Test(groups = { "datacoding" })
+    public void testCheckZeroCharacter() throws Exception {
+        byte[] encodedDataAscii = new byte[] { 97, 0, '[', 98 };
+        byte[] encodedDataGsm = new byte[] { 97, 32, 27, 60, 98 };
+        String msg = "a\0[b";
+        UserDataHeaderImpl udh = new UserDataHeaderImpl();
+
+        int msgLenInChars = UserDataImpl.checkEncodedDataLengthInChars(msg, udh);
+        int msgLenInBytes = GSMCharset.septetsToOctets(msgLenInChars);
+        assertEquals(msgLenInChars, 5); // "[" is a two septet char
+        assertEquals(msgLenInBytes, 5);
+
+        this.doTestEncode(msg, encodedDataGsm, Gsm7EncodingStyle.bit8_smpp_style, null, 0);
     }
 
 }

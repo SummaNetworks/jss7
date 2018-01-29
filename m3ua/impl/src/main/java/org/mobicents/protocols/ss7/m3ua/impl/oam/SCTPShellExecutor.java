@@ -248,6 +248,56 @@ public class SCTPShellExecutor implements ShellExecutor {
 
                     return String.format(SCTPOAMMessages.ADD_SERVER_SUCCESS, serverName, this.sctpManagement.getName());
 
+                } else if (command.equals("modify")) {
+                    // command : sctp server modify <sever-name> <stack-name> host <host-ip> port <host-port> sockettype <socket-type> anonymconnect <is-accept-anonymous-connections>
+                    //concurrentconnect <max-concurrent-connections-count> extraaddresses <extra-host-addresses>
+                    String serverName = args[3];
+                    if (serverName == null) {
+                        return M3UAOAMMessages.INVALID_COMMAND;
+                    }
+
+                    String sctpStackName = args[4];
+                    if (sctpStackName == null) {
+                        Management sctpManagementtmp = this.sctpManagements.get(sctpStackName);
+
+                        if (sctpManagementtmp == null) {
+                            return String.format(M3UAOAMMessages.NO_SCTP_MANAGEMENT_BEAN_FOR_NAME, sctpStackName);
+                        }
+                        this.sctpManagement = sctpManagementtmp;
+                    }
+
+                    String hostAddress = null;
+                    Integer port = null;
+                    IpChannelType ipChannelType = null;
+                    Boolean acceptAnonymousConnections = null;
+                    Integer maxConcurrentConnectionsCount = null;
+                    String[] extraHostAddresses = null;
+                    int i = 5;
+                    if (args.length > 5) {
+                        while (i < args.length) {
+                            String currProp = args[i];
+                            switch (currProp) {
+                                case "host": hostAddress = args[i + 1];
+                                break;
+                                case "port": port = Integer.valueOf(args[i + 1]);
+                                break;
+                                case "sockettype": ipChannelType = IpChannelType.getInstance(args[i + 1]);
+                                break;
+                                case "anonymconnect": acceptAnonymousConnections = Boolean.valueOf(args[i + 1]);
+                                break;
+                                case "concurrentconnect": maxConcurrentConnectionsCount = Integer.valueOf(args[i + 1]);
+                                break;
+                                case "extraaddresses": extraHostAddresses = args[i + 1].split(",");
+                                break;
+                                default: return M3UAOAMMessages.INVALID_COMMAND;
+                            }
+                            i = i + 2;
+                        }
+                    }
+
+                    this.sctpManagement.modifyServer(serverName, hostAddress, port, ipChannelType, acceptAnonymousConnections, maxConcurrentConnectionsCount, extraHostAddresses);
+                    return String.format(SCTPOAMMessages.MODIFY_SERVER_SUCCESS, serverName, this.sctpManagement.getName());
+
                 } else if (command.equals("destroy")) {
                     // sctp server destroy <sever-name> stackname <stack-name>
                     if (args.length < 4) {
@@ -486,6 +536,86 @@ public class SCTPShellExecutor implements ShellExecutor {
 
                     return M3UAOAMMessages.INVALID_COMMAND;
 
+                } else if (command.equals("modify")) {
+                    // sctp association modify <assoc-name> <stack-name> <CLIENT | SERVER> servername <server-name> peerhost <peerip> peerport <peer-port> host <host- ip>
+                    // port <host-port> sockettype <socket-type> extraaddresses <extra-host-addresses>
+
+                    String assocName = args[3];
+                    if (assocName == null) {
+                        return M3UAOAMMessages.INVALID_COMMAND;
+                    }
+                    String sctpStackName = args[4];
+                    if (sctpStackName == null) {
+                        Management sctpManagementtmp = this.sctpManagements.get(sctpStackName);
+                        if (sctpManagementtmp == null) {
+                            return String.format(M3UAOAMMessages.NO_SCTP_MANAGEMENT_BEAN_FOR_NAME, sctpStackName);
+                        }
+                        this.sctpManagement = sctpManagementtmp;
+                    }
+
+                    String type = args[5];
+                    if (type == null) {
+                        return M3UAOAMMessages.INVALID_COMMAND;
+                    } else if (type.equals("CLIENT")) {
+                        String hostAddress = null;
+                        Integer hostPort = null;
+                        String peerAddress = null;
+                        Integer peerPort = null;
+                        IpChannelType ipChannelType = null;
+                        String[] extraHostAddresses = null;
+                        int i = 6;
+                        if (args.length > 6) {
+                            while (i < args.length) {
+                                String currProp = args[i];
+                                switch (currProp) {
+                                    case "peerhost": peerAddress = args[i + 1];
+                                    break;
+                                    case "peerport": peerPort = Integer.valueOf(args[i + 1]);
+                                    break;
+                                    case "sockettype": ipChannelType = IpChannelType.getInstance(args[i + 1]);
+                                    break;
+                                    case "host": hostAddress = args[i + 1];
+                                    break;
+                                    case "port": hostPort = Integer.valueOf(args[i + 1]);
+                                    break;
+                                    case "extraaddresses": extraHostAddresses = args[i + 1].split(",");
+                                    break;
+                                    default: return M3UAOAMMessages.INVALID_COMMAND;
+                                }
+                                i = i + 2;
+                            }
+                        }
+
+                      this.sctpManagement.modifyAssociation(hostAddress, hostPort, peerAddress, peerPort, assocName, ipChannelType, extraHostAddresses);
+                      return String.format(SCTPOAMMessages.MODIFY_CLIENT_ASSOCIATION_SUCCESS, assocName, this.sctpManagement.getName());
+
+                    } else if (type.equals("SERVER")) {
+
+                        String peerAddress = null;
+                        Integer peerPort = null;
+                        String serverName = null;
+                        IpChannelType ipChannelType = null;
+                        int i = 6;
+                        if (args.length > 6) {
+                            while (i < args.length) {
+                                String currProp = args[i];
+                                switch (currProp) {
+                                    case "peerhost": peerAddress = args[i + 1];
+                                    break;
+                                    case "peerport": peerPort = Integer.valueOf(args[i + 1]);
+                                    break;
+                                    case "sockettype": ipChannelType = IpChannelType.getInstance(args[i + 1]);
+                                    break;
+                                    case "servername": serverName = args[i + 1];
+                                    break;
+                                    default: return M3UAOAMMessages.INVALID_COMMAND;
+                                }
+                                i = i + 2;
+                            }
+                        }
+                        this.sctpManagement.modifyServerAssociation(assocName, peerAddress, peerPort, serverName, ipChannelType);
+                        return String.format(SCTPOAMMessages.MODIFY_SERVER_ASSOCIATION_SUCCESS, assocName, this.sctpManagement.getName());
+                    }
                 } else if (command.equals("destroy")) {
                     // sctp association destroy <assoc-name> stackname <stack-name>
 
@@ -572,12 +702,24 @@ public class SCTPShellExecutor implements ShellExecutor {
         if (parName.equals("connectdelay")) {
             int val = Integer.parseInt(options[3]);
             this.sctpManagement.setConnectDelay(val);
-//        } else if (parName.equals("singlethread")) {
-//            boolean val = Boolean.parseBoolean(options[3]);
-//            this.sctpManagement.setSingleThread(val);
-//        } else if (parName.equals("workerthreads")) {
-//            int val = Integer.parseInt(options[3]);
-//            this.sctpManagement.setWorkerThreads(val);
+        } else if (parName.equals("cc_delaythreshold_1")) {
+            double val = Double.parseDouble(options[3]);
+            this.sctpManagement.setCongControl_DelayThreshold_1(val);
+        } else if (parName.equals("cc_delaythreshold_2")) {
+            double val = Double.parseDouble(options[3]);
+            this.sctpManagement.setCongControl_DelayThreshold_2(val);
+        } else if (parName.equals("cc_delaythreshold_3")) {
+            double val = Double.parseDouble(options[3]);
+            this.sctpManagement.setCongControl_DelayThreshold_3(val);
+        } else if (parName.equals("cc_backtonormal_delaythreshold_1")) {
+            double val = Double.parseDouble(options[3]);
+            this.sctpManagement.setCongControl_BackToNormalDelayThreshold_1(val);
+        } else if (parName.equals("cc_backtonormal_delaythreshold_2")) {
+            double val = Double.parseDouble(options[3]);
+            this.sctpManagement.setCongControl_BackToNormalDelayThreshold_2(val);
+        } else if (parName.equals("cc_backtonormal_delaythreshold_3")) {
+            double val = Double.parseDouble(options[3]);
+            this.sctpManagement.setCongControl_BackToNormalDelayThreshold_3(val);
         } else {
             return M3UAOAMMessages.INVALID_COMMAND;
         }
@@ -605,16 +747,25 @@ public class SCTPShellExecutor implements ShellExecutor {
             sb.append(" = ");
             if (parName.equals("connectdelay")) {
                 sb.append(this.sctpManagement.getConnectDelay());
-            } else if (parName.equals("singlethread")) {
-                sb.append(this.sctpManagement.isSingleThread());
-            } else if (parName.equals("workerthreads")) {
-                sb.append(this.sctpManagement.getWorkerThreads());
+            } else if (parName.equals("cc_delaythreshold_1")) {
+                sb.append(this.sctpManagement.getCongControl_DelayThreshold_1());
+            } else if (parName.equals("cc_delaythreshold_2")) {
+                sb.append(this.sctpManagement.getCongControl_DelayThreshold_2());
+            } else if (parName.equals("cc_delaythreshold_3")) {
+                sb.append(this.sctpManagement.getCongControl_DelayThreshold_3());
+            } else if (parName.equals("cc_backtonormal_delaythreshold_1")) {
+                sb.append(this.sctpManagement.getCongControl_BackToNormalDelayThreshold_1());
+            } else if (parName.equals("cc_backtonormal_delaythreshold_2")) {
+                sb.append(this.sctpManagement.getCongControl_BackToNormalDelayThreshold_2());
+            } else if (parName.equals("cc_backtonormal_delaythreshold_3")) {
+                sb.append(this.sctpManagement.getCongControl_BackToNormalDelayThreshold_3());
             } else {
                 return M3UAOAMMessages.INVALID_COMMAND;
             }
 
             return sb.toString();
         } else {
+            this.setDefaultValue();
 
             StringBuilder sb = new StringBuilder();
             for (FastMap.Entry<String, Management> e = this.sctpManagements.head(), end = this.sctpManagements.tail(); (e = e
@@ -633,12 +784,28 @@ public class SCTPShellExecutor implements ShellExecutor {
                 sb.append(managementImplTmp.getConnectDelay());
                 sb.append("\n");
 
-                sb.append("singlethread = ");
-                sb.append(managementImplTmp.isSingleThread());
+                sb.append("cc_delaythreshold_1 = ");
+                sb.append(this.sctpManagement.getCongControl_DelayThreshold_1());
                 sb.append("\n");
 
-                sb.append("workerthreads = ");
-                sb.append(managementImplTmp.getWorkerThreads());
+                sb.append("cc_delaythreshold_2 = ");
+                sb.append(this.sctpManagement.getCongControl_DelayThreshold_2());
+                sb.append("\n");
+
+                sb.append("cc_delaythreshold_3 = ");
+                sb.append(this.sctpManagement.getCongControl_DelayThreshold_3());
+                sb.append("\n");
+
+                sb.append("cc_backtonormal_delaythreshold_1 = ");
+                sb.append(this.sctpManagement.getCongControl_BackToNormalDelayThreshold_1());
+                sb.append("\n");
+
+                sb.append("cc_backtonormal_delaythreshold_2 = ");
+                sb.append(this.sctpManagement.getCongControl_BackToNormalDelayThreshold_2());
+                sb.append("\n");
+
+                sb.append("cc_backtonormal_delaythreshold_3 = ");
+                sb.append(this.sctpManagement.getCongControl_BackToNormalDelayThreshold_3());
                 sb.append("\n");
 
                 sb.append("*******************");

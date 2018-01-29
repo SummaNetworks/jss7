@@ -22,7 +22,11 @@
 
 package org.mobicents.protocols.ss7.oam.common.tcap;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Date;
 
@@ -35,11 +39,11 @@ import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterDefSet;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterMediator;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterValue;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterValueSet;
-import org.mobicents.protocols.ss7.oam.common.tcap.TcapManagementJmx;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.TCAPCounterProviderImpl;
 import org.mobicents.protocols.ss7.tcap.TCAPStackImpl;
+import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -123,7 +127,7 @@ public class RegistrationTest {
         CounterMediator cm = counterProvider.getCounterMediatorLst().get(cmName);
         assertEquals(cm, tcapManagement);
 
-        counterProvider.createCampaign("camp_01", csName, 10);
+        counterProvider.createCampaign("camp_01", csName, 10, 1);
         assertEquals(counterProvider.getCampaignsList().length, 1);
         CounterCampaign cc = counterProvider.getCampaign("camp_01");
         assertEquals(cc.getCounterSetName(), csName);
@@ -152,7 +156,7 @@ public class RegistrationTest {
         assertEquals(cc.getCounterSet(), cds);
         assertFalse(cc.isShortCampaign());
 
-        counterProvider.createShortCampaign("camp_02", csName, 20);
+        counterProvider.createShortCampaign("camp_02", csName, 20, 1);
         assertEquals(counterProvider.getCampaignsList().length, 2);
         cc = counterProvider.getCampaign("camp_02");
         assertEquals(cc.getCounterSetName(), csName);
@@ -184,7 +188,7 @@ public class RegistrationTest {
         CounterMediator cm = counterProvider.getCounterMediatorLst().get(cmName);
         assertEquals(cm, tcapManagement);
 
-        counterProvider.createCampaign("camp_01", csName, 10);
+        counterProvider.createCampaign("camp_01", csName, 10, 1);
         assertEquals(counterProvider.getCampaignsList().length, 1);
         CounterCampaign cc = counterProvider.getCampaign("camp_01");
         assertEquals(cc.getCounterSetName(), csName);
@@ -232,7 +236,7 @@ public class RegistrationTest {
         String cmName = tcapManagement.getCounterMediatorName();
         CounterDefSet cds = tcapManagement.getCounterDefSet(csName);
 
-        counterProvider.createCampaign("camp_01", csName, 60);
+        counterProvider.createCampaign("camp_01", csName, 60, 1);
         Date tm1 = new Date(2010, 1, 1, 10, 0, 0);
         Date tm2 = new Date(2010, 1, 1, 11, 0, 0);
 
@@ -244,15 +248,15 @@ public class RegistrationTest {
         CounterValueSet cvs1 = counterProvider.getLastCounterValues("camp_01");
         counterProvider.processCampaign("camp_01", tm1);
 
-        tcapStack1.getProvider().getNewDialog(localAddress, localAddress);
-        tcapStack1.getProvider().getNewDialog(localAddress, localAddress);
-        cp.updateTcBeginSentCount();
+        Dialog d1 = tcapStack1.getProvider().getNewDialog(localAddress, localAddress);
+        Dialog d2 = tcapStack1.getProvider().getNewDialog(localAddress, localAddress);
+        cp.updateTcBeginSentCount(d1);
         cp.updateAllEstablishedDialogsCount();
         cp.updateAllEstablishedDialogsCount();
         cp.updateAllDialogsDuration(1000);
         cp.updateAllDialogsDuration(2000);
-        cp.updateDialogReleaseCount();
-        cp.updateDialogReleaseCount();
+        cp.updateDialogReleaseCount(d1);
+        cp.updateDialogReleaseCount(d2);
         cp.updateOutgoingDialogsPerApplicatioContextName("20.1");
 
         Thread.sleep(500);

@@ -26,8 +26,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import javolution.text.TextBuilder;
+import javolution.util.FastList;
 import javolution.xml.XMLBinding;
 import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
@@ -35,7 +37,9 @@ import javolution.xml.stream.XMLStreamException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
+import org.mobicents.protocols.ss7.sccp.SccpStack;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.protocols.ss7.tcap.api.TCAPCounterEventsListener;
 import org.mobicents.protocols.ss7.tcap.api.TCAPCounterProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
@@ -63,9 +67,24 @@ public class TCAPStackImpl implements TCAPStack {
     private static final String PREVIEW_MODE = "previewmode";
     private static final String DO_NOT_SEND_PROTOCOL_VERSION = "donotsendprotocolversion";
     private static final String STATISTICS_ENABLED = "statisticsenabled";
+    private static final String SLS_RANGE = "slsrange";
+
+    private static final String CONG_CONTROL_BLOCKING_INCOMING_TCAP_MESSAGES = "congControl_blockingIncomingTcapMessages";
+    private static final String CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_1 = "congControl_ExecutorDelayThreshold_1";
+    private static final String CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_2 = "congControl_ExecutorDelayThreshold_2";
+    private static final String CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_3 = "congControl_ExecutorDelayThreshold_3";
+    private static final String CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_1 = "congControl_ExecutorBackToNormalDelayThreshold_1";
+    private static final String CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_2 = "congControl_ExecutorBackToNormalDelayThreshold_2";
+    private static final String CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_3 = "congControl_ExecutorBackToNormalDelayThreshold_3";
+    private static final String CONG_CONTROL_MEMORY_THRESHOLD_1 = "congControl_MemoryThreshold_1";
+    private static final String CONG_CONTROL_MEMORY_THRESHOLD_2 = "congControl_MemoryThreshold_2";
+    private static final String CONG_CONTROL_MEMORY_THRESHOLD_3 = "congControl_MemoryThreshold_3";
+    private static final String CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_1 = "congControl_BackToNormalMemoryThreshold_1";
+    private static final String CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_2 = "congControl_BackToNormalMemoryThreshold_2";
+    private static final String CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_3 = "congControl_BackToNormalMemoryThreshold_3";
 
 
-    private static final XMLBinding binding = new XMLBinding();
+    protected static final XMLBinding binding = new XMLBinding();
 
     // default value of idle timeout and after TC_END remove of task.
     public static final long _DIALOG_TIMEOUT = 60000;
@@ -75,6 +94,7 @@ public class TCAPStackImpl implements TCAPStack {
     // TCAP state data, it is used ONLY on client side
     protected TCAPProviderImpl tcapProvider;
     protected TCAPCounterProviderImpl tcapCounterProvider;
+    protected TCAPCounterEventsListener tcapCounterEventsListener;
     private SccpProvider sccpProvider;
     private SccpAddress address;
 
@@ -95,10 +115,33 @@ public class TCAPStackImpl implements TCAPStack {
     private long dialogIdRangeStart = 1;
     private long dialogIdRangeEnd = Integer.MAX_VALUE;
     private boolean previewMode = false;
+    private List<Integer> extraSsns = new FastList<Integer>();
     private boolean doNotSendProtocolVersion = false;
     private boolean statisticsEnabled = false;
 
+    // if true incoming TCAP messages will be blocked (depending on congestion level, from level 2 - new incoming dialogs are
+    // rejected, from level 3 - all incoming messages are rejected)
+    private boolean congControl_blockingIncomingTcapMessages = false;
+
+    // ExecutorMonitor Thresholds: delays in seconds (between the time when an incoming message has come from a peer and
+    // scheduled for execution and the time when the execution of the message starts) after which ExecutorMonitor becomes the
+    // congestion level 1, 2 or 3
+    private double[] congControl_ExecutorDelayThreshold = { 1, 6, 12 };
+    // ExecutorMonitor Thresholds: delays in seconds (between the time when an incoming message has come from a peer and
+    // scheduled for execution and the time when the execution of the message starts) after which ExecutorMonitor resumes to the
+    // congestion level 0, 1 or 2
+    private double[] congControl_ExecutorBackToNormalDelayThreshold = { 0.5, 3, 8 };
+    // MemoryMonitor Thresholds: a percent of occupied memory after which MemoryMonitor becomes the
+    // congestion level 1, 2 or 3
+    private double[] congControl_MemoryThreshold = new double[] { 77, 87, 97 };
+    // MemoryMonitor Thresholds: a percent of occupied memory after which MemoryMonitor resumes to the
+    // congestion level 0, 1 or 2
+    private double[] congControl_BackToNormalMemoryThreshold = new double[] { 72, 82, 92 };
+
     private int ssn = -1;
+
+    // SLS value
+    private SlsRangeType slsRange = SlsRangeType.All;
 
     public TCAPStackImpl(String name) {
         super();
@@ -313,6 +356,7 @@ public class TCAPStackImpl implements TCAPStack {
 
         this.checkDialogIdRangeValues(val, this.getDialogIdRangeEnd());
         dialogIdRangeStart = val;
+        tcapProvider.resetDialogIdValueAfterRangeChange();
 
         this.store();
     }
@@ -323,6 +367,7 @@ public class TCAPStackImpl implements TCAPStack {
 
         this.checkDialogIdRangeValues(this.getDialogIdRangeStart(), val);
         dialogIdRangeEnd = val;
+        tcapProvider.resetDialogIdValueAfterRangeChange();
 
         this.store();
     }
@@ -347,6 +392,71 @@ public class TCAPStackImpl implements TCAPStack {
     public boolean getPreviewMode() {
         return previewMode;
     }
+
+    public void setExtraSsns(List<Integer> extraSsnsNew) throws Exception {
+        if (this.started)
+            throw new Exception("ExtraSsns parameter can be updated only when TCAP stack is NOT running");
+
+        if (extraSsnsNew != null) {
+            synchronized (this) {
+                List<Integer> extraSsnsTemp = new FastList<Integer>();
+                extraSsnsTemp.addAll(extraSsnsNew);
+                this.extraSsns = extraSsnsTemp;
+            }
+        }
+    }
+
+    public List<Integer> getExtraSsns() {
+        return extraSsns;
+    }
+
+    public boolean isExtraSsnPresent(int ssn) {
+        if (this.ssn == ssn)
+            return true;
+        if (extraSsns != null) {
+            if (extraSsns.contains(ssn))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String getSubSystemNumberList() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.ssn);
+        if (extraSsns != null) {
+            for (Integer iSsn : extraSsns) {
+                sb.append(", ");
+                sb.append(iSsn);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public void setSlsRange(String val) throws Exception  {
+
+        if (val.equals(SlsRangeType.All.toString()))  {
+            this.slsRange = SlsRangeType.All;
+        } else if (val.equals(SlsRangeType.Odd.toString())) {
+            this.slsRange = SlsRangeType.Odd;
+        } else if (val.equals(SlsRangeType.Even.toString())) {
+            this.slsRange = SlsRangeType.Even;
+        } else {
+            throw new Exception("SlsRange value is invalid");
+        }
+
+        this.store();
+    }
+
+    public String getSlsRange() {
+        return this.slsRange.toString();
+    }
+
+    public SlsRangeType getSlsRangeType () {
+        return this.slsRange;
+    }
+
 
     @Override
     public void setDoNotSendProtocolVersion(boolean val) throws Exception {
@@ -380,6 +490,201 @@ public class TCAPStackImpl implements TCAPStack {
         return statisticsEnabled;
     }
 
+    @Override
+    public boolean isCongControl_blockingIncomingTcapMessages() {
+        return congControl_blockingIncomingTcapMessages;
+    }
+
+    @Override
+    public void setCongControl_blockingIncomingTcapMessages(boolean value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_blockingIncomingTcapMessages parameter can be updated only when TCAP stack is running");
+
+        congControl_blockingIncomingTcapMessages = value;
+
+        this.store();
+    }
+
+    @Override
+    public double getCongControl_ExecutorDelayThreshold_1() {
+        return congControl_ExecutorDelayThreshold[0];
+    }
+
+    @Override
+    public double getCongControl_ExecutorDelayThreshold_2() {
+        return congControl_ExecutorDelayThreshold[1];
+    }
+
+    @Override
+    public double getCongControl_ExecutorDelayThreshold_3() {
+        return congControl_ExecutorDelayThreshold[2];
+    }
+
+    @Override
+    public void setCongControl_ExecutorDelayThreshold_1(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_ExecutorDelayThreshold_1 parameter can be updated only when TCAP stack is running");
+
+        congControl_ExecutorDelayThreshold[0] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_ExecutorDelayThreshold_2(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_ExecutorDelayThreshold_2 parameter can be updated only when TCAP stack is running");
+
+        congControl_ExecutorDelayThreshold[1] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_ExecutorDelayThreshold_3(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_ExecutorDelayThreshold_3 parameter can be updated only when TCAP stack is running");
+
+        congControl_ExecutorDelayThreshold[2] = value;
+
+        this.store();
+    }
+
+    @Override
+    public double getCongControl_ExecutorBackToNormalDelayThreshold_1() {
+        return congControl_ExecutorBackToNormalDelayThreshold[0];
+    }
+
+    @Override
+    public double getCongControl_ExecutorBackToNormalDelayThreshold_2() {
+        return congControl_ExecutorBackToNormalDelayThreshold[1];
+    }
+
+    @Override
+    public double getCongControl_ExecutorBackToNormalDelayThreshold_3() {
+        return congControl_ExecutorBackToNormalDelayThreshold[2];
+    }
+
+    @Override
+    public void setCongControl_ExecutorBackToNormalDelayThreshold_1(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("ExecutorBackToNormalDelayThreshold_1 parameter can be updated only when TCAP stack is running");
+
+        congControl_ExecutorBackToNormalDelayThreshold[0] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_ExecutorBackToNormalDelayThreshold_2(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("ExecutorBackToNormalDelayThreshold_2 parameter can be updated only when TCAP stack is running");
+
+        congControl_ExecutorBackToNormalDelayThreshold[1] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_ExecutorBackToNormalDelayThreshold_3(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("ExecutorBackToNormalDelayThreshold_3 parameter can be updated only when TCAP stack is running");
+
+        congControl_ExecutorBackToNormalDelayThreshold[2] = value;
+
+        this.store();
+    }
+
+    @Override
+    public double getCongControl_MemoryThreshold_1() {
+        return congControl_MemoryThreshold[0];
+    }
+
+    @Override
+    public double getCongControl_MemoryThreshold_2() {
+        return congControl_MemoryThreshold[1];
+    }
+
+    @Override
+    public double getCongControl_MemoryThreshold_3() {
+        return congControl_MemoryThreshold[2];
+    }
+
+    @Override
+    public void setCongControl_MemoryThreshold_1(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_MemoryThreshold_1 parameter can be updated only when TCAP stack is running");
+
+        congControl_MemoryThreshold[0] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_MemoryThreshold_2(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_MemoryThreshold_2 parameter can be updated only when TCAP stack is running");
+
+        congControl_MemoryThreshold[1] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_MemoryThreshold_3(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("CongControl_MemoryThreshold_3 parameter can be updated only when TCAP stack is running");
+
+        congControl_MemoryThreshold[2] = value;
+
+        this.store();
+    }
+
+    @Override
+    public double getCongControl_BackToNormalMemoryThreshold_1() {
+        return congControl_BackToNormalMemoryThreshold[0];
+    }
+
+    @Override
+    public double getCongControl_BackToNormalMemoryThreshold_2() {
+        return congControl_BackToNormalMemoryThreshold[1];
+    }
+
+    @Override
+    public double getCongControl_BackToNormalMemoryThreshold_3() {
+        return congControl_BackToNormalMemoryThreshold[2];
+    }
+
+    @Override
+    public void setCongControl_BackToNormalMemoryThreshold_1(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("BackToNormalMemoryThreshold_1 parameter can be updated only when TCAP stack is running");
+
+        congControl_BackToNormalMemoryThreshold[0] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_BackToNormalMemoryThreshold_2(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("BackToNormalMemoryThreshold_2 parameter can be updated only when TCAP stack is running");
+
+        congControl_BackToNormalMemoryThreshold[1] = value;
+
+        this.store();
+    }
+
+    @Override
+    public void setCongControl_BackToNormalMemoryThreshold_3(double value) throws Exception {
+        if (!this.started)
+            throw new Exception("BackToNormalMemoryThreshold_3 parameter can be updated only when TCAP stack is running");
+
+        congControl_BackToNormalMemoryThreshold[2] = value;
+
+        this.store();
+    }
+
     /**
      * Persist
      */
@@ -405,7 +710,43 @@ public class TCAPStackImpl implements TCAPStack {
 
             writer.write(this.doNotSendProtocolVersion, DO_NOT_SEND_PROTOCOL_VERSION, Boolean.class);
 
+            writer.write(this.congControl_blockingIncomingTcapMessages, CONG_CONTROL_BLOCKING_INCOMING_TCAP_MESSAGES,
+                    Boolean.class);
+            if (this.congControl_ExecutorDelayThreshold != null && this.congControl_ExecutorDelayThreshold.length == 3) {
+                writer.write(this.congControl_ExecutorDelayThreshold[0], CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_1, Double.class);
+                writer.write(this.congControl_ExecutorDelayThreshold[1], CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_2, Double.class);
+                writer.write(this.congControl_ExecutorDelayThreshold[2], CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_3, Double.class);
+            }
+            if (this.congControl_ExecutorBackToNormalDelayThreshold != null
+                    && this.congControl_ExecutorBackToNormalDelayThreshold.length == 3) {
+                writer.write(this.congControl_ExecutorBackToNormalDelayThreshold[0],
+                        CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_1, Double.class);
+                writer.write(this.congControl_ExecutorBackToNormalDelayThreshold[1],
+                        CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_2, Double.class);
+                writer.write(this.congControl_ExecutorBackToNormalDelayThreshold[2],
+                        CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_3, Double.class);
+            }
+            if (this.congControl_MemoryThreshold != null && this.congControl_MemoryThreshold.length == 3) {
+                writer.write(this.congControl_MemoryThreshold[0], CONG_CONTROL_MEMORY_THRESHOLD_1, Double.class);
+                writer.write(this.congControl_MemoryThreshold[1], CONG_CONTROL_MEMORY_THRESHOLD_2, Double.class);
+                writer.write(this.congControl_MemoryThreshold[2], CONG_CONTROL_MEMORY_THRESHOLD_3, Double.class);
+            }
+            if (this.congControl_BackToNormalMemoryThreshold != null
+                    && this.congControl_BackToNormalMemoryThreshold.length == 3) {
+                writer.write(this.congControl_BackToNormalMemoryThreshold[0], CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_1,
+                        Double.class);
+                writer.write(this.congControl_BackToNormalMemoryThreshold[1], CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_2,
+                        Double.class);
+                writer.write(this.congControl_BackToNormalMemoryThreshold[2], CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_3,
+                        Double.class);
+            }
+
             writer.write(this.statisticsEnabled, STATISTICS_ENABLED, Boolean.class);
+
+            writer.write(this.slsRange.toString(), SLS_RANGE, String.class);
+
+            writer.write(this.statisticsEnabled, STATISTICS_ENABLED, Boolean.class);
+
 
             writer.close();
         } catch (Exception e) {
@@ -425,7 +766,14 @@ public class TCAPStackImpl implements TCAPStack {
             reader = XMLObjectReader.newInstance(new FileInputStream(persistFile.toString()));
 
             reader.setBinding(binding);
+            load(reader);
+        } catch (XMLStreamException ex) {
+            // this.logger.info(
+            // "Error while re-creating Linksets from persisted file", ex);
+        }
+    }
 
+     protected void load(XMLObjectReader reader) throws XMLStreamException{
             Long vall = reader.read(DIALOG_IDLE_TIMEOUT, Long.class);
             if (vall != null)
                 this.dialogTimeout = vall;
@@ -441,19 +789,78 @@ public class TCAPStackImpl implements TCAPStack {
             vall = reader.read(DIALOG_ID_RANGE_END, Long.class);
             if (vall != null)
                 this.dialogIdRangeEnd = vall;
+
             Boolean volb = reader.read(PREVIEW_MODE, Boolean.class);
+
             volb = reader.read(DO_NOT_SEND_PROTOCOL_VERSION, Boolean.class);
             if (volb != null)
                 this.doNotSendProtocolVersion = volb;
+
+            Boolean valb = reader.read(CONG_CONTROL_BLOCKING_INCOMING_TCAP_MESSAGES, Boolean.class);
+            if (valb != null)
+                this.congControl_blockingIncomingTcapMessages = valb;
+
+            Double valTH1 = reader.read(CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_1, Double.class);
+            Double valTH2 = reader.read(CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_2, Double.class);
+            Double valTH3 = reader.read(CONG_CONTROL_EXECUTOR_DELAY_THRESHOLD_3, Double.class);
+            Double valTB1 = reader.read(CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_1, Double.class);
+            Double valTB2 = reader.read(CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_2, Double.class);
+            Double valTB3 = reader.read(CONG_CONTROL_EXECUTOR_BACK_TO_NORMAL_DELAY_THRESHOLD_3, Double.class);
+            if (valTH1 != null && valTH2 != null && valTH3 != null && valTB1 != null && valTB2 != null && valTB3 != null) {
+                this.congControl_ExecutorDelayThreshold = new double[3];
+                this.congControl_ExecutorDelayThreshold[0] = valTH1;
+                this.congControl_ExecutorDelayThreshold[1] = valTH2;
+                this.congControl_ExecutorDelayThreshold[2] = valTH3;
+                this.congControl_ExecutorBackToNormalDelayThreshold = new double[3];
+                this.congControl_ExecutorBackToNormalDelayThreshold[0] = valTB1;
+                this.congControl_ExecutorBackToNormalDelayThreshold[1] = valTB2;
+                this.congControl_ExecutorBackToNormalDelayThreshold[2] = valTB3;
+            }
+
+            valTH1 = reader.read(CONG_CONTROL_MEMORY_THRESHOLD_1, Double.class);
+            valTH2 = reader.read(CONG_CONTROL_MEMORY_THRESHOLD_2, Double.class);
+            valTH3 = reader.read(CONG_CONTROL_MEMORY_THRESHOLD_3, Double.class);
+            valTB1 = reader.read(CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_1, Double.class);
+            valTB2 = reader.read(CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_2, Double.class);
+            valTB3 = reader.read(CONG_CONTROL_BACK_TO_NORMAL_MEMORY_THRESHOLD_3, Double.class);
+            if (valTH1 != null && valTH2 != null && valTH3 != null && valTB1 != null && valTB2 != null && valTB3 != null) {
+                this.congControl_MemoryThreshold = new double[3];
+                this.congControl_MemoryThreshold[0] = valTH1;
+                this.congControl_MemoryThreshold[1] = valTH2;
+                this.congControl_MemoryThreshold[2] = valTH3;
+                this.congControl_BackToNormalMemoryThreshold = new double[3];
+                this.congControl_BackToNormalMemoryThreshold[0] = valTB1;
+                this.congControl_BackToNormalMemoryThreshold[1] = valTB2;
+                this.congControl_BackToNormalMemoryThreshold[2] = valTB3;
+            }
+
+            volb = reader.read(STATISTICS_ENABLED, Boolean.class);
+            if (volb != null)
+                this.statisticsEnabled = volb;
+
+            String vals = reader.read(SLS_RANGE, String.class);
+            if (vals != null)
+                this.slsRange = Enum.valueOf(SlsRangeType.class, vals);
+
             volb = reader.read(STATISTICS_ENABLED, Boolean.class);
             if (volb != null)
                 this.statisticsEnabled = volb;
 
             reader.close();
-        } catch (XMLStreamException ex) {
-            // this.logger.info(
-            // "Error while re-creating Linksets from persisted file", ex);
-        }
     }
 
+    @Override
+    public TCAPCounterEventsListener getTCAPCounterEventsListener() {
+        return this.tcapCounterEventsListener;
+    }
+
+    @Override
+    public void setTCAPCounterEventsListener(TCAPCounterEventsListener tcapCounterEventsListener) {
+        this.tcapCounterEventsListener = tcapCounterEventsListener;
+    }
+
+    @Override
+    public SccpStack getSccpStack() {
+        return this.sccpProvider.getSccpStack();
+    }
 }

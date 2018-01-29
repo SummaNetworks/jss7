@@ -22,12 +22,7 @@
 
 package org.mobicents.protocols.ss7.sccp.impl.oam;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
 import javolution.util.FastMap;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.AddressIndicator;
 import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
@@ -43,12 +38,17 @@ import org.mobicents.protocols.ss7.sccp.RemoteSignalingPointCode;
 import org.mobicents.protocols.ss7.sccp.RemoteSubSystem;
 import org.mobicents.protocols.ss7.sccp.Rule;
 import org.mobicents.protocols.ss7.sccp.RuleType;
+import org.mobicents.protocols.ss7.sccp.SccpCongestionControlAlgo;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.ss7.management.console.ShellExecutor;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -740,7 +740,8 @@ public class SccpExecutor implements ShellExecutor {
      * sccp rule create <id> <mask> <address-indicator> <point-code> <subsystem-number> <translation-type> <numbering-plan>
      * <nature-of-address-indicator> <digits> <ruleType> <primary-address-id> backup-addressid <backup-address-id>
      * loadsharing-algo <loadsharing-algorithm> newcgparty-addressid <new-callingPartyAddress-id> origination-type
-     * <originationType> stackname <stack-name>
+     * <originationType> networkid <network-id> calling-ai <address-indicator> calling-pc <point-code> calling-ssn <calling-subsystem-number> calling-tt <calling-translation-type> calling-np <calling-numbering-plan>
+     * calling-nai <calling-nature-of-address-indicator> calling-digits-pattern <calling-digits-pattern> stackname <stack-name>
      * </p>
      *
      * @param options
@@ -749,7 +750,7 @@ public class SccpExecutor implements ShellExecutor {
      */
     private String createRule(String[] options) throws Exception {
         // Minimum is 13
-        if (options.length < 14 || options.length > 24) {
+        if (options.length < 14 || options.length > 40) {
             return SccpOAMMessage.INVALID_COMMAND;
         }
         int ruleId = Integer.parseInt(options[3]);
@@ -781,6 +782,15 @@ public class SccpExecutor implements ShellExecutor {
         OriginationType originationType = OriginationType.ALL;
         int networkId = 0;
 
+        // Calling Address fields with default values
+        int callingAI = -1;
+        int callingPC = -1;
+        int callingSSN = -1;
+        int callingTT = -1;
+        int callingNP = -1;
+        int callingNAI = -1;
+        String callingDigits = null; // having it default as * means everythign matches
+
         while (count < options.length) {
             String key = options[count++];
             if (key == null) {
@@ -806,8 +816,22 @@ public class SccpExecutor implements ShellExecutor {
 
                 this.sccpStack = sccpStaclImpl;
             } else if (key.equals("networkid")) {
-                String networkIdS = options[count++];
-                networkId = Integer.parseInt(networkIdS);
+                String networkIdS = options[ count++ ];
+                networkId = Integer.parseInt( networkIdS );
+            } else if (key.equals( "calling-ai" )) {
+                callingAI = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-pc" )) {
+                callingPC = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-ssn" )) {
+                callingSSN = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-tt" )) {
+                callingTT = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-np" )) {
+                callingNP = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-nai" )) {
+                callingNAI = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-digits-pattern" )) {
+                callingDigits = options[count++];
             } else {
                 return SccpOAMMessage.INVALID_COMMAND;
             }
@@ -815,15 +839,20 @@ public class SccpExecutor implements ShellExecutor {
 
         this.setDefaultValue();
         SccpAddress pattern = this.createAddress(options, 5, true);
+        SccpAddress callingPattern  = null;
+        if ( callingDigits != null && !callingDigits.isEmpty()) {
+            callingPattern = this.createAddress( callingAI, callingPC, callingSSN, callingTT, callingNP, callingNAI, callingDigits, true );
+        }
 
-        this.sccpStack.getRouter().addRule(ruleId, ruleType, algo, originationType, pattern, mask, pAddressId, sAddressId,
-                newcgpartyAddressId, networkId);
+        this.sccpStack.getRouter().addRule( ruleId, ruleType, algo, originationType, pattern, mask, pAddressId, sAddressId,
+                newcgpartyAddressId, networkId, callingPattern);
+
         return String.format(SccpOAMMessage.RULE_SUCCESSFULLY_ADDED, this.sccpStack.getName());
     }
 
     private String modifyRule(String[] options) throws Exception {
         // Minimum is 13
-        if (options.length < 14 || options.length > 24) {
+        if (options.length < 14 || options.length > 40) {
             return SccpOAMMessage.INVALID_COMMAND;
         }
         int ruleId = Integer.parseInt(options[3]);
@@ -857,6 +886,16 @@ public class SccpExecutor implements ShellExecutor {
         OriginationType originationType = OriginationType.ALL;
         int networkId = 0;
 
+        // Calling Address fields with default values
+        int callingAI = -1;
+        int callingPC = -1;
+        int callingSSN = -1;
+        int callingTT = -1;
+        int callingNP = -1;
+        int callingNAI = -1;
+        String callingDigits = null; // having it default as null means no matching on callingPattern
+        // TODO: Validate the AI/TT/NP/NAI in case callingDigits are provided
+
         while (count < options.length) {
             String key = options[count++];
             if (key == null) {
@@ -884,15 +923,34 @@ public class SccpExecutor implements ShellExecutor {
             } else if (key.equals("networkid")) {
                 String networkIdS = options[count++];
                 networkId = Integer.parseInt(networkIdS);
-            } else {
+            } else if (key.equals( "calling-ai" )) {
+                callingAI = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-pc" )) {
+                callingPC = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-ssn" )) {
+                callingSSN = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-tt" )) {
+                callingTT = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-np" )) {
+                callingNP = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-nai" )) {
+                callingNAI = Integer.parseInt( options[count++] );
+            } else if (key.equals( "calling-digits-pattern" )) {
+                callingDigits = options[count++];
+            }  else {
                 return SccpOAMMessage.INVALID_COMMAND;
             }
         }
 
         this.setDefaultValue();
         SccpAddress pattern = this.createAddress(options, 5, true);
+        SccpAddress callingPattern  = null;
+        if ( callingDigits != null && !callingDigits.isEmpty()) {
+            callingPattern = this.createAddress( callingAI, callingPC, callingSSN, callingTT, callingNP, callingNAI, callingDigits, true );
+        }
+
         this.sccpStack.getRouter().modifyRule(ruleId, ruleType, algo, originationType, pattern, mask, pAddressId, sAddressId,
-                newcgpartyAddressId, networkId);
+                newcgpartyAddressId, networkId, callingPattern);
         return String.format(SccpOAMMessage.RULE_SUCCESSFULLY_MODIFIED, this.sccpStack.getName());
     }
 
@@ -1015,35 +1073,25 @@ public class SccpExecutor implements ShellExecutor {
 
         // sccp address create <id> <address-indicator> <point-code> <subsystemnumber> <translation-type> <numbering-plan>
         // <nature-of-address-indicator> <digits>
+        return createAddress(Integer.parseInt(options[index++]), Integer.parseInt(options[index++]), Integer.parseInt(options[index++]),
+                Integer.parseInt(options[index++]), Integer.parseInt(options[index++]), Integer.parseInt(options[index++]),
+                options[index++], isRule);
+    }
+
+    private SccpAddress createAddress(int ai, int pc, int ssn, int tt, int npValue, int naiValue, String digits, boolean isRule) throws Exception {
         SccpAddress sccpAddress = null;
 
-        int ai = Integer.parseInt(options[index++]);
-        int pc = 0;
-        int ssn = 0;
-
         AddressIndicator aiObj = new AddressIndicator((byte) ai, SccpProtocolVersion.ITU);
-        pc = Integer.parseInt(options[index++]);
-        ssn = Integer.parseInt(options[index++]);
-
-//        if (aiObj.isSSNPresent() && ssn == 0) {
-//            throw new Exception(
-//                    String.format("Address Indicator %d indicates that SSN is present, however SSN passed is 0", ai));
-//        }
-//
-//        if (aiObj.isPCPresent() && pc == 0) {
-//            throw new Exception(String.format(
-//                    "Address Indicator %d indicates that PointCode is present, however PointCode passed is 0", ai));
-//        }
 
         if (!isRule && pc <= 0) {
             throw new Exception(String.format("Point code parameter is mandatory and must be > 0"));
         }
+        if (aiObj.getGlobalTitleIndicator() == null) {
+            throw new Exception(String.format("GlobalTitle type is not recognizes, possible bad AddressIndicator value"));
+        }
 
-        int tt = Integer.parseInt(options[index++]);
-        NumberingPlan np = NumberingPlan.valueOf(Integer.parseInt(options[index++]));
-        NatureOfAddress nai = NatureOfAddress.valueOf(Integer.parseInt(options[index++]));
-
-        String digits = options[index++];
+        NumberingPlan np = NumberingPlan.valueOf(npValue);
+        NatureOfAddress nai = NatureOfAddress.valueOf(naiValue);
 
         GlobalTitle gt = null;
 
@@ -1293,7 +1341,7 @@ public class SccpExecutor implements ShellExecutor {
         }
 
         if (command.equals("create")) {
-            // sccp sap create <id> <mtp3-id> <opc> <ni> stackname <stack-name>
+            // sccp sap create <id> <mtp3-id> <opc> <ni> stackname <stack-name> networkid <networkId> localgtdigits <localGtDigits>
             if (options.length < 7) {
                 return SccpOAMMessage.INVALID_COMMAND;
             }
@@ -1306,8 +1354,9 @@ public class SccpExecutor implements ShellExecutor {
 
             int count = 7;
             int networkId = 0;
+            String localGtDigits = "";
 
-            while (count < options.length) {
+            while (count < options.length - 1) {
                 String key = options[count++];
                 if (key == null) {
                     return SccpOAMMessage.INVALID_COMMAND;
@@ -1326,6 +1375,8 @@ public class SccpExecutor implements ShellExecutor {
                 } else if (key.equals("networkid")) {
                     String networkIdS = options[count++];
                     networkId = Integer.parseInt(networkIdS);
+                } else if (key.equals("localgtdigits")) {
+                    localGtDigits = options[count++];
                 } else {
                     return SccpOAMMessage.INVALID_COMMAND;
                 }
@@ -1334,11 +1385,11 @@ public class SccpExecutor implements ShellExecutor {
 
             this.setDefaultValue();
 
-            this.sccpStack.getRouter().addMtp3ServiceAccessPoint(sapId, mtp3Id, opc, ni, networkId);
+            this.sccpStack.getRouter().addMtp3ServiceAccessPoint(sapId, mtp3Id, opc, ni, networkId, localGtDigits);
 
             return String.format(SccpOAMMessage.SAP_SUCCESSFULLY_ADDED, this.sccpStack.getName());
         } else if (command.equals("modify")) {
-            // sccp sap modify <id> <mtp3-id> <opc> <ni> stackname <stack-named>
+            // sccp sap modify <id> <mtp3-id> <opc> <ni> stackname <stack-named> networkid <networkId> localgtdigits <localGtDigits>
             if (options.length < 7) {
                 return SccpOAMMessage.INVALID_COMMAND;
             }
@@ -1350,8 +1401,9 @@ public class SccpExecutor implements ShellExecutor {
 
             int count = 7;
             int networkId = 0;
+            String localGtDigits = "";
 
-            while (count < options.length) {
+            while (count < options.length - 1) {
                 String key = options[count++];
                 if (key == null) {
                     return SccpOAMMessage.INVALID_COMMAND;
@@ -1370,6 +1422,8 @@ public class SccpExecutor implements ShellExecutor {
                 } else if (key.equals("networkid")) {
                     String networkIdS = options[count++];
                     networkId = Integer.parseInt(networkIdS);
+                } else if (key.equals("localgtdigits")) {
+                    localGtDigits = options[count++];
                 } else {
                     return SccpOAMMessage.INVALID_COMMAND;
                 }
@@ -1378,7 +1432,7 @@ public class SccpExecutor implements ShellExecutor {
 
             this.setDefaultValue();
 
-            this.sccpStack.getRouter().modifyMtp3ServiceAccessPoint(sapId, mtp3Id, opc, ni, networkId);
+            this.sccpStack.getRouter().modifyMtp3ServiceAccessPoint(sapId, mtp3Id, opc, ni, networkId, localGtDigits);
 
             return String.format(SccpOAMMessage.SAP_SUCCESSFULLY_MODIFIED, this.sccpStack.getName());
         } else if (command.equals("delete")) {
@@ -1899,6 +1953,9 @@ public class SccpExecutor implements ShellExecutor {
         } else if (parName.equals("maxdatamessage")) {
             int val = Integer.parseInt(options[3]);
             this.sccpStack.setMaxDataMessage(val);
+        } else if (parName.equals("periodoflogging")) {
+            int val = Integer.parseInt(options[3]);
+            this.sccpStack.setPeriodOfLogging(val);
         } else if (parName.equals("removespc")) {
             boolean val = Boolean.parseBoolean(options[3]);
             this.sccpStack.setRemoveSpc(val);
@@ -1918,6 +1975,21 @@ public class SccpExecutor implements ShellExecutor {
             SccpProtocolVersion spv = Enum.valueOf(SccpProtocolVersion.class, options[3]);
             if (spv != null)
                 this.sccpStack.setSccpProtocolVersion(spv);
+
+        } else if (parName.equals("cc_timer_a")) {
+            int val = Integer.parseInt(options[3]);
+            this.sccpStack.setCongControlTIMER_A(val);
+        } else if (parName.equals("cc_timer_d")) {
+            int val = Integer.parseInt(options[3]);
+            this.sccpStack.setCongControlTIMER_D(val);
+        } else if (parName.equals("cc_algo")) {
+            String vals = options[3];
+            SccpCongestionControlAlgo algo = Enum.valueOf(SccpCongestionControlAlgo.class, vals);
+            this.sccpStack.setCongControl_Algo(algo);
+        } else if (parName.equals("cc_blockingoutgoungsccpmessages")) {
+            boolean valb = Boolean.parseBoolean(options[3]);
+            this.sccpStack.setCongControl_blockingOutgoungSccpMessages(valb);
+
         } else {
             return SccpOAMMessage.INVALID_COMMAND;
         }
@@ -1944,6 +2016,8 @@ public class SccpExecutor implements ShellExecutor {
                 sb.append(this.sccpStack.getReassemblyTimerDelay());
             } else if (parName.equals("maxdatamessage")) {
                 sb.append(this.sccpStack.getMaxDataMessage());
+            } else if (parName.equals("periodoflogging")) {
+                sb.append(this.sccpStack.getPeriodOfLogging());
             } else if (parName.equals("removespc")) {
                 sb.append(this.sccpStack.isRemoveSpc());
             } else if (parName.equals("previewmode")) {
@@ -1956,6 +2030,16 @@ public class SccpExecutor implements ShellExecutor {
                 sb.append(this.sccpStack.getSstTimerDuration_IncreaseFactor());
             } else if (parName.equals("sccpprotocolversion")) {
                 sb.append(this.sccpStack.getSccpProtocolVersion());
+
+            } else if (parName.equals("cc_timer_a")) {
+                sb.append(this.sccpStack.getCongControlTIMER_A());
+            } else if (parName.equals("cc_timer_d")) {
+                sb.append(this.sccpStack.getCongControlTIMER_D());
+            } else if (parName.equals("cc_algo")) {
+                sb.append(this.sccpStack.getCongControl_Algo());
+            } else if (parName.equals("cc_blockingoutgoungsccpmessages")) {
+                sb.append(this.sccpStack.isCongControl_blockingOutgoungSccpMessages());
+
             } else {
                 return SccpOAMMessage.INVALID_COMMAND;
             }
@@ -1987,6 +2071,10 @@ public class SccpExecutor implements ShellExecutor {
                 sb.append(managementImplTmp.getMaxDataMessage());
                 sb.append("\n");
 
+                sb.append("periodOfLogging = ");
+                sb.append(managementImplTmp.getPeriodOfLogging());
+                sb.append("\n");
+
                 sb.append("removeSpc = ");
                 sb.append(managementImplTmp.isRemoveSpc());
                 sb.append("\n");
@@ -2009,6 +2097,22 @@ public class SccpExecutor implements ShellExecutor {
 
                 sb.append("sccpprotocolversion = ");
                 sb.append(managementImplTmp.getSccpProtocolVersion());
+                sb.append("\n");
+
+                sb.append("cc_timer_a = ");
+                sb.append(managementImplTmp.getCongControlTIMER_A());
+                sb.append("\n");
+
+                sb.append("cc_timer_d = ");
+                sb.append(managementImplTmp.getCongControlTIMER_D());
+                sb.append("\n");
+
+                sb.append("cc_algo = ");
+                sb.append(managementImplTmp.getCongControl_Algo());
+                sb.append("\n");
+
+                sb.append("cc_blockingoutgoungsccpmessages = ");
+                sb.append(managementImplTmp.isCongControl_blockingOutgoungSccpMessages());
                 sb.append("\n");
 
                 sb.append("*******************");

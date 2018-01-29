@@ -100,6 +100,21 @@ public interface M3UAManagement {
      */
     void setHeartbeatTime(int timeBetweenHeartbeat) throws Exception;
 
+    boolean isUseLsbForLinksetSelection();
+
+    void setUseLsbForLinksetSelection(boolean useLsbForLinksetSelection) throws Exception;
+
+    int getDeliveryMessageThreadCount();
+
+    String getRoutingLabelFormatStr();
+
+    /**
+     * Returns if an SCTP level supports netty.
+     *
+     * @return
+     */
+    boolean isSctpLibNettySupport();
+
     /**
      * Start M3UA stack
      *

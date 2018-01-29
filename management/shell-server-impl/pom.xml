@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.management</groupId>
 		<artifactId>management</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>8.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>shell-server-impl</artifactId>
@@ -43,6 +43,13 @@
 			<groupId>org.jboss.jbossas</groupId>
 			<artifactId>jboss-as-security</artifactId>
 			<version>${jboss.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-security</artifactId>
+			<version>${version.wildfly.as}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

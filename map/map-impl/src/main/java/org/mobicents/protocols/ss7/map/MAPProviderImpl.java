@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
@@ -59,7 +60,6 @@ import org.mobicents.protocols.ss7.map.api.errors.MAPErrorCode;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessageFactory;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
-import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.MAPServiceCallHandling;
 import org.mobicents.protocols.ss7.map.api.service.lsm.MAPServiceLsm;
@@ -83,6 +83,7 @@ import org.mobicents.protocols.ss7.map.service.oam.MAPServiceOamImpl;
 import org.mobicents.protocols.ss7.map.service.pdpContextActivation.MAPServicePdpContextActivationImpl;
 import org.mobicents.protocols.ss7.map.service.sms.MAPServiceSmsImpl;
 import org.mobicents.protocols.ss7.map.service.supplementary.MAPServiceSupplementaryImpl;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.tcap.DialogImpl;
 import org.mobicents.protocols.ss7.tcap.api.MessageType;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
@@ -140,12 +141,13 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
 
     private transient Collection<MAPDialogListener> dialogListeners = new FastList<MAPDialogListener>().shared();
 
-    protected transient FastMap<Long, MAPDialogImpl> dialogs = new FastMap<Long, MAPDialogImpl>().shared();
+//    protected transient FastMap<Long, MAPDialogImpl> dialogs = new FastMap<Long, MAPDialogImpl>().shared();
+    protected transient ConcurrentHashMap<Long, MAPDialogImpl> dialogs = new ConcurrentHashMap<Long, MAPDialogImpl>();
 
-    /**
-     * Congestion sources name list. Congestion is where this collection is not empty
-     */
-    protected transient FastMap<String, String> congSources = new FastMap<String, String>();
+//    /**
+//     * Congestion sources name list. Congestion is where this collection is not empty
+//     */
+//    protected transient FastMap<String, String> congSources = new FastMap<String, String>();
 
     private transient TCAPProvider tcapProvider = null;
 
@@ -265,24 +267,24 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
         //}
     }
 
-    public void onCongestionFinish(String congName) {
-        synchronized (this.congSources) {
-            this.congSources.put(congName, congName);
-        }
-    }
-
-    public void onCongestionStart(String congName) {
-        synchronized (this.congSources) {
-            this.congSources.remove(congName);
-        }
-    }
-
-    public boolean isCongested() {
-        if (this.congSources.size() > 0)
-            return true;
-        else
-            return false;
-    }
+//    public void onCongestionFinish(String congName) {
+//        synchronized (this.congSources) {
+//            this.congSources.put(congName, congName);
+//        }
+//    }
+//
+//    public void onCongestionStart(String congName) {
+//        synchronized (this.congSources) {
+//            this.congSources.remove(congName);
+//        }
+//    }
+//
+//    public boolean isCongested() {
+//        if (this.congSources.size() > 0)
+//            return true;
+//        else
+//            return false;
+//    }
 
     public void onTCBegin(TCBeginIndication tcBeginIndication) {
 
@@ -410,7 +412,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
         AddressString origReference = null;
         MAPExtensionContainer extensionContainer = null;
         boolean eriStyle = false;
-        IMSI eriImsi = null;
+        AddressString eriMsisdn = null;
         AddressString eriVlrNo = null;
 
         UserInformation userInfo = tcBeginIndication.getUserInformation();
@@ -515,7 +517,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
                 origReference = mapOpenInfoImpl.getOrigReference();
                 extensionContainer = mapOpenInfoImpl.getExtensionContainer();
                 eriStyle = mapOpenInfoImpl.getEriStyle();
-                eriImsi = mapOpenInfoImpl.getEriImsi();
+                eriMsisdn = mapOpenInfoImpl.getEriMsisdn();
                 eriVlrNo = mapOpenInfoImpl.getEriVlrNo();
             } catch (AsnException e) {
                 e.printStackTrace();
@@ -633,7 +635,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
             mapDialogImpl.delayedAreaState = MAPDialogImpl.DelayedAreaState.No;
 
             if (eriStyle) {
-                this.deliverDialogRequestEri(mapDialogImpl, destReference, origReference, eriImsi, eriVlrNo);
+                this.deliverDialogRequestEri(mapDialogImpl, destReference, origReference, eriMsisdn, eriVlrNo);
             } else {
                 this.deliverDialogRequest(mapDialogImpl, destReference, origReference, extensionContainer);
             }
@@ -1716,9 +1718,9 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
     }
 
     private void deliverDialogRequestEri(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
-            IMSI eriImsi, AddressString eriVlrNo) {
+            AddressString eriMsisdn, AddressString eriVlrNo) {
         for (MAPDialogListener listener : this.dialogListeners) {
-            listener.onDialogRequestEricsson(mapDialog, destReference, origReference, eriImsi, eriVlrNo);
+            listener.onDialogRequestEricsson(mapDialog, destReference, origReference, eriMsisdn, eriVlrNo);
         }
     }
 
@@ -1777,7 +1779,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
     }
 
     protected void fireTCBegin(Dialog tcapDialog, ApplicationContextName acn, AddressString destReference,
-            AddressString origReference, MAPExtensionContainer mapExtensionContainer, boolean isEriStyle, IMSI imsiEri,
+            AddressString origReference, MAPExtensionContainer mapExtensionContainer, boolean isEriStyle, AddressString eriMsisdn,
             AddressString vlrNoEri, boolean returnMessageOnError) throws MAPException {
 
         if (this.getTCAPProvider().getPreviewMode()) {
@@ -1785,7 +1787,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
         }
 
         TCBeginRequest tcBeginReq = encodeTCBegin(tcapDialog, acn, destReference, origReference, mapExtensionContainer,
-                isEriStyle, imsiEri, vlrNoEri);
+                isEriStyle, eriMsisdn, vlrNoEri);
         if (returnMessageOnError)
             tcBeginReq.setReturnMessageOnError(true);
 
@@ -1798,7 +1800,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
     }
 
     protected TCBeginRequest encodeTCBegin(Dialog tcapDialog, ApplicationContextName acn, AddressString destReference,
-            AddressString origReference, MAPExtensionContainer mapExtensionContainer, boolean eriStyle, IMSI eriImsi,
+            AddressString origReference, MAPExtensionContainer mapExtensionContainer, boolean eriStyle, AddressString eriMsisdn,
             AddressString eriVlrNo) throws MAPException {
 
         TCBeginRequest tcBeginReq = this.getTCAPProvider().getDialogPrimitiveFactory().createBegin(tcapDialog);
@@ -1814,7 +1816,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
             mapOpn.setOrigReference(origReference);
             mapOpn.setExtensionContainer(mapExtensionContainer);
             mapOpn.setEriStyle(eriStyle);
-            mapOpn.setEriImsi(eriImsi);
+            mapOpn.setEriMsisdn(eriMsisdn);
             mapOpn.setEriVlrNo(eriVlrNo);
 
             AsnOutputStream localasnOs = new AsnOutputStream();
@@ -2149,6 +2151,41 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
         } catch (TCAPSendException e) {
             throw new MAPException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public FastMap<Integer, NetworkIdState> getNetworkIdStateList() {
+        return this.tcapProvider.getNetworkIdStateList();
+    }
+
+    @Override
+    public NetworkIdState getNetworkIdState(int networkId) {
+        return this.tcapProvider.getNetworkIdState(networkId);
+    }
+
+    @Override
+    public void setUserPartCongestionLevel(String congObject, int level) {
+        this.tcapProvider.setUserPartCongestionLevel(congObject, level);
+    }
+
+    @Override
+    public int getMemoryCongestionLevel() {
+        return this.tcapProvider.getMemoryCongestionLevel();
+    }
+
+    @Override
+    public int getExecutorCongestionLevel() {
+        return this.tcapProvider.getExecutorCongestionLevel();
+    }
+
+    @Override
+    public int getCumulativeCongestionLevel() {
+        return this.tcapProvider.getCumulativeCongestionLevel();
+    }
+
+    @Override
+    public int getCurrentDialogsCount() {
+        return this.tcapProvider.getCurrentDialogsCount();
     }
 
 }

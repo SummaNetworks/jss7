@@ -54,6 +54,7 @@ import org.mobicents.protocols.ss7.cap.api.dialog.CAPUserAbortReason;
 import org.mobicents.protocols.ss7.cap.api.errors.CAPErrorMessage;
 import org.mobicents.protocols.ss7.cap.api.errors.CAPErrorMessageSystemFailure;
 import org.mobicents.protocols.ss7.cap.api.errors.UnavailableNetworkResource;
+import org.mobicents.protocols.ss7.cap.api.gap.*;
 import org.mobicents.protocols.ss7.cap.api.isup.CalledPartyNumberCap;
 import org.mobicents.protocols.ss7.cap.api.isup.CauseCap;
 import org.mobicents.protocols.ss7.cap.api.isup.Digits;
@@ -63,6 +64,7 @@ import org.mobicents.protocols.ss7.cap.api.primitives.DateAndTime;
 import org.mobicents.protocols.ss7.cap.api.primitives.EventTypeBCSM;
 import org.mobicents.protocols.ss7.cap.api.primitives.MonitorMode;
 import org.mobicents.protocols.ss7.cap.api.primitives.ReceivingSideID;
+import org.mobicents.protocols.ss7.cap.api.primitives.ScfID;
 import org.mobicents.protocols.ss7.cap.api.primitives.SendingSideID;
 import org.mobicents.protocols.ss7.cap.api.primitives.TimerID;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ActivityTestRequest;
@@ -70,6 +72,7 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ApplyChar
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ApplyChargingRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.AssistRequestInstructionsRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CAPDialogCircuitSwitchedCall;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallGapRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallInformationReportRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallInformationRequestRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CancelRequest;
@@ -105,12 +108,15 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CAMELAChBillingChargingCharacteristics;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CollectedDigits;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CollectedInfo;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.ControlType;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.DestinationRoutingAddress;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.EventSpecificInformationBCSM;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.FCIBCCCAMELsequence1;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.FreeFormatData;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.IPSSPCapabilities;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.InbandInfo;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.InformationToSend;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.MessageID;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.RequestedInformation;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.RequestedInformationType;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.SCIBillingChargingCharacteristics;
@@ -159,10 +165,15 @@ import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.MOSMSCause;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.RPCause;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.SMSAddressString;
 import org.mobicents.protocols.ss7.cap.api.service.sms.primitive.SMSEvent;
+import org.mobicents.protocols.ss7.cap.gap.*;
+import org.mobicents.protocols.ss7.cap.primitives.ScfIDImpl;
 import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.CAPDialogCircuitSwitchedCallImpl;
 import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.AOCSubsequentImpl;
 import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.CAI_GSM0224Impl;
 import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.FreeFormatDataImpl;
+import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.InbandInfoImpl;
+import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.InformationToSendImpl;
+import org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall.primitive.MessageIDImpl;
 import org.mobicents.protocols.ss7.cap.service.gprs.primitive.AOCGPRSImpl;
 import org.mobicents.protocols.ss7.cap.service.gprs.primitive.AccessPointNameImpl;
 import org.mobicents.protocols.ss7.cap.service.gprs.primitive.CAMELFCIGPRSBillingChargingCharacteristicsImpl;
@@ -222,6 +233,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import sun.awt.CausedFocusEvent;
 
 /**
  *
@@ -677,7 +690,7 @@ TC-CONTINUE + EventReportBCSMRequest (ODisconnect)
                                     null, sequence++));
 
                             CAMELAChBillingChargingCharacteristics aChBillingChargingCharacteristics = this.capParameterFactory
-                                    .createCAMELAChBillingChargingCharacteristics(1000, true, null, null, null, false);
+                                    .createCAMELAChBillingChargingCharacteristics(1000, true, null, null, null, 2);
                             SendingSideID partyToCharge = this.capParameterFactory.createSendingSideID(LegType.leg1);
                             dlg.addApplyChargingRequest(aChBillingChargingCharacteristics, partyToCharge, null, null);
                             this.observerdEvents.add(TestEvent
@@ -694,7 +707,7 @@ TC-CONTINUE + EventReportBCSMRequest (ODisconnect)
                             DestinationRoutingAddress destinationRoutingAddress = this.capParameterFactory
                                     .createDestinationRoutingAddress(calledPartyNumber);
                             dlg.addConnectRequest(destinationRoutingAddress, null, null, null, null, null, null, null, null,
-                                    null, null, null, null, false, false, false, null, false);
+                                    null, null, null, null, false, false, false, null, false, false);
                             this.observerdEvents.add(TestEvent.createSentEvent(EventType.ConnectRequest, null, sequence++));
                             dlg.send();
 
@@ -1963,6 +1976,9 @@ TC-BEGIN + establishTemporaryConnection + callInformationRequest + collectInform
         te = TestEvent.createReceivedEvent(EventType.DialogTimeout, null, count++, stamp + _DIALOG_TIMEOUT);
         clientExpectedEvents.add(te);
 
+        te = TestEvent.createReceivedEvent(EventType.DialogProviderAbort, null, count++, stamp + _DIALOG_TIMEOUT);
+        clientExpectedEvents.add(te);
+
         te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++,
                 (stamp + _DIALOG_TIMEOUT + _TCAP_DIALOG_RELEASE_TIMEOUT));
         clientExpectedEvents.add(te);
@@ -1979,7 +1995,7 @@ TC-BEGIN + establishTemporaryConnection + callInformationRequest + collectInform
         te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, stamp);
         serverExpectedEvents.add(te);
 
-        te = TestEvent.createReceivedEvent(EventType.DialogTimeout, null, count++, stamp + _DIALOG_TIMEOUT);
+        te = TestEvent.createReceivedEvent(EventType.DialogProviderAbort, null, count++, stamp + _DIALOG_TIMEOUT);
         serverExpectedEvents.add(te);
 
         te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++,
@@ -1988,10 +2004,10 @@ TC-BEGIN + establishTemporaryConnection + callInformationRequest + collectInform
 
         // setting dialog timeout little interval to invoke onDialogTimeout on SCF side
         server.capStack.getTCAPStack().setInvokeTimeout(_DIALOG_TIMEOUT - 100);
-        server.capStack.getTCAPStack().setDialogIdleTimeout(_DIALOG_TIMEOUT);
+        server.capStack.getTCAPStack().setDialogIdleTimeout(_DIALOG_TIMEOUT+50);
         server.suppressInvokeTimeout();
         client.capStack.getTCAPStack().setInvokeTimeout(_DIALOG_TIMEOUT - 100);
-        client.capStack.getTCAPStack().setDialogIdleTimeout(_DIALOG_TIMEOUT);
+        client.capStack.getTCAPStack().setDialogIdleTimeout(_DIALOG_TIMEOUT-50);
         client.suppressInvokeTimeout();
         client.sendInitialDp(CAPApplicationContext.CapV3_gsmSSF_scfGeneric);
 
@@ -5181,6 +5197,175 @@ TC-BEGIN + establishTemporaryConnection + callInformationRequest + collectInform
 
         client.compareEvents(clientExpectedEvents);
         server.compareEvents(serverExpectedEvents);
+    }
+
+    /**
+     * ACN = capscf-ssfGenericAC V4
+     *
+     * TC-BEGIN + InitiateDPRequest
+     *   TC-CONTINUE + callGap
+     * TC-END 
+     */
+    @Test(groups = {"functional.flow", "dialog"})
+    public void testCallGap() throws Exception {
+
+        Client client = new Client(stack1, this, peer1Address, peer2Address) {
+            private int dialogStep;
+
+            @Override
+            public void onCallGapRequest(CallGapRequest ind) {
+                super.onCallGapRequest(ind);
+
+                try {
+                    assertEquals(ind.getGapCriteria().getBasicGapCriteria().getCalledAddressAndService()
+                            .getCalledAddressValue().getGenericNumber().getAddress(), "501090500");
+                } catch (CAPException e) {
+                    fail("CAPException in onCallGapRequest: " + e);
+                }
+                assertEquals(ind.getGapCriteria().getBasicGapCriteria().getCalledAddressAndService().getServiceKey(), 100);
+                assertEquals(ind.getGapIndicators().getDuration(), 60);
+                assertEquals(ind.getGapIndicators().getGapInterval(), -1);
+
+                dialogStep = 1;
+            }
+
+            public void onDialogDelimiter(CAPDialog capDialog) {
+                super.onDialogDelimiter(capDialog);
+
+                CAPDialogCircuitSwitchedCall dlg = (CAPDialogCircuitSwitchedCall) capDialog;
+
+                try {
+                    switch (dialogStep) {
+                        case 1: // after onCallGapRequest
+                            dlg.close(false);
+
+                            dialogStep = 0;
+
+                            break;
+                    }
+                } catch (CAPException e) {
+                    this.error("Error while trying to close() Dialog", e);
+                }
+            }
+        };
+
+        Server server = new Server(this.stack2, this, peer2Address, peer1Address) {
+            private int dialogStep = 0;
+
+            @Override
+            public void onInitialDPRequest(InitialDPRequest ind) {
+                super.onInitialDPRequest(ind);
+
+                dialogStep = 1;
+                ind.getCAPDialog().processInvokeWithoutAnswer(ind.getInvokeId());
+            }
+
+            @Override
+            public void onDialogDelimiter(CAPDialog capDialog) {
+                super.onDialogDelimiter(capDialog);
+
+                CAPDialogCircuitSwitchedCall dlg = (CAPDialogCircuitSwitchedCall) capDialog;
+
+                try {
+                    switch (dialogStep) {
+                        case 1: // after InitialDp
+                            GenericNumber genericNumber = capProvider.getISUPParameterFactory().createGenericNumber();
+                            genericNumber.setAddress("501090500");
+                            Digits digits = capProvider.getCAPParameterFactory().createDigits_GenericNumber(genericNumber);
+
+                            CalledAddressAndService calledAddressAndService = new CalledAddressAndServiceImpl(digits, 100);
+                            BasicGapCriteria basicGapCriteria = new BasicGapCriteriaImpl(calledAddressAndService);
+                            GapCriteria gapCriteria = new GapCriteriaImpl(basicGapCriteria);
+                            GapIndicators gapIndicators = new GapIndicatorsImpl(60, -1);
+
+                            dlg.addCallGapRequest(gapCriteria, gapIndicators, null, null, null);
+                            this.observerdEvents.add(TestEvent.createSentEvent(EventType.CallGapRequest, null, sequence++));
+                            dlg.send();
+
+//                            GenericNumber genericNumber = capProvider.getISUPParameterFactory().createGenericNumber();
+//                            genericNumber.setAddress("501090500");
+//                            Digits digits = capProvider.getCAPParameterFactory().createDigits_GenericNumber(genericNumber);
+//
+//                            CalledAddressAndService calledAddressAndService = new CalledAddressAndServiceImpl(digits, 100);
+//                            GapOnService gapOnService = new GapOnServiceImpl(888);
+////                            BasicGapCriteria basicGapCriteria = new BasicGapCriteriaImpl(calledAddressAndService);
+////                            BasicGapCriteria basicGapCriteria = new BasicGapCriteriaImpl(digits);
+//                            BasicGapCriteria basicGapCriteria = new BasicGapCriteriaImpl(gapOnService);
+//                            ScfID scfId = new ScfIDImpl(new byte[] { 12, 32, 23, 56 });
+//                            CompoundCriteria compoundCriteria = new CompoundCriteriaImpl(basicGapCriteria, scfId);
+//                            GapCriteria gapCriteria = new GapCriteriaImpl(compoundCriteria);
+//                            GapIndicators gapIndicators = new GapIndicatorsImpl(60, -1);
+//
+//                            MessageID messageID = new MessageIDImpl(11);
+//                            InbandInfo inbandInfo = new InbandInfoImpl(messageID, 1, 2, 3);
+//                            InformationToSend informationToSend = new InformationToSendImpl(inbandInfo);
+//                            GapTreatment gapTreatment = new GapTreatmentImpl(informationToSend);
+//
+//                            dlg.addCallGapRequest(gapCriteria, gapIndicators, ControlType.sCPOverloaded, gapTreatment, null);
+//                            this.observerdEvents.add(TestEvent.createSentEvent(EventType.CallGapRequest, null, sequence++));
+//                            dlg.send();
+
+                            dialogStep = 0;
+
+                            break;
+                    }
+                } catch (CAPException e) {
+                    this.error("Error while trying to send Response CallGapRequests", e);
+                }
+            }
+        };
+
+        long stamp = System.currentTimeMillis();
+        int count = 0;
+
+        // Client side events
+        List<TestEvent> clientExpectedEvents = new ArrayList<TestEvent>();
+        TestEvent te = TestEvent.createSentEvent(EventType.InitialDpRequest, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogAccept, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.CallGapRequest, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, stamp);
+        clientExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        clientExpectedEvents.add(te);
+
+
+        count = 0;
+        // Server side events
+        List<TestEvent> serverExpectedEvents = new ArrayList<TestEvent>();
+        te = TestEvent.createReceivedEvent(EventType.DialogRequest, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.InitialDpRequest, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogDelimiter, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createSentEvent(EventType.CallGapRequest, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogClose, null, count++, stamp);
+        serverExpectedEvents.add(te);
+
+        te = TestEvent.createReceivedEvent(EventType.DialogRelease, null, count++, (stamp + _TCAP_DIALOG_RELEASE_TIMEOUT));
+        serverExpectedEvents.add(te);
+
+//        this.saveTrafficInFile();
+
+        client.sendInitialDp(CAPApplicationContext.CapV3_gsmSSF_scfGeneric);
+
+        waitForEnd();
+
+        client.compareEvents(clientExpectedEvents);
+        server.compareEvents(serverExpectedEvents);
+
     }
     
     

@@ -6,17 +6,17 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.docs.installguide</groupId>
 		<artifactId>restcomm-ss7-installguide</artifactId>
-		<version>7.0.0-SNAPSHOT</version>
+		<version>8.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>restcomm-ss7-installguide-sources-asciidoc</artifactId>
 	<name>Restcomm jSS7 :: Docs :: Install Guide :: Sources Asciidoc :: ${project.artifactId}</name>
 
 	<properties>
-		<asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
-		<asciidoctorj.pdf.version>1.5.0-alpha.11</asciidoctorj.pdf.version>
-		<asciidoctorj.version>1.5.4</asciidoctorj.version>
-		<jruby.version>1.7.21</jruby.version>
+		<asciidoctor.maven.plugin.version>1.5.5</asciidoctor.maven.plugin.version>
+		<asciidoctorj.pdf.version>1.5.0-alpha.15</asciidoctorj.pdf.version>
+		<asciidoctorj.version>1.5.5</asciidoctorj.version>
+		<jruby.version>1.7.25</jruby.version>
 	</properties>
 
 	<build>
@@ -80,9 +80,9 @@
 								<jee-platform>${docs.jee.platform}</jee-platform>
 								<this-issue-tracker-url>${docs.this.issue.tracker.url}</this-issue-tracker-url>
 								<this-release-source-code-url>${docs.this.release.source.code.url}</this-release-source-code-url>
-								<this-trunk-source-code-url>${docs.this.trunk.source.code.url}</this-trunk-source-code-url>
 								<this-release-binary-url>${docs.this.release.binary.url}</this-release-binary-url>
-								<slee-binary-url>${docs.slee.binary.url}</slee-binary-url>
+								<slee2-binary-url>${docs.slee2.binary.url}</slee2-binary-url>
+								<slee7-binary-url>${docs.slee7.binary.url}</slee7-binary-url>
 								<toclevels-value>2</toclevels-value>
 							</attributes>
 							<preserveDirectories>true</preserveDirectories>
@@ -118,7 +118,8 @@
 								<this-release-source-code-url>${docs.this.release.source.code.url}</this-release-source-code-url>
 								<this-trunk-source-code-url>${docs.this.trunk.source.code.url}</this-trunk-source-code-url>
 								<this-release-binary-url>${docs.this.release.binary.url}</this-release-binary-url>
-								<slee-binary-url>${docs.slee.binary.url}</slee-binary-url>
+                                <slee2-binary-url>${docs.slee2.binary.url}</slee2-binary-url>
+                                <slee7-binary-url>${docs.slee7.binary.url}</slee7-binary-url>
 								<toclevels-value>2</toclevels-value>
 							</attributes>
 							<preserveDirectories>true</preserveDirectories>
@@ -192,7 +193,8 @@
 										<this-release-source-code-url>${docs.this.release.source.code.url}</this-release-source-code-url>
 										<this-trunk-source-code-url>${docs.this.trunk.source.code.url}</this-trunk-source-code-url>
 										<this-release-binary-url>${docs.this.release.binary.url}</this-release-binary-url>
-										<slee-binary-url>${docs.slee.binary.url}</slee-binary-url>
+                                        <slee2-binary-url>${docs.slee2.binary.url}</slee2-binary-url>
+                                        <slee7-binary-url>${docs.slee7.binary.url}</slee7-binary-url>
 										<toclevels-value>6</toclevels-value>
 									</attributes>
 								</configuration>

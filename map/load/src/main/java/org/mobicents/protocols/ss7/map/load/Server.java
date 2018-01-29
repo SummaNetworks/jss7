@@ -1,29 +1,32 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and/or its affiliates, and individual
- * contributors as indicated by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
+ * TeleStax, Open Source Cloud Communications  Copyright 2012.
+ * and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
  *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.mobicents.protocols.ss7.map.load;
 
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.api.IpChannelType;
-import org.mobicents.protocols.sctp.ManagementImpl;
+import org.mobicents.protocols.sctp.netty.NettySctpManagementImpl;
+import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
+import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.AspFactory;
@@ -31,6 +34,7 @@ import org.mobicents.protocols.ss7.m3ua.ExchangeType;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
 import org.mobicents.protocols.ss7.m3ua.IPSPType;
 import org.mobicents.protocols.ss7.m3ua.impl.M3UAManagementImpl;
+import org.mobicents.protocols.ss7.m3ua.parameter.NetworkAppearance;
 import org.mobicents.protocols.ss7.m3ua.parameter.RoutingContext;
 import org.mobicents.protocols.ss7.m3ua.parameter.TrafficModeType;
 import org.mobicents.protocols.ss7.map.MAPStackImpl;
@@ -47,7 +51,6 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortChoice;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
-import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan;
@@ -74,8 +77,17 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSN
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSRequest;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSResponse;
 import org.mobicents.protocols.ss7.map.datacoding.CBSDataCodingSchemeImpl;
+import org.mobicents.protocols.ss7.sccp.LoadSharingAlgorithm;
+import org.mobicents.protocols.ss7.sccp.OriginationType;
+import org.mobicents.protocols.ss7.sccp.RuleType;
 import org.mobicents.protocols.ss7.sccp.SccpResource;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.BCDEvenEncodingScheme;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
+import org.mobicents.protocols.ss7.sccp.parameter.EncodingScheme;
+import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
+import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.TCAPStackImpl;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
 import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
@@ -104,7 +116,10 @@ public class Server extends TestHarness {
     private M3UAManagementImpl serverM3UAMgmt;
 
     // SCTP
-    private ManagementImpl sctpManagement;
+    private NettySctpManagementImpl sctpManagement;
+
+    int endCount = 0;
+    volatile long start = System.currentTimeMillis();
 
     protected void initializeStack(IpChannelType ipChannelType) throws Exception {
 
@@ -127,8 +142,8 @@ public class Server extends TestHarness {
     }
 
     private void initSCTP(IpChannelType ipChannelType) throws Exception {
-        this.sctpManagement = new ManagementImpl("Server");
-        this.sctpManagement.setSingleThread(true);
+        this.sctpManagement = new NettySctpManagementImpl("Server");
+//        this.sctpManagement.setSingleThread(false);
         this.sctpManagement.start();
         this.sctpManagement.setConnectDelay(10000);
         this.sctpManagement.removeAllResourses();
@@ -146,15 +161,17 @@ public class Server extends TestHarness {
     private void initM3UA() throws Exception {
         this.serverM3UAMgmt = new M3UAManagementImpl("Server", null);
         this.serverM3UAMgmt.setTransportManagement(this.sctpManagement);
+        this.serverM3UAMgmt.setDeliveryMessageThreadCount(DELIVERY_TRANSFER_MESSAGE_THREAD_COUNT);
         this.serverM3UAMgmt.start();
         this.serverM3UAMgmt.removeAllResourses();
 
         // Step 1 : Create App Server
 
-        RoutingContext rc = factory.createRoutingContext(new long[] { 100L });
+        RoutingContext rc = factory.createRoutingContext(new long[] { 101L });
         TrafficModeType trafficModeType = factory.createTrafficModeType(TrafficModeType.Loadshare);
+        NetworkAppearance na = factory.createNetworkAppearance(102L);
         As as = this.serverM3UAMgmt.createAs("RAS1", Functionality.SGW, ExchangeType.SE, IPSPType.CLIENT, rc, trafficModeType,
-                1, null);
+                1, na);
 
         // Step 2 : Create ASP
         AspFactory aspFactor = this.serverM3UAMgmt.createAspFactory("RASP1", SERVER_ASSOCIATION_NAME);
@@ -176,8 +193,27 @@ public class Server extends TestHarness {
         this.sccpStack.getSccpResource().addRemoteSpc(0, CLIENT_SPC, 0, 0);
         this.sccpStack.getSccpResource().addRemoteSsn(0, CLIENT_SPC, SSN, 0, false);
 
-        this.sccpStack.getRouter().addMtp3ServiceAccessPoint(1, 1, SERVET_SPC, NETWORK_INDICATOR, 0);
+        this.sccpStack.getRouter().addMtp3ServiceAccessPoint(1, 1, SERVET_SPC, NETWORK_INDICATOR, 0, null);
         this.sccpStack.getRouter().addMtp3Destination(1, 1, CLIENT_SPC, CLIENT_SPC, 0, 255, 255);
+
+        ParameterFactoryImpl fact = new ParameterFactoryImpl();
+        EncodingScheme ec = new BCDEvenEncodingScheme();
+        GlobalTitle gt1 = fact.createGlobalTitle("-", 0, org.mobicents.protocols.ss7.indicator.NumberingPlan.ISDN_TELEPHONY,
+                ec, NatureOfAddress.INTERNATIONAL);
+        GlobalTitle gt2 = fact.createGlobalTitle("-", 0, org.mobicents.protocols.ss7.indicator.NumberingPlan.ISDN_TELEPHONY,
+                ec, NatureOfAddress.INTERNATIONAL);
+        SccpAddress localAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt1, SERVET_SPC, 0);
+        this.sccpStack.getRouter().addRoutingAddress(1, localAddress);
+        SccpAddress remoteAddress = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt2, CLIENT_SPC, 0);
+        this.sccpStack.getRouter().addRoutingAddress(2, remoteAddress);
+
+        GlobalTitle gt = fact.createGlobalTitle("*", 0, org.mobicents.protocols.ss7.indicator.NumberingPlan.ISDN_TELEPHONY, ec,
+                NatureOfAddress.INTERNATIONAL);
+        SccpAddress pattern = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt, 0, 0);
+        this.sccpStack.getRouter().addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Bit0, OriginationType.REMOTE, pattern,
+                "K", 1, -1, null, 0, null);
+        this.sccpStack.getRouter().addRule(2, RuleType.SOLITARY, LoadSharingAlgorithm.Bit0, OriginationType.LOCAL, pattern,
+                "K", 2, -1, null, 0, null);
     }
 
     private void initTCAP() throws Exception {
@@ -233,7 +269,7 @@ public class Server extends TestHarness {
 
     @Override
     public void onDialogRequestEricsson(MAPDialog mapDialog, AddressString destReference, AddressString origReference,
-            IMSI imsi, AddressString vlr) {
+            AddressString imsi, AddressString vlr) {
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("onDialogRequest for DialogId=%d DestinationReference=%s OriginReference=%s ",
                     mapDialog.getLocalDialogId(), destReference, origReference));
@@ -334,6 +370,16 @@ public class Server extends TestHarness {
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("onDialogResease for DialogId=%d", mapDialog.getLocalDialogId()));
         }
+
+        this.endCount++;
+
+        if ((this.endCount % 2000) == 0) {
+            long currentTime = System.currentTimeMillis();
+            long processingTime = currentTime - start;
+            start = currentTime;
+            logger.warn("Completed 2000 Dialogs in=" + processingTime);
+        }
+
     }
 
     /*
@@ -356,6 +402,18 @@ public class Server extends TestHarness {
      */
     @Override
     public void onProcessUnstructuredSSRequest(ProcessUnstructuredSSRequest procUnstrReqInd) {
+//        NetworkIdState networkIdState = this.mapStack.getMAPProvider().getNetworkIdState(0);
+//        if (!(networkIdState == null || networkIdState.isAvailavle() && networkIdState.getCongLevel() == 0)) {
+//            // congestion or unavailable
+//            logger.warn("onProcessUnstructuredSSRequest Congestion - onUnstructuredSSRequest: networkIdState=" + networkIdState);
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("onProcessUnstructuredSSRequestIndication for DialogId=%d", procUnstrReqInd
                     .getMAPDialog().getLocalDialogId()));
@@ -502,46 +560,62 @@ public class Server extends TestHarness {
         } else {
             ipChannelType = IpChannelType.SCTP;
         }
+        System.out.println("IpChannelType="+ipChannelType);
 
         if (args.length >= 2) {
             TestHarness.CLIENT_IP = args[1];
         }
+        System.out.println("CLIENT_IP="+TestHarness.CLIENT_IP);
 
         if (args.length >= 3) {
             TestHarness.CLIENT_PORT = Integer.parseInt(args[2]);
         }
+        System.out.println("CLIENT_PORT="+TestHarness.CLIENT_PORT);
 
         if (args.length >= 4) {
             TestHarness.SERVER_IP = args[3];
         }
+        System.out.println("SERVER_IP="+TestHarness.SERVER_IP);
 
         if (args.length >= 5) {
             TestHarness.SERVER_PORT = Integer.parseInt(args[4]);
         }
+        System.out.println("SERVER_PORT="+TestHarness.SERVER_PORT);
 
         if (args.length >= 6) {
             TestHarness.CLIENT_SPC = Integer.parseInt(args[5]);
         }
+        System.out.println("CLIENT_SPC="+TestHarness.CLIENT_SPC);
 
         if (args.length >= 7) {
             TestHarness.SERVET_SPC = Integer.parseInt(args[6]);
         }
+        System.out.println("SERVET_SPC="+TestHarness.SERVET_SPC);
 
         if (args.length >= 8) {
             TestHarness.NETWORK_INDICATOR = Integer.parseInt(args[7]);
         }
+        System.out.println("NETWORK_INDICATOR="+TestHarness.NETWORK_INDICATOR);
 
         if (args.length >= 9) {
             TestHarness.SERVICE_INIDCATOR = Integer.parseInt(args[8]);
         }
+        System.out.println("SERVICE_INIDCATOR="+TestHarness.SERVICE_INIDCATOR);
 
         if (args.length >= 10) {
             TestHarness.SSN = Integer.parseInt(args[9]);
         }
+        System.out.println("SSN="+TestHarness.SSN);
 
         if (args.length >= 11) {
             TestHarness.ROUTING_CONTEXT = Integer.parseInt(args[10]);
         }
+        System.out.println("ROUTING_CONTEXT="+TestHarness.ROUTING_CONTEXT);
+
+        if(args.length >= 12){
+            TestHarness.DELIVERY_TRANSFER_MESSAGE_THREAD_COUNT = Integer.parseInt(args[11]);
+        }
+        System.out.println("DELIVERY_TRANSFER_MESSAGE_THREAD_COUNT="+TestHarness.DELIVERY_TRANSFER_MESSAGE_THREAD_COUNT);
 
         final Server server = new Server();
         try {

@@ -127,7 +127,7 @@ public class DialogIdRangeTest extends SccpHarness {
         this.tcapStack1.start();        
 
         d = this.tcapStack1.getProvider().getNewDialog(peer1Address, peer2Address);
-        assertEquals((long) d.getLocalDialogId(), 20);
+        assertEquals((long) d.getLocalDialogId(), 21);
 
         this.tcapStack1.setMaxDialogs(5000);
         try {
@@ -136,6 +136,43 @@ public class DialogIdRangeTest extends SccpHarness {
         } catch (Exception e) {
         }
 
+        // setting of curDialogId to 10999
+        this.tcapStack1.setDialogIdRangeEnd(31001);
+        this.tcapStack1.setDialogIdRangeStart(21001);
+        this.tcapStack1.setDialogIdRangeStart(1);
+        this.tcapStack1.setDialogIdRangeEnd(11000);
+
+        d = this.tcapStack1.getProvider().getNewDialog(peer1Address, peer2Address);
+        assertEquals((long) d.getLocalDialogId(), 11000);
+        d = this.tcapStack1.getProvider().getNewDialog(peer1Address, peer2Address);
+        assertEquals((long) d.getLocalDialogId(), 1);
+        d = this.tcapStack1.getProvider().getNewDialog(peer1Address, peer2Address);
+        assertEquals((long) d.getLocalDialogId(), 2);
+        d = this.tcapStack1.getProvider().getNewDialog(peer1Address, peer2Address);
+        assertEquals((long) d.getLocalDialogId(), 3);
+
         this.tcapStack1.stop();
+    }
+
+    @Test(groups = { "functional.settings" })
+    public void seqRangeTest() throws Exception {
+        this.tcapStack1.start();
+
+        int sls = ((TCAPProviderImpl) this.tcapStack1.getProvider()).getNextSeqControl();
+        assertEquals(sls, 1);
+
+        for (int i1 = 2; i1 < 256; i1++) {
+            sls = ((TCAPProviderImpl) this.tcapStack1.getProvider()).getNextSeqControl();
+            assertEquals(sls, i1);
+        }
+
+        sls = ((TCAPProviderImpl) this.tcapStack1.getProvider()).getNextSeqControl();
+        assertEquals(sls, 0);
+        sls = ((TCAPProviderImpl) this.tcapStack1.getProvider()).getNextSeqControl();
+        assertEquals(sls, 1);
+        sls = ((TCAPProviderImpl) this.tcapStack1.getProvider()).getNextSeqControl();
+        assertEquals(sls, 2);
+
+        this.tcapStack1.stop();;
     }
 }

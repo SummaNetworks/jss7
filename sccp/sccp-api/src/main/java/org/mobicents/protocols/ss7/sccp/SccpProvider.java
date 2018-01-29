@@ -1,6 +1,6 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * TeleStax, Open Source Cloud Communications  Copyright 2012.
+ * and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -25,10 +25,14 @@ package org.mobicents.protocols.ss7.sccp;
 import java.io.IOException;
 import java.io.Serializable;
 
+import javolution.util.FastMap;
+
 import org.mobicents.protocols.ss7.sccp.message.MessageFactory;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
+import org.mobicents.protocols.ss7.sccp.message.SccpNoticeMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 
 /**
  *
@@ -52,14 +56,15 @@ public interface SccpProvider extends Serializable {
     ParameterFactory getParameterFactory();
 
     /**
-     * Register listener for some adddress.
+     * Registers listener for some SSN. This is an equivalent of N-STATE request with User status==UIS (user in service)
      *
      * @param listener
      */
     void registerSccpListener(int ssn, SccpListener listener);
 
     /**
-     * Removes listener
+     * Removes listener for some SSN. This is an equivalent of N-STATE request with User status==UOS (user out of service)
+     *
      */
     void deregisterSccpListener(int ssn);
 
@@ -76,6 +81,14 @@ public interface SccpProvider extends Serializable {
     void send(SccpDataMessage message) throws IOException;
 
     /**
+     * Sends a unitdata service UDTS, XUDTS, LUDTS message (with error inside).
+     *
+     * @param message Message to be sent
+     * @throws IOException
+     */
+    void send(SccpNoticeMessage message) throws IOException;
+
+    /**
      * Return the maximum length (in bytes) of the sccp message data
      *
      * @param calledPartyAddress
@@ -84,5 +97,37 @@ public interface SccpProvider extends Serializable {
      * @return
      */
     int getMaxUserDataLength(SccpAddress calledPartyAddress, SccpAddress callingPartyAddress, int msgNetworkId);
+
+    /**
+     * Request of N-COORD when the originating user is requesting permission to go out-of-service
+     *
+     * @param ssn
+     */
+    void coordRequest(int ssn);
+
+    /**
+     * The collection of netwokIds that are marked as prohibited or congested.
+     *
+     * @return The collection of pairs: netwokId value - NetworkIdState (prohibited / congested state)
+     */
+    FastMap<Integer, NetworkIdState> getNetworkIdStateList();
+
+    /**
+     * @return ExecutorCongestionMonitor list that are responsible for measuring of congestion of the thread Executor that
+     *         processes incoming messages at mtp3 levels
+     */
+    ExecutorCongestionMonitor[] getExecutorCongestionMonitorList();
+
+    /**
+     * @return SCCP stack
+     */
+    SccpStack getSccpStack();
+    /**
+     * Update Signaling Point congestion status
+     * @return
+     */
+
+    void updateSPCongestion(Integer ssn, Integer congestionLevel);
+
 
 }

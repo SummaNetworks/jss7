@@ -22,11 +22,17 @@
 
 package org.mobicents.protocols.ss7.mtp;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitorImpl;
 
 // lic dep 1
 
@@ -42,14 +48,20 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
     private static final String LICENSE_PRODUCT_NAME = "Mobicents-jSS7";
 
+    protected static final String ROUTING_LABEL_FORMAT = "routingLabelFormat"; // we do not store this value
+    protected static final String USE_LSB_FOR_LINKSET_SELECTION = "useLsbForLinksetSelection";
+
     private int maxSls = 32;
     private int slsFilter = 0x1F;
 
     // The count of threads that will be used for message delivering to
     // Mtp3UserPartListener's
     // For single thread model this value should be equal 1
-    // TODO: make it configurable
     protected int deliveryTransferMessageThreadCount = Runtime.getRuntime().availableProcessors() * 2;
+    // RoutingLabeFormat option
+    private RoutingLabelFormat routingLabelFormat = RoutingLabelFormat.ITU;
+    // If set to true, lowest bit of SLS is used for loadbalancing between Linkset else highest bit of SLS is used.
+    private boolean useLsbForLinksetSelection = false;
 
     protected boolean isStarted = false;
 
@@ -57,14 +69,11 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     // a thread pool for delivering Mtp3TransferMessage messages
     private ExecutorService[] msgDeliveryExecutors;
     // a thread for delivering PAUSE, RESUME and STATUS messages
-    private ExecutorService msgDeliveryExecutorSystem;
+    private ScheduledExecutorService msgDeliveryExecutorSystem;
     private int[] slsTable = null;
-
-    private RoutingLabelFormat routingLabelFormat = RoutingLabelFormat.ITU;
+    private ExecutorCongestionMonitorImpl executorCongestionMonitor = null;
 
     private Mtp3TransferPrimitiveFactory mtp3TransferPrimitiveFactory = null;
-
-    private boolean useLsbForLinksetSelection = false;
 
     private final String productName;
 
@@ -80,8 +89,8 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
         return this.deliveryTransferMessageThreadCount;
     }
 
-    public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
-        if (deliveryMessageThreadCount > 0)
+    public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) throws Exception {
+        if (deliveryMessageThreadCount > 0 && deliveryMessageThreadCount <= 100)
             this.deliveryTransferMessageThreadCount = deliveryMessageThreadCount;
     }
 
@@ -93,6 +102,27 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     @Override
     public void removeMtp3UserPartListener(Mtp3UserPartListener listener) {
         this.userListeners.remove(listener);
+    }
+
+    @Override
+    public RoutingLabelFormat getRoutingLabelFormat() {
+        return this.routingLabelFormat;
+    }
+
+    @Override
+    public void setRoutingLabelFormat(RoutingLabelFormat routingLabelFormat) throws Exception {
+        if (routingLabelFormat != null)
+            this.routingLabelFormat = routingLabelFormat;
+    }
+
+    @Override
+    public boolean isUseLsbForLinksetSelection() {
+        return useLsbForLinksetSelection;
+    }
+
+    @Override
+    public void setUseLsbForLinksetSelection(boolean useLsbForLinksetSelection) throws Exception {
+        this.useLsbForLinksetSelection = useLsbForLinksetSelection;
     }
 
     /*
@@ -107,6 +137,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 // = 16 bits each and SLS = 4 bits
                 return 272 - 4;
             case ANSI_Sls8Bit:
+            case ANSI_Sls5Bit:
                 // For PC_FORMAT_24, the MTP3 Routing Label takes 6 bytes - OPC/DPC
                 // = 24 bits each and SLS = 8 bits
                 return 272 - 7;
@@ -118,37 +149,26 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     }
 
     @Override
-    public RoutingLabelFormat getRoutingLabelFormat() {
-        return this.routingLabelFormat;
-    }
-
-    @Override
-    public void setRoutingLabelFormat(RoutingLabelFormat routingLabelFormat) {
-        this.routingLabelFormat = routingLabelFormat;
-    }
-
-    @Override
     public Mtp3TransferPrimitiveFactory getMtp3TransferPrimitiveFactory() {
         return this.mtp3TransferPrimitiveFactory;
     }
 
     @Override
-    public boolean isUseLsbForLinksetSelection() {
-        return useLsbForLinksetSelection;
-    }
-
-    @Override
-    public void setUseLsbForLinksetSelection(boolean useLsbForLinksetSelection) {
-        this.useLsbForLinksetSelection = useLsbForLinksetSelection;
+    public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+        return executorCongestionMonitor;
     }
 
     public void start() throws Exception {
         // lic dep 2
 
+        startNoLce();
+    }
+
+    protected void startNoLce() throws Exception{
         if (this.isStarted)
             return;
 
-        if (!(this.routingLabelFormat == RoutingLabelFormat.ITU || this.routingLabelFormat == RoutingLabelFormat.ANSI_Sls8Bit)) {
+        if (!(this.routingLabelFormat == RoutingLabelFormat.ITU || this.routingLabelFormat == RoutingLabelFormat.ANSI_Sls8Bit || this.routingLabelFormat == RoutingLabelFormat.ANSI_Sls5Bit)) {
             throw new Exception("Invalid PointCodeFormat set. We support only ITU or ANSI now");
         }
 
@@ -177,11 +197,17 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.msgDeliveryExecutors = new ExecutorService[this.deliveryTransferMessageThreadCount];
         for (int i = 0; i < this.deliveryTransferMessageThreadCount; i++) {
-            this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1);
+            this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1, new DefaultThreadFactory("Mtp3-DeliveryExecutor-"
+                    + i));
         }
-        this.msgDeliveryExecutorSystem = Executors.newFixedThreadPool(1);
+        this.msgDeliveryExecutorSystem = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory(
+                "Mtp3-DeliveryExecutorSystem"));
+
+        this.executorCongestionMonitor = new ExecutorCongestionMonitorImpl(productName, msgDeliveryExecutors);
 
         this.isStarted = true;
+
+        this.startThreadMonitoring();
     }
 
     public void stop() throws Exception {
@@ -195,6 +221,16 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             es.shutdown();
         }
         this.msgDeliveryExecutorSystem.shutdown();
+        this.executorCongestionMonitor = null;
+    }
+
+    private void startThreadMonitoring() {
+        ExecutorCongestionMonitorImpl monitor = this.executorCongestionMonitor;
+        if (isStarted && monitor != null) {
+            monitor.monitor();
+            ExecutorCongestionMonitorHandler handler = new ExecutorCongestionMonitorHandler();
+            this.msgDeliveryExecutorSystem.schedule(handler, 500, TimeUnit.MILLISECONDS);
+        }
     }
 
     /**
@@ -221,7 +257,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
             logger.error(String.format(
-                    "Received Mtp3PausePrimitive=%s but Mtp3PausePrimitive is not started. Message will be dropped", msg));
+                    "Received Mtp3PausePrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
     }
 
@@ -231,7 +267,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
             logger.error(String.format(
-                    "Received Mtp3ResumePrimitive=%s but Mtp3PausePrimitive is not started. Message will be dropped", msg));
+                    "Received Mtp3ResumePrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
     }
 
@@ -241,7 +277,17 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
             logger.error(String.format(
-                    "Received Mtp3StatusPrimitive=%s but Mtp3PausePrimitive is not started. Message will be dropped", msg));
+                    "Received Mtp3StatusPrimitive=%s but MTP3 is not started. Message will be dropped", msg));
+        }
+    }
+
+    protected void sendEndCongestionMessageToLocalUser(Mtp3EndCongestionPrimitive msg) {
+        if (this.isStarted) {
+            MsgSystemDeliveryHandler hdl = new MsgSystemDeliveryHandler(msg);
+            this.msgDeliveryExecutorSystem.execute(hdl);
+        } else {
+            logger.error(String.format(
+                    "Received Mtp3EndCongestionPrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
     }
 
@@ -299,6 +345,8 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                             lsn.onMtp3ResumeMessage((Mtp3ResumePrimitive) this.msg);
                         if (this.msg.getType() == Mtp3Primitive.STATUS)
                             lsn.onMtp3StatusMessage((Mtp3StatusPrimitive) this.msg);
+                        if (this.msg.getType() == Mtp3Primitive.END_CONGESTION)
+                            lsn.onMtp3EndCongestionMessage((Mtp3EndCongestionPrimitive) this.msg);
                     }
                 } catch (Exception e) {
                     logger.error("Exception while delivering a payload messages to the MTP3-user: " + e.getMessage(), e);
@@ -307,6 +355,13 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 logger.error(String.format(
                         "Received Mtp3Primitive=%s but Mtp3UserPart is not started. Message will be dropped", msg));
             }
+        }
+    }
+
+    private class ExecutorCongestionMonitorHandler implements Runnable {
+        @Override
+        public void run() {
+            startThreadMonitoring();
         }
     }
 }

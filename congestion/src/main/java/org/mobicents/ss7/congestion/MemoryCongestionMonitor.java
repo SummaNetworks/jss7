@@ -1,161 +1,60 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and/or its affiliates, and individual
- * contributors as indicated by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
+ * TeleStax, Open Source Cloud Communications  Copyright 2012.
+ * and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
  *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.mobicents.ss7.congestion;
 
-import javolution.util.FastList;
-
-import org.apache.log4j.Logger;
-
 /**
- * @author amit bhayani
- *
- */
-public class MemoryCongestionMonitor implements CongestionMonitor {
-    private static final Logger logger = Logger.getLogger(MemoryCongestionMonitor.class);
+*
+* @author sergey vetyutnev
+*
+*/
+public interface MemoryCongestionMonitor {
 
-    private static final String SOURCE = "MEMORY";
+    String getSource();
 
-    private final FastList<CongestionListener> listeners = new FastList<CongestionListener>();
+    int getAlarmLevel();
 
-    private double maxMemory;
-    private volatile double percentageOfMemoryUsed;
+    double getMemoryThreshold_1();
 
-    private volatile boolean memoryTooHigh = false;
+    double getMemoryThreshold_2();
 
-    private int backToNormalMemoryThreshold;
+    double getMemoryThreshold_3();
 
-    private int memoryThreshold;
+    void setMemoryThreshold_1(double value) throws Exception;
 
-    public MemoryCongestionMonitor() {
-        maxMemory = Runtime.getRuntime().maxMemory() / (double) 1024;
-    }
+    void setMemoryThreshold_2(double value) throws Exception;
 
-    /**
-     * @param backToNormalPercentageOfMemoryUsed the backToNormalPercentageOfMemoryUsed to set
-     */
-    public void setBackToNormalMemoryThreshold(int backToNormalMemoryThreshold) {
-        this.backToNormalMemoryThreshold = backToNormalMemoryThreshold;
-        if (logger.isInfoEnabled()) {
-            logger.info("Back To Normal Memory threshold set to " + backToNormalMemoryThreshold + "%");
-        }
-    }
+    void setMemoryThreshold_3(double value) throws Exception;
 
-    /**
-     * @return the backToNormalPercentageOfMemoryUsed
-     */
-    public int getBackToNormalMemoryThreshold() {
-        return backToNormalMemoryThreshold;
-    }
+    double getBackToNormalMemoryThreshold_1();
 
-    /**
-     * @param memoryThreshold the memoryThreshold to set
-     */
-    public void setMemoryThreshold(int memoryThreshold) {
-        this.memoryThreshold = memoryThreshold;
-        if (logger.isInfoEnabled()) {
-            logger.info("Memory threshold set to " + this.memoryThreshold + "%");
-        }
-    }
+    double getBackToNormalMemoryThreshold_2();
 
-    /**
-     * @return the memoryThreshold
-     */
-    public int getMemoryThreshold() {
-        return memoryThreshold;
-    }
+    double getBackToNormalMemoryThreshold_3();
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.mobicents.ss7.congestion.CongestionMonitor#monitor()
-     */
-    @Override
-    public void monitor() {
-        Runtime runtime = Runtime.getRuntime();
+    void setBackToNormalMemoryThreshold_1(double value) throws Exception;
 
-        double allocatedMemory = runtime.totalMemory() / (double) 1024;
-        double freeMemory = runtime.freeMemory() / (double) 1024;
+    void setBackToNormalMemoryThreshold_2(double value) throws Exception;
 
-        double totalFreeMemory = freeMemory + (maxMemory - allocatedMemory);
-
-        this.percentageOfMemoryUsed = (((double) 100) - ((totalFreeMemory / maxMemory) * ((double) 100)));
-
-        if (this.memoryTooHigh) {
-            if (this.percentageOfMemoryUsed < this.backToNormalMemoryThreshold) {
-                logger.warn("Memory used: " + percentageOfMemoryUsed + "% < to the back to normal memory threshold : "
-                        + this.backToNormalMemoryThreshold);
-                this.memoryTooHigh = false;
-
-                // Lets notify the listeners
-                for (FastList.Node<CongestionListener> n = listeners.head(), end = listeners.tail(); (n = n.getNext()) != end;) {
-                    CongestionListener listener = n.getValue();
-                    listener.onCongestionFinish(SOURCE);
-                }
-            }
-        } else {
-            if (this.percentageOfMemoryUsed > memoryThreshold) {
-                logger.warn("Memory used: " + percentageOfMemoryUsed + "% > to the memory threshold : " + this.memoryThreshold);
-                this.memoryTooHigh = true;
-
-                // Lets notify the listeners
-                for (FastList.Node<CongestionListener> n = listeners.head(), end = listeners.tail(); (n = n.getNext()) != end;) {
-                    CongestionListener listener = n.getValue();
-                    listener.onCongestionStart(SOURCE);
-                }
-            }
-        }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.mobicents.ss7.congestion.CongestionMonitor#addCongestionListener(
-     * org.mobicents.ss7.congestion.CongestionListener)
-     */
-    @Override
-    public void addCongestionListener(CongestionListener listener) {
-        this.listeners.add(listener);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.mobicents.ss7.congestion.CongestionMonitor#removeCongestionListener
-     * (org.mobicents.ss7.congestion.CongestionListener)
-     */
-    @Override
-    public void removeCongestionListener(CongestionListener listener) {
-        this.listeners.remove(listener);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.mobicents.ss7.congestion.CongestionMonitor#getSource()
-     */
-    @Override
-    public String getSource() {
-        return SOURCE;
-    }
+    void setBackToNormalMemoryThreshold_3(double value) throws Exception;
 
 }

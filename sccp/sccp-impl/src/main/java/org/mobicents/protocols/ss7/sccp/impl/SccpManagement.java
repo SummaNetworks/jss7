@@ -37,12 +37,14 @@ import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.mtp.Mtp3StatusCause;
 import org.mobicents.protocols.ss7.sccp.ConcernedSignalingPointCode;
 import org.mobicents.protocols.ss7.sccp.Mtp3ServiceAccessPoint;
+import org.mobicents.protocols.ss7.sccp.NetworkIdState;
 import org.mobicents.protocols.ss7.sccp.RemoteSccpStatus;
 import org.mobicents.protocols.ss7.sccp.RemoteSubSystem;
 import org.mobicents.protocols.ss7.sccp.SccpListener;
 import org.mobicents.protocols.ss7.sccp.SccpManagementEventListener;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 import org.mobicents.protocols.ss7.sccp.SignallingPointStatus;
+import org.mobicents.protocols.ss7.sccp.impl.congestion.SccpCongestionControl;
 import org.mobicents.protocols.ss7.sccp.impl.message.SccpDataMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.message.SccpMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
@@ -89,6 +91,7 @@ public class SccpManagement {
     private SccpProviderImpl sccpProviderImpl;
     private SccpStackImpl sccpStackImpl;
     private SccpRoutingControl sccpRoutingControl;
+    private SccpCongestionControl sccpCongestionControl;
 
     private ScheduledExecutorService managementExecutors;
 
@@ -115,18 +118,35 @@ public class SccpManagement {
         this.sccpRoutingControl = sccpRoutingControl;
     }
 
+    public SccpCongestionControl getSccpCongestionControl() {
+        return sccpCongestionControl;
+    }
+
+    public void setSccpCongestionControl(SccpCongestionControl sccpCongestionControl) {
+        this.sccpCongestionControl = sccpCongestionControl;
+    }
+
+    public ScheduledExecutorService getManagementExecutors() {
+        return managementExecutors;
+    }
+
     public void onManagementMessage(SccpDataMessage message) {
         byte[] data = message.getData();
         int messgType = data[0] & 0xff;
         int affectedSsn = data[1] & 0xff;
         int affectedPc;
         int subsystemMultiplicity;
+        int congestionLevel = 0;
         if (this.sccpStackImpl.getSccpProtocolVersion() == SccpProtocolVersion.ANSI) {
             affectedPc = (data[2] & 0xff) | ((data[3] & 0xff) << 8) | ((data[4] & 0xff) << 16);
             subsystemMultiplicity = data[5] & 0xff;
+            if (messgType == SSC)
+                congestionLevel = data[6] & 0x0f;
         } else {
             affectedPc = (data[2] & 0xff) | ((data[3] & 0xff) << 8);
             subsystemMultiplicity = data[4] & 0xff;
+            if (messgType == SSC)
+                congestionLevel = data[5] & 0x0f;
         }
 
         switch (messgType) {
@@ -203,9 +223,12 @@ public class SccpManagement {
                 }
                 break;
             case SSC:
-                if (logger.isEnabledFor(Level.WARN)) {
-                    logger.warn("Received SSC. SSC not yet implemented, dropping message");
+                if (logger.isInfoEnabled()) {
+                    logger.info(String
+                            .format("Rx : SSC, Affected SSN=%d, Affected PC=%d, Subsystem Multiplicity Ind=%d SeqControl=%d  congestionLevel=%d",
+                                    affectedSsn, affectedPc, subsystemMultiplicity, message.getSls(), congestionLevel));
                 }
+                this.onCongState(affectedPc, congestionLevel);
                 break;
             default:
                 logger.error("Received SCMG with unknown MessageType.");
@@ -213,7 +236,7 @@ public class SccpManagement {
         }
     }
 
-    private void sendManagementMessage(int dpc, int messageTypeCode, int affectedSsn, int subsystemMultiplicityIndicator) {
+    private void sendManagementMessage(int dpc, int messageTypeCode, int affectedSsn, int subsystemMultiplicityIndicator, Integer congestionLevel) {
         Mtp3ServiceAccessPoint sap = this.sccpStackImpl.router.findMtp3ServiceAccessPoint(dpc, 0);
         if (sap == null) {
             logger.warn(String.format("Failed sendManagementMessage : Mtp3ServiceAccessPoint has not found for dpc=%d", dpc));
@@ -229,24 +252,11 @@ public class SccpManagement {
         SccpAddress calledAdd = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, null, dpc, 1);
         SccpAddress callingAdd = new SccpAddressImpl(RoutingIndicator.ROUTING_BASED_ON_DPC_AND_SSN, null, affectedPc, 1);
 
-        byte[] data;
-        if (this.sccpStackImpl.getSccpProtocolVersion() == SccpProtocolVersion.ANSI) {
-            data = new byte[6];
-        } else {
-            data = new byte[5];
-        }
-        data[0] = (byte) messageTypeCode;
-        data[1] = (byte) affectedSsn; // affected SSN
-        if (this.sccpStackImpl.getSccpProtocolVersion() == SccpProtocolVersion.ANSI) {
-            data[2] = (byte) (affectedPc & 0x000000ff);
-            data[3] = (byte) ((affectedPc & 0x0000ff00) >> 8);
-            data[4] = (byte) ((affectedPc & 0x00ff0000) >> 16);
-            data[5] = (byte) subsystemMultiplicityIndicator;
-        } else {
-            data[2] = (byte) (affectedPc & 0x000000ff);
-            data[3] = (byte) ((affectedPc & 0x0000ff00) >> 8);
-            data[4] = (byte) subsystemMultiplicityIndicator;
-        }
+        byte[] data = null;
+        if(messageTypeCode == SSC)
+            data = createManagementMessageBody(messageTypeCode, affectedPc, affectedSsn, subsystemMultiplicityIndicator, congestionLevel);
+        else
+            data = createManagementMessageBody(messageTypeCode, affectedPc, affectedSsn, subsystemMultiplicityIndicator);
         SccpDataMessageImpl msg = (SccpDataMessageImpl) sccpProviderImpl.getMessageFactory().createDataMessageClass0(calledAdd,
                 callingAdd, data, -1, false, null, null);
 
@@ -265,8 +275,46 @@ public class SccpManagement {
         }
     }
 
+    private byte[] createManagementMessageBody(int messageTypeCode, int affectedPc, int affectedSsn,
+            int subsystemMultiplicityIndicator) {
+        return createManagementMessageBody(messageTypeCode, affectedPc, affectedSsn, subsystemMultiplicityIndicator, -1);
+    }
+
+    private byte[] createManagementMessageBody(int messageTypeCode, int affectedPc, int affectedSsn,
+            int subsystemMultiplicityIndicator, int congestionLevel) {
+        byte[] data;
+        if (this.sccpStackImpl.getSccpProtocolVersion() == SccpProtocolVersion.ANSI) {
+            if (congestionLevel >= 0)
+                data = new byte[7];
+            else
+                data = new byte[6];
+        } else {
+            if (congestionLevel >= 0)
+                data = new byte[6];
+            else
+                data = new byte[5];
+        }
+        data[0] = (byte) messageTypeCode;
+        data[1] = (byte) affectedSsn; // affected SSN
+        if (this.sccpStackImpl.getSccpProtocolVersion() == SccpProtocolVersion.ANSI) {
+            data[2] = (byte) (affectedPc & 0x000000ff);
+            data[3] = (byte) ((affectedPc & 0x0000ff00) >> 8);
+            data[4] = (byte) ((affectedPc & 0x00ff0000) >> 16);
+            data[5] = (byte) subsystemMultiplicityIndicator;
+            if (congestionLevel >= 0)
+                data[6] = (byte) congestionLevel;
+        } else {
+            data[2] = (byte) (affectedPc & 0x000000ff);
+            data[3] = (byte) ((affectedPc & 0x0000ff00) >> 8);
+            data[4] = (byte) subsystemMultiplicityIndicator;
+            if (congestionLevel >= 0)
+                data[5] = (byte) congestionLevel;
+        }
+        return data;
+    }
+
     private void sendSSA(SccpMessage msg, int affectedSsn) {
-        this.sendManagementMessage(((SccpMessageImpl) msg).getIncomingOpc(), SSA, affectedSsn, 0);
+        this.sendManagementMessage(((SccpMessageImpl) msg).getIncomingOpc(), SSA, affectedSsn, 0 , null);
     }
 
     protected void broadcastChangedSsnState(int affectedSsn, boolean inService) {
@@ -284,9 +332,9 @@ public class SccpManagement {
             if (concernedPointCode == ALL_POINT_CODE || concernedPointCode == dpc) {
                 // Send SSA/SSP to only passed concerned point code
                 if (inService)
-                    this.sendManagementMessage(dpc, SSA, affectedSsn, 0);
+                    this.sendManagementMessage(dpc, SSA, affectedSsn, 0, null);
                 else
-                    this.sendManagementMessage(dpc, SSP, affectedSsn, 0);
+                    this.sendManagementMessage(dpc, SSP, affectedSsn, 0, null);
             }
         }
     }
@@ -307,7 +355,14 @@ public class SccpManagement {
 
         // Send SSP (when message is mtp3-originated)
         if (msg.getIsMtpOriginated()) {
-            this.sendManagementMessage(dpc, SSP, ssn, 0);
+            this.sendManagementMessage(dpc, SSP, ssn, 0, null);
+        }
+    }
+
+    protected void receivedForCongestionUser(SccpMessage msg, int ssn, Integer congestionLevel) {
+        int dpc = msg.getIncomingOpc();
+        if (msg.getIsMtpOriginated()) {
+            this.sendManagementMessage(dpc, SSC, ssn, 0, congestionLevel);
         }
     }
 
@@ -338,7 +393,7 @@ public class SccpManagement {
         switch (cause) {
             case SignallingNetworkCongested:
                 // Signaling Network Congestion
-                // TODO: implement congestion management
+                this.onCongState(affectedPc, congStatus);
                 break;
 
             case UserPartUnavailability_Unknown:
@@ -383,6 +438,10 @@ public class SccpManagement {
         }
     }
 
+    protected void handleMtp3EndCongestion(int affectedPc) {
+        this.onEndCong(affectedPc);
+    }
+
     private void prohibitAllSsn(int affectedPc) {
         FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
         FastMap<Integer, RemoteSubSystem> remoteSsns = this.sccpStackImpl.sccpResource.remoteSsns;
@@ -393,15 +452,6 @@ public class SccpManagement {
                     remoteSsn.setRemoteSsnProhibited(true);
 
                     setRemoteSsnState(remoteSsn, false);
-
-                    // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                    // .getNext()) != end1;) {
-                    // try {
-                    // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), false, 0);
-                    // } catch (Exception ee) {
-                    // logger.error("Exception while invoking onState", ee);
-                    // }
-                    // }
                 }
             }
         }
@@ -409,7 +459,6 @@ public class SccpManagement {
 
     private void allowAllSsn(int affectedPc) {
 
-        FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
         FastMap<Integer, RemoteSubSystem> remoteSsns = this.sccpStackImpl.sccpResource.remoteSsns;
         for (FastMap.Entry<Integer, RemoteSubSystem> e = remoteSsns.head(), end = remoteSsns.tail(); (e = e.getNext()) != end;) {
             RemoteSubSystemImpl remoteSsn = (RemoteSubSystemImpl) e.getValue();
@@ -421,15 +470,6 @@ public class SccpManagement {
                         this.startSst(affectedPc, remoteSsn.getRemoteSsn());
 
                         setRemoteSsnState(remoteSsn, false);
-
-                        // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                        // .getNext()) != end1;) {
-                        // try {
-                        // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), false, 0);
-                        // } catch (Throwable ee) {
-                        // logger.error("Exception while invoking onState", ee);
-                        // }
-                        // }
                     }
 
                 } else {
@@ -437,15 +477,6 @@ public class SccpManagement {
                         remoteSsn.setRemoteSsnProhibited(false);
 
                         setRemoteSsnState(remoteSsn, true);
-
-                        // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                        // .getNext()) != end1;) {
-                        // try {
-                        // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), true, 0);
-                        // } catch (Exception ee) {
-                        // logger.error("Exception while invoking onState", ee);
-                        // }
-                        // }
                     }
                 }
             }
@@ -464,6 +495,7 @@ public class SccpManagement {
             if (remoteSccpStatus != null && remoteSccpStatus != RemoteSccpStatus.AVAILABLE)
                 remoteSpc.setRemoteSccpProhibited(true);
 
+            FastMap<Integer, NetworkIdState> lst = this.sccpStackImpl.getNetworkIdList(affectedPc);
             FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
             for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1.getNext()) != end1;) {
                 try {
@@ -473,6 +505,13 @@ public class SccpManagement {
                                     : SignallingPointStatus.ACCESSIBLE), 0, remoteSccpStatus);
                 } catch (Exception ee) {
                     logger.error("Exception while invoking onPcState", ee);
+                }
+                for (FastMap.Entry<Integer, NetworkIdState> e2 = lst.head(), end2 = lst.tail(); (e2 = e2.getNext()) != end2;) {
+                    try {
+                        e1.getValue().onNetworkIdState(e2.getKey(), e2.getValue());
+                    } catch (Exception ee) {
+                        logger.error("Exception while invoking onNetworkIdState", ee);
+                    }
                 }
             }
 
@@ -509,13 +548,22 @@ public class SccpManagement {
                 remoteSpc.setRemoteSpcProhibited(false);
             if (remoteSccpStatus != null && remoteSccpStatus == RemoteSccpStatus.AVAILABLE)
                 remoteSpc.setRemoteSccpProhibited(false);
+            remoteSpc.clearCongLevel(sccpCongestionControl);
 
+            FastMap<Integer, NetworkIdState> lst = this.sccpStackImpl.getNetworkIdList(affectedPc);
             FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
             for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1.getNext()) != end1;) {
                 try {
                     e1.getValue().onPcState(affectedPc, SignallingPointStatus.ACCESSIBLE, 0, remoteSccpStatus);
                 } catch (Exception ee) {
                     logger.error("Exception while invoking onPcState", ee);
+                }
+                for (FastMap.Entry<Integer, NetworkIdState> e2 = lst.head(), end2 = lst.tail(); (e2 = e2.getNext()) != end2;) {
+                    try {
+                        e1.getValue().onNetworkIdState(e2.getKey(), e2.getValue());
+                    } catch (Exception ee) {
+                        logger.error("Exception while invoking onNetworkIdState", ee);
+                    }
                 }
             }
 
@@ -582,7 +630,6 @@ public class SccpManagement {
 
     private void allowSsn(int affectedPc, int ssn) {
 
-        FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
         FastMap<Integer, RemoteSubSystem> remoteSsns = this.sccpStackImpl.sccpResource.remoteSsns;
         for (FastMap.Entry<Integer, RemoteSubSystem> e = remoteSsns.head(), end = remoteSsns.tail(); (e = e.getNext()) != end;) {
             RemoteSubSystemImpl remoteSsn = (RemoteSubSystemImpl) e.getValue();
@@ -591,15 +638,6 @@ public class SccpManagement {
                     remoteSsn.setRemoteSsnProhibited(false);
 
                     setRemoteSsnState(remoteSsn, true);
-
-                    // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                    // .getNext()) != end1;) {
-                    // try {
-                    // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), true, 0);
-                    // } catch (Exception ee) {
-                    // logger.error("Exception while invoking onState", ee);
-                    // }
-                    // }
                 }
                 break;
             }
@@ -685,6 +723,49 @@ public class SccpManagement {
             }
             return sst;
         }
+    }
+
+    private void onCongState(int affectedPc, int congStatus) {
+        RemoteSignalingPointCodeImpl remoteSpc = (RemoteSignalingPointCodeImpl) this.sccpStackImpl.getSccpResource()
+                .getRemoteSpcByPC(affectedPc);
+        if (remoteSpc != null) {
+            remoteSpc.increaseCongLevel(sccpCongestionControl, congStatus);
+        }
+    }
+
+    private void onEndCong(int affectedPc) {
+        RemoteSignalingPointCodeImpl remoteSpc = (RemoteSignalingPointCodeImpl) this.sccpStackImpl.getSccpResource()
+                .getRemoteSpcByPC(affectedPc);
+        if (remoteSpc != null) {
+            remoteSpc.clearCongLevel(sccpCongestionControl);
+        }
+    }
+
+    public void onRestrictionLevelChange(int affectedPc, int restrictionLevel, boolean levelEncreased) {
+        int congLevel = SccpCongestionControl.generateSccpUserCongLevel(restrictionLevel);
+
+        FastMap<Integer, NetworkIdState> lst = this.sccpStackImpl.getNetworkIdList(affectedPc);
+        FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
+        for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1.getNext()) != end1;) {
+            try {
+                e1.getValue().onPcState(affectedPc,
+                        levelEncreased ? SignallingPointStatus.CONGESTED : SignallingPointStatus.CONGESTION_REDUCED, congLevel,
+                        null);
+            } catch (Exception ee) {
+                logger.error("Exception while invoking onPcState", ee);
+            }
+            for (FastMap.Entry<Integer, NetworkIdState> e2 = lst.head(), end2 = lst.tail(); (e2 = e2.getNext()) != end2;) {
+                try {
+                    e1.getValue().onNetworkIdState(e2.getKey(), e2.getValue());
+                } catch (Exception ee) {
+                    logger.error("Exception while invoking onNetworkIdState", ee);
+                }
+            }
+        }
+    }
+
+    private void doOnNetworkIdState(int affectedPc) {
+        // TODO: implement it
     }
 
     private class SubSystemTest implements Runnable {
@@ -799,7 +880,7 @@ public class SccpManagement {
                     this.startTest();
                 }
 
-                sendManagementMessage(affectedPc, SST, ssn, 0);
+                sendManagementMessage(affectedPc, SST, ssn, 0, null);
 
             }// while
 

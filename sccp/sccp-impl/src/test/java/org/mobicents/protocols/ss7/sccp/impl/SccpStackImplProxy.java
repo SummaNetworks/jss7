@@ -22,13 +22,17 @@
 
 package org.mobicents.protocols.ss7.sccp.impl;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javolution.util.FastMap;
 
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
+import org.mobicents.protocols.ss7.sccp.impl.congestion.SccpCongestionControl;
 import org.mobicents.protocols.ss7.sccp.impl.message.MessageFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.impl.router.RouterImpl;
 
@@ -74,9 +78,11 @@ public class SccpStackImplProxy extends SccpStackImpl {
 
         super.sccpManagement = new SccpManagementProxy(this.getName(), sccpProvider, this);
         super.sccpRoutingControl = new SccpRoutingControl(sccpProvider, this);
+        super.sccpCongestionControl = new SccpCongestionControl(sccpManagement, this);
 
         super.sccpManagement.setSccpRoutingControl(sccpRoutingControl);
         super.sccpRoutingControl.setSccpManagement(sccpManagement);
+        this.sccpManagement.setSccpCongestionControl(sccpCongestionControl);
 
         this.router = new RouterImpl(this.getName(), this);
         this.router.setPersistDir(this.getPersistDir());
@@ -98,6 +104,17 @@ public class SccpStackImplProxy extends SccpStackImpl {
             mup.addMtp3UserPartListener(this);
         }
         // this.mtp3UserPart.addMtp3UserPartListener(this);
+        // initiating of SCCP delivery executors
+
+        int maxSls = 16;
+        slsFilter = 0x0f;
+        this.slsTable = new int[maxSls];
+        this.createSLSTable(maxSls, this.deliveryTransferMessageThreadCount);
+        this.msgDeliveryExecutors = new ExecutorService[this.deliveryTransferMessageThreadCount];
+        for (int i = 0; i < this.deliveryTransferMessageThreadCount; i++) {
+            this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1, new DefaultThreadFactory(
+                    "SccpTransit-DeliveryExecutor-" + i));
+        }
 
         this.state = State.RUNNING;
     }

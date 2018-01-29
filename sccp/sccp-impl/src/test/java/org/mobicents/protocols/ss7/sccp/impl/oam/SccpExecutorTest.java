@@ -22,15 +22,7 @@
 
 package org.mobicents.protocols.ss7.sccp.impl.oam;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-
-import java.io.IOException;
-
 import javolution.util.FastMap;
-
 import org.mobicents.protocols.ss7.Util;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
 import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
@@ -58,11 +50,19 @@ import org.mobicents.protocols.ss7.sccp.SccpResource;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0100;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+import org.mobicents.ss7.congestion.ExecutorCongestionMonitor;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  *
@@ -204,6 +204,8 @@ public class SccpExecutorTest {
         rule = this.router.getRule(12);
         assertEquals(rule.getOriginationType(), OriginationType.REMOTE);
 
+
+
         // Test Modify Rule
 
         createRuleCmd2 = "sccp rule modify 1 R 71 2 8 0 0 3 123456789 loadshared 1 backup-addressid 2 loadsharing-algo bit4";
@@ -261,6 +263,69 @@ public class SccpExecutorTest {
 
         createRuleCmd2 = "sccp rule show";
         result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+
+        // Rules for callingAddress matching
+        // Command with all calling address related params
+        createRuleCmd2 = "sccp rule create 20 R 71 2 8 0 0 3 123456789 dominant 2 backup-addressid 1 loadsharing-algo bit3 newcgparty-addressid 1 origination-type remoteoriginated calling-ai 0 calling-pc 0 calling-ssn 0 calling-tt 0 calling-nai 0 calling-np 0 calling-digits-pattern 4567";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_ADDED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 5);
+
+        rule = this.router.getRule(20);
+        assertEquals(rule.getOriginationType(), OriginationType.REMOTE);
+        assertTrue(rule.getPatternCallingAddress().getGlobalTitle().getDigits().equals( "4567" ));
+
+        createRuleCmd2 = "sccp rule create 21 R 71 2 8 0 0 3 123456789 dominant 2 backup-addressid 1 loadsharing-algo bit3 newcgparty-addressid 1 origination-type remoteoriginated calling-ai 18 calling-pc 0 calling-ssn 0 calling-tt 0 calling-nai 0 calling-np 0 calling-digits-pattern 567*";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_ADDED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 6);
+
+        rule = this.router.getRule(21);
+        assertEquals(rule.getOriginationType(), OriginationType.REMOTE);
+        assertTrue(rule.getPatternCallingAddress().getGlobalTitle().getDigits().equals( "567*" ));
+
+
+        createRuleCmd2 = "sccp rule create 22 R 71 2 8 0 0 3 123456789 dominant 2 backup-addressid 1 loadsharing-algo bit3 newcgparty-addressid 1 origination-type remoteoriginated calling-ai 0 calling-pc 0 calling-ssn 0 calling-np 0";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_ADDED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 7);
+
+        rule = this.router.getRule(22);
+        assertEquals(rule.getOriginationType(), OriginationType.REMOTE);
+        assertTrue(rule.getPatternCallingAddress()==null);
+
+        // Calling party modify rule
+        createRuleCmd2 = "sccp rule modify 20 R 71 2 8 0 0 3 123456789 dominant 2 backup-addressid 1 loadsharing-algo bit3 newcgparty-addressid 1 origination-type remoteoriginated calling-ai 0 calling-pc 0 calling-ssn 0 calling-np 0";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_MODIFIED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 7);
+
+        rule = this.router.getRule(20);
+        assertEquals(rule.getOriginationType(), OriginationType.REMOTE);
+        assertTrue(rule.getPatternCallingAddress()==null);
+
+        createRuleCmd2 = "sccp rule modify 22 R 71 2 8 0 0 3 123456789 dominant 2 backup-addressid 1 loadsharing-algo bit3 newcgparty-addressid 1 origination-type remoteoriginated calling-ai 0 calling-pc 0 calling-ssn 0 calling-tt 0 calling-nai 0 calling-np 0 calling-digits-pattern 4567";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_MODIFIED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 7);
+
+        rule = this.router.getRule(22);
+        assertEquals(rule.getOriginationType(), OriginationType.REMOTE);
+        assertTrue(rule.getPatternCallingAddress().getGlobalTitle().getDigits().equals( "4567" ));
+
+        // Delete the rules
+        createRuleCmd2 = "sccp rule delete 20";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_REMOVED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 6);
+        createRuleCmd2 = "sccp rule delete 21";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_REMOVED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 5);
+        createRuleCmd2 = "sccp rule delete 22";
+        result = this.sccpExecutor.execute(createRuleCmd2.split(" "));
+        assertEquals(result, String.format(SccpOAMMessage.RULE_SUCCESSFULLY_REMOVED, this.sccpStack.getName()));
+        assertEquals(this.router.getRules().size(), 4);
 
     }
     
@@ -485,7 +550,7 @@ public class SccpExecutorTest {
         // test show
         rspCmd = "sccp sap show";
         res = this.sccpExecutor.execute(rspCmd.split(" "));
-        assertEquals(res, "key=5  mtp3Id=1, opc=11, ni=2, networkId=0, dpcList=[]\n");
+        assertEquals(res, "key=5  mtp3Id=1, opc=11, ni=2, networkId=0, localGtDigits=null, dpcList=[]\n");
 
         rspCmd = "sccp sap create 5 1 11 2";
         res = this.sccpExecutor.execute(rspCmd.split(" "));
@@ -643,7 +708,7 @@ public class SccpExecutorTest {
         // test show
         rspCmd = "sccp rsp show";
         res = this.sccpExecutor.execute(rspCmd.split(" "));
-        assertEquals(res, "key=1  rsp=11 rsp-flag=0 mask=0 rsp-prohibited=false rsccp-prohibited=false\n");
+        assertEquals(res, "key=1  rsp=11 rsp-flag=0 mask=0 rsp-prohibited=false rsccp-prohibited=false rl=0 rsl=0\n");
 
         rspCmd = "sccp rsp create 1 12 0 0";
         res = this.sccpExecutor.execute(rspCmd.split(" "));
@@ -943,6 +1008,36 @@ public class SccpExecutorTest {
         @Override
         public void setUseLsbForLinksetSelection(boolean arg0) {
 
+        }
+
+        @Override
+        public int getDeliveryMessageThreadCount() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public ExecutorCongestionMonitor getExecutorCongestionMonitor() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void start() throws Exception {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void stop() throws Exception {
+            // TODO Auto-generated method stub
+            
         }
     }
 }

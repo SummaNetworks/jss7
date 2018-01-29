@@ -49,6 +49,7 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ApplyChar
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.AssistRequestInstructionsRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CAPDialogCircuitSwitchedCall;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CAPServiceCircuitSwitchedCallListener;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallGapRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallInformationReportRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallInformationRequestRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CancelRequest;
@@ -77,6 +78,8 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.RequestRe
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ResetTimerRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SendChargingInformationRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SpecializedResourceReportRequest;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegRequest;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegResponse;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CAMELAChBillingChargingCharacteristics;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CollectedDigits;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.primitive.CollectedInfo;
@@ -170,6 +173,134 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
         if (x != null)
             this.setCapApplicationContext(x);
     }
+
+    @Override
+    public String getConnectDestinationRoutingAddressAddress() {
+        return this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getConDestRouteAddrAddress();
+    }
+
+    @Override
+    public void setConnectDestinationRoutingAddressAddress(String calledPartyNumberAddress) {
+        this.testerHost.getConfigurationData().getTestCapScfConfigurationData().setConDestRouteAddrAddress(calledPartyNumberAddress);
+        this.testerHost.markStore();
+    }
+
+    @Override
+    public IsupNatureOfAddressIndicatorType getConnectDestinationRoutingAddressNatureOfAddress() {
+        return new IsupNatureOfAddressIndicatorType (this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getConDestRouteAddrNatureOfAddress().getCode());
+    }
+
+    @Override
+    public String getConnectDestinationRoutingAddressNatureOfAddress_Value(){
+        return new IsupNatureOfAddressIndicatorType (this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getConDestRouteAddrNatureOfAddress().getCode()).toString();
+    }
+
+    @Override
+    public void setConnectDestinationRoutingAddressNatureOfAddress(IsupNatureOfAddressIndicatorType val) {
+        this.testerHost.getConfigurationData().getTestCapScfConfigurationData().setConDestRouteAddrNatureOfAddress(IsupNatureOfAddressIndicator.getInstance(val.intValue()));
+        this.testerHost.markStore();
+    }
+
+    @Override
+    public void putConDestRouteAddrNatureOfAddress(String s) {
+        IsupNatureOfAddressIndicatorType x = IsupNatureOfAddressIndicatorType.createInstance(s);
+        if (x != null)
+            this.setConnectDestinationRoutingAddressNatureOfAddress(x);
+    }
+
+    @Override
+    public IsupNumberingPlanIndicatorType getConnectDestinationRoutingAddressNumberingPlan() {
+        return new IsupNumberingPlanIndicatorType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getConDestRouteAddrNumberingPlan().getCode());
+    }
+
+    @Override
+    public String getConnectDestinationRoutingAddressNumberingPlan_Value() {
+        return new IsupNumberingPlanIndicatorType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getConDestRouteAddrNumberingPlan().getCode()).toString();
+    }
+
+    @Override
+    public void setConnectDestinationRoutingAddressNumberingPlan(IsupNumberingPlanIndicatorType val) {
+        this.testerHost.getConfigurationData().getTestCapScfConfigurationData().setConDestRouteAddrNumberingPlan(IsupNumberingPlanIndicator.getInstance(val.intValue()));
+        this.testerHost.markStore();
+    }
+
+    @Override
+    public void putConDestRouteAddrNumberingPlan(String s) {
+        IsupNumberingPlanIndicatorType x = IsupNumberingPlanIndicatorType.createInstance(s);
+        if (x != null)
+            this.setConnectDestinationRoutingAddressNumberingPlan(x);
+    }
+
+    @Override
+    public IsupCauseIndicatorCauseValueType getReleaseCauseValue() {
+        return new IsupCauseIndicatorCauseValueType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getRelCauseValue().getCode());
+    }
+
+    @Override
+    public String getReleaseCauseValue_Value() {
+        return new IsupCauseIndicatorCauseValueType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getRelCauseValue().getCode()).toString();
+    }
+
+    @Override
+    public void setReleaseCauseValue(IsupCauseIndicatorCauseValueType value) {
+        this.testerHost.getConfigurationData().getTestCapScfConfigurationData().setRelCauseValue(IsupCauseIndicatorCauseValue.getInstance(value.intValue()));
+        this.testerHost.markStore();
+    }
+
+    @Override
+    public void putReleaseCauseValue(String s) {
+        IsupCauseIndicatorCauseValueType x = IsupCauseIndicatorCauseValueType.createInstance(s);
+        if (x != null)
+            this.setReleaseCauseValue(x);
+    }
+
+    @Override
+    public IsupCauseIndicatorCodingStandardType getReleaseCauseCodingStandardIndicator() {
+        return new IsupCauseIndicatorCodingStandardType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getRelCodingStandardInd().getCode());
+    }
+
+    @Override
+    public String getReleaseCauseCodingStandardIndicator_Value() {
+        return new IsupCauseIndicatorCodingStandardType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getRelCodingStandardInd().getCode()).toString();
+
+    }
+
+    @Override
+    public void setReleaseCauseCodingStandardIndicator(IsupCauseIndicatorCodingStandardType value) {
+        this.testerHost.getConfigurationData().getTestCapScfConfigurationData().setRelCodingStandardInd(IsupCauseIndicatorCodingStandard.getInstance(value.intValue()));
+        this.testerHost.markStore();
+    }
+
+    @Override
+    public void putReleaseCauseCodingStandardIndicator(String s) {
+        IsupCauseIndicatorCodingStandardType x = IsupCauseIndicatorCodingStandardType.createInstance(s);
+        if (x != null)
+            this.setReleaseCauseCodingStandardIndicator(x);
+    }
+
+    @Override
+    public IsupCauseIndicatorLocationType getReleaseCauseLocationIndicator() {
+        return new IsupCauseIndicatorLocationType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getRelLocationInd().getCode());
+    }
+
+    @Override
+    public String getReleaseCauseLocationIndicator_Value() {
+        return new IsupCauseIndicatorLocationType(this.testerHost.getConfigurationData().getTestCapScfConfigurationData().getRelLocationInd().getCode()).toString();
+    }
+
+    @Override
+    public void setReleaseCauseLocationIndicator(IsupCauseIndicatorLocationType value) {
+        this.testerHost.getConfigurationData().getTestCapScfConfigurationData().setRelLocationInd(IsupCauseIndicatorLocation.getInstance(value.intValue()));
+        this.testerHost.markStore();
+    }
+
+    @Override
+    public void putReleaseCauseLocationIndicator(String s) {
+        IsupCauseIndicatorLocationType x = IsupCauseIndicatorLocationType.createInstance(s);
+        if (x != null)
+            this.setReleaseCauseLocationIndicator(x);
+    }
+
 
     @Override
     public String getCurrentRequestDef() {
@@ -300,7 +431,7 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
 
         try {
             CAMELAChBillingChargingCharacteristics aChBillingChargingCharacteristics = capProvider.getCAPParameterFactory()
-                    .createCAMELAChBillingChargingCharacteristics(1000, false, null, null, null, false);
+                    .createCAMELAChBillingChargingCharacteristics(1000, false, null, null, null, 2);
             SendingSideID partyToCharge = capProvider.getCAPParameterFactory().createSendingSideID(LegType.leg1);
             curDialog.addApplyChargingRequest(aChBillingChargingCharacteristics, partyToCharge, null, null);
 
@@ -357,19 +488,20 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
 
         CAPProvider capProvider = this.capMan.getCAPStack().getCAPProvider();
 
+        TestCapScfConfigurationData scfConfigData = testerHost.getConfigurationData().getTestCapScfConfigurationData();
         try {
             ArrayList<CalledPartyNumberCap> calledPartyNumber = new ArrayList<CalledPartyNumberCap>();
             CalledPartyNumber cpnIsup = capProvider.getISUPParameterFactory().createCalledPartyNumber();
-            cpnIsup.setAddress("999911119");
+            cpnIsup.setAddress(scfConfigData.getConDestRouteAddrAddress());
             cpnIsup.setInternalNetworkNumberIndicator(CalledPartyNumber._INN_ROUTING_ALLOWED);
-            cpnIsup.setNatureOfAddresIndicator(CalledPartyNumber._NAI_INTERNATIONAL_NUMBER);
-            cpnIsup.setNumberingPlanIndicator(CalledPartyNumber._NPI_ISDN);
+            cpnIsup.setNatureOfAddresIndicator(scfConfigData.getConDestRouteAddrNatureOfAddress().getCode());
+            cpnIsup.setNumberingPlanIndicator(scfConfigData.getConDestRouteAddrNumberingPlan().getCode());
             CalledPartyNumberCap cpn = capProvider.getCAPParameterFactory().createCalledPartyNumberCap(cpnIsup);
             calledPartyNumber.add(cpn);
             DestinationRoutingAddress destinationRoutingAddress = capProvider.getCAPParameterFactory()
                     .createDestinationRoutingAddress(calledPartyNumber);
             curDialog.addConnectRequest(destinationRoutingAddress, null, null, null, null, null, null, null, null, null, null,
-                    null, null, false, false, false, null, false);
+                    null, null, false, false, false, null, false, false);
 
             curDialog.send();
 
@@ -424,11 +556,12 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
 
         CAPProvider capProvider = this.capMan.getCAPStack().getCAPProvider();
 
+        TestCapScfConfigurationData scfConfigData = testerHost.getConfigurationData().getTestCapScfConfigurationData();
         try {
             CauseIndicators causeIndicators = capProvider.getISUPParameterFactory().createCauseIndicators();
-            causeIndicators.setCauseValue(CauseIndicators._CV_ADDRESS_INCOMPLETE);
-            causeIndicators.setCodingStandard(CauseIndicators._CODING_STANDARD_ITUT);
-            causeIndicators.setLocation(CauseIndicators._LOCATION_INTERNATIONAL_NETWORK);
+            causeIndicators.setCauseValue(scfConfigData.getRelCauseValue().getCode());
+            causeIndicators.setCodingStandard(scfConfigData.getRelCodingStandardInd().getCode());
+            causeIndicators.setLocation(scfConfigData.getRelLocationInd().getCode());
             causeIndicators.setRecommendation(0);
             CauseCap cause = capProvider.getCAPParameterFactory().createCauseCap(causeIndicators);
             curDialog.addReleaseCallRequest(cause);
@@ -889,6 +1022,24 @@ public class TestCapScfMan extends TesterBase implements TestCapScfManMBean, Sto
 
     @Override
     public void onCollectInformationRequest(CollectInformationRequest arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSplitLegRequest(SplitLegRequest ind) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSplitLegResponse(SplitLegResponse ind) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onCallGapRequest(CallGapRequest ind) {
         // TODO Auto-generated method stub
 
     }

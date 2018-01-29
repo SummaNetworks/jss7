@@ -71,6 +71,8 @@ import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.RequestRe
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.ResetTimerRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SendChargingInformationRequest;
 import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SpecializedResourceReportRequest;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegRequest;
+import org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.SplitLegResponse;
 import org.mobicents.protocols.ss7.cap.api.service.gprs.ActivityTestGPRSRequest;
 import org.mobicents.protocols.ss7.cap.api.service.gprs.ActivityTestGPRSResponse;
 import org.mobicents.protocols.ss7.cap.api.service.gprs.ApplyChargingGPRSRequest;
@@ -471,6 +473,20 @@ public class EventTestHarness implements CAPDialogListener, CAPServiceCircuitSwi
     }
 
     @Override
+    public void onSplitLegRequest(SplitLegRequest ind) {
+        this.logger.debug("SplitLegRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.SplitLegRequest, ind, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onSplitLegResponse(SplitLegResponse ind) {
+        this.logger.debug("SplitLegResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.SplitLegResponse, ind, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
     public void onInitialDpGprsRequest(InitialDpGprsRequest ind) {
         this.logger.debug("InitialDpGprsRequest");
         TestEvent te = TestEvent.createReceivedEvent(EventType.InitialDpGprsRequest, ind, sequence++);
@@ -658,5 +674,11 @@ public class EventTestHarness implements CAPDialogListener, CAPServiceCircuitSwi
         TestEvent te = TestEvent.createReceivedEvent(EventType.CollectInformationRequest, ind, sequence++);
         this.observerdEvents.add(te);
     }
-   
+
+    @Override
+    public void onCallGapRequest(org.mobicents.protocols.ss7.cap.api.service.circuitSwitchedCall.CallGapRequest ind) {
+        this.logger.debug("CallGapRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.CallGapRequest, ind, sequence++);
+        this.observerdEvents.add(te);
+    }
 }

@@ -70,6 +70,7 @@ public class TestSmsClientStandardManMBean extends StandardMBean {
                 new MBeanAttributeInfo("SRIResponseVlr", String.class.getName(), "VLR address for auto sendRoutingInfoForSM response", true, true, false),
                 new MBeanAttributeInfo("SmscSsn", int.class.getName(), "SMSC SSN for outgoing SccpAddress (default value: 8)", true, true, false),
                 new MBeanAttributeInfo("NationalLanguageCode", int.class.getName(), "National language shift table code (for GSM7 encoding)", true, true, false),
+                new MBeanAttributeInfo("StatusReportRequest", boolean.class.getName(), "Sending of StatusReportRequest", true, true, true),
                 new MBeanAttributeInfo("TypeOfNumber", TypeOfNumberType.class.getName(), "TypeOfNumber parameter for SMS tpdu destAddress", true, true, false),
                 new MBeanAttributeInfo("TypeOfNumber_Value", String.class.getName(), "TypeOfNumber parameter for SMS tpdu destAddress", true, false, false),
                 new MBeanAttributeInfo("NumberingPlanIdentification", NumberingPlanIdentificationType.class.getName(),
@@ -124,8 +125,8 @@ public class TestSmsClientStandardManMBean extends StandardMBean {
                         + "1:MwdNo,2:MwdMcef,3:MwdMnrf,4:MwdMcefMnrf,5:MwdMnrg", signString, Void.TYPE.getName(), MBeanOperationInfo.ACTION),
                 new MBeanOperationInfo("putMtFSMReaction", "MtFSM response type: "
                         + "1:ReturnSuccess,2:SMDeliveryFailure_ReturnMemoryCapacityExceeded,3:SMDeliveryFailure_UnknownServiceCentre,"
-                        + "4:ReturnErrorSystemFailure,5:ReturnAbsentSubscriberError,6:ReturnErrorSubscriberBusyForMtSms", signString, Void.TYPE.getName(),
-                        MBeanOperationInfo.ACTION),
+                        + "4:ReturnErrorSystemFailure,5:ReturnAbsentSubscriberError,6:ReturnErrorSubscriberBusyForMtSms,7:SMDeliveryFailure_EquipmentProtocolError",
+                        signString, Void.TYPE.getName(), MBeanOperationInfo.ACTION),
                 new MBeanOperationInfo(
                         "putTypeOfNumber",
                         "TypeOfNumber parameter for SMS tpdu destAddress: "

@@ -37,6 +37,7 @@ public class SctpCommandHandler extends CommandHandlerWithHelp {
         Node parent = commandTree.getTopNode();
         Node server = parent.addChild("server");
         server.addChild("create");
+        server.addChild("modify");
         server.addChild("destroy");
         server.addChild("start");
         server.addChild("stop");
@@ -44,18 +45,27 @@ public class SctpCommandHandler extends CommandHandlerWithHelp {
 
         Node association = parent.addChild("association");
         association.addChild("create");
+        association.addChild("modify");
         association.addChild("destroy");
         association.addChild("show");
 
         Node set = parent.addChild("set");
         set.addChild("connectdelay");
-//        set.addChild("singlethread");
-//        set.addChild("workerthreads");
+        set.addChild("cc_delaythreshold_1");
+        set.addChild("cc_delaythreshold_2");
+        set.addChild("cc_delaythreshold_3");
+        set.addChild("cc_backtonormal_delaythreshold_1");
+        set.addChild("cc_backtonormal_delaythreshold_2");
+        set.addChild("cc_backtonormal_delaythreshold_3");
 
         Node get = parent.addChild("get");
         get.addChild("connectdelay");
-        get.addChild("singlethread");
-        get.addChild("workerthreads");
+        get.addChild("cc_delaythreshold_1");
+        get.addChild("cc_delaythreshold_2");
+        get.addChild("cc_delaythreshold_3");
+        get.addChild("cc_backtonormal_delaythreshold_1");
+        get.addChild("cc_backtonormal_delaythreshold_2");
+        get.addChild("cc_backtonormal_delaythreshold_3");
 
     };
 

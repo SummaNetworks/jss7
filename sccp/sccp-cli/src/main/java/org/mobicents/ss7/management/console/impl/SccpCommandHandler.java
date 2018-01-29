@@ -87,26 +87,39 @@ public class SccpCommandHandler extends CommandHandlerWithHelp {
         set.addChild("zmarginxudtmessage");
         set.addChild("reassemblytimerdelay");
         set.addChild("maxdatamessage");
+        set.addChild("periodoflogging");
         set.addChild("removespc");
         set.addChild("previewmode");
         set.addChild("ssttimerduration_min");
         set.addChild("ssttimerduration_max");
         set.addChild("ssttimerduration_increasefactor");
         Node sccpprotocolversion = set.addChild("sccpprotocolversion");
+        set.addChild("cc_timer_a");
+        set.addChild("cc_timer_d");
+        Node cc_algo = set.addChild("cc_algo");
+        set.addChild("cc_blockingoutgoungsccpmessages");
 
         sccpprotocolversion.addChild("ITU");
         sccpprotocolversion.addChild("ANSI");
+
+        cc_algo.addChild("international");
+        cc_algo.addChild("levelDepended");
 
         Node get = parent.addChild("get");
         get.addChild("zmarginxudtmessage");
         get.addChild("reassemblytimerdelay");
         get.addChild("maxdatamessage");
+        get.addChild("periodoflogging");
         get.addChild("removespc");
         get.addChild("previewmode");
         get.addChild("ssttimerduration_min");
         get.addChild("ssttimerduration_max");
         get.addChild("ssttimerduration_increasefactor");
         get.addChild("sccpprotocolversion");
+        get.addChild("cc_timer_a");
+        get.addChild("cc_timer_d");
+        get.addChild("cc_algo");
+        get.addChild("cc_blockingoutgoungsccpmessages");
 
     };
 

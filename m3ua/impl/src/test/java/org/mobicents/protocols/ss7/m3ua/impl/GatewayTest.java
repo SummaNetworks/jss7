@@ -28,7 +28,7 @@ import javolution.util.FastList;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
-import org.mobicents.protocols.sctp.ManagementImpl;
+import org.mobicents.protocols.sctp.netty.NettySctpManagementImpl;
 import org.mobicents.protocols.ss7.m3ua.ExchangeType;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
 import org.mobicents.protocols.ss7.m3ua.IPSPType;
@@ -36,6 +36,7 @@ import org.mobicents.protocols.ss7.m3ua.Util;
 import org.mobicents.protocols.ss7.m3ua.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.m3ua.parameter.RoutingContext;
 import org.mobicents.protocols.ss7.m3ua.parameter.TrafficModeType;
+import org.mobicents.protocols.ss7.mtp.Mtp3EndCongestionPrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3PausePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3ResumePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3StatusPrimitive;
@@ -102,7 +103,7 @@ public class GatewayTest {
         client = new Client();
         server = new Server();
 
-        this.sctpManagement = new ManagementImpl("GatewayTest");
+        this.sctpManagement = new NettySctpManagementImpl("GatewayTest");
         this.sctpManagement.setPersistDir(Util.getTmpTestDir());
         this.sctpManagement.setSingleThread(true);
         this.sctpManagement.start();
@@ -137,7 +138,7 @@ public class GatewayTest {
         System.out.println("Starting Client");
         client.start();
 
-        Thread.sleep(10000);
+        Thread.sleep(12000);
 
         // Both AS and ASP should be ACTIVE now
         assertEquals(AspState.getState(remAsp.getPeerFSM().getState().getName()), AspState.ACTIVE);
@@ -366,6 +367,12 @@ public class GatewayTest {
         @Override
         public void onMtp3TransferMessage(Mtp3TransferPrimitive value) {
             receivedData.add(value);
+        }
+
+        @Override
+        public void onMtp3EndCongestionMessage(Mtp3EndCongestionPrimitive msg) {
+            // TODO Auto-generated method stub
+            
         }
 
     }
