@@ -100,9 +100,9 @@ public class GT0001SccpStackImplTest extends SccpHarness {
         SccpAddress rule2SccpAddress = super.sccpProvider1.getParameterFactory().createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, super.sccpProvider1.getParameterFactory().createGlobalTitle(
                 GT1_pattern_digits, NatureOfAddress.NATIONAL), 0, getSSN());
         super.router1.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule1SccpAddress,
-                "K/R/K", 22, -1, null, 0);
+                "K/R/K", 22, -1, null, 0, null);
         super.router2.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule2SccpAddress,
-                "R/R/R", 33, -1, null, 0);
+                "R/R/R", 33, -1, null, 0, null);
 
         // now create users, we need to override matchX methods, since our rules do kinky stuff with digits, plus
         User u1 = new User(sccpStack1.getSccpProvider(), a1, a2, getSSN()) {
@@ -165,9 +165,9 @@ public class GT0001SccpStackImplTest extends SccpHarness {
         SccpAddress rule2SccpAddress = super.sccpProvider1.getParameterFactory().createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, super.sccpProvider1.getParameterFactory().createGlobalTitle(
                 GT1_pattern_digits, NatureOfAddress.NATIONAL), 0, getSSN());
         super.router1.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule1SccpAddress,
-                "K/R/K", 22, -1, null, 0);
+                "K/R/K", 22, -1, null, 0, null);
         super.router2.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule2SccpAddress,
-                "R/K/R", 33, -1, null, 0);
+                "R/K/R", 33, -1, null, 0, null);
 
         // add rules for incoming messages,
 
@@ -183,9 +183,9 @@ public class GT0001SccpStackImplTest extends SccpHarness {
         rule2SccpAddress = super.sccpProvider1.getParameterFactory().createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, super.sccpProvider1.getParameterFactory().createGlobalTitle(
                 "02/?", NatureOfAddress.NATIONAL), 0, getSSN());
         super.router1.addRule(2, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule1SccpAddress,
-                "K/K/K", 44, -1, null, 0);
+                "K/K/K", 44, -1, null, 0, null);
         super.router2.addRule(2, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule2SccpAddress,
-                "K/K", 66, -1, null, 0);
+                "K/K", 66, -1, null, 0, null);
 
         // now create users, we need to override matchX methods, since our rules do kinky stuff with digits, plus
         User u1 = new User(sccpStack1.getSccpProvider(), a1, a2, getSSN()) {

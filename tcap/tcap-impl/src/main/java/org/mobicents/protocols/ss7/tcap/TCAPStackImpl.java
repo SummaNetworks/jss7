@@ -64,8 +64,8 @@ public class TCAPStackImpl implements TCAPStack {
     private static final String PREVIEW_MODE = "previewmode";
     private static final String DO_NOT_SEND_PROTOCOL_VERSION = "donotsendprotocolversion";
     private static final String STATISTICS_ENABLED = "statisticsenabled";
-    //private static final int MIN_DIALOGS_AMOUNT = 10000;
-    private static final int MIN_DIALOGS_AMOUNT = 10;
+    private static final int MIN_DIALOGS_AMOUNT = 10000;
+    //private static final int MIN_DIALOGS_AMOUNT = 10;
 
     private static final XMLBinding binding = new XMLBinding();
 
@@ -192,7 +192,7 @@ public class TCAPStackImpl implements TCAPStack {
         if (rangeEnd > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range end value must be less or equal " + Integer.MAX_VALUE);
         if ((rangeEnd - rangeStart) < MIN_DIALOGS_AMOUNT)
-            throw new IllegalArgumentException("Range \"end - start\" must has at least 10000 possible dialogs");
+            throw new IllegalArgumentException("Range \"end - start\" ["+rangeEnd+"-"+rangeStart+"] must has at least 10000 possible dialogs");
         if ((rangeEnd - rangeStart) <= this.maxDialogs)
             throw new IllegalArgumentException("MaxDialog must be less than DialogIdRange");
     }
@@ -453,8 +453,8 @@ public class TCAPStackImpl implements TCAPStack {
 
             reader.close();
         } catch (XMLStreamException ex) {
-            // this.logger.info(
-            // "Error while re-creating Linksets from persisted file", ex);
+            this.logger.warn(
+             "Error while re-creating Linksets from persisted file", ex);
         }
     }
 

@@ -97,10 +97,12 @@ public class GT0010SccpStackImplTest extends SccpHarness {
         SccpAddress rule1SccpAddress = super.sccpProvider1.getParameterFactory().createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, super.sccpProvider1.getParameterFactory().createGlobalTitle(GT2_pattern_digits, 0), 0, getSSN());
         SccpAddress rule2SccpAddress = super.sccpProvider1.getParameterFactory().createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, super.sccpProvider1.getParameterFactory().createGlobalTitle(
                 GT1_pattern_digits, 0), 0, getSSN());
+        SccpAddress patternDefaultCalling = super.sccpProvider1.getParameterFactory().createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, super.sccpProvider1.getParameterFactory().createGlobalTitle("*", 0), 0, 0);
+
         super.router1.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule1SccpAddress,
-                "K/R/K", 22, -1, null, 0);
+                "K/R/K", 22, -1, null, 0, patternDefaultCalling);
         super.router2.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, rule2SccpAddress,
-                "R/R/R", 33, -1, null, 0);
+                "R/R/R", 33, -1, null, 0, patternDefaultCalling);
 
         // now create users, we need to override matchX methods, since our rules do kinky stuff with digits, plus
         User u1 = new User(sccpStack1.getSccpProvider(), a1, a2, getSSN()) {

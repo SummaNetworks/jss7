@@ -22,6 +22,8 @@
 
 package org.mobicents.protocols.ss7.mtp;
 
+
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -148,7 +150,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
         if (this.isStarted)
             return;
 
-        if (!(this.routingLabelFormat == RoutingLabelFormat.ITU || this.routingLabelFormat == RoutingLabelFormat.ANSI_Sls8Bit)) {
+        if (!(this.routingLabelFormat == RoutingLabelFormat.ITU || this.routingLabelFormat == RoutingLabelFormat.ANSI_Sls8Bit || this.routingLabelFormat == RoutingLabelFormat.ANSI_Sls5Bit)) {
             throw new Exception("Invalid PointCodeFormat set. We support only ITU or ANSI now");
         }
 
@@ -177,9 +179,13 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.msgDeliveryExecutors = new ExecutorService[this.deliveryTransferMessageThreadCount];
         for (int i = 0; i < this.deliveryTransferMessageThreadCount; i++) {
-            this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1);
+            this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1
+                    //, new ("Mtp3-DeliveryExecutor-" + i)
+                     );
         }
-        this.msgDeliveryExecutorSystem = Executors.newFixedThreadPool(1);
+        this.msgDeliveryExecutorSystem = Executors.newSingleThreadScheduledExecutor(
+                //new DefaultThreadFactory("Mtp3-DeliveryExecutorSystem")
+                );
 
         this.isStarted = true;
     }
@@ -221,7 +227,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
             logger.error(String.format(
-                    "Received Mtp3PausePrimitive=%s but Mtp3PausePrimitive is not started. Message will be dropped", msg));
+                    "Received Mtp3PausePrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
     }
 
@@ -231,7 +237,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
             logger.error(String.format(
-                    "Received Mtp3ResumePrimitive=%s but Mtp3PausePrimitive is not started. Message will be dropped", msg));
+                    "Received Mtp3ResumePrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
     }
 
@@ -241,7 +247,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
             logger.error(String.format(
-                    "Received Mtp3StatusPrimitive=%s but Mtp3PausePrimitive is not started. Message will be dropped", msg));
+                    "Received Mtp3StatusPrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
     }
 

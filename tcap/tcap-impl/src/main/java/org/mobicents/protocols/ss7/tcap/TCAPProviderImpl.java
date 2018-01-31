@@ -183,8 +183,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             return false;
     }
 
-    // some help methods... crude but will work for first impl.
-    private Long getAvailableTxId() throws TCAPException {
+    private synchronized Long getAvailableTxId() throws TCAPException {
         if (this.dialogs.size() >= this.stack.getMaxDialogs())
             throw new TCAPException("Current dialog count exceeds its maximum value");
 
@@ -290,6 +289,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                 if (!checkAvailableTxId(id)) {
                     //throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
                     logger.warn("Suggested local TransactionId is already present in system: " + id);
+                    throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
                 }
             }
             if (structured) {
@@ -444,13 +444,13 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         Long did = d.getLocalDialogId();
 
         if (!d.getPreviewMode()) {
-            synchronized (this.dialogs) {
+          //  synchronized (this.dialogs) {
                 this.dialogs.remove(did);
                 if (this.stack.getStatisticsEnabled()) {
                     this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
                     this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
                 }
-            }
+           // }
 
             this.doRelease(d);
         }
@@ -518,7 +518,10 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     void start() {
         logger.info("Starting TCAP Provider");
 
-        this._EXECUTOR = Executors.newScheduledThreadPool(4);
+        this._EXECUTOR = Executors.newScheduledThreadPool(4
+                //, new DefaultThreadFactory("Tcap-Thread")
+        );
+
         this.sccpProvider.registerSccpListener(ssn, this);
         logger.info("Registered SCCP listener with address " + ssn);
     }

@@ -199,7 +199,7 @@ public class RouterImpl implements Router {
 
     private final TextBuilder persistFile = TextBuilder.newInstance();
 
-    private static final SccpRouterXMLBinding binding = new SccpRouterXMLBinding();
+    protected static final SccpRouterXMLBinding binding = new SccpRouterXMLBinding();
     private static final String TAB_INDENT = "\t";
     private static final String CLASS_ATTRIBUTE = "type";
 
@@ -270,11 +270,11 @@ public class RouterImpl implements Router {
      * @param calledParty called party address
      * @return the rule with match to the called party address
      */
-    public Rule findRule(SccpAddress calledParty, boolean isMtpOriginated, int msgNetworkId) {
+    public Rule findRule(SccpAddress calledParty, SccpAddress callingParty, boolean isMtpOriginated, int msgNetworkId) {
 
         for (FastMap.Entry<Integer, Rule> e = this.rulesMap.head(), end = this.rulesMap.tail(); (e = e.getNext()) != end;) {
             Rule rule = e.getValue();
-            if (rule.matches(calledParty, isMtpOriginated, msgNetworkId)) {
+            if (rule.matches(calledParty, callingParty, isMtpOriginated, msgNetworkId)) {
                 return rule;
             }
         }
@@ -383,7 +383,7 @@ public class RouterImpl implements Router {
     }
 
     public void addRule(int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType originationType, SccpAddress pattern, String mask,
-            int pAddressId, int sAddressId, Integer newCallingPartyAddressAddressId, int networkId) throws Exception {
+            int pAddressId, int sAddressId, Integer newCallingPartyAddressAddressId, int networkId, SccpAddress patternCallingAddress) throws Exception {
 
         Rule ruleTmp = this.getRule(id);
 
@@ -425,7 +425,7 @@ public class RouterImpl implements Router {
         }
 
         synchronized (this) {
-            RuleImpl rule = new RuleImpl(ruleType, algo, originationType, pattern, mask, networkId);
+            RuleImpl rule = new RuleImpl(ruleType, algo, originationType, pattern, mask, networkId, patternCallingAddress);
             rule.setPrimaryAddressId(pAddressId);
             rule.setSecondaryAddressId(sAddressId);
             rule.setNewCallingPartyAddressId(newCallingPartyAddressAddressId);
@@ -458,7 +458,8 @@ public class RouterImpl implements Router {
     }
 
     public void modifyRule(int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType originationType, SccpAddress pattern, String mask,
-            int pAddressId, int sAddressId, Integer newCallingPartyAddressAddressId, int networkId) throws Exception {
+            int pAddressId, int sAddressId, Integer newCallingPartyAddressAddressId, int networkId, SccpAddress patternCallingAddress) throws Exception {
+        synchronized (this) {
         Rule ruleTmp = this.getRule(id);
 
         if (ruleTmp == null) {
@@ -496,15 +497,18 @@ public class RouterImpl implements Router {
         if (sAddressId == -1 && ruleType != RuleType.SOLITARY) {
             throw new Exception(SccpOAMMessage.RULETYPE_NOT_SOLI_SEC_ADD_MANDATORY);
         }
-        synchronized (this) {
-            RuleImpl rule = new RuleImpl(ruleType, algo, originationType, pattern, mask, networkId);
+
+            RuleImpl rule = new RuleImpl(ruleType, algo, originationType, pattern, mask, networkId, patternCallingAddress);
             rule.setPrimaryAddressId(pAddressId);
             rule.setSecondaryAddressId(sAddressId);
             rule.setNewCallingPartyAddressId(newCallingPartyAddressAddressId);
 
             rule.setRuleId(id);
-            RuleImpl[] rulesArray = new RuleImpl[(this.rulesMap.size() + 1)];
+            RuleImpl[] rulesArray = new RuleImpl[(this.rulesMap.size())];
             int count = 0;
+
+            // Remove the old rule so that it doesn't overwrite the new modifications
+            this.removeRule( id );
 
             for (FastMap.Entry<Integer, Rule> e = this.rulesMap.head(), end = this.rulesMap.tail(); (e = e.getNext()) != end;) {
                 Integer ruleId = e.getKey();

@@ -407,8 +407,9 @@ public class SccpRoutingControl {
         }
 
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
+        SccpAddress callingPartyAddress = msg.getCallingPartyAddress();
 
-        Rule rule = this.sccpStackImpl.router.findRule(calledPartyAddress, msg.getIsMtpOriginated(), msg.getNetworkId());
+        Rule rule = this.sccpStackImpl.router.findRule(calledPartyAddress, callingPartyAddress, msg.getIsMtpOriginated(), msg.getNetworkId());
         if (rule == null) {
             if (logger.isEnabledFor(Level.WARN)) {
                 logger.warn(String.format(

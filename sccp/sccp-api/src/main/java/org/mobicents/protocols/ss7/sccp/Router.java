@@ -71,10 +71,10 @@ public interface Router {
     Map<Integer, LongMessageRule> getLongMessageRules();
 
     void addRule(int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType originationType, SccpAddress pattern, String mask, int pAddressId,
-            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId) throws Exception;
+            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId, SccpAddress patternCallingAddress) throws Exception;
 
     void modifyRule(int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType originationType, SccpAddress pattern, String mask, int pAddressId,
-            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId) throws Exception;
+            int sAddressId, Integer newCallingPartyAddressAddressId, int networkId, SccpAddress patternCallingAddress) throws Exception;
 
     Rule getRule(int id);
 

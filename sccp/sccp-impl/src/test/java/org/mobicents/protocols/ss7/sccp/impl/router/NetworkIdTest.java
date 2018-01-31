@@ -74,6 +74,7 @@ public class NetworkIdTest implements SccpListener {
 
     private SccpAddress primaryAddr1_L, primaryAddr1_R;
     private SccpAddress primaryAddr2_L, primaryAddr2_R;
+    private SccpAddress primaryAddr3_L, primaryAddr3_R;
 
     private int dpc1_L, dpc1_R;
     private int dpc2_L, dpc2_R;
@@ -86,6 +87,7 @@ public class NetworkIdTest implements SccpListener {
 
     private int localTerm_1;
     private int localTerm_2;
+    private int localTerm_3;
     private int remTerm_1;
     private int remTerm_2;
 
@@ -115,10 +117,14 @@ public class NetworkIdTest implements SccpListener {
         GlobalTitle gt_1R = factory.createGlobalTitle("1119", 0, NumberingPlan.ISDN_TELEPHONY, BCDEvenEncodingScheme.INSTANCE, NatureOfAddress.INTERNATIONAL);
         GlobalTitle gt_2L = factory.createGlobalTitle("2229", 0, NumberingPlan.ISDN_TELEPHONY, BCDEvenEncodingScheme.INSTANCE, NatureOfAddress.INTERNATIONAL);
         GlobalTitle gt_2R = factory.createGlobalTitle("2229", 0, NumberingPlan.ISDN_TELEPHONY, BCDEvenEncodingScheme.INSTANCE, NatureOfAddress.INTERNATIONAL);
+        GlobalTitle gt_3L = factory.createGlobalTitle("3229", 0, NumberingPlan.ISDN_TELEPHONY, BCDEvenEncodingScheme.INSTANCE, NatureOfAddress.INTERNATIONAL);
+        GlobalTitle gt_3R = factory.createGlobalTitle("3229", 0, NumberingPlan.ISDN_TELEPHONY, BCDEvenEncodingScheme.INSTANCE, NatureOfAddress.INTERNATIONAL);
         primaryAddr1_L = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt_1L, 11, 0);
         primaryAddr1_R = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt_1R, 111, 0);
         primaryAddr2_L = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt_2L, 22, 0);
         primaryAddr2_R = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt_2R, 222, 0);
+        primaryAddr3_L = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt_3L, 22, 0);
+        primaryAddr3_R = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, gt_3R, 222, 0);
 
         Mtp3UserPartProxy mtp3UserPart = new Mtp3UserPartProxy();
         testSccpStackImpl.setMtp3UserPart(1, mtp3UserPart);
@@ -153,12 +159,19 @@ public class NetworkIdTest implements SccpListener {
         router.addRoutingAddress(2, primaryAddr2_R);
         router.addRoutingAddress(3, primaryAddr1_L);
         router.addRoutingAddress(4, primaryAddr2_L);
+        router.addRoutingAddress(5, primaryAddr3_R);
+        router.addRoutingAddress(6, primaryAddr3_L);
 
         SccpAddress pattern = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, factory.createGlobalTitle("*", 1), 0, 0);
-        router.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.LOCAL, pattern, "K", 1, 1, null, 1);
-        router.addRule(2, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.LOCAL, pattern, "K", 2, 2, null, 2);
-        router.addRule(3, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.REMOTE, pattern, "K", 3, 3, null, 1);
-        router.addRule(4, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.REMOTE, pattern, "K", 4, 4, null, 2);
+        SccpAddress patternDefaultCalling = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, factory.createGlobalTitle("*", 1), 0, 0);
+        router.addRule(1, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.LOCAL, pattern, "K", 1, 1, null, 1, patternDefaultCalling);
+        router.addRule(2, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.LOCAL, pattern, "K", 2, 2, null, 2, patternDefaultCalling);
+        router.addRule(3, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.REMOTE, pattern, "K", 3, 3, null, 1, patternDefaultCalling);
+        router.addRule(4, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.REMOTE, pattern, "K", 4, 4, null, 2, patternDefaultCalling);
+        router.addRule(5, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.LOCAL, pattern, "K", 3, 3, null, 1, patternDefaultCalling);
+        router.addRule(6, RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.REMOTE, pattern, "K", 4, 4, null, 3, patternDefaultCalling);
+
+
         // int id, RuleType ruleType, LoadSharingAlgorithm algo, OriginationType
         // originationType, SccpAddress pattern, String mask, int pAddressId,
         // int sAddressId, Integer newCallingPartyAddressAddressId, int networkId
@@ -191,6 +204,7 @@ public class NetworkIdTest implements SccpListener {
 
         assertEquals(this.localTerm_1, 1);
         assertEquals(this.localTerm_2, 0);
+        assertEquals(this.localTerm_3, 0);
         assertEquals(this.remTerm_1, 0);
         assertEquals(this.remTerm_2, 0);
 
@@ -203,6 +217,14 @@ public class NetworkIdTest implements SccpListener {
 
         assertEquals(this.localTerm_1, 1);
         assertEquals(this.localTerm_2, 1);
+        assertEquals(this.localTerm_3, 0);
+        assertEquals(this.remTerm_1, 0);
+        assertEquals(this.remTerm_2, 0);
+
+
+
+
+
         assertEquals(this.remTerm_1, 0);
         assertEquals(this.remTerm_2, 0);
 
@@ -296,10 +318,12 @@ public class NetworkIdTest implements SccpListener {
     public void onMessage(SccpDataMessage message) {
         int dpc = message.getCalledPartyAddress().getSignalingPointCode();
 
-        if (dpc == dpc1_L)
+        if (dpc == dpc1_L && message.getNetworkId() == 1)
             localTerm_1++;
-        if (dpc == dpc2_L)
+        if (dpc == dpc2_L && message.getNetworkId() == 2)
             localTerm_2++;
+        if (dpc == dpc2_L && message.getNetworkId() == 3)
+            localTerm_3++;
     }
 
     @Override
