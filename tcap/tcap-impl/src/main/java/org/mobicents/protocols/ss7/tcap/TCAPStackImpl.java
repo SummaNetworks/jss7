@@ -43,6 +43,7 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
 /**
  * @author amit bhayani
  * @author baranowb
+ * @author ajimenez
  *
  */
 public class TCAPStackImpl implements TCAPStack {
@@ -112,13 +113,18 @@ public class TCAPStackImpl implements TCAPStack {
         setPersistFile();
     }
 
+    public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn, int minSls, int maxSls) {
+        this(name);
+        this.sccpProvider = sccpProvider;
+        this.tcapProvider = new TCAPProviderImpl(sccpProvider, this, ssn, minSls, maxSls);
+        this.tcapCounterProvider = new TCAPCounterProviderImpl(this.tcapProvider);
+        this.ssn = ssn;
+    }
     public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn) {
         this(name);
-
         this.sccpProvider = sccpProvider;
         this.tcapProvider = new TCAPProviderImpl(sccpProvider, this, ssn);
         this.tcapCounterProvider = new TCAPCounterProviderImpl(this.tcapProvider);
-
         this.ssn = ssn;
     }
 
