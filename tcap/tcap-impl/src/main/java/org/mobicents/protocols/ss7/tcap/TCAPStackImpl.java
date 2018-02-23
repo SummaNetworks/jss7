@@ -67,6 +67,7 @@ public class TCAPStackImpl implements TCAPStack {
     private static final String PREVIEW_MODE = "previewmode";
     private static final String DO_NOT_SEND_PROTOCOL_VERSION = "donotsendprotocolversion";
     private static final String STATISTICS_ENABLED = "statisticsenabled";
+    private static final int MIN_DIALOGS_AMOUNT = 10000;
     private static final String SLS_RANGE = "slsrange";
 
     private static final String CONG_CONTROL_BLOCKING_INCOMING_TCAP_MESSAGES = "congControl_blockingIncomingTcapMessages";
@@ -153,6 +154,13 @@ public class TCAPStackImpl implements TCAPStack {
         setPersistFile();
     }
 
+    public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn, int minSls, int maxSls) {
+        this(name);
+        this.sccpProvider = sccpProvider;
+        this.tcapProvider = new TCAPProviderImpl(sccpProvider, this, ssn, minSls, maxSls);
+        this.tcapCounterProvider = new TCAPCounterProviderImpl(this.tcapProvider);
+        this.ssn = ssn;
+    }
     public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn) {
         this(name);
 

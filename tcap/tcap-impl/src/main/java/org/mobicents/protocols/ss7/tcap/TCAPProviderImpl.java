@@ -132,7 +132,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private AtomicInteger seqControl = new AtomicInteger(1);
     private int ssn;
     private long curDialogId = 0;
-//    private AtomicLong currentDialogId = new AtomicLong(1);
+    private int minSls = 0;
+    private int maxSls = 256;
 
     private int cumulativeCongestionLevel = 0;
     private int executorCongestionLevel = 0;
@@ -145,6 +146,21 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private int userPartCongestionLevel_2 = 0;
     private int userPartCongestionLevel_3 = 0;
 
+    /**
+     *
+     * @param sccpProvider
+     * @param stack
+     * @param ssn
+     * @param minSls Min value for sls. Default is 0 (inclusive)
+     * @param maxSls Max value for sls. Default is 256 (inclusive)
+     */
+    protected TCAPProviderImpl(SccpProvider sccpProvider, TCAPStackImpl stack, int ssn, int minSls, int maxSls) {
+        this(sccpProvider, stack, ssn);
+        if(minSls < maxSls && minSls >= 0 ) {
+            this.maxSls = minSls;
+            this.maxSls = maxSls;
+        }
+    }
     protected TCAPProviderImpl(SccpProvider sccpProvider, TCAPStackImpl stack, int ssn) {
         super();
         this.sccpProvider = sccpProvider;
@@ -233,6 +249,9 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     // get next Seq Control value available
     protected int getNextSeqControl() {
         int res = seqControl.getAndIncrement();
+        if (res > maxSls) {
+            res = minSls;
+        }
 
         // if (!seqControl.compareAndSet(256, 1)) {
         // return seqControl.getAndIncrement();
