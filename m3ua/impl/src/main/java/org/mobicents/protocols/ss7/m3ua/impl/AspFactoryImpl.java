@@ -90,6 +90,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     private static final String ASP_ID = "aspid";
     private static final String HEART_BEAT = "heartbeat";
 
+
     protected String name;
 
     protected boolean started = false;
@@ -99,7 +100,19 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
 
     protected FastList<Asp> aspList = new FastList<Asp>();
 
-    private ByteBuffer txBuffer = ByteBuffer.allocateDirect(8192);
+    //public static final int MAX_M3UA_PACKET_SIZE = 8192;
+    public static final int MAX_M3UA_PACKET_SIZE = 1024; //Ojo, segun las implementaciones soportadas puede tener que ser mas grande.
+
+    private static ThreadLocal<ByteBuffer> txBufferThreaded = new ThreadLocal<ByteBuffer>(){
+        @Override
+        public ByteBuffer get() {
+            ByteBuffer bb = ByteBuffer.allocateDirect(MAX_M3UA_PACKET_SIZE);
+            bb.clear();
+            bb.rewind();
+            bb.flip();
+            return bb;
+        }
+    };
 
     protected Management transportManagement = null;
 
@@ -134,9 +147,9 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
 
     public AspFactoryImpl() {
         // clean transmission buffer
-        txBuffer.clear();
-        txBuffer.rewind();
-        txBuffer.flip();
+//        txBuffer.get().clear();
+//        txBuffer.get().rewind();
+//        txBuffer.get().flip();
 
         this.heartBeatTimer = new HeartBeatTimer(this);
     }
@@ -448,9 +461,8 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     }
 
     protected void write(M3UAMessage message) {
-
-        synchronized (txBuffer) {
             try {
+                ByteBuffer txBuffer = txBufferThreaded.get();
                 txBuffer.clear();
                 ((M3UAMessageImpl) message).encode(txBuffer);
                 txBuffer.flip();
@@ -478,12 +490,10 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
                                 SCTP_PAYLOAD_PROT_ID_M3UA, 0);
                         break;
                 }
-
                 this.association.send(payloadData);
             } catch (Exception e) {
                 logger.error(String.format("Error while trying to send PayloadData to SCTP layer. M3UAMessage=%s", message), e);
             }
-        }
     }
 
     protected AspImpl createAsp() {
