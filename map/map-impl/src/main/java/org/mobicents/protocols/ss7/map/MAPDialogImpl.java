@@ -418,7 +418,7 @@ public abstract class MAPDialogImpl implements MAPDialog {
         return state;
     }
 
-    protected synchronized void setState(MAPDialogState newState) {
+    public synchronized void setState(MAPDialogState newState) {
         // add checks?
         if (this.state == MAPDialogState.EXPUNGED) {
             return;

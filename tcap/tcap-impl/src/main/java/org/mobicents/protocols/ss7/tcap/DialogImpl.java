@@ -175,6 +175,17 @@ public class DialogImpl implements Dialog {
 
     private Boolean doNotSendProtocolVersion = null;
 
+    public InvokeImpl[] getOperationsSent(){
+        return operationsSent;
+    }
+
+    public Set<Long> getIncomingInvokeList(){
+        return incomingInvokeList;
+    }
+    public boolean [] getInvokeIDTable(){
+        return invokeIDTable;
+    }
+
     private static int getIndexFromInvokeId(Long l) {
         int tmp = l.intValue();
         return tmp + _INVOKE_TABLE_SHIFT;
@@ -1334,7 +1345,7 @@ public class DialogImpl implements Dialog {
     /**
      * @param remoteTransactionId the remoteTransactionId to set
      */
-    void setRemoteTransactionId(byte[] remoteTransactionId) {
+    public void setRemoteTransactionId(byte[] remoteTransactionId) {
         this.remoteTransactionId = remoteTransactionId;
     }
 
@@ -2060,7 +2071,7 @@ public class DialogImpl implements Dialog {
         }
     }
 
-    protected void setState(TRPseudoState newState) {
+    public void setState(TRPseudoState newState) {
         try {
             this.dialogLock.lock();
             // add checks?
