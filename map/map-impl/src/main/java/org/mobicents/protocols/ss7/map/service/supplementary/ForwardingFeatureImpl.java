@@ -33,12 +33,14 @@ import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.primitives.FTNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
+import org.mobicents.protocols.ss7.map.api.primitives.ISDNSubaddressString;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.BasicServiceCode;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ForwardingFeature;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.ForwardingOptions;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.SSStatus;
 import org.mobicents.protocols.ss7.map.primitives.FTNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
+import org.mobicents.protocols.ss7.map.primitives.ISDNSubaddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.SequenceBase;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.BasicServiceCodeImpl;
 
@@ -58,7 +60,7 @@ public class ForwardingFeatureImpl extends SequenceBase implements ForwardingFea
     private BasicServiceCode basicService;
     private SSStatus ssStatus;
     private ISDNAddressString torwardedToNumber;
-    private ISDNAddressString forwardedToSubaddress;
+    private ISDNSubaddressString forwardedToSubaddress;
     private ForwardingOptions forwardingOptions;
     private Integer noReplyConditionTime;
     private FTNAddressString longForwardedToNumber;
@@ -67,13 +69,14 @@ public class ForwardingFeatureImpl extends SequenceBase implements ForwardingFea
         super("ForwardingFeature");
     }
 
-    public ForwardingFeatureImpl(BasicServiceCode basicService, SSStatus ssStatus, ISDNAddressString torwardedToNumber,
-            ISDNAddressString forwardedToSubaddress, ForwardingOptions forwardingOptions, Integer noReplyConditionTime, FTNAddressString longForwardedToNumber) {
+    public ForwardingFeatureImpl(BasicServiceCode basicService, SSStatus ssStatus, ISDNAddressString forwardedToNumber,
+                                 ISDNSubaddressString forwardedToSubaddress, ForwardingOptions forwardingOptions,
+                                 Integer noReplyConditionTime, FTNAddressString longForwardedToNumber) {
         super("ForwardingFeature");
 
         this.basicService = basicService;
         this.ssStatus = ssStatus;
-        this.torwardedToNumber = torwardedToNumber;
+        this.torwardedToNumber = forwardedToNumber;
         this.forwardedToSubaddress = forwardedToSubaddress;
         this.forwardingOptions = forwardingOptions;
         this.noReplyConditionTime = noReplyConditionTime;
@@ -96,7 +99,7 @@ public class ForwardingFeatureImpl extends SequenceBase implements ForwardingFea
     }
 
     @Override
-    public ISDNAddressString getForwardedToSubaddress() {
+    public ISDNSubaddressString getForwardedToSubaddress() {
         return forwardedToSubaddress;
     }
 
@@ -161,8 +164,8 @@ public class ForwardingFeatureImpl extends SequenceBase implements ForwardingFea
                     if (!ais.isTagPrimitive())
                         throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + " forwardedToSubaddress: Parameter is not primitive",
                                 MAPParsingComponentExceptionReason.MistypedParameter);
-                    this.forwardedToSubaddress = new ISDNAddressStringImpl();
-                    ((ISDNAddressStringImpl) this.forwardedToSubaddress).decodeAll(ais);
+                    this.forwardedToSubaddress = new ISDNSubaddressStringImpl();
+                    ((ISDNSubaddressStringImpl) this.forwardedToSubaddress).decodeAll(ais);
                     break;
                 case _ID_forwardingOptions:
                     if (!ais.isTagPrimitive())
@@ -205,7 +208,7 @@ public class ForwardingFeatureImpl extends SequenceBase implements ForwardingFea
             if (this.torwardedToNumber != null)
                 ((ISDNAddressStringImpl) this.torwardedToNumber).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _ID_forwardedToNumber);
             if (this.forwardedToSubaddress != null)
-                ((ISDNAddressStringImpl) this.forwardedToSubaddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _ID_forwardedToSubaddress);
+                ((ISDNSubaddressStringImpl) this.forwardedToSubaddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _ID_forwardedToSubaddress);
             if (this.forwardingOptions != null)
                 ((ForwardingOptionsImpl) this.forwardingOptions).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _ID_forwardingOptions);
             if (this.noReplyConditionTime != null)

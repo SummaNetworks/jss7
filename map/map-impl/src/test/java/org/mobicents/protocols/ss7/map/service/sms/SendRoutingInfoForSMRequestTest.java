@@ -86,7 +86,12 @@ public class SendRoutingInfoForSMRequestTest {
         return new byte[] { 48,25,-128,5,-111,17,17,17,17,-127,1,0,-126,5,-111,34,34,34,34,-116,6,81,20,69,81,20,69};
     }
 
-
+    private byte[] getEncodedDataAll() {
+        return new byte[] { 48, 91, -128, 5, -111, 17, 17, 17, 17, -127, 1, -1, -126, 5, -111, 34, 34, 34, 34, -90,
+                39, -96, 32, 48, 10, 6, 3, 42, 3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42, 3, 6, 48, 11, 6, 3, 42, 3,
+                5, 21, 22, 23, 24, 25, 26, -95, 3, 31, 32, 33, -121, 0, -120, 1, 0, -119, 6, -111, 105, 49, 3, -105,
+                97, -123, 1, 33, -118, 1, 0, -117, 0, -116, 6, 81, 20, 69, 81, 20, 69, -114, 0, -115, 0};
+    }
 
     @Test(groups = { "functional.decode", "service.sms" })
     public void testDecode() throws Exception {
@@ -184,6 +189,37 @@ public class SendRoutingInfoForSMRequestTest {
         assertNull(ind.getExtensionContainer());
         assertNull(ind.getSM_RP_MTI());
         assertEquals(ind.getTeleservice().getTeleserviceCodeValue(), TeleserviceCodeValue.shortMessageMT_PP);
+
+        rawData = getEncodedDataAll();
+        asn = new AsnInputStream(rawData);
+
+        tag = asn.readTag();
+        ind = new SendRoutingInfoForSMRequestImpl();
+        ind.decodeAll(asn);
+
+        assertEquals(tag, Tag.SEQUENCE);
+        assertEquals(asn.getTagClass(), Tag.CLASS_UNIVERSAL);
+
+        msisdn = ind.getMsisdn();
+        assertEquals(msisdn.getAddressNature(), AddressNature.international_number);
+        assertEquals(msisdn.getNumberingPlan(), NumberingPlan.ISDN);
+        assertEquals(msisdn.getAddress(), "11111111");
+        assertEquals(ind.getSm_RP_PRI(), true);
+        sca = ind.getServiceCentreAddress();
+        assertEquals(sca.getAddressNature(), AddressNature.international_number);
+        assertEquals(sca.getNumberingPlan(), NumberingPlan.ISDN);
+        assertEquals(sca.getAddress(), "22222222");
+        assertTrue(MAPExtensionContainerTest.CheckTestExtensionContainer(ind.getExtensionContainer()));
+        assertEquals(ind.getGprsSupportIndicator(), true);
+        assertEquals(ind.getSM_RP_MTI(), SM_RP_MTI.SMS_Deliver);
+        assertEquals(ind.getSM_RP_SMEA(), new SM_RP_SMEAImpl(new byte[] { -111, 105, 49, 3, -105, 97 }));
+        assertEquals(ind.getSmDeliveryNotIntended(), SMDeliveryNotIntended.onlyIMSIRequested);
+        assertEquals(ind.getIpSmGwGuidanceIndicator(), true);
+        assertEquals(ind.getImsi().getData(), "154154154154");
+        assertEquals(ind.getT4TriggerIndicator(), true);
+        assertEquals(ind.getSingleAttemptDelivery(), true);
+        assertEquals(ind.getTeleservice().getTeleserviceCodeValue(), TeleserviceCodeValue.shortMessageMT_PP);
+
     }
 
     @Test(groups = { "functional.encode", "service.sms" })
@@ -280,6 +316,17 @@ public class SendRoutingInfoForSMRequestTest {
 
         encodedData = asnOS.toByteArray();
         rawData = getEncodedData4();
+        assertTrue(Arrays.equals(rawData, encodedData));
+
+        //all
+        ind = new SendRoutingInfoForSMRequestImpl(msisdn, true, sca, MAPExtensionContainerTest.GetTestExtensionContainer(),
+                true, SM_RP_MTI.SMS_Deliver, sm_rp_smea, smDeliveryNotIntended, true, imsi, true, true, tc);
+
+        asnOS = new AsnOutputStream();
+        ind.encodeAll(asnOS);
+
+        encodedData = asnOS.toByteArray();
+        rawData = getEncodedDataAll();
         assertTrue(Arrays.equals(rawData, encodedData));
     }
 }

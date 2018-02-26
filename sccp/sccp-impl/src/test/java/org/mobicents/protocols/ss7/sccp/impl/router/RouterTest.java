@@ -840,7 +840,7 @@ public class RouterTest {
         @Override
         public void setCongControlTIMER_A(int value) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -852,7 +852,7 @@ public class RouterTest {
         @Override
         public void setCongControlTIMER_D(int value) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -870,13 +870,13 @@ public class RouterTest {
         @Override
         public void setCongControl_blockingOutgoungSccpMessages(boolean value) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         public void setCongControl_Algo(SccpCongestionControlAlgo value) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -894,7 +894,7 @@ public class RouterTest {
 		@Override
 		public void setPeriodOfLogging(int periodOfLogging) throws Exception {
 			// TODO Auto-generated method stub
-			
+
 		}
 
     }
@@ -964,7 +964,7 @@ public class RouterTest {
         @Override
         public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -976,13 +976,13 @@ public class RouterTest {
         @Override
         public void start() throws Exception {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         public void stop() throws Exception {
             // TODO Auto-generated method stub
-            
+
         }
 
     }

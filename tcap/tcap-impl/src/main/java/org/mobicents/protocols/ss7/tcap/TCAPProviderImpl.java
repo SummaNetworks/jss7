@@ -188,7 +188,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         } else {
             this.tcListeners.add(lst);
         }
-
     }
 
     /*
@@ -208,6 +207,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             return false;
     }
 
+    //TODO Ajimenez 2018/02/24: Revisar Parece que el getAvailableTxId intenta simular la extructura de los números atomicos pero ha optado por añadir
+    //ademas el synchronized....
     private synchronized Long getAvailableTxId() throws TCAPException {
         if (this.dialogs.size() >= this.stack.getMaxDialogs())
             throw new TCAPException("Current dialog count exceeds its maximum value");
@@ -365,6 +366,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             id = this.getAvailableTxId();
         } else {
             if (!checkAvailableTxId(id)) {
+                logger.warn("Suggested local TransactionId is already present in system: " + id);
                 throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
             }
         }

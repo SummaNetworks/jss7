@@ -65,13 +65,13 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
     private Integer noReplyConditionTime;
     private EMLPPPriority defaultPriority;
     private Integer nbrUser;
-    private ISDNAddressString longFTNSupported;
+    private boolean longFTNSupported;
 
     public RegisterSSRequestImpl() {
     }
 
     public RegisterSSRequestImpl(SSCode ssCode, BasicServiceCode basicService, AddressString forwardedToNumber, ISDNAddressString forwardedToSubaddress,
-            Integer noReplyConditionTime, EMLPPPriority defaultPriority, Integer nbrUser, ISDNAddressString longFTNSupported) {
+            Integer noReplyConditionTime, EMLPPPriority defaultPriority, Integer nbrUser, boolean longFTNSupported) {
         this.ssCode = ssCode;
         this.basicService = basicService;
         this.forwardedToNumber = forwardedToNumber;
@@ -126,7 +126,7 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
     }
 
     @Override
-    public ISDNAddressString getLongFTNSupported() {
+    public boolean getLongFTNSupported() {
         return longFTNSupported;
     }
 
@@ -184,7 +184,7 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
         this.noReplyConditionTime = null;
         this.defaultPriority = null;
         this.nbrUser = null;
-        this.longFTNSupported = null;
+        this.longFTNSupported = false;
 
         AsnInputStream ais = ansIS.readSequenceStreamData(length);
         int num = 0;
@@ -199,7 +199,8 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
                 // ssCode
                 if (ais.getTagClass() != Tag.CLASS_UNIVERSAL || !ais.isTagPrimitive() || tag != Tag.STRING_OCTET)
                     throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                            + ".ssCode: Parameter 0 bad tag or tag class or not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
+                            + ".ssCode: Parameter 0 bad tag or tag class or not primitive",
+                            MAPParsingComponentExceptionReason.MistypedParameter);
                 this.ssCode = new SSCodeImpl();
                 ((SSCodeImpl) this.ssCode).decodeAll(ais);
                 break;
@@ -220,14 +221,16 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
                     case _TAG_forwardedToNumber:
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".forwardedToNumber: Parameter extensionContainer is not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
+                                    + ".forwardedToNumber: Parameter extensionContainer is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
                         this.forwardedToNumber = new AddressStringImpl();
                         ((AddressStringImpl) this.forwardedToNumber).decodeAll(ais);
                         break;
                     case _TAG_forwardedToSubaddress:
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".forwardedToSubaddress: Parameter extensionContainer is not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
+                                    + ".forwardedToSubaddress: Parameter extensionContainer is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
                         this.forwardedToSubaddress = new ISDNAddressStringImpl();
                         ((ISDNAddressStringImpl) this.forwardedToSubaddress).decodeAll(ais);
                         break;
@@ -235,28 +238,32 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
                     case _TAG_noReplyConditionTime:
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".noReplyConditionTime: Parameter is not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
+                                    + ".noReplyConditionTime: Parameter is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
                         this.noReplyConditionTime = (int) ais.readInteger();
                         break;
                     case _TAG_defaultPriority:
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".defaultPriority: Parameter is not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
+                                    + ".defaultPriority: Parameter is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
                         int i1 = (int) ais.readInteger();
                         this.defaultPriority = EMLPPPriority.getEMLPPPriority(i1);
                         break;
                     case _TAG_nbrUser:
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".nbrUser: Parameter is not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
+                                    + ".nbrUser: Parameter is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
                         this.nbrUser = (int) ais.readInteger();
                         break;
                     case _TAG_longFTN_Supported:
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".longFTNSupported: Parameter extensionContainer is not primitive", MAPParsingComponentExceptionReason.MistypedParameter);
-                        this.longFTNSupported = new ISDNAddressStringImpl();
-                        ((ISDNAddressStringImpl) this.longFTNSupported).decodeAll(ais);
+                                    + ".longFTNSupported: Parameter is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        ais.readNull();
+                        this.longFTNSupported = true;
                         break;
 
                     default:
@@ -317,8 +324,9 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
                 asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_defaultPriority, defaultPriority.getCode());
             if (nbrUser != null)
                 asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_nbrUser, nbrUser);
-            if (this.longFTNSupported != null)
-                ((ISDNAddressStringImpl) this.longFTNSupported).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_longFTN_Supported);
+            if (this.longFTNSupported){
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_longFTN_Supported);
+            }
 
         } catch (IOException e) {
             throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
@@ -368,10 +376,8 @@ public class RegisterSSRequestImpl extends SupplementaryMessageImpl implements R
             sb.append(nbrUser);
             sb.append(", ");
         }
-        if (this.longFTNSupported != null) {
-            sb.append("longFTNSupported=");
-            sb.append(longFTNSupported);
-            sb.append(", ");
+        if (this.longFTNSupported) {
+            sb.append("longFTNSupported, ");
         }
 
         sb.append("]");

@@ -20,7 +20,7 @@
 			<groupId>org.mobicents.protocols.ss7.management</groupId>
 			<artifactId>shell-server-api</artifactId>
 			<version>${project.version}</version>
-		</dependency>           
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-		</dependency>           
+		</dependency>
 		<dependency>
 			<groupId>org.mobicents.protocols.ss7.m3ua</groupId>
 			<artifactId>m3ua-api</artifactId>
@@ -84,7 +84,7 @@
 						<suiteXmlFile>testng-classes.xml</suiteXmlFile>
 					</suiteXmlFiles>
 				</configuration>
-			</plugin>               
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -57,6 +57,12 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DeleteSubscriberDataRequest;
@@ -467,11 +473,23 @@ public class TestCheckImeiServerMan extends TesterBase implements TestCheckImeiS
 
     }
 
-    public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request) {
+    public void onAnyTimeModificationRequest(AnyTimeModificationRequest request) {
 
     }
 
+    public void onAnyTimeModificationResponse(AnyTimeModificationResponse response) {
+
+    }
+
+    @Override
+    public void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response) {
+        // TODO Auto-generated method stub
 
     }
 
@@ -484,6 +502,14 @@ public class TestCheckImeiServerMan extends TesterBase implements TestCheckImeiS
     @Override
     public void onProvideSubscriberInfoResponse(ProvideSubscriberInfoResponse response) {
         // TODO Auto-generated method stub
+
+    }
+
+    public void onNoteSubscriberDataModifiedRequest(NoteSubscriberDataModifiedRequest request) {
+
+    }
+
+    public void onNoteSubscriberDataModifiedResponse(NoteSubscriberDataModifiedResponse response) {
 
     }
 

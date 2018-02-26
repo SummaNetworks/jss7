@@ -47,6 +47,7 @@ import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
 /**
  * @author amit bhayani
  * @author baranowb
+ * @author ajimenez
  *
  */
 public class TCAPStackImpl implements TCAPStack {
@@ -163,11 +164,9 @@ public class TCAPStackImpl implements TCAPStack {
     }
     public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn) {
         this(name);
-
         this.sccpProvider = sccpProvider;
         this.tcapProvider = new TCAPProviderImpl(sccpProvider, this, ssn);
         this.tcapCounterProvider = new TCAPCounterProviderImpl(this.tcapProvider);
-
         this.ssn = ssn;
     }
 
@@ -240,8 +239,8 @@ public class TCAPStackImpl implements TCAPStack {
             throw new IllegalArgumentException("Range start value must be greater or equal 1");
         if (rangeEnd > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range end value must be less or equal " + Integer.MAX_VALUE);
-        if ((rangeEnd - rangeStart) < 10000)
-            throw new IllegalArgumentException("Range \"end - start\" must has at least 10000 possible dialogs");
+        if ((rangeEnd - rangeStart) < MIN_DIALOGS_AMOUNT)
+            throw new IllegalArgumentException("Range \"end - start\" ["+rangeEnd+"-"+rangeStart+"] must has at least 10000 possible dialogs");
         if ((rangeEnd - rangeStart) <= this.maxDialogs)
             throw new IllegalArgumentException("MaxDialog must be less than DialogIdRange");
     }
@@ -782,6 +781,8 @@ public class TCAPStackImpl implements TCAPStack {
     }
 
      protected void load(XMLObjectReader reader) throws XMLStreamException{
+
+        try{
             Long vall = reader.read(DIALOG_IDLE_TIMEOUT, Long.class);
             if (vall != null)
                 this.dialogTimeout = vall;
@@ -855,6 +856,11 @@ public class TCAPStackImpl implements TCAPStack {
                 this.statisticsEnabled = volb;
 
             reader.close();
+        } catch (XMLStreamException ex) {
+            this.logger.warn(
+             "Error while re-creating Linksets from persisted file", ex);
+            throw ex;
+        }
     }
 
     @Override

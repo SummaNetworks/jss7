@@ -41,6 +41,7 @@ import org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive;
  *
  *
  * @author amit bhayani
+ * @author eva ogallar
  *
  */
 public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
@@ -50,8 +51,8 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
 
     public static final String _PrimitiveName = "AdditionalNumber";
 
-    private ISDNAddressString mSCNumber = null;
-    private ISDNAddressString sGSNNumber = null;
+    private ISDNAddressString mscNumber = null;
+    private ISDNAddressString sgsnNumber = null;
 
     /**
      *
@@ -61,13 +62,16 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
     }
 
     /**
-     * @param mSCNumber
-     * @param sGSNNumber
+     * @param isMSC
+     * @param number
      */
-    public AdditionalNumberImpl(ISDNAddressString mSCNumber, ISDNAddressString sGSNNumber) {
+    public AdditionalNumberImpl(ISDNAddressString number, boolean isMSC) {
         super();
-        this.mSCNumber = mSCNumber;
-        this.sGSNNumber = sGSNNumber;
+        if (isMSC) {
+            this.mscNumber = number;
+        } else {
+            this.sgsnNumber = number;
+        }
     }
 
     /*
@@ -76,7 +80,7 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
      * @see org.mobicents.protocols.ss7.map.api.service.lsm.AdditionalNumber#getMSCNumber ()
      */
     public ISDNAddressString getMSCNumber() {
-        return this.mSCNumber;
+        return this.mscNumber;
     }
 
     /*
@@ -85,7 +89,7 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
      * @see org.mobicents.protocols.ss7.map.api.service.lsm.AdditionalNumber# getSGSNNumber()
      */
     public ISDNAddressString getSGSNNumber() {
-        return this.sGSNNumber;
+        return this.sgsnNumber;
     }
 
     /*
@@ -94,7 +98,7 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
      * @see org.mobicents.protocols.ss7.map.api.primitives.MAPAsnPrimitive#getTag()
      */
     public int getTag() throws MAPException {
-        if (this.mSCNumber != null) {
+        if (this.mscNumber != null) {
             return _TAG_MSC_NUMBER;
         } else {
             return _TAG_SGSN_NUMBER;
@@ -166,12 +170,12 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
 
         switch (asnIS.getTag()) {
             case _TAG_MSC_NUMBER:
-                this.mSCNumber = new ISDNAddressStringImpl();
-                ((ISDNAddressStringImpl) this.mSCNumber).decodeData(asnIS, length);
+                this.mscNumber = new ISDNAddressStringImpl();
+                ((ISDNAddressStringImpl) this.mscNumber).decodeData(asnIS, length);
                 break;
             case _TAG_SGSN_NUMBER:
-                this.sGSNNumber = new ISDNAddressStringImpl();
-                ((ISDNAddressStringImpl) this.sGSNNumber).decodeData(asnIS, length);
+                this.sgsnNumber = new ISDNAddressStringImpl();
+                ((ISDNAddressStringImpl) this.sgsnNumber).decodeData(asnIS, length);
                 break;
             default:
                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
@@ -214,16 +218,16 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
      * (org.mobicents.protocols.asn.AsnOutputStream)
      */
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
-        if (this.mSCNumber == null && this.sGSNNumber == null)
+        if (this.mscNumber == null && this.sgsnNumber == null)
             throw new MAPException("Error when encoding " + _PrimitiveName + ": both mscNumber and sgsnNumber must not be null");
-        if (this.mSCNumber != null && this.sGSNNumber != null)
+        if (this.mscNumber != null && this.sgsnNumber != null)
             throw new MAPException("Error when encoding " + _PrimitiveName
                     + ": both mscNumber and sgsnNumber must not be not null");
 
-        if (this.mSCNumber != null) {
-            ((ISDNAddressStringImpl) this.mSCNumber).encodeData(asnOs);
+        if (this.mscNumber != null) {
+            ((ISDNAddressStringImpl) this.mscNumber).encodeData(asnOs);
         } else {
-            ((ISDNAddressStringImpl) this.sGSNNumber).encodeData(asnOs);
+            ((ISDNAddressStringImpl) this.sgsnNumber).encodeData(asnOs);
         }
     }
 
@@ -232,13 +236,13 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
         StringBuilder sb = new StringBuilder();
         sb.append("AdditionalNumber [");
 
-        if (this.mSCNumber != null) {
+        if (this.mscNumber != null) {
             sb.append("msc-Number=");
-            sb.append(this.mSCNumber.toString());
+            sb.append(this.mscNumber.toString());
         }
-        if (this.sGSNNumber != null) {
+        if (this.sgsnNumber != null) {
             sb.append("sgsn-Number=");
-            sb.append(this.sGSNNumber.toString());
+            sb.append(this.sgsnNumber.toString());
         }
 
         sb.append("]");
@@ -250,8 +254,8 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((mSCNumber == null) ? 0 : mSCNumber.hashCode());
-        result = prime * result + ((sGSNNumber == null) ? 0 : sGSNNumber.hashCode());
+        result = prime * result + ((mscNumber == null) ? 0 : mscNumber.hashCode());
+        result = prime * result + ((sgsnNumber == null) ? 0 : sgsnNumber.hashCode());
         return result;
     }
 
@@ -264,15 +268,15 @@ public class AdditionalNumberImpl implements AdditionalNumber, MAPAsnPrimitive {
         if (getClass() != obj.getClass())
             return false;
         AdditionalNumberImpl other = (AdditionalNumberImpl) obj;
-        if (mSCNumber == null) {
-            if (other.mSCNumber != null)
+        if (mscNumber == null) {
+            if (other.mscNumber != null)
                 return false;
-        } else if (!mSCNumber.equals(other.mSCNumber))
+        } else if (!mscNumber.equals(other.mscNumber))
             return false;
-        if (sGSNNumber == null) {
-            if (other.sGSNNumber != null)
+        if (sgsnNumber == null) {
+            if (other.sgsnNumber != null)
                 return false;
-        } else if (!sGSNNumber.equals(other.sGSNNumber))
+        } else if (!sgsnNumber.equals(other.sgsnNumber))
             return false;
         return true;
     }

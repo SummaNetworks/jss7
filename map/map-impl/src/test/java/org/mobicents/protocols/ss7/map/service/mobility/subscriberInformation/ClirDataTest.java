@@ -42,7 +42,7 @@ public class ClirDataTest {
 
     @Test(groups = {"functional.encode", "subscriberInformation"})
     public void testEncode() throws Exception {
-        ClirDataImpl clirData = new ClirDataImpl(new ExtSSStatusImpl(true, false, true, false), CliRestrictionOption.permanent, true);
+        ClirDataImpl clirData = new ClirDataImpl(true, CliRestrictionOption.permanent, new ExtSSStatusImpl(true, false, true, false));
 
         AsnOutputStream asnOS = new AsnOutputStream();
         clirData.encodeAll(asnOS);

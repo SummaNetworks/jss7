@@ -30,15 +30,15 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.CliRestrictionO
 
 /**
  *
-<code>
-ModificationRequestFor-CLIR-Info ::= SEQUENCE {
-  ss-Status                [0] Ext-SS-Status OPTIONAL,
-  cliRestrictionOption     [1] CliRestrictionOption OPTIONAL,
-  modifyNotificationToCSE  [2] ModificationInstruction OPTIONAL,
-  extensionContainer       [3] ExtensionContainer OPTIONAL,
-  ...
-}
-</code>
+ * <code>
+ * ModificationRequestFor-CLIR-Info ::= SEQUENCE {
+ *      ss-Status                [0] Ext-SS-Status OPTIONAL,
+ *      cliRestrictionOption     [1] CliRestrictionOption OPTIONAL,
+ *      modifyNotificationToCSE  [2] ModificationInstruction OPTIONAL,
+ *      extensionContainer       [3] ExtensionContainer OPTIONAL,
+ *      ...
+ * }
+ * </code>
  *
  *
  * @author sergey vetyutnev

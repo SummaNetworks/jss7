@@ -35,7 +35,7 @@ Ext-CwFeature ::= SEQUENCE {
   ss-Status        [2] Ext-SS-Status,
   ...
 }
-</code>
+ </code>
  *
  *
  * @author sergey vetyutnev

@@ -79,6 +79,6 @@ public interface RegisterSSRequest extends SupplementaryMessage {
 
     Integer getNbrUser();
 
-    ISDNAddressString getLongFTNSupported();
+    boolean getLongFTNSupported();
 
 }

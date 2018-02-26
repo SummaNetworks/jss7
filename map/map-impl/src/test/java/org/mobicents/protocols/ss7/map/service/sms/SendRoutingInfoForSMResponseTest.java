@@ -22,6 +22,14 @@
 
 package org.mobicents.protocols.ss7.map.service.sms;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertNotNull;
+
+import java.util.Arrays;
+
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -38,14 +46,6 @@ import org.mobicents.protocols.ss7.map.primitives.LMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerTest;
 import org.mobicents.protocols.ss7.map.service.lsm.AdditionalNumberImpl;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
 
 /**
  *
@@ -171,8 +171,8 @@ public class SendRoutingInfoForSMResponseTest {
         assertNull(li.getAdditionalNumber());
         assertNull(ind.getExtensionContainer());
         assertNotNull(ind.getIpSmGwGuidance());
-        assertEquals(ind.getIpSmGwGuidance().getMinimumDeliveryTimeValue(), 30);
-        assertEquals(ind.getIpSmGwGuidance().getRecommendedDeliveryTimeValue(), 40);
+        assertEquals(ind.getIpSmGwGuidance().getMinimumDeliveryTimeValue(), new Integer(30));
+        assertEquals(ind.getIpSmGwGuidance().getRecommendedDeliveryTimeValue(), new Integer(40));
         assertFalse(ind.getMwdSet());
     }
 
@@ -198,7 +198,7 @@ public class SendRoutingInfoForSMResponseTest {
         lmsi = new LMSIImpl(new byte[] { 0, 2, 1, 0 });
         ISDNAddressString sgsnAdditionalNumber = new ISDNAddressStringImpl(AddressNature.national_significant_number,
                 NumberingPlan.land_mobile, "99999999");
-        AdditionalNumber additionalNumber = new AdditionalNumberImpl(null, sgsnAdditionalNumber);
+        AdditionalNumber additionalNumber = new AdditionalNumberImpl(sgsnAdditionalNumber, false);
         li = new LocationInfoWithLMSIImpl(nnn, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), false, additionalNumber);
         ind = new SendRoutingInfoForSMResponseImpl(imsi, li, MAPExtensionContainerTest.GetTestExtensionContainer(), null, null);
 

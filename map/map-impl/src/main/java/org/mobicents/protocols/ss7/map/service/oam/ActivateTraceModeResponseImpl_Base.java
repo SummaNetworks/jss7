@@ -152,7 +152,8 @@ public class ActivateTraceModeResponseImpl_Base extends MessageImpl implements A
                     break;
                 case _ID_traceSupportIndicator:
                     if (!ais.isTagPrimitive())
-                        throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ".imsi: Parameter is not primitive",
+                        throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName +
+                                ".traceSupportIndicator: Parameter is not primitive",
                                 MAPParsingComponentExceptionReason.MistypedParameter);
                     ais.readNull();
                     this.traceSupportIndicator = true;

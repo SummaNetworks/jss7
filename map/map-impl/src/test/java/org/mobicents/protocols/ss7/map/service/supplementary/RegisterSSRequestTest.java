@@ -22,8 +22,6 @@
 
 package org.mobicents.protocols.ss7.map.service.supplementary;
 
-import static org.testng.Assert.*;
-
 import java.util.Arrays;
 
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -45,6 +43,9 @@ import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.Bas
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.BearerServiceCodeImpl;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 /**
 *
 * @author sergey vetyutnev
@@ -53,9 +54,10 @@ import org.testng.annotations.Test;
 public class RegisterSSRequestTest {
 
     private byte[] getEncodedData1() {
-        return new byte[] { 48, 36, 4, 1, 18, -126, 1, 35, -124, 5, -111, 17, 1, 0, -15, -122, 5, -111, 17, 1, 0, -14, -123, 1, 1, -121, 1, 6, -120, 1, 2,
-                -119, 5, -111, 17, 1, 0, -13 };
+        return new byte[] { 48, 36, 4, 1, 18, -126, 1, 35, -124, 5, -111, 17, 1, 0, -15, -122, 5, -111, 17, 1, 0,
+                -14, -123, 1, 1, -121, 1, 6, -120, 1, 2, -119, 5, -111, 17, 1, 0, -13};
     }
+
 
     @Test(groups = { "functional.decode", "service.supplementary" })
     public void testDecode() throws Exception {
@@ -78,7 +80,7 @@ public class RegisterSSRequestTest {
         assertEquals((int)impl.getNoReplyConditionTime(), 1);
         assertEquals(impl.getDefaultPriority(), EMLPPPriority.priorityLevelA);
         assertEquals((int)impl.getNbrUser(), 2);
-        assertEquals(impl.getLongFTNSupported().getAddress(), "1110003");
+        assertEquals(impl.getLongFTNSupported(), true);
 
     }
 
@@ -90,7 +92,7 @@ public class RegisterSSRequestTest {
         BasicServiceCode basicService = new BasicServiceCodeImpl(bearerService);
         AddressString forwardedToNumber = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "1110001");
         ISDNAddressString forwardedToSubaddress = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "1110002");
-        ISDNAddressString longFTNSupported = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "1110003");;
+        boolean longFTNSupported = true;
 
         RegisterSSRequestImpl impl = new RegisterSSRequestImpl(ssCode, basicService, forwardedToNumber, forwardedToSubaddress, 1, EMLPPPriority.priorityLevelA,
                 2, longFTNSupported);

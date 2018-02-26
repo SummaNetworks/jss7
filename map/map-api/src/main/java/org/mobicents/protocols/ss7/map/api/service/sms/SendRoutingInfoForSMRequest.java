@@ -30,8 +30,7 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 
 /**
  *
-<code>
-MAP V1-2-3:
+ MAP V1-2-3:
 
 MAP V3: sendRoutingInfoForSM OPERATION ::= { --Timer m
   ARGUMENT RoutingInfoForSM-Arg
@@ -94,20 +93,17 @@ public interface SendRoutingInfoForSMRequest extends SmsMessage {
 
     SM_RP_SMEA getSM_RP_SMEA();
 
-    SMDeliveryNotIntended getSmDeliveryNotIntended();
+    // for MAP V1 only
+    TeleserviceCode getTeleservice();
 
     boolean getIpSmGwGuidanceIndicator();
-
-    IMSI getImsi();
 
     boolean getT4TriggerIndicator();
 
     boolean getSingleAttemptDelivery();
 
-    // TODO: CorrelationID parameter is not still implemented
-    // CorrelationID getCorrelationID();
+    IMSI getImsi();
 
-    // for MAP V1 only
-    TeleserviceCode getTeleservice();
+    SMDeliveryNotIntended getSmDeliveryNotIntended();
 
 }

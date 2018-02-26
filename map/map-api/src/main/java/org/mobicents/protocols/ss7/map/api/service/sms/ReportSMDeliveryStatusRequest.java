@@ -78,4 +78,5 @@ public interface ReportSMDeliveryStatusRequest extends SmsMessage {
 
     Integer getAdditionalAbsentSubscriberDiagnosticSM();
 
+    long getMapProtocolVersion();
 }

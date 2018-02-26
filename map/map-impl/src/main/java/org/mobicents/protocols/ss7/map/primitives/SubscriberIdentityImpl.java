@@ -178,7 +178,7 @@ public class SubscriberIdentityImpl implements SubscriberIdentity, MAPAsnPrimiti
                 break;
             default:
                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                        + ": Expexted imsi [0] IMSI or msisdn [1] ISDN-AddressString, but found " + asnIS.getTag(),
+                        + ": Expected imsi [0] IMSI or msisdn [1] ISDN-AddressString, but found " + asnIS.getTag(),
                         MAPParsingComponentExceptionReason.MistypedParameter);
         }
     }
@@ -200,6 +200,7 @@ public class SubscriberIdentityImpl implements SubscriberIdentity, MAPAsnPrimiti
      * (org.mobicents.protocols.asn.AsnOutputStream, int, int)
      */
     public void encodeAll(AsnOutputStream asnOs, int tagClass, int tag) throws MAPException {
+
         try {
             asnOs.writeTag(tagClass, this.getIsPrimitive(), tag);
             int pos = asnOs.StartContentDefiniteLength();

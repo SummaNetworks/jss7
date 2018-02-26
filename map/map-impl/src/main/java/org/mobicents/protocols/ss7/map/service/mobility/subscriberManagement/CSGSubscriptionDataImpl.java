@@ -45,7 +45,7 @@ import org.mobicents.protocols.ss7.map.primitives.TimeImpl;
  * @author Lasith Waruna Perera
  *
  */
-public class CSGSubscriptionDataImpl extends SequenceBase implements CSGSubscriptionData {
+public class  CSGSubscriptionDataImpl extends SequenceBase implements CSGSubscriptionData {
 
     public static final int _TAG_LipaAllowedAPNList = 0;
 

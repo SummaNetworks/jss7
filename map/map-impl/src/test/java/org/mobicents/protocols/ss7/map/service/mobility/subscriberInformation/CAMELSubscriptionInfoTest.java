@@ -307,7 +307,7 @@ public class CAMELSubscriptionInfoTest {
         assertNull(camelSubscriptionInfo.getMtSmsCsi());
         assertNull(camelSubscriptionInfo.getMtSmsCamelTdpCriteriaList());
         assertNull(camelSubscriptionInfo.getMgCsi());
-        assertNull(camelSubscriptionInfo.geToImCsi());
+        assertNull(camelSubscriptionInfo.getOImCsi());
         assertNull(camelSubscriptionInfo.getOImBcsmCamelTdpCriteriaList());
         assertNull(camelSubscriptionInfo.getDImCsi());
         assertNull(camelSubscriptionInfo.getVtImCsi());
@@ -335,7 +335,7 @@ public class CAMELSubscriptionInfoTest {
         assertNotNull(camelSubscriptionInfo.getMtSmsCsi());
         assertNotNull(camelSubscriptionInfo.getMtSmsCamelTdpCriteriaList());
         assertNotNull(camelSubscriptionInfo.getMgCsi());
-        assertNotNull(camelSubscriptionInfo.geToImCsi());
+        assertNotNull(camelSubscriptionInfo.getOImCsi());
         assertNotNull(camelSubscriptionInfo.getOImBcsmCamelTdpCriteriaList());
         assertNotNull(camelSubscriptionInfo.getDImCsi());
         assertNotNull(camelSubscriptionInfo.getVtImCsi());
@@ -396,7 +396,7 @@ public class CAMELSubscriptionInfoTest {
         MMCode mmCode = mgcsi.getMobilityTriggers().get(0);
         assertEquals(mmCode.getMMCodeValue(), MMCodeValue.GPRSAttach);
 
-        OCSI ocsi = camelSubscriptionInfo.geToImCsi();
+        OCSI ocsi = camelSubscriptionInfo.getOImCsi();
         assertNotNull(ocsi.getOBcsmCamelTDPDataList());
         assertEquals(ocsi.getOBcsmCamelTDPDataList().size(), 1);
         assertEquals(ocsi.getCamelCapabilityHandling().intValue(), 4);

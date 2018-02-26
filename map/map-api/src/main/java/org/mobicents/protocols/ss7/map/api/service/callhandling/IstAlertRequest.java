@@ -27,13 +27,29 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
  *
- MAP V3:
+ * <code>
+ * MAP V3:
  *
- * ist-Alert OPERATION ::= { --Timer m ARGUMENT IST-AlertArg RESULT IST-AlertRes -- optional ERRORS { unexpectedDataValue |
- * resourceLimitation | unknownSubscriber | systemFailure | facilityNotSupported} CODE local:87 }
+ * ist-Alert OPERATION ::= {
+ *        ARGUMENT
+ *             IST-AlertArg
+ *        RESULT
+ *             IST-AlertRes
+ *             -- optional
+ *        ERRORS {
+ *             unexpectedDataValue |
+ *             resourceLimitation |
+ *             unknownSubscriber |
+ *             systemFailure |
+ *             facilityNotSupported}
+ *        CODE local:87 }
  *
- * IST-AlertArg ::= SEQUENCE{ imsi [0] IMSI, extensionContainer [1] ExtensionContainer OPTIONAL, ...}
+ * IST-AlertArg ::= SEQUENCE{
+ *        imsi                [0]  IMSI,
+ *        extensionContainer  [1]  ExtensionContainer OPTIONAL,
+ *        ...}
  *
+ *</code>
  *
  * @author sergey vetyutnev
  *

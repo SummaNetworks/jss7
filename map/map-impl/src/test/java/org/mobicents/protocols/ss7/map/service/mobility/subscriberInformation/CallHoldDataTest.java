@@ -41,7 +41,7 @@ public class CallHoldDataTest {
     @Test(groups = {"functional.encode", "subscriberInformation"})
     public void testEncode() throws Exception {
         ExtSSStatus extSSStatus = new ExtSSStatusImpl(true, false, false, true);
-        CallHoldDataImpl callHoldData = new CallHoldDataImpl(extSSStatus, true);
+        CallHoldDataImpl callHoldData = new CallHoldDataImpl(true, extSSStatus);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         callHoldData.encodeAll(asnOS);

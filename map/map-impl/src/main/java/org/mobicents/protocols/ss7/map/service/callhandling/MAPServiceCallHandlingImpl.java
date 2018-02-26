@@ -190,6 +190,13 @@ public class MAPServiceCallHandlingImpl extends MAPServiceBaseImpl implements MA
                 else if (compType == ComponentType.ReturnResult || compType == ComponentType.ReturnResultLast)
                     this.istCommandResponse(parameter, mapDialogImpl, invokeId, compType == ComponentType.ReturnResult);
                 break;
+
+            case MAPOperationCode.istAlert:
+                if (compType == ComponentType.Invoke)
+                    this.istAlertRequest(parameter, mapDialogImpl, invokeId);
+                else if (compType == ComponentType.ReturnResult || compType == ComponentType.ReturnResultLast)
+                    this.istAlertResponse(parameter, mapDialogImpl, invokeId);
+                break;
             default:
             throw new MAPParsingComponentException("MAPServiceCallHandling: unknown incoming operation code: " + ocValueInt,
                     MAPParsingComponentExceptionReason.UnrecognizedOperation);
@@ -401,6 +408,69 @@ public class MAPServiceCallHandlingImpl extends MAPServiceBaseImpl implements MA
                 ((MAPServiceCallHandlingListener) serLis).onIstCommandResponse(ind);
             } catch (Exception e) {
                 loger.error("Error processing IstCommandResponse: " + e.getMessage(), e);
+            }
+        }
+    }
+
+
+
+
+    private void istAlertRequest(Parameter parameter, MAPDialogCallHandlingImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+        IstAlertRequestImpl ind = new IstAlertRequestImpl();
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding IstAlertRequest: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        // No matter what MAP version V1,V2,V3: tag=Tag.SEQUENCE and tagClass=Tag.CLASS_UNIVERSAL
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding IstAlertRequest: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+
+        ind.decodeData(ais, buf.length);
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                serLis.onMAPMessage(ind);
+                ((MAPServiceCallHandlingListener) serLis).onIstAlertRequest(ind);
+            } catch (Exception e) {
+                loger.error("Error processing IstAlertRequest: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    private void istAlertResponse(Parameter parameter, MAPDialogCallHandlingImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+        IstAlertResponseImpl ind = new IstAlertResponseImpl();
+
+        if (parameter != null) {
+            if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive()) {
+                throw new MAPParsingComponentException(
+                        "Error while decoding IstAlertResponse: Bad tag or tagClass or parameter is primitive, received tag="
+                                + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+            }
+            byte[] buf = parameter.getData();
+            AsnInputStream ais = new AsnInputStream(buf, parameter.getTagClass(), parameter.isPrimitive(), parameter.getTag());
+            ind.decodeData(ais, buf.length);
+        }
+
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                serLis.onMAPMessage(ind);
+                ((MAPServiceCallHandlingListener) serLis).onIstAlertResponse(ind);
+            } catch (Exception e) {
+                loger.error("Error processing IstAlertResponse: " + e.getMessage(), e);
             }
         }
     }

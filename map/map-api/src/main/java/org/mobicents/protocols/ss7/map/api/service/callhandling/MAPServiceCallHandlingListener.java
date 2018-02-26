@@ -41,4 +41,8 @@ public interface MAPServiceCallHandlingListener extends MAPServiceListener {
      void onIstCommandRequest(IstCommandRequest request);
 
      void onIstCommandResponse(IstCommandResponse response);
+
+     void onIstAlertRequest(IstAlertRequest request);
+
+     void onIstAlertResponse(IstAlertResponse response);
 }

@@ -40,7 +40,7 @@ public class EctDataTest {
 
     @Test(groups = {"functional.encode", "subscriberInformation"})
     public void testEncode() throws Exception {
-        EctDataImpl ectData = new EctDataImpl(new ExtSSStatusImpl(true, true, true, false), true);
+        EctDataImpl ectData = new EctDataImpl(true, new ExtSSStatusImpl(true, true, true, false));
 
         AsnOutputStream asnOS = new AsnOutputStream();
         ectData.encodeAll(asnOS);

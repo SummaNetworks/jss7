@@ -89,6 +89,10 @@ public class ReportSMDeliveryStatusRequestImpl extends SmsMessageImpl implements
         this.additionalAbsentSubscriberDiagnosticSM = additionalAbsentSubscriberDiagnosticSM;
     }
 
+    public long getMapProtocolVersion() {
+        return mapProtocolVersion;
+    }
+
     public MAPMessageType getMessageType() {
         return MAPMessageType.reportSM_DeliveryStatus_Request;
     }

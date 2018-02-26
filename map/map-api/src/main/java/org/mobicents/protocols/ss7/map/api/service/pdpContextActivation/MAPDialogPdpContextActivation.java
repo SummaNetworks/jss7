@@ -45,4 +45,17 @@ public interface MAPDialogPdpContextActivation extends MAPDialog {
     void addSendRoutingInfoForGprsResponse(long invokeId, GSNAddress sgsnAddress, GSNAddress ggsnAddress, Integer mobileNotReachableReason,
             MAPExtensionContainer extensionContainer) throws MAPException;
 
+    Long addFailureReportRequest(IMSI imsi, ISDNAddressString ggsnNumber, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer)
+            throws MAPException;
+
+    Long addFailureReportRequest(int customInvokeTimeout, IMSI imsi, ISDNAddressString ggsnNumber, GSNAddress ggsnAddress,
+                                 MAPExtensionContainer extensionContainer) throws MAPException;
+
+    void addFailureReportResponse(long invokeId, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    Long addNoteMsPresentForGprsRequest(IMSI imsi, GSNAddress sgsnAddress, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    Long addNoteMsPresentForGprsRequest(int invokeId, IMSI imsi, GSNAddress sgsnAddress, GSNAddress ggsnAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    void addNoteMsPresentForGprsResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
 }

@@ -1,23 +1,7 @@
-/*
- * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag.
- *
- * This program is free software: you can redistribute it and/or modify
- * under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation; either version 3 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
- */
-
 package org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -27,6 +11,7 @@ import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AbstractMAPAsnPrimitive;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CAMELSubscriptionInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.DCSI;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.GPRSCSI;
@@ -40,8 +25,10 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.SpecificCSIWithdraw;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TBcsmCamelTdpCriteria;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TCSI;
+import org.mobicents.protocols.ss7.map.datacoding.NullEncoderFacility;
+import org.mobicents.protocols.ss7.map.datacoding.ObjectEncoderFacility;
+import org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
-import org.mobicents.protocols.ss7.map.primitives.SequenceBase;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.DCSIImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.GPRSCSIImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.MCSIImpl;
@@ -55,38 +42,36 @@ import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.Spe
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.TBcsmCamelTdpCriteriaImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.TCSIImpl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 /**
- * Created by vsubbotin on 25/05/16.
+ * @author eva ogallar
  */
-public class CAMELSubscriptionInfoImpl extends SequenceBase implements CAMELSubscriptionInfo {
-    private static final int _TAG_O_CSI = 0;
-    private static final int _TAG_O_BSCM_CAMEL_TDP_CRITERIA_LIST = 1;
-    private static final int _TAG_D_CSI = 2;
-    private static final int _TAG_T_CSI = 3;
-    private static final int _TAG_T_BCSM_CAMEL_TDP_CRITERIA_LIST = 4;
-    private static final int _TAG_VT_CSI = 5;
-    private static final int _TAG_VT_BCSM_CAMEL_TDP_CRITERIA_LIST = 6;
-    private static final int _TAG_TIF_CSI = 7;
-    private static final int _TAG_TIF_CSI_NOTIFICATION_TO_CSE = 8;
-    private static final int _TAG_GPRS_CSI = 9;
-    private static final int _TAG_MO_SMS_CSI = 10;
-    private static final int _TAG_SS_CSI = 11;
-    private static final int _TAG_M_CSI = 12;
-    private static final int _TAG_EXTENSION_CONTAINTER = 13;
-    private static final int _TAG_SPECIFIC_CSI_DELETE_LIST = 14;
-    private static final int _TAG_MT_SMS_CSI = 15;
-    private static final int _TAG_MT_SMS_CAMEL_TDP_CRITERIA_LIST = 16;
-    private static final int _TAG_MG_CSI = 17;
-    private static final int _TAG_O_IM_SCI = 18;
-    private static final int _TAG_O_IM_BCSM_CAMEL_TDP_CRITERIA_LIST = 19;
-    private static final int _TAG_D_IM_CSI = 20;
-    private static final int _TAG_VT_IM_CSI = 21;
-    private static final int _TAG_VT_IM_BCSM_CAMEL_TDP_CRITERIA_LIST = 22;
+public class CAMELSubscriptionInfoImpl extends AbstractMAPAsnPrimitive implements CAMELSubscriptionInfo , MAPAsnPrimitive {
 
     public static final String _PrimitiveName = "CAMELSubscriptionInfo";
+
+    public static final int _TAG_o_CSI                             = 0;
+    public static final int _TAG_o_BcsmCamelTDP_CriteriaList       = 1;
+    public static final int _TAG_d_CSI                             = 2;
+    public static final int _TAG_t_CSI                             = 3;
+    public static final int _TAG_t_BCSM_CAMEL_TDP_CriteriaList     = 4;
+    public static final int _TAG_vt_CSI                            = 5;
+    public static final int _TAG_vt_BCSM_CAMEL_TDP_CriteriaList    = 6;
+    public static final int _TAG_tif_CSI                           = 7;
+    public static final int _TAG_tif_CSI_NotificationToCSE         = 8;
+    public static final int _TAG_gprs_CSI                          = 9;
+    public static final int _TAG_mo_sms_CSI                        = 10;
+    public static final int _TAG_ss_CSI                            = 11;
+    public static final int _TAG_m_CSI                             = 12;
+    public static final int _TAG_extensionContainer                = 13;
+    public static final int _TAG_specificCSIDeletedList            = 14;
+    public static final int _TAG_mt_sms_CSI                        = 15;
+    public static final int _TAG_mt_smsCAMELTDP_CriteriaList       = 16;
+    public static final int _TAG_mg_csi                            = 17;
+    public static final int _TAG_o_IM_CSI                          = 18;
+    public static final int _TAG_o_IM_BcsmCamelTDP_CriteriaList    = 19;
+    public static final int _TAG_d_IM_CSI                          = 20;
+    public static final int _TAG_vt_IM_CSI                         = 21;
+    public static final int _TAG_vt_IM_BCSM_CAMEL_TDP_CriteriaList = 22;
 
     private OCSI oCsi;
     private ArrayList<OBcsmCamelTdpCriteria> oBcsmCamelTDPCriteriaList;
@@ -112,18 +97,19 @@ public class CAMELSubscriptionInfoImpl extends SequenceBase implements CAMELSubs
     private TCSI vtImCsi;
     private ArrayList<TBcsmCamelTdpCriteria> vtImBcsmCamelTdpCriteriaList;
 
+
     public CAMELSubscriptionInfoImpl() {
-        super(_PrimitiveName);
     }
 
     public CAMELSubscriptionInfoImpl(OCSI oCsi, ArrayList<OBcsmCamelTdpCriteria> oBcsmCamelTDPCriteriaList, DCSI dCsi,
-            TCSI tCsi, ArrayList<TBcsmCamelTdpCriteria> tBcsmCamelTdpCriteriaList, TCSI vtCsi,
-            ArrayList<TBcsmCamelTdpCriteria> vtBcsmCamelTdpCriteriaList, boolean tifCsi, boolean tifCsiNotificationToCSE,
-            GPRSCSI gprsCsi, SMSCSI moSmsCsi, SSCSI ssCsi, MCSI mCsi, MAPExtensionContainer extensionContainer,
-            SpecificCSIWithdraw specificCSIDeletedList, SMSCSI mtSmsCsi, ArrayList<MTsmsCAMELTDPCriteria> mtSmsCamelTdpCriteriaList,
-            MGCSI mgCsi, OCSI oImCsi, ArrayList<OBcsmCamelTdpCriteria> oImBcsmCamelTdpCriteriaList, DCSI dImCsi, TCSI vtImCsi,
-            ArrayList<TBcsmCamelTdpCriteria> vtImBcsmCamelTdpCriteriaList) {
-        super(_PrimitiveName);
+                                     TCSI tCsi, ArrayList<TBcsmCamelTdpCriteria> tBcsmCamelTdpCriteriaList, TCSI vtCsi,
+                                     ArrayList<TBcsmCamelTdpCriteria> vtBcsmCamelTdpCriteriaList, boolean tifCsi,
+                                     boolean tifCsiNotificationToCSE, GPRSCSI gprsCsi, SMSCSI moSmsCsi, SSCSI ssCsi,
+                                     MCSI mCsi, MAPExtensionContainer extensionContainer,
+                                     SpecificCSIWithdraw specificCSIDeletedList, SMSCSI mtSmsCsi,
+                                     ArrayList<MTsmsCAMELTDPCriteria> mtSmsCamelTdpCriteriaList, MGCSI mgCsi, OCSI oImCsi,
+                                     ArrayList<OBcsmCamelTdpCriteria> oImBcsmCamelTdpCriteriaList, DCSI dImCsi, TCSI vtImCsi,
+                                     ArrayList<TBcsmCamelTdpCriteria> vtImBcsmCamelTdpCriteriaList) {
         this.oCsi = oCsi;
         this.oBcsmCamelTDPCriteriaList = oBcsmCamelTDPCriteriaList;
         this.dCsi = dCsi;
@@ -150,102 +136,114 @@ public class CAMELSubscriptionInfoImpl extends SequenceBase implements CAMELSubs
     }
 
     public OCSI getOCsi() {
-        return this.oCsi;
+        return oCsi;
     }
 
     public ArrayList<OBcsmCamelTdpCriteria> getOBcsmCamelTDPCriteriaList() {
-        return this.oBcsmCamelTDPCriteriaList;
+        return oBcsmCamelTDPCriteriaList;
     }
 
     public DCSI getDCsi() {
-        return this.dCsi;
+        return dCsi;
     }
 
     public TCSI getTCsi() {
-        return this.tCsi;
+        return tCsi;
     }
 
     public ArrayList<TBcsmCamelTdpCriteria> getTBcsmCamelTdpCriteriaList() {
-        return this.tBcsmCamelTdpCriteriaList;
+        return tBcsmCamelTdpCriteriaList;
     }
 
+    @Override
     public TCSI getVtCsi() {
-        return this.vtCsi;
+        return vtCsi;
     }
 
+    @Override
     public ArrayList<TBcsmCamelTdpCriteria> getVtBcsmCamelTdpCriteriaList() {
-        return this.vtBcsmCamelTdpCriteriaList;
+        return vtBcsmCamelTdpCriteriaList;
     }
 
+    @Override
     public boolean getTifCsi() {
-        return this.tifCsi;
+        return tifCsi;
     }
 
+    @Override
     public boolean getTifCsiNotificationToCSE() {
-        return this.tifCsiNotificationToCSE;
+        return tifCsiNotificationToCSE;
     }
 
+    @Override
     public GPRSCSI getGprsCsi() {
-        return this.gprsCsi;
+        return gprsCsi;
     }
 
+    @Override
     public SMSCSI getMoSmsCsi() {
-        return this.moSmsCsi;
+        return moSmsCsi;
     }
 
+    @Override
     public SSCSI getSsCsi() {
-        return this.ssCsi;
+        return ssCsi;
     }
 
     public MCSI getMCsi() {
-        return this.mCsi;
+        return mCsi;
     }
 
+    @Override
     public MAPExtensionContainer getExtensionContainer() {
-        return this.extensionContainer;
+        return extensionContainer;
     }
 
+    @Override
     public SpecificCSIWithdraw getSpecificCSIDeletedList() {
-        return this.specificCSIDeletedList;
+        return specificCSIDeletedList;
     }
 
+    @Override
     public SMSCSI getMtSmsCsi() {
-        return this.mtSmsCsi;
+        return mtSmsCsi;
     }
 
+    @Override
     public ArrayList<MTsmsCAMELTDPCriteria> getMtSmsCamelTdpCriteriaList() {
-        return this.mtSmsCamelTdpCriteriaList;
+        return mtSmsCamelTdpCriteriaList;
     }
 
+    @Override
     public MGCSI getMgCsi() {
-        return this.mgCsi;
+        return mgCsi;
     }
 
-    public OCSI geToImCsi() {
-        return this.oImCsi;
+    public OCSI getOImCsi() {
+        return oImCsi;
     }
 
     public ArrayList<OBcsmCamelTdpCriteria> getOImBcsmCamelTdpCriteriaList() {
-        return this.oImBcsmCamelTdpCriteriaList;
+        return oImBcsmCamelTdpCriteriaList;
     }
 
     public DCSI getDImCsi() {
-        return this.dImCsi;
+        return dImCsi;
     }
 
+    @Override
     public TCSI getVtImCsi() {
-        return this.vtImCsi;
+        return vtImCsi;
     }
 
+    @Override
     public ArrayList<TBcsmCamelTdpCriteria> getVtImBcsmCamelTdpCriteriaList() {
-        return this.vtImBcsmCamelTdpCriteriaList;
+        return vtImBcsmCamelTdpCriteriaList;
     }
 
-    public boolean getIsPrimitive() {
-        return false;
-    }
+    @Override
+    protected void _decode(AsnInputStream ansIS, int length) throws IOException, AsnException, MAPParsingComponentException {
 
-    protected void _decode(AsnInputStream asnIS, int length) throws MAPParsingComponentException, IOException, AsnException {
         this.oCsi = null;
         this.oBcsmCamelTDPCriteriaList = null;
         this.dCsi = null;
@@ -260,702 +258,455 @@ public class CAMELSubscriptionInfoImpl extends SequenceBase implements CAMELSubs
         this.ssCsi = null;
         this.mCsi = null;
         this.extensionContainer = null;
-        this.specificCSIDeletedList = null;
+
         this.mtSmsCsi = null;
         this.mtSmsCamelTdpCriteriaList = null;
-        this.mgCsi = null;
-        this.oImCsi = null;
-        this.oImBcsmCamelTdpCriteriaList = null;
-        this.dImCsi = null;
-        this.vtImCsi = null;
-        this.vtImBcsmCamelTdpCriteriaList = null;
 
-        AsnInputStream ais = asnIS.readSequenceStreamData(length);
+        AsnInputStream ais = ansIS.readSequenceStreamData(length);
+
         while (true) {
-            if (ais.available() == 0) {
+            if (ais.available() == 0)
                 break;
-            }
 
             int tag = ais.readTag();
-            if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
-                switch (tag) {
-                    case _TAG_O_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter oCsi not primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
 
-                        this.oCsi = new OCSIImpl();
-                        ((OCSIImpl)this.oCsi).decodeAll(ais);
-                        break;
-                    case _TAG_O_BSCM_CAMEL_TDP_CRITERIA_LIST:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".oBcsmCamelTDPCriteriaList: Parameter oBcsmCamelTDPCriteriaList is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
+            switch (ais.getTagClass()) {
+                case Tag.CLASS_CONTEXT_SPECIFIC:
 
-                        OBcsmCamelTdpCriteria oBcsmCamelTdpCriteria;
-                        AsnInputStream ais2 = ais.readSequenceStream();
-                        this.oBcsmCamelTDPCriteriaList = new ArrayList<OBcsmCamelTdpCriteria>();
-                        while (true) {
-                            if (ais2.available() == 0)
-                                break;
-
-                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                    switch (tag) {
+                        case _TAG_o_CSI:
+                            oCsi = (OCSI) ObjectEncoderFacility.decodeObject(ais, new OCSIImpl(), "oCsi", getPrimitiveName());
+                            break;
+                        case _TAG_o_BcsmCamelTDP_CriteriaList:
+                            if (ais.isTagPrimitive())
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ".oBcsmCamelTdpCriteria: Parameter oBcsmCamelTdpCriteria is primitive",
+                                        + ".oBcsmCamelTDPCriteriaList: is primitive",
                                         MAPParsingComponentExceptionReason.MistypedParameter);
+                            AsnInputStream ais2 = ais.readSequenceStream();
+                            this.oBcsmCamelTDPCriteriaList = new ArrayList<OBcsmCamelTdpCriteria>();
+                            while (true) {
+                                if (ais2.available() == 0)
+                                    break;
 
-                            oBcsmCamelTdpCriteria = new OBcsmCamelTdpCriteriaImpl();
-                            ((OBcsmCamelTdpCriteriaImpl)oBcsmCamelTdpCriteria).decodeAll(ais2);
-                            this.oBcsmCamelTDPCriteriaList.add(oBcsmCamelTdpCriteria);
-                        }
+                                int tag2 = ais2.readTag();
+                                if (tag2 != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                            + ": bad oBcsmCamelTDPCriteria tag or tagClass or is primitive ",
+                                            MAPParsingComponentExceptionReason.MistypedParameter);
 
-                        if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10) {
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
-                                    + this.oBcsmCamelTDPCriteriaList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                        }
-                        break;
-                    case _TAG_D_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".dCsi: Parameter dCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                                this.oBcsmCamelTDPCriteriaList.add((OBcsmCamelTdpCriteria) ObjectEncoderFacility.decodeObject(
+                                        ais2, new OBcsmCamelTdpCriteriaImpl(), "OBcsmCamelTdpCriteria", getPrimitiveName()));
+                            }
 
-                        this.dCsi = new DCSIImpl();
-                        ((DCSIImpl)this.dCsi).decodeAll(ais);
-                        break;
-                    case _TAG_T_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".tCsi: Parameter tCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.tCsi = new TCSIImpl();
-                        ((TCSIImpl)this.tCsi).decodeAll(ais);
-                        break;
-                    case _TAG_T_BCSM_CAMEL_TDP_CRITERIA_LIST:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".tBcsmCamelTdpCriteriaList: Parameter tBcsmCamelTdpCriteriaList is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        TBcsmCamelTdpCriteria tBcsmCamelTdpCriteria;
-                        this.tBcsmCamelTdpCriteriaList = new ArrayList<TBcsmCamelTdpCriteria>();
-                        ais2 = ais.readSequenceStream();
-                        while (true) {
-                            if (ais2.available() == 0)
-                                break;
-
-                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                            if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ".tBcsmCamelTdpCriteria: Parameter tBcsmCamelTdpCriteria is primitive",
+                                        + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
+                                        + this.oBcsmCamelTDPCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
-
-                            tBcsmCamelTdpCriteria = new TBcsmCamelTdpCriteriaImpl();
-                            ((TBcsmCamelTdpCriteriaImpl)tBcsmCamelTdpCriteria).decodeAll(ais2);
-                            this.tBcsmCamelTdpCriteriaList.add(tBcsmCamelTdpCriteria);
-                        }
-
-                        if (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 10) {
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter tBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
-                                    + this.tBcsmCamelTdpCriteriaList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                        }
-                        break;
-                    case _TAG_VT_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".vtCsi: Parameter vtCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.vtCsi = new TCSIImpl();
-                        ((TCSIImpl)this.vtCsi).decodeAll(ais);
-                        break;
-                    case _TAG_VT_BCSM_CAMEL_TDP_CRITERIA_LIST:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".vtBcsmCamelTdpCriteriaList: Parameter vtBcsmCamelTdpCriteriaList is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        TBcsmCamelTdpCriteria vtBcsmCamelTdpCriteria;
-                        this.vtBcsmCamelTdpCriteriaList = new ArrayList<TBcsmCamelTdpCriteria>();
-                        ais2 = ais.readSequenceStream();
-                        while (true) {
-                            if (ais2.available() == 0)
-                                break;
-
-                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                            }
+                            break;
+                        case _TAG_d_CSI:
+                            dCsi = (DCSI) ObjectEncoderFacility.decodeObject(ais, new DCSIImpl(), "dCsi", getPrimitiveName());
+                            break;
+                        case _TAG_t_CSI:
+                            tCsi = (TCSI) ObjectEncoderFacility.decodeObject(ais, new TCSIImpl(), "tCsi", getPrimitiveName());
+                            break;
+                        case _TAG_t_BCSM_CAMEL_TDP_CriteriaList:
+                            if (ais.isTagPrimitive())
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ".vtBcsmCamelTdpCriteria: Parameter vtBcsmCamelTdpCriteria is primitive",
+                                        + ".tBcsmCamelTdpCriteriaList: is primitive",
                                         MAPParsingComponentExceptionReason.MistypedParameter);
+                            AsnInputStream ais3 = ais.readSequenceStream();
+                            this.tBcsmCamelTdpCriteriaList = new ArrayList<TBcsmCamelTdpCriteria>();
+                            while (true) {
+                                if (ais3.available() == 0)
+                                    break;
 
-                            vtBcsmCamelTdpCriteria = new TBcsmCamelTdpCriteriaImpl();
-                            ((TBcsmCamelTdpCriteriaImpl)vtBcsmCamelTdpCriteria).decodeAll(ais2);
-                            this.vtBcsmCamelTdpCriteriaList.add(vtBcsmCamelTdpCriteria);
-                        }
+                                int tag2 = ais3.readTag();
+                                if (tag2 != Tag.SEQUENCE || ais3.getTagClass() != Tag.CLASS_UNIVERSAL || ais3.isTagPrimitive())
+                                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                            + ": bad tBcsmCamelTdpCriteria tag or tagClass or is primitive ",
+                                            MAPParsingComponentExceptionReason.MistypedParameter);
 
-                        if (this.vtBcsmCamelTdpCriteriaList.size() < 1 || this.vtBcsmCamelTdpCriteriaList.size() > 10) {
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter vtBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
-                                    + this.vtBcsmCamelTdpCriteriaList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                        }
-                        break;
-                    case _TAG_TIF_CSI:
-                        if (!ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".tifCsi: Parameter tifCsi is not primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                                TBcsmCamelTdpCriteria elem = new TBcsmCamelTdpCriteriaImpl();
+                                ((TBcsmCamelTdpCriteriaImpl) elem).decodeAll(ais3);
+                                this.tBcsmCamelTdpCriteriaList.add(elem);
+                            }
 
-                        ais.readNull();
-                        this.tifCsi = Boolean.TRUE;
-                        break;
-                    case _TAG_TIF_CSI_NOTIFICATION_TO_CSE:
-                        if (!ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".tifCsiNotificationToCSE: Parameter tifCsiNotificationToCSE is not primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        ais.readNull();
-                        this.tifCsiNotificationToCSE = Boolean.TRUE;
-                        break;
-                    case _TAG_GPRS_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".gprsCsi: Parameter gprsCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.gprsCsi = new GPRSCSIImpl();
-                        ((GPRSCSIImpl)this.gprsCsi).decodeAll(ais);
-                        break;
-                    case _TAG_MO_SMS_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".moSmsCsi: Parameter moSmsCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.moSmsCsi = new SMSCSIImpl();
-                        ((SMSCSIImpl)this.moSmsCsi).decodeAll(ais);
-                        break;
-                    case _TAG_SS_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".ssCsi: Parameter ssCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.ssCsi = new SSCSIImpl();
-                        ((SSCSIImpl)this.ssCsi).decodeAll(ais);
-                        break;
-                    case _TAG_M_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".mCsi: Parameter mCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.mCsi = new MCSIImpl();
-                        ((MCSIImpl)this.mCsi).decodeAll(ais);
-                        break;
-                    case _TAG_EXTENSION_CONTAINTER:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".extensionContainer: Parameter extensionContainer is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.extensionContainer = new MAPExtensionContainerImpl();
-                        ((MAPExtensionContainerImpl)this.extensionContainer).decodeAll(ais);
-                        break;
-                    case _TAG_SPECIFIC_CSI_DELETE_LIST:
-                        if (!ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".specificCSIDeletedList: Parameter specificCSIDeletedList is not primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.specificCSIDeletedList = new SpecificCSIWithdrawImpl();
-                        ((SpecificCSIWithdrawImpl)this.specificCSIDeletedList).decodeAll(ais);
-                        break;
-                    case _TAG_MT_SMS_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".mtSmsCsi: Parameter mtSmsCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.mtSmsCsi = new SMSCSIImpl();
-                        ((SMSCSIImpl)this.mtSmsCsi).decodeAll(ais);
-                        break;
-                    case _TAG_MT_SMS_CAMEL_TDP_CRITERIA_LIST:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".mtSmsCamelTdpCriteriaList: Parameter mtSmsCamelTdpCriteriaList is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        MTsmsCAMELTDPCriteria mTsmsCAMELTDPCriteria;
-                        this.mtSmsCamelTdpCriteriaList = new ArrayList<MTsmsCAMELTDPCriteria>();
-                        ais2 = ais.readSequenceStream();
-                        while (true) {
-                            if (ais2.available() == 0)
-                                break;
-
-                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                            if (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ".mTsmsCAMELTDPCriteria: Parameter mTsmsCAMELTDPCriteria is primitive",
+                                        + ": Parameter tBcsmCamelTdpCriteriaList from 1 to 10, found: "
+                                        + this.tBcsmCamelTdpCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
-
-                            mTsmsCAMELTDPCriteria = new MTsmsCAMELTDPCriteriaImpl();
-                            ((MTsmsCAMELTDPCriteriaImpl)mTsmsCAMELTDPCriteria).decodeAll(ais2);
-                            this.mtSmsCamelTdpCriteriaList.add(mTsmsCAMELTDPCriteria);
-                        }
-
-                        if (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 10) {
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter mtSmsCamelTdpCriteriaList size must be from 1 to 10, found: "
-                                    + this.mtSmsCamelTdpCriteriaList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                        }
-                        break;
-                    case _TAG_MG_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".mgCsi: Parameter mgCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.mgCsi = new MGCSIImpl();
-                        ((MGCSIImpl)this.mgCsi).decodeAll(ais);
-                        break;
-                    case _TAG_O_IM_SCI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".oImCsi: Parameter oImCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.oImCsi = new OCSIImpl();
-                        ((OCSIImpl)this.oImCsi).decodeAll(ais);
-                        break;
-                    case _TAG_O_IM_BCSM_CAMEL_TDP_CRITERIA_LIST:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".oImBcsmCamelTdpCriteriaList: Parameter oImBcsmCamelTdpCriteriaList is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        OBcsmCamelTdpCriteria oImBcsmCamelTdpCriteria;
-                        this.oImBcsmCamelTdpCriteriaList = new ArrayList<OBcsmCamelTdpCriteria>();
-                        ais2 = ais.readSequenceStream();
-                        while (true) {
-                            if (ais2.available() == 0)
-                                break;
-
-                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                            }
+                            break;
+                        case _TAG_vt_CSI:
+                            vtCsi = (TCSI) ObjectEncoderFacility.decodeObject(ais, new TCSIImpl(), "vtCsi", getPrimitiveName());
+                            break;
+                        case _TAG_vt_BCSM_CAMEL_TDP_CriteriaList:
+                            if (ais.isTagPrimitive())
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ".oImBcsmCamelTdpCriteria: Parameter oImBcsmCamelTdpCriteria is primitive",
+                                        + ".vtBcsmCamelTdpCriteriaList: is primitive",
                                         MAPParsingComponentExceptionReason.MistypedParameter);
+                            AsnInputStream ais4 = ais.readSequenceStream();
+                            this.vtBcsmCamelTdpCriteriaList = new ArrayList<TBcsmCamelTdpCriteria>();
+                            while (true) {
+                                if (ais4.available() == 0)
+                                    break;
 
-                            oImBcsmCamelTdpCriteria = new OBcsmCamelTdpCriteriaImpl();
-                            ((OBcsmCamelTdpCriteriaImpl)oImBcsmCamelTdpCriteria).decodeAll(ais2);
-                            this.oImBcsmCamelTdpCriteriaList.add(oImBcsmCamelTdpCriteria);
-                        }
+                                int tag2 = ais4.readTag();
+                                if (tag2 != Tag.SEQUENCE || ais4.getTagClass() != Tag.CLASS_UNIVERSAL || ais4.isTagPrimitive())
+                                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                            + ": bad oBcsmCamelTDPCriteria tag or tagClass or is primitive ",
+                                            MAPParsingComponentExceptionReason.MistypedParameter);
 
-                        if (this.oImBcsmCamelTdpCriteriaList.size() < 1 || this.oImBcsmCamelTdpCriteriaList.size() > 10) {
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter oImBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
-                                    + this.oImBcsmCamelTdpCriteriaList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                        }
-                        break;
-                    case _TAG_D_IM_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".dImCsi: Parameter dImCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                                this.vtBcsmCamelTdpCriteriaList.add((TBcsmCamelTdpCriteria) ObjectEncoderFacility.decodeObject(
+                                        ais4, new TBcsmCamelTdpCriteriaImpl(), "vtBcsmCamelTdpCriteriaList", getPrimitiveName()));
+                            }
 
-                        this.dImCsi = new DCSIImpl();
-                        ((DCSIImpl)this.dImCsi).decodeAll(ais);
-                        break;
-                    case _TAG_VT_IM_CSI:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".vtImCsi: Parameter vtImCsi is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        this.vtImCsi = new TCSIImpl();
-                        ((TCSIImpl)this.vtImCsi).decodeAll(ais);
-                        break;
-                    case _TAG_VT_IM_BCSM_CAMEL_TDP_CRITERIA_LIST:
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ".vtImBcsmCamelTdpCriteriaList: Parameter vtImBcsmCamelTdpCriteriaList is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-
-                        TBcsmCamelTdpCriteria vtImBcsmCamelTdpCriteria;
-                        this.vtImBcsmCamelTdpCriteriaList = new ArrayList<TBcsmCamelTdpCriteria>();
-                        ais2 = ais.readSequenceStream();
-                        while (true) {
-                            if (ais2.available() == 0)
-                                break;
-
-                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                            if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ".vtImBcsmCamelTdpCriteria: Parameter vtImBcsmCamelTdpCriteria is primitive",
+                                        + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
+                                        + this.oBcsmCamelTDPCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
+                            }
+                            break;
+                        case _TAG_tif_CSI:
+                            this.tifCsi = NullEncoderFacility.decode(ais, "tifCsi", getPrimitiveName());
+                            break;
+                        case _TAG_tif_CSI_NotificationToCSE:
+                            this.tifCsiNotificationToCSE = NullEncoderFacility.decode(ais, "tifCsiNotificationToCSE", getPrimitiveName());
+                            break;
+                        case _TAG_gprs_CSI:
+                            this.gprsCsi = (GPRSCSI) ObjectEncoderFacility.decodeObject(ais, new GPRSCSIImpl(), "gprsCsi", getPrimitiveName());
+                            break;
+                        case _TAG_mo_sms_CSI:
+                            this.moSmsCsi = (SMSCSI) ObjectEncoderFacility.decodeObject(ais, new SMSCSIImpl(), "moSmsCsi", getPrimitiveName());
+                            break;
+                        case _TAG_ss_CSI:
+                            this.ssCsi = (SSCSI) ObjectEncoderFacility.decodeObject(ais, new SSCSIImpl(), "ssCsi", getPrimitiveName());
+                            break;
+                        case _TAG_m_CSI:
+                            this.mCsi = (MCSI) ObjectEncoderFacility.decodeObject(ais, new MCSIImpl(), "mCsi", getPrimitiveName());
+                            break;
+                        case _TAG_extensionContainer:
+                            this.extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.decodeObject(
+                                    ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
+                            break;
+                        case _TAG_specificCSIDeletedList:
+                            this.specificCSIDeletedList = (SpecificCSIWithdraw) ObjectEncoderFacility.decodeObject(
+                                    ais, new SpecificCSIWithdrawImpl(), "specificCSIDeletedList", getPrimitiveName());
+                            break;
+                        case _TAG_mt_sms_CSI:
+                            this.mtSmsCsi = (SMSCSI) ObjectEncoderFacility.decodeObject(ais, new SMSCSIImpl(), "mtSmsCsi", getPrimitiveName());
+                            break;
+                        case _TAG_mt_smsCAMELTDP_CriteriaList:
+                            if (ais.isTagPrimitive())
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ".vtBcsmCamelTdpCriteriaList: is primitive",
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+                            AsnInputStream ais5 = ais.readSequenceStream();
+                            this.mtSmsCamelTdpCriteriaList = new ArrayList<MTsmsCAMELTDPCriteria>();
+                            while (true) {
+                                if (ais5.available() == 0)
+                                    break;
 
-                            vtImBcsmCamelTdpCriteria = new TBcsmCamelTdpCriteriaImpl();
-                            ((TBcsmCamelTdpCriteriaImpl)vtImBcsmCamelTdpCriteria).decodeAll(ais2);
-                            this.vtImBcsmCamelTdpCriteriaList.add(vtImBcsmCamelTdpCriteria);
-                        }
+                                int tag2 = ais5.readTag();
+                                if (tag2 != Tag.SEQUENCE || ais5.getTagClass() != Tag.CLASS_UNIVERSAL || ais5.isTagPrimitive())
+                                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                            + ": bad mtSmsCamelTdpCriteria tag or tagClass or is primitive ",
+                                            MAPParsingComponentExceptionReason.MistypedParameter);
 
-                        if (this.vtImBcsmCamelTdpCriteriaList.size() < 1 || this.vtImBcsmCamelTdpCriteriaList.size() > 10) {
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter vtBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
-                                    + this.vtImBcsmCamelTdpCriteriaList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
-                        }
-                        break;
-                    default:
-                        ais.advanceElement();
-                        break;
-                }
-            } else {
-                ais.advanceElement();
+                                this.mtSmsCamelTdpCriteriaList.add((MTsmsCAMELTDPCriteria) ObjectEncoderFacility.decodeObject(
+                                        ais5, new MTsmsCAMELTDPCriteriaImpl(), "mtSmsCamelTdpCriteriaList", getPrimitiveName()));
+                            }
+
+                            if (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 10) {
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ": Parameter mtSmsCamelTdpCriteriaList size must be from 1 to 10, found: "
+                                        + this.mtSmsCamelTdpCriteriaList.size(),
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+                            }
+                            break;
+                        case _TAG_mg_csi:
+                            this.mgCsi = (MGCSI) ObjectEncoderFacility.decodeObject(ais, new MGCSIImpl(), "mgCsi", getPrimitiveName());
+                            break;
+                        case _TAG_o_IM_CSI:
+                            this.oImCsi = (OCSI) ObjectEncoderFacility.decodeObject(ais, new OCSIImpl(), "oImCsi", getPrimitiveName());
+                            break;
+                        case _TAG_o_IM_BcsmCamelTDP_CriteriaList:
+                            if (ais.isTagPrimitive())
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ".oImBcsmCamelTdpCriteriaList: is primitive",
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+                            AsnInputStream ais6 = ais.readSequenceStream();
+                            this.oImBcsmCamelTdpCriteriaList = new ArrayList<OBcsmCamelTdpCriteria>();
+                            while (true) {
+                                if (ais6.available() == 0)
+                                    break;
+
+                                int tag2 = ais6.readTag();
+                                if (tag2 != Tag.SEQUENCE || ais6.getTagClass() != Tag.CLASS_UNIVERSAL || ais6.isTagPrimitive())
+                                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                            + ": bad oImBcsmCamelTdpCriteria tag or tagClass or is primitive ",
+                                            MAPParsingComponentExceptionReason.MistypedParameter);
+
+                                this.oImBcsmCamelTdpCriteriaList.add((OBcsmCamelTdpCriteria) ObjectEncoderFacility.decodeObject(
+                                        ais6, new OBcsmCamelTdpCriteriaImpl(), "OBcsmCamelTdpCriteria", getPrimitiveName()));
+                            }
+
+                            if (this.oImBcsmCamelTdpCriteriaList.size() < 1 || this.oImBcsmCamelTdpCriteriaList.size() > 10) {
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ": Parameter oImBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                                        + this.oImBcsmCamelTdpCriteriaList.size(),
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+                            }
+                            break;
+                        case _TAG_d_IM_CSI:
+                            this.dImCsi = (DCSI) ObjectEncoderFacility.decodeObject(ais, new DCSIImpl(), "dImCsi", getPrimitiveName());
+                            break;
+                        case _TAG_vt_IM_CSI:
+                            this.vtImCsi = (TCSI) ObjectEncoderFacility.decodeObject(ais, new TCSIImpl(), "vtImCsi", getPrimitiveName());
+                            break;
+                        case _TAG_vt_IM_BCSM_CAMEL_TDP_CriteriaList:
+                            if (ais.isTagPrimitive())
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ".oImBcsmCamelTdpCriteriaList: is primitive",
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+                            AsnInputStream ais7 = ais.readSequenceStream();
+                            this.vtImBcsmCamelTdpCriteriaList = new ArrayList<TBcsmCamelTdpCriteria>();
+                            while (true) {
+                                if (ais7.available() == 0)
+                                    break;
+
+                                int tag2 = ais7.readTag();
+                                if (tag2 != Tag.SEQUENCE || ais7.getTagClass() != Tag.CLASS_UNIVERSAL || ais7.isTagPrimitive())
+                                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                            + ": bad oImBcsmCamelTdpCriteria tag or tagClass or is primitive ",
+                                            MAPParsingComponentExceptionReason.MistypedParameter);
+
+                                this.vtImBcsmCamelTdpCriteriaList.add((TBcsmCamelTdpCriteria) ObjectEncoderFacility.decodeObject(
+                                        ais7, new TBcsmCamelTdpCriteriaImpl(), "TBcsmCamelTdpCriteria", getPrimitiveName()));
+                            }
+
+                            if (this.vtImBcsmCamelTdpCriteriaList.size() < 1 || this.vtImBcsmCamelTdpCriteriaList.size() > 10) {
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ": Parameter oImBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                                        + this.vtImBcsmCamelTdpCriteriaList.size(),
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+                            }
+                            break;
+                        default:
+                            ais.advanceElement();
+                            break;
+                    }
+                    break;
+
+                default:
+                    ais.advanceElement();
+                    break;
             }
+
         }
+
     }
 
+    @Override
+    public int getTag() throws MAPException {
+        return Tag.SEQUENCE;
+    }
+
+    @Override
+    public int getTagClass() {
+        return Tag.CLASS_CONTEXT_SPECIFIC;
+    }
+
+    @Override
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
-        if (this.oCsi != null) {
-            ((OCSIImpl)this.oCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_O_CSI);
+/*
+    private OCSI oCsi;
+    private ArrayList<OBcsmCamelTdpCriteria> oBcsmCamelTDPCriteriaList;
+    private DCSI dCsi;
+    private TCSI tCsi;
+    private ArrayList<TBcsmCamelTdpCriteria> tBcsmCamelTdpCriteriaList;
+    private TCSI vtCsi;
+    private ArrayList<TBcsmCamelTdpCriteria> vtBcsmCamelTdpCriteriaList;
+    private boolean tifCsi;
+    private boolean tifCsiNotificationToCSE;
+    private GPRSCSI gprsCsi;
+    private SMSCSI moSmsCsi;
+    private SSCSI ssCsi;
+    private MCSI mCsi;
+    private MAPExtensionContainer extensionContainer;
+    private SpecificCSIWithdraw specificCSIDeletedList;
+    private SMSCSI mtSmsCsi;
+    private ArrayList<MTsmsCAMELTDPCriteria> mtSmsCamelTdpCriteriaList;
+    private MGCSI mgCsi;
+    private OCSI oImCsi;
+    private ArrayList<OBcsmCamelTdpCriteria> oImBcsmCamelTdpCriteriaList;
+    private DCSI dImCsi;
+    private TCSI vtImCsi;
+    private ArrayList<TBcsmCamelTdpCriteria> vtImBcsmCamelTdpCriteriaList;
+ */
+
+        if (this.oBcsmCamelTDPCriteriaList != null
+                && (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10)) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
+                    + this.oBcsmCamelTDPCriteriaList.size());
+        }
+
+        if (this.mtSmsCamelTdpCriteriaList != null
+                && (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 10)) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + ": Parameter mtSmsCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.mtSmsCamelTdpCriteriaList.size());
+        }
+
+        if (this.tBcsmCamelTdpCriteriaList != null
+                && (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 10)) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + ": Parameter tBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.tBcsmCamelTdpCriteriaList.size());
+        }
+
+        if (this.vtBcsmCamelTdpCriteriaList != null
+                && (this.vtBcsmCamelTdpCriteriaList.size() < 1 || this.vtBcsmCamelTdpCriteriaList.size() > 10)) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + ": Parameter vtBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.vtBcsmCamelTdpCriteriaList.size());
+        }
+
+        if (this.oImBcsmCamelTdpCriteriaList != null
+                && (this.oImBcsmCamelTdpCriteriaList.size() < 1 || this.oImBcsmCamelTdpCriteriaList.size() > 10)) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + ": Parameter oImBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.oImBcsmCamelTdpCriteriaList.size());
+        }
+
+        if (this.vtImBcsmCamelTdpCriteriaList != null
+                && (this.vtImBcsmCamelTdpCriteriaList.size() < 1 || this.vtImBcsmCamelTdpCriteriaList.size() > 10)) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + ": Parameter vtImBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.vtImBcsmCamelTdpCriteriaList.size());
         }
 
         try {
+            if (this.oCsi != null) {
+                ((OCSIImpl) this.oCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_o_CSI);
+            }
             if (this.oBcsmCamelTDPCriteriaList != null) {
-                if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10) {
-                    throw new MAPException("Error while encoding " + _PrimitiveName
-                            + " size oBcsmCamelTDPCriteriaList is out of range (1..10). Actual size: " + this.oBcsmCamelTDPCriteriaList.size());
-                }
-
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_O_BSCM_CAMEL_TDP_CRITERIA_LIST);
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_o_BcsmCamelTDP_CriteriaList);
                 int pos = asnOs.StartContentDefiniteLength();
-                for (OBcsmCamelTdpCriteria oBcsmCamelTdpCriteria: this.oBcsmCamelTDPCriteriaList) {
-                    ((OBcsmCamelTdpCriteriaImpl)oBcsmCamelTdpCriteria).encodeAll(asnOs);
+                for (OBcsmCamelTdpCriteria oBcsmCamelTdpCriteria : this.oBcsmCamelTDPCriteriaList) {
+                    ((OBcsmCamelTdpCriteriaImpl) oBcsmCamelTdpCriteria).encodeAll(asnOs);
                 }
                 asnOs.FinalizeContent(pos);
             }
-        } catch (AsnException ae) {
-            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
-        }
-
-        if (this.dCsi != null) {
-            ((DCSIImpl)this.dCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_D_CSI);
-        }
-
-        if (this.tCsi != null) {
-            ((TCSIImpl)this.tCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_T_CSI);
-        }
-
-        try {
+            if (this.dCsi != null) {
+                ((DCSIImpl) this.dCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_d_CSI);
+            }
+            if (this.tCsi != null) {
+                ((TCSIImpl) this.tCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_t_CSI);
+            }
             if (this.tBcsmCamelTdpCriteriaList != null) {
-                if (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 10) {
-                    throw new MAPException("Error while encoding " + _PrimitiveName
-                            + " size tBcsmCamelTdpCriteriaList is out of range (1..10). Actual size: " + this.tBcsmCamelTdpCriteriaList.size());
-                }
-
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_T_BCSM_CAMEL_TDP_CRITERIA_LIST);
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_t_BCSM_CAMEL_TDP_CriteriaList);
                 int pos = asnOs.StartContentDefiniteLength();
-                for (TBcsmCamelTdpCriteria tBcsmCamelTdpCriteria: this.tBcsmCamelTdpCriteriaList) {
-                    ((TBcsmCamelTdpCriteriaImpl)tBcsmCamelTdpCriteria).encodeAll(asnOs);
+                for (TBcsmCamelTdpCriteria tbcsmCamelTdpCriteria : this.tBcsmCamelTdpCriteriaList) {
+                    ((TBcsmCamelTdpCriteriaImpl) tbcsmCamelTdpCriteria).encodeAll(asnOs);
                 }
                 asnOs.FinalizeContent(pos);
             }
-        } catch (AsnException ae) {
-            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
-        }
-
-        if (this.vtCsi != null) {
-            ((TCSIImpl)this.vtCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_VT_CSI);
-        }
-
-        try {
+            if (this.vtCsi != null) {
+                ((TCSIImpl) this.vtCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_vt_CSI);
+            }
             if (this.vtBcsmCamelTdpCriteriaList != null) {
-                if (this.vtBcsmCamelTdpCriteriaList.size() < 1 || this.vtBcsmCamelTdpCriteriaList.size() > 10) {
-                    throw new MAPException("Error while encoding " + _PrimitiveName
-                            + " size vtBcsmCamelTdpCriteriaList is out of range (1..10). Actual size: " + this.vtBcsmCamelTdpCriteriaList.size());
-                }
-
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_VT_BCSM_CAMEL_TDP_CRITERIA_LIST);
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_vt_BCSM_CAMEL_TDP_CriteriaList);
                 int pos = asnOs.StartContentDefiniteLength();
-                for (TBcsmCamelTdpCriteria vtBcsmCamelTdpCriteria: this.vtBcsmCamelTdpCriteriaList) {
-                    ((TBcsmCamelTdpCriteriaImpl)vtBcsmCamelTdpCriteria).encodeAll(asnOs);
+                for (TBcsmCamelTdpCriteria tbcsmCamelTdpCriteria : this.vtBcsmCamelTdpCriteriaList) {
+                    ((TBcsmCamelTdpCriteriaImpl) tbcsmCamelTdpCriteria).encodeAll(asnOs);
                 }
                 asnOs.FinalizeContent(pos);
             }
-        } catch (AsnException ae) {
-            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
-        }
-
-        if (this.tifCsi) {
-            try {
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_TIF_CSI);
-            } catch (IOException e) {
-                throw new MAPException("IOException when encoding parameter tifCsi: ", e);
-            } catch (AsnException e) {
-                throw new MAPException("AsnException when encoding parameter tifCsi: ", e);
+            if (this.tifCsi) {
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_tif_CSI);
             }
-        }
-
-        if (this.tifCsiNotificationToCSE) {
-            try {
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_TIF_CSI_NOTIFICATION_TO_CSE);
-            } catch (IOException e) {
-                throw new MAPException("IOException when encoding parameter tifCsiNotificationToCSE: ", e);
-            } catch (AsnException e) {
-                throw new MAPException("AsnException when encoding parameter tifCsiNotificationToCSE: ", e);
+            if (this.tifCsiNotificationToCSE) {
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_tif_CSI_NotificationToCSE);
             }
-        }
-
-        if (this.gprsCsi != null) {
-            ((GPRSCSIImpl)this.gprsCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GPRS_CSI);
-        }
-
-        if (this.moSmsCsi != null) {
-            ((SMSCSIImpl)this.moSmsCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_MO_SMS_CSI);
-        }
-
-        if (this.ssCsi != null) {
-            ((SSCSIImpl)this.ssCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_SS_CSI);
-        }
-
-        if (this.mCsi != null) {
-            ((MCSIImpl)this.mCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_M_CSI);
-        }
-
-        if (this.extensionContainer != null) {
-            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_EXTENSION_CONTAINTER);
-        }
-
-        if (this.specificCSIDeletedList != null) {
-            ((SpecificCSIWithdrawImpl)this.specificCSIDeletedList).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_SPECIFIC_CSI_DELETE_LIST);
-        }
-
-        if (this.mtSmsCsi != null) {
-            ((SMSCSIImpl)this.mtSmsCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_MT_SMS_CSI);
-        }
-
-        try {
+            if (this.gprsCsi != null) {
+                ((GPRSCSIImpl) this.gprsCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_gprs_CSI);
+            }
+            if (this.moSmsCsi != null) {
+                ((SMSCSIImpl) this.moSmsCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mo_sms_CSI);
+            }
+            if (this.ssCsi != null) {
+                ((SSCSIImpl) this.ssCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_ss_CSI);
+            }
+            if (this.mCsi != null) {
+                ((MCSIImpl) this.mCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_m_CSI);
+            }
+            if (this.extensionContainer != null) {
+                ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
+                        _TAG_extensionContainer);
+            }
+            if (this.specificCSIDeletedList != null) {
+                ((SpecificCSIWithdrawImpl) this.specificCSIDeletedList).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
+                        _TAG_specificCSIDeletedList);
+            }
+            if (this.mtSmsCsi != null) {
+                ((SMSCSIImpl) this.mtSmsCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mt_sms_CSI);
+            }
             if (this.mtSmsCamelTdpCriteriaList != null) {
-                if (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 10) {
-                    throw new MAPException("Error while encoding " + _PrimitiveName
-                            + " size mtSmsCamelTdpCriteriaList is out of range (1..10). Actual size: " + this.mtSmsCamelTdpCriteriaList.size());
-                }
-
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_MT_SMS_CAMEL_TDP_CRITERIA_LIST);
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_mt_smsCAMELTDP_CriteriaList);
                 int pos = asnOs.StartContentDefiniteLength();
-                for (MTsmsCAMELTDPCriteria mTsmsCAMELTDPCriteria: this.mtSmsCamelTdpCriteriaList) {
-                    ((MTsmsCAMELTDPCriteriaImpl)mTsmsCAMELTDPCriteria).encodeAll(asnOs);
+                for (MTsmsCAMELTDPCriteria mtSMSCAMELTDPCriteria : this.mtSmsCamelTdpCriteriaList) {
+                    ((MTsmsCAMELTDPCriteriaImpl) mtSMSCAMELTDPCriteria).encodeAll(asnOs);
                 }
                 asnOs.FinalizeContent(pos);
             }
-        } catch (AsnException ae) {
-            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
-        }
-
-        if (this.mgCsi != null) {
-            ((MGCSIImpl)this.mgCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_MG_CSI);
-        }
-
-        if (this.oImCsi != null) {
-            ((OCSIImpl)this.oImCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_O_IM_SCI);
-        }
-
-        try {
+            if (this.mgCsi != null) {
+                ((MGCSIImpl) this.mgCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mg_csi);
+            }
+            if (this.oImCsi != null) {
+                ((OCSIImpl) this.oImCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_o_IM_CSI);
+            }
             if (this.oImBcsmCamelTdpCriteriaList != null) {
-                if (this.oImBcsmCamelTdpCriteriaList.size() < 1 || this.oImBcsmCamelTdpCriteriaList.size() > 10) {
-                    throw new MAPException("Error while encoding " + _PrimitiveName
-                            + " size oImBcsmCamelTdpCriteriaList is out of range (1..10). Actual size: " + this.oImBcsmCamelTdpCriteriaList.size());
-                }
-
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_O_IM_BCSM_CAMEL_TDP_CRITERIA_LIST);
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_o_IM_BcsmCamelTDP_CriteriaList);
                 int pos = asnOs.StartContentDefiniteLength();
-                for (OBcsmCamelTdpCriteria oImBcsmCamelTdpCriteria: this.oImBcsmCamelTdpCriteriaList) {
-                    ((OBcsmCamelTdpCriteriaImpl)oImBcsmCamelTdpCriteria).encodeAll(asnOs);
+                for (OBcsmCamelTdpCriteria oBcsmCamelTdpCriteria : this.oImBcsmCamelTdpCriteriaList) {
+                    ((OBcsmCamelTdpCriteriaImpl) oBcsmCamelTdpCriteria).encodeAll(asnOs);
                 }
                 asnOs.FinalizeContent(pos);
             }
-        } catch (AsnException ae) {
-            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
-        }
-
-        if (this.dImCsi != null) {
-            ((DCSIImpl)this.dImCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_D_IM_CSI);
-        }
-
-        if (this.vtImCsi != null) {
-            ((TCSIImpl)this.vtImCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_VT_IM_CSI);
-        }
-
-        try {
+            if (this.dImCsi != null) {
+                ((DCSIImpl) this.dImCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_d_IM_CSI);
+            }
+            if (this.vtImCsi != null) {
+                ((TCSIImpl) this.vtImCsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_vt_IM_CSI);
+            }
             if (this.vtImBcsmCamelTdpCriteriaList != null) {
-                if (this.vtImBcsmCamelTdpCriteriaList.size() < 1 || this.vtImBcsmCamelTdpCriteriaList.size() > 10) {
-                    throw new MAPException("Error while encoding " + _PrimitiveName
-                            + " size vtImBcsmCamelTdpCriteriaList is out of range (1..10). Actual size: " + this.vtImBcsmCamelTdpCriteriaList.size());
-                }
-
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_VT_IM_BCSM_CAMEL_TDP_CRITERIA_LIST);
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_vt_IM_BCSM_CAMEL_TDP_CriteriaList);
                 int pos = asnOs.StartContentDefiniteLength();
-                for (TBcsmCamelTdpCriteria vtImBcsmCamelTdpCriteria: this.vtImBcsmCamelTdpCriteriaList) {
-                    ((TBcsmCamelTdpCriteriaImpl)vtImBcsmCamelTdpCriteria).encodeAll(asnOs);
+                for (TBcsmCamelTdpCriteria tBcsmCamelTdpCriteria : this.vtImBcsmCamelTdpCriteriaList) {
+                    ((OBcsmCamelTdpCriteriaImpl) tBcsmCamelTdpCriteria).encodeAll(asnOs);
                 }
                 asnOs.FinalizeContent(pos);
             }
-        } catch (AsnException ae) {
-            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
+        } catch (IOException e) {
+            throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
+        } catch (AsnException e) {
+            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
         }
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(_PrimitiveName);
-        sb.append(" [");
+    protected String getPrimitiveName() {
+        return _PrimitiveName;
+    }
 
-        if (this.oCsi != null) {
-            sb.append("ssForBSCode=");
-            sb.append(this.oCsi);
-        }
-        if (this.oBcsmCamelTDPCriteriaList != null) {
-            sb.append(", oBcsmCamelTDPCriteriaList=[");
-            boolean firstItem = true;
-            for (OBcsmCamelTdpCriteria oBcsmCamelTdpCriteria: oBcsmCamelTDPCriteriaList) {
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(oBcsmCamelTdpCriteria);
-            }
-            sb.append("], ");
-        }
-        if (this.dCsi != null) {
-            sb.append(", dCsi=");
-            sb.append(this.dCsi);
-        }
-        if (this.tCsi != null) {
-            sb.append(", tCsi=");
-            sb.append(this.tCsi);
-        }
-        if (this.tBcsmCamelTdpCriteriaList != null) {
-            sb.append(", tBcsmCamelTdpCriteriaList=[");
-            boolean firstItem = true;
-            for (TBcsmCamelTdpCriteria tBcsmCamelTdpCriteria: tBcsmCamelTdpCriteriaList) {
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(tBcsmCamelTdpCriteria);
-            }
-            sb.append("], ");
-        }
-        if (this.vtCsi != null) {
-            sb.append(", vtCsi=");
-            sb.append(this.vtCsi);
-        }
-        if (this.vtBcsmCamelTdpCriteriaList != null) {
-            sb.append(", vtBcsmCamelTdpCriteriaList=[");
-            boolean firstItem = true;
-            for (TBcsmCamelTdpCriteria vtBcsmCamelTdpCriteria: vtBcsmCamelTdpCriteriaList) {
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(vtBcsmCamelTdpCriteria);
-            }
-            sb.append("], ");
-        }
-        if (this.tifCsi)
-            sb.append(", tifCsi");
-        if (this.tifCsiNotificationToCSE)
-            sb.append(", tifCsiNotificationToCSE");
-        if (this.gprsCsi != null) {
-            sb.append(", gprsCsi=");
-            sb.append(this.gprsCsi);
-        }
-        if (this.moSmsCsi != null) {
-            sb.append(", moSmsCsi=");
-            sb.append(this.moSmsCsi);
-        }
-        if (this.ssCsi != null) {
-            sb.append(", ssCsi=");
-            sb.append(this.ssCsi);
-        }
-        if (this.mCsi != null) {
-            sb.append(", mCsi=");
-            sb.append(this.mCsi);
-        }
-        if (this.extensionContainer != null) {
-            sb.append(", extensionContainer=");
-            sb.append(this.extensionContainer);
-        }
-        if (this.specificCSIDeletedList != null) {
-            sb.append(", specificCSIDeletedList=");
-            sb.append(this.specificCSIDeletedList);
-        }
-        if (this.mtSmsCsi != null) {
-            sb.append(", mtSmsCsi=");
-            sb.append(this.mtSmsCsi);
-        }
-        if (this.mtSmsCamelTdpCriteriaList != null) {
-            sb.append(", mtSmsCamelTdpCriteriaList=[");
-            boolean firstItem = true;
-            for (MTsmsCAMELTDPCriteria mTsmsCAMELTDPCriteria: mtSmsCamelTdpCriteriaList) {
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(mTsmsCAMELTDPCriteria);
-            }
-            sb.append("], ");
-        }
-        if (this.mgCsi != null) {
-            sb.append(", mgCsi=");
-            sb.append(this.mgCsi);
-        }
-        if (this.oImCsi != null) {
-            sb.append(", oImCsi=");
-            sb.append(this.oImCsi);
-        }
-        if (this.oImBcsmCamelTdpCriteriaList != null) {
-            sb.append(", oImBcsmCamelTdpCriteriaList=[");
-            boolean firstItem = true;
-            for (OBcsmCamelTdpCriteria oImBcsmCamelTdpCriteria: oImBcsmCamelTdpCriteriaList) {
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(oImBcsmCamelTdpCriteria);
-            }
-            sb.append("], ");
-        }
-        if (this.dImCsi != null) {
-            sb.append(", dImCsi=");
-            sb.append(this.dImCsi);
-        }
-        if (this.vtImCsi != null) {
-            sb.append(", vtImCsi=");
-            sb.append(this.vtImCsi);
-        }
-        if (this.vtImBcsmCamelTdpCriteriaList != null) {
-            sb.append(", vtImBcsmCamelTdpCriteriaList=[");
-            boolean firstItem = true;
-            for (TBcsmCamelTdpCriteria tBcsmCamelTdpCriteria: vtImBcsmCamelTdpCriteriaList) {
-                if (firstItem) {
-                    firstItem = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(tBcsmCamelTdpCriteria);
-            }
-            sb.append("], ");
-        }
-
-        sb.append("]");
-        return sb.toString();
+    @Override
+    public boolean getIsPrimitive() {
+        return false;
     }
 }

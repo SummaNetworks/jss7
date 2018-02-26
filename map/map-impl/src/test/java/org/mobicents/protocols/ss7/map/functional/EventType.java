@@ -28,7 +28,9 @@ public enum EventType {
     Reset, ForwardCheckSSIndication, RestoreData, RestoreDataResp,
 
     // mobility.subscriberInformation EventType
-    AnyTimeInterrogation, AnyTimeInterrogationResp, AnyTimeSubscriptionInterrogation, AnyTimeSubscriptionInterrogationRes, ProvideSubscriberInfo, ProvideSubscriberInfoResp,
+    AnyTimeInterrogation, AnyTimeInterrogationResp, AnyTimeModification, AnyTimeModificationResp, AnyTimeSubscriptionInterrogation,
+    AnyTimeSubscriptionInterrogationResp, ProvideSubscriberInfo, ProvideSubscriberInfoResp, NoteSubscriberDataModified,
+    NoteSubscriberDataModifiedResp,
 
     // mobility.SubscriberManagementServices EventType
     InsertSubscriberData, InsertSubscriberDataResp, DeleteSubscriberData, DeleteSubscriberDataResp,
@@ -37,7 +39,7 @@ public enum EventType {
     CheckImei, CheckImeiResp,
 
     // Call Handling Service
-    ProvideRoamingNumber, ProvideRoamingNumberResp, SendRoutingInformation, SendRoutingInformationResp, IstCommand, IstCommandResp,
+    ProvideRoamingNumber, ProvideRoamingNumberResp, SendRoutingInformation, SendRoutingInformationResp, IstCommand, IstCommandResp, IstAlert, IstAlertResp,
 
     // lsm EventType
     ProvideSubscriberLocation, ProvideSubscriberLocationResp, SubscriberLocationReport, SubscriberLocationReportResp, SendRoutingInfoForLCS, SendRoutingInfoForLCSResp,
@@ -46,5 +48,5 @@ public enum EventType {
     SendImsi, SendImsiResp, ActivateTraceMode, ActivateTraceModeResp,
 
     // PdpContextActivation Service
-    SendRoutingInfoForGprs, SendRoutingInfoForGprsResp;
+    SendRoutingInfoForGprs, SendRoutingInfoForGprsResp, FailureReport, FailureReportResp, NoteMsPresentForGprs, NoteMsPresentForGprsResp;
 }

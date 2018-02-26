@@ -1,5 +1,8 @@
 package org.mobicents.protocols.ss7.map.functional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.map.api.MAPDialog;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
@@ -12,6 +15,8 @@ import org.mobicents.protocols.ss7.map.api.dialog.MAPUserAbortChoice;
 import org.mobicents.protocols.ss7.map.api.errors.MAPErrorMessage;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertRequest;
+import org.mobicents.protocols.ss7.map.api.service.callhandling.IstAlertResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandRequest;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.IstCommandResponse;
 import org.mobicents.protocols.ss7.map.api.service.callhandling.MAPServiceCallHandlingListener;
@@ -51,6 +56,12 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceMod
 import org.mobicents.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeModificationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequest;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
@@ -64,7 +75,11 @@ import org.mobicents.protocols.ss7.map.api.service.oam.ActivateTraceModeResponse
 import org.mobicents.protocols.ss7.map.api.service.oam.MAPServiceOamListener;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiRequest;
 import org.mobicents.protocols.ss7.map.api.service.oam.SendImsiResponse;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.FailureReportResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.MAPServicePdpContextActivationListener;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.NoteMsPresentForGprsRequest;
+import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.NoteMsPresentForGprsResponse;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsRequest;
 import org.mobicents.protocols.ss7.map.api.service.pdpContextActivation.SendRoutingInfoForGprsResponse;
 import org.mobicents.protocols.ss7.map.api.service.sms.AlertServiceCentreRequest;
@@ -107,9 +122,6 @@ import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSR
 import org.mobicents.protocols.ss7.map.api.service.supplementary.UnstructuredSSResponse;
 import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
@@ -441,12 +453,14 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
         this.observerdEvents.add(te);
     }
 
+    @Override
     public void onAnyTimeInterrogationRequest(AnyTimeInterrogationRequest request) {
         this.logger.debug("onAnyTimeInterrogationRequest");
         TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeInterrogation, request, sequence++);
         this.observerdEvents.add(te);
     }
 
+    @Override
     public void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse response) {
         this.logger.debug("onAnyTimeInterrogationResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeInterrogationResp, response, sequence++);
@@ -461,7 +475,21 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
 
     public void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response) {
         this.logger.debug("onAnyTimeSubscriptionInterrogationResponse");
-        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeSubscriptionInterrogationRes, response, sequence++);
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeSubscriptionInterrogationResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onAnyTimeModificationRequest(AnyTimeModificationRequest request) {
+        this.logger.debug("onAnyTimeModificationRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeModification, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onAnyTimeModificationResponse(AnyTimeModificationResponse response) {
+        this.logger.debug("onAnyTimeModificationResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.AnyTimeModificationResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 
@@ -476,6 +504,20 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     public void onProvideSubscriberInfoResponse(ProvideSubscriberInfoResponse response) {
         this.logger.debug("onProvideSubscriberInfoResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.ProvideSubscriberInfoResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onNoteSubscriberDataModifiedRequest(NoteSubscriberDataModifiedRequest request) {
+        this.logger.debug("onNoteSubscriberDataModifiedRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.NoteSubscriberDataModified, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onNoteSubscriberDataModifiedResponse(NoteSubscriberDataModifiedResponse response) {
+        this.logger.debug("onNoteSubscriberDataModifiedResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.NoteSubscriberDataModifiedResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 
@@ -798,6 +840,36 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     }
 
     @Override
+    public void onFailureReportRequest(FailureReportRequest request) {
+        this.logger.debug("onFailureReportRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.FailureReport, request, sequence++);
+        this.observerdEvents.add(te);
+
+    }
+
+    @Override
+    public void onFailureReportResponse(FailureReportResponse response) {
+        this.logger.debug("onFailureReportResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.FailureReportResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onNoteMsPresentForGprsRequest(NoteMsPresentForGprsRequest request) {
+        this.logger.debug("onNoteMsPresentForGprsRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.NoteMsPresentForGprs, request, sequence++);
+        this.observerdEvents.add(te);
+
+    }
+
+    @Override
+    public void onNoteMsPresentForGprsResponse(NoteMsPresentForGprsResponse response) {
+        this.logger.debug("onNoteMsPresentForGprsResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.NoteMsPresentForGprsResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
     public void onActivateTraceModeRequest_Oam(ActivateTraceModeRequest_Oam request) {
         this.logger.debug("onActivateTraceModeRequest");
         TestEvent te = TestEvent.createReceivedEvent(EventType.ActivateTraceMode, request, sequence++);
@@ -864,6 +936,20 @@ public class EventTestHarness implements MAPDialogListener, MAPServiceSupplement
     public void onIstCommandResponse(IstCommandResponse response) {
         this.logger.debug("onSendIstCommandResponse");
         TestEvent te = TestEvent.createReceivedEvent(EventType.IstCommandResp, response, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onIstAlertRequest(IstAlertRequest request) {
+        this.logger.debug("onSendIstAlertRequest");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.IstAlert, request, sequence++);
+        this.observerdEvents.add(te);
+    }
+
+    @Override
+    public void onIstAlertResponse(IstAlertResponse response) {
+        this.logger.debug("onSendIstAlertResponse");
+        TestEvent te = TestEvent.createReceivedEvent(EventType.IstAlertResp, response, sequence++);
         this.observerdEvents.add(te);
     }
 }

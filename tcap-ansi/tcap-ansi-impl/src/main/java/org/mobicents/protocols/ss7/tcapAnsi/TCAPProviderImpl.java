@@ -343,6 +343,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             id = this.getAvailableTxId();
         } else {
             if (!checkAvailableTxId(id)) {
+                logger.warn("Suggested local TransactionId is already present in system: " + id);
                 throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
             }
         }

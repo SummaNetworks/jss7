@@ -70,6 +70,10 @@ import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.An
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeInterrogationResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponseImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeModificationRequestImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.AnyTimeModificationResponseImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.NoteSubscriberDataModifiedRequestImpl;
+import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.NoteSubscriberDataModifiedResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ProvideSubscriberInfoRequestImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation.ProvideSubscriberInfoResponseImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.DeleteSubscriberDataRequestImpl;
@@ -251,6 +255,7 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
             // -- Subscriber Information services
         case anyTimeEnquiryContext:
         case anyTimeInfoHandlingContext:
+        case subscriberDataModificationNotificationContext:
         case subscriberInfoEnquiryContext:
             if (vers >= 3 && vers <= 3) {
                 return new ServingCheckDataImpl(ServingCheckResult.AC_Serving);
@@ -437,6 +442,15 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
                                 compType == ComponentType.ReturnResult);
                 }
                 break;
+            case MAPOperationCode.anyTimeModification:
+                if (acn == MAPApplicationContextName.anyTimeInfoHandlingContext) {
+                    if (compType == ComponentType.Invoke)
+                        this.processAnyTimeModificationRequest(parameter, mapDialogMobilityImpl, invokeId);
+                    else
+                        this.processAnyTimeModificationResponse(parameter, mapDialogMobilityImpl, invokeId,
+                                compType == ComponentType.ReturnResult);
+                }
+                break;
             case MAPOperationCode.anyTimeSubscriptionInterrogation:
                 if (acn == MAPApplicationContextName.anyTimeInfoHandlingContext) {
                     if (compType == ComponentType.Invoke)
@@ -452,6 +466,15 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
                         this.processProvideSubscriberInfoRequest(parameter, mapDialogMobilityImpl, invokeId);
                     else
                         this.processProvideSubscriberInfoResponse(parameter, mapDialogMobilityImpl, invokeId,
+                                compType == ComponentType.ReturnResult);
+                }
+                break;
+            case MAPOperationCode.noteSubscriberDataModified:
+                if (acn == MAPApplicationContextName.subscriberDataModificationNotificationContext) {
+                    if (compType == ComponentType.Invoke)
+                        this.processNoteSubscriberDataModifiedRequest(parameter, mapDialogMobilityImpl, invokeId);
+                    else
+                        this.processNoteSubscriberDataModifiedResponse(parameter, mapDialogMobilityImpl, invokeId,
                                 compType == ComponentType.ReturnResult);
                 }
                 break;
@@ -1194,6 +1217,100 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
 
     }
 
+    private void processAnyTimeModificationRequest(Parameter parameter, MAPDialogMobilityImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding AnyTimeModificationRequestIndication: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding AnyTimeModificationRequestIndication: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+
+        AnyTimeModificationRequestImpl ind = new AnyTimeModificationRequestImpl();
+        ind.decodeData(ais, buf.length);
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                ((MAPServiceMobilityListener) serLis).onAnyTimeModificationRequest(ind);
+            } catch (Exception e) {
+                loger.error("Error processing AnyTimeModificationRequestIndication: " + e.getMessage(), e);
+            }
+        }
+
+    }
+
+    private void processAnyTimeModificationResponse(Parameter parameter, MAPDialogMobilityImpl mapDialogImpl, Long invokeId, boolean returnResultNotLast)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding AnyTimeModificationResponseIndication: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding AnyTimeModificationResponseIndication: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+
+        AnyTimeModificationResponseImpl ind = new AnyTimeModificationResponseImpl();
+        ind.decodeData(ais, buf.length);
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+        ind.setReturnResultNotLast(returnResultNotLast);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                ((MAPServiceMobilityListener) serLis).onAnyTimeModificationResponse(ind);
+            } catch (Exception e) {
+                loger.error("Error processing AnyTimeModificationResponseIndication: " + e.getMessage(), e);
+            }
+        }
+
+    }
+
+    private void processAnyTimeSubscriptionInterrogationResponse(Parameter parameter, MAPDialogMobilityImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException(
+                    "Error while decoding AnyTimeSubscriptionInterrogationResponseIndication: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding AnyTimeSubscriptionInterrogationResponseIndication: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+
+        AnyTimeSubscriptionInterrogationResponseImpl ind = new AnyTimeSubscriptionInterrogationResponseImpl();
+        ind.decodeData(ais, buf.length);
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                ((MAPServiceMobilityListener) serLis).onAnyTimeSubscriptionInterrogationResponse(ind);
+            } catch (Exception e) {
+                loger.error("Error processing AnyTimeSubscriptionInterrogationResponseIndication: " + e.getMessage(), e);
+            }
+        }
+
+    }
+
     private void processAnyTimeSubscriptionInterrogationRequest(Parameter parameter, MAPDialogMobilityImpl mapDialogImpl, Long invokeId)
             throws MAPParsingComponentException {
 
@@ -1217,6 +1334,7 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
 
         for (MAPServiceListener serLis : this.serviceListeners) {
             try {
+                //TODO: por qué hace eso?
                 serLis.onMAPMessage(ind);
                 ((MAPServiceMobilityListener) serLis).onAnyTimeSubscriptionInterrogationRequest(ind);
             } catch (Exception e) {
@@ -1315,6 +1433,67 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
                 ((MAPServiceMobilityListener) serLis).onProvideSubscriberInfoResponse(ind);
             } catch (Exception e) {
                 loger.error("Error processing ProvideSubscriberInfoResponseIndication: " + e.getMessage(), e);
+            }
+        }
+
+    }
+
+    private void processNoteSubscriberDataModifiedRequest(Parameter parameter, MAPDialogMobilityImpl mapDialogImpl, Long invokeId)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException("Error while decoding NoteSubscriberDataModifiedRequest: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding NoteSubscriberDataModifiedRequest: Bad tag or tagClass or parameter is primitive, received tag=" + parameter.getTag(),
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+
+        NoteSubscriberDataModifiedRequestImpl ind = new NoteSubscriberDataModifiedRequestImpl();
+        ind.decodeData(ais, buf.length);
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                ((MAPServiceMobilityListener) serLis).onNoteSubscriberDataModifiedRequest(ind);
+            } catch (Exception e) {
+                loger.error("Error processing NoteSubscriberDataModifiedRequest: " + e.getMessage(), e);
+            }
+        }
+
+    }
+
+    private void processNoteSubscriberDataModifiedResponse(Parameter parameter, MAPDialogMobilityImpl mapDialogImpl, Long invokeId, boolean returnResultNotLast)
+            throws MAPParsingComponentException {
+
+        if (parameter == null)
+            throw new MAPParsingComponentException("Error while decoding NoteSubscriberDataModifiedResponseIndication: Parameter is mandatory but not found",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+            throw new MAPParsingComponentException(
+                    "Error while decoding NoteSubscriberDataModifiedResponseIndication: Bad tag or tagClass or parameter is primitive, received tag="
+                            + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+
+        byte[] buf = parameter.getData();
+        AsnInputStream ais = new AsnInputStream(buf);
+
+        NoteSubscriberDataModifiedResponseImpl ind = new NoteSubscriberDataModifiedResponseImpl();
+        ind.decodeData(ais, buf.length);
+        ind.setInvokeId(invokeId);
+        ind.setMAPDialog(mapDialogImpl);
+        ind.setReturnResultNotLast(returnResultNotLast);
+
+        for (MAPServiceListener serLis : this.serviceListeners) {
+            try {
+                ((MAPServiceMobilityListener) serLis).onNoteSubscriberDataModifiedResponse(ind);
+            } catch (Exception e) {
+                loger.error("Error processing NoteSubscriberDataModifiedResponseIndication: " + e.getMessage(), e);
             }
         }
 

@@ -338,7 +338,7 @@ public class NetworkIdTest implements SccpListener {
         @Override
         public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
@@ -350,13 +350,13 @@ public class NetworkIdTest implements SccpListener {
         @Override
         public void start() throws Exception {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
         public void stop() throws Exception {
             // TODO Auto-generated method stub
-            
+
         }
     }
 

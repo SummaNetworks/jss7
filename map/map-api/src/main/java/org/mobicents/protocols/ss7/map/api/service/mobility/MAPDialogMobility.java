@@ -71,10 +71,26 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClipData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ClirData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.EctData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtCallBarringInfoForCSE;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtForwardingInfoForCSE;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtSSInfoForCSE;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.MSISDNBS;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCBInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCFInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCHInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCLIPInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCLIRInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCSG;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCSI;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForCWInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForECTInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForIPSMGWData;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ModificationRequestForODBdata;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ODBInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ServingNode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.AccessRestrictionData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.CSAllocationRetentionPriority;
@@ -117,105 +133,103 @@ import org.mobicents.protocols.ss7.map.api.service.oam.TraceType;
 import org.mobicents.protocols.ss7.map.api.service.supplementary.SSCode;
 
 /**
- *
  * @author sergey vetyutnev
- *
  */
 public interface MAPDialogMobility extends MAPDialog {
 
     // -- Location Management Service
     Long addUpdateLocationRequest(IMSI imsi, ISDNAddressString mscNumber, ISDNAddressString roamingNumber,
-            ISDNAddressString vlrNumber, LMSI lmsi, MAPExtensionContainer extensionContainer, VLRCapability vlrCapability,
-            boolean informPreviousNetworkEntity, boolean csLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo,
-            PagingArea pagingArea, boolean skipSubscriberDataUpdate, boolean restorationIndicator) throws MAPException;
+                                  ISDNAddressString vlrNumber, LMSI lmsi, MAPExtensionContainer extensionContainer, VLRCapability vlrCapability,
+                                  boolean informPreviousNetworkEntity, boolean csLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo,
+                                  PagingArea pagingArea, boolean skipSubscriberDataUpdate, boolean restorationIndicator) throws MAPException;
 
     Long addUpdateLocationRequest(int customInvokeTimeout, IMSI imsi, ISDNAddressString mscNumber,
-            ISDNAddressString roamingNumber, ISDNAddressString vlrNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
-            VLRCapability vlrCapability, boolean informPreviousNetworkEntity, boolean csLCSNotSupportedByUE,
-            GSNAddress vGmlcAddress, ADDInfo addInfo, PagingArea pagingArea, boolean skipSubscriberDataUpdate,
-            boolean restorationIndicator) throws MAPException;
+                                  ISDNAddressString roamingNumber, ISDNAddressString vlrNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
+                                  VLRCapability vlrCapability, boolean informPreviousNetworkEntity, boolean csLCSNotSupportedByUE,
+                                  GSNAddress vGmlcAddress, ADDInfo addInfo, PagingArea pagingArea, boolean skipSubscriberDataUpdate,
+                                  boolean restorationIndicator) throws MAPException;
 
     void addUpdateLocationResponse(long invokeId, ISDNAddressString hlrNumber, MAPExtensionContainer extensionContainer,
-            boolean addCapability, boolean pagingAreaCapability) throws MAPException;
+                                   boolean addCapability, boolean pagingAreaCapability) throws MAPException;
 
     Long addCancelLocationRequest(int customInvokeTimeout, IMSI imsi, IMSIWithLMSI imsiWithLmsi,
-            CancellationType cancellationType, MAPExtensionContainer extensionContainer, TypeOfUpdate typeOfUpdate,
-            boolean mtrfSupportedAndAuthorized, boolean mtrfSupportedAndNotAuthorized, ISDNAddressString newMSCNumber,
-            ISDNAddressString newVLRNumber, LMSI newLmsi) throws MAPException;
+                                  CancellationType cancellationType, MAPExtensionContainer extensionContainer, TypeOfUpdate typeOfUpdate,
+                                  boolean mtrfSupportedAndAuthorized, boolean mtrfSupportedAndNotAuthorized, ISDNAddressString newMSCNumber,
+                                  ISDNAddressString newVLRNumber, LMSI newLmsi) throws MAPException;
 
     Long addCancelLocationRequest(IMSI imsi, IMSIWithLMSI imsiWithLmsi, CancellationType cancellationType,
-            MAPExtensionContainer extensionContainer, TypeOfUpdate typeOfUpdate, boolean mtrfSupportedAndAuthorized,
-            boolean mtrfSupportedAndNotAuthorized, ISDNAddressString newMSCNumber, ISDNAddressString newVLRNumber, LMSI newLmsi)
+                                  MAPExtensionContainer extensionContainer, TypeOfUpdate typeOfUpdate, boolean mtrfSupportedAndAuthorized,
+                                  boolean mtrfSupportedAndNotAuthorized, ISDNAddressString newMSCNumber, ISDNAddressString newVLRNumber, LMSI newLmsi)
             throws MAPException;
 
     void addCancelLocationResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
 
     Long addSendIdentificationRequest(int customInvokeTimeout, TMSI tmsi, Integer numberOfRequestedVectors,
-            boolean segmentationProhibited, MAPExtensionContainer extensionContainer, ISDNAddressString mscNumber,
-            LAIFixedLength previousLAI, Integer hopCounter, boolean mtRoamingForwardingSupported,
-            ISDNAddressString newVLRNumber, LMSI lmsi) throws MAPException;
+                                      boolean segmentationProhibited, MAPExtensionContainer extensionContainer, ISDNAddressString mscNumber,
+                                      LAIFixedLength previousLAI, Integer hopCounter, boolean mtRoamingForwardingSupported,
+                                      ISDNAddressString newVLRNumber, LMSI lmsi) throws MAPException;
 
     Long addSendIdentificationRequest(TMSI tmsi, Integer numberOfRequestedVectors, boolean segmentationProhibited,
-            MAPExtensionContainer extensionContainer, ISDNAddressString mscNumber, LAIFixedLength previousLAI,
-            Integer hopCounter, boolean mtRoamingForwardingSupported, ISDNAddressString newVLRNumber, LMSI lmsi)
+                                      MAPExtensionContainer extensionContainer, ISDNAddressString mscNumber, LAIFixedLength previousLAI,
+                                      Integer hopCounter, boolean mtRoamingForwardingSupported, ISDNAddressString newVLRNumber, LMSI lmsi)
             throws MAPException;
 
     void addSendIdentificationResponse(long invokeId, IMSI imsi, AuthenticationSetList authenticationSetList,
-            CurrentSecurityContext currentSecurityContext, MAPExtensionContainer extensionContainer) throws MAPException;
+                                       CurrentSecurityContext currentSecurityContext, MAPExtensionContainer extensionContainer) throws MAPException;
 
     void addSendIdentificationResponse_NonLast(long invokeId, IMSI imsi, AuthenticationSetList authenticationSetList,
-            CurrentSecurityContext currentSecurityContext, MAPExtensionContainer extensionContainer) throws MAPException;
+                                               CurrentSecurityContext currentSecurityContext, MAPExtensionContainer extensionContainer) throws MAPException;
 
     Long addUpdateGprsLocationRequest(int customInvokeTimeout, IMSI imsi, ISDNAddressString sgsnNumber,
-            GSNAddress sgsnAddress, MAPExtensionContainer extensionContainer, SGSNCapability sgsnCapability,
-            boolean informPreviousNetworkEntity, boolean psLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo,
-            EPSInfo epsInfo, boolean servingNodeTypeIndicator, boolean skipSubscriberDataUpdate, UsedRATType usedRATType,
-            boolean gprsSubscriptionDataNotNeeded, boolean nodeTypeIndicator, boolean areaRestricted,
-            boolean ueReachableIndicator, boolean epsSubscriptionDataNotNeeded, UESRVCCCapability uesrvccCapability)
+                                      GSNAddress sgsnAddress, MAPExtensionContainer extensionContainer, SGSNCapability sgsnCapability,
+                                      boolean informPreviousNetworkEntity, boolean psLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo,
+                                      EPSInfo epsInfo, boolean servingNodeTypeIndicator, boolean skipSubscriberDataUpdate, UsedRATType usedRATType,
+                                      boolean gprsSubscriptionDataNotNeeded, boolean nodeTypeIndicator, boolean areaRestricted,
+                                      boolean ueReachableIndicator, boolean epsSubscriptionDataNotNeeded, UESRVCCCapability uesrvccCapability)
             throws MAPException;
 
     Long addUpdateGprsLocationRequest(IMSI imsi, ISDNAddressString sgsnNumber, GSNAddress sgsnAddress,
-            MAPExtensionContainer extensionContainer, SGSNCapability sgsnCapability, boolean informPreviousNetworkEntity,
-            boolean psLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo, EPSInfo epsInfo,
-            boolean servingNodeTypeIndicator, boolean skipSubscriberDataUpdate, UsedRATType usedRATType,
-            boolean gprsSubscriptionDataNotNeeded, boolean nodeTypeIndicator, boolean areaRestricted,
-            boolean ueReachableIndicator, boolean epsSubscriptionDataNotNeeded, UESRVCCCapability uesrvccCapability)
+                                      MAPExtensionContainer extensionContainer, SGSNCapability sgsnCapability, boolean informPreviousNetworkEntity,
+                                      boolean psLCSNotSupportedByUE, GSNAddress vGmlcAddress, ADDInfo addInfo, EPSInfo epsInfo,
+                                      boolean servingNodeTypeIndicator, boolean skipSubscriberDataUpdate, UsedRATType usedRATType,
+                                      boolean gprsSubscriptionDataNotNeeded, boolean nodeTypeIndicator, boolean areaRestricted,
+                                      boolean ueReachableIndicator, boolean epsSubscriptionDataNotNeeded, UESRVCCCapability uesrvccCapability)
             throws MAPException;
 
     void addUpdateGprsLocationResponse(long invokeId, ISDNAddressString hlrNumber, MAPExtensionContainer extensionContainer,
-            boolean addCapability, boolean sgsnMmeSeparationSupported) throws MAPException;
+                                       boolean addCapability, boolean sgsnMmeSeparationSupported) throws MAPException;
 
     Long addPurgeMSRequest(int customInvokeTimeout, IMSI imsi, ISDNAddressString vlrNumber, ISDNAddressString sgsnNumber,
-            MAPExtensionContainer extensionContainer) throws MAPException;
+                           MAPExtensionContainer extensionContainer) throws MAPException;
 
     Long addPurgeMSRequest(IMSI imsi, ISDNAddressString vlrNumber, ISDNAddressString sgsnNumber,
-            MAPExtensionContainer extensionContainer) throws MAPException;
+                           MAPExtensionContainer extensionContainer) throws MAPException;
 
     void addPurgeMSResponse(long invokeId, boolean freezeTMSI, boolean freezePTMSI, MAPExtensionContainer extensionContainer,
-            boolean freezeMTMSI) throws MAPException;
+                            boolean freezeMTMSI) throws MAPException;
 
     // -- Authentication management services
     Long addSendAuthenticationInfoRequest(IMSI imsi, int numberOfRequestedVectors, boolean segmentationProhibited,
-            boolean immediateResponsePreferred, ReSynchronisationInfo reSynchronisationInfo,
-            MAPExtensionContainer extensionContainer, RequestingNodeType requestingNodeType, PlmnId requestingPlmnId,
-            Integer numberOfRequestedAdditionalVectors, boolean additionalVectorsAreForEPS) throws MAPException;
+                                          boolean immediateResponsePreferred, ReSynchronisationInfo reSynchronisationInfo,
+                                          MAPExtensionContainer extensionContainer, RequestingNodeType requestingNodeType, PlmnId requestingPlmnId,
+                                          Integer numberOfRequestedAdditionalVectors, boolean additionalVectorsAreForEPS) throws MAPException;
 
     Long addSendAuthenticationInfoRequest(int customInvokeTimeout, IMSI imsi, int numberOfRequestedVectors,
-            boolean segmentationProhibited, boolean immediateResponsePreferred, ReSynchronisationInfo reSynchronisationInfo,
-            MAPExtensionContainer extensionContainer, RequestingNodeType requestingNodeType, PlmnId requestingPlmnId,
-            Integer numberOfRequestedAdditionalVectors, boolean additionalVectorsAreForEPS) throws MAPException;
+                                          boolean segmentationProhibited, boolean immediateResponsePreferred, ReSynchronisationInfo reSynchronisationInfo,
+                                          MAPExtensionContainer extensionContainer, RequestingNodeType requestingNodeType, PlmnId requestingPlmnId,
+                                          Integer numberOfRequestedAdditionalVectors, boolean additionalVectorsAreForEPS) throws MAPException;
 
     void addSendAuthenticationInfoResponse(long invokeId, AuthenticationSetList authenticationSetList,
-            MAPExtensionContainer extensionContainer, EpsAuthenticationSetList epsAuthenticationSetList) throws MAPException;
+                                           MAPExtensionContainer extensionContainer, EpsAuthenticationSetList epsAuthenticationSetList) throws MAPException;
 
     void addSendAuthenticationInfoResponse_NonLast(long invokeId, AuthenticationSetList authenticationSetList,
-            MAPExtensionContainer extensionContainer, EpsAuthenticationSetList epsAuthenticationSetList) throws MAPException;
+                                                   MAPExtensionContainer extensionContainer, EpsAuthenticationSetList epsAuthenticationSetList) throws MAPException;
 
     Long addAuthenticationFailureReportRequest(IMSI imsi, FailureCause failureCause, MAPExtensionContainer extensionContainer, Boolean reAttempt,
-            AccessType accessType, byte[] rand, ISDNAddressString vlrNumber, ISDNAddressString sgsnNumber) throws MAPException;
+                                               AccessType accessType, byte[] rand, ISDNAddressString vlrNumber, ISDNAddressString sgsnNumber) throws MAPException;
 
     Long addAuthenticationFailureReportRequest(int customInvokeTimeout, IMSI imsi, FailureCause failureCause, MAPExtensionContainer extensionContainer,
-            Boolean reAttempt, AccessType accessType, byte[] rand, ISDNAddressString vlrNumber, ISDNAddressString sgsnNumber) throws MAPException;
+                                               Boolean reAttempt, AccessType accessType, byte[] rand, ISDNAddressString vlrNumber, ISDNAddressString sgsnNumber) throws MAPException;
 
     void addAuthenticationFailureReportResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
 
@@ -232,156 +246,213 @@ public interface MAPDialogMobility extends MAPDialog {
             throws MAPException;
 
     Long addRestoreDataRequest(int customInvokeTimeout, IMSI imsi, LMSI lmsi, VLRCapability vlrCapability, MAPExtensionContainer extensionContainer,
-            boolean restorationIndicator) throws MAPException;
+                               boolean restorationIndicator) throws MAPException;
 
     void addRestoreDataResponse(long invokeId, ISDNAddressString hlrNumber, boolean msNotReachable, MAPExtensionContainer extensionContainer)
             throws MAPException;
 
     // -- Subscriber Information services
     long addAnyTimeInterrogationRequest(SubscriberIdentity subscriberIdentity, RequestedInfo requestedInfo,
-            ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer) throws MAPException;
+                                        ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer) throws MAPException;
 
     long addAnyTimeInterrogationRequest(long customInvokeTimeout, SubscriberIdentity subscriberIdentity,
-            RequestedInfo requestedInfo, ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer)
+                                        RequestedInfo requestedInfo, ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer)
             throws MAPException;
 
     void addAnyTimeInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo, MAPExtensionContainer extensionContainer)
             throws MAPException;
 
     void addAnyTimeInterrogationResponse_NonLast(long invokeId, SubscriberInfo subscriberInfo,
-            MAPExtensionContainer extensionContainer) throws MAPException;
+                                                 MAPExtensionContainer extensionContainer) throws MAPException;
 
     long addAnyTimeSubscriptionInterrogationRequest(SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
-            ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean isLongFTNSupported) throws MAPException;
+                                                    ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean isLongFTNSupported) throws MAPException;
 
-    long addAnyTimeSubscriptionInterrogationRequest(int customTimeout, SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
-            ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean isLongFTNSupported) throws MAPException;
 
     void addAnyTimeSubscriptionInterrogationResponse(long invokeId, CallForwardingData callForwardingData, CallBarringData callBarringData, ODBInfo odbInfo,
-            CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
-            MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
-            ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
-            CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+                                                     CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
+                                                     MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
+                                                     ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
+                                                     CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
 
     void addAnyTimeSubscriptionInterrogationResponse_NonLast(long invokeId, CallForwardingData callForwardingData, CallBarringData callBarringData, ODBInfo odbInfo,
-            CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
-            MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
-            ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
-            CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+                                                             CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
+                                                             MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
+                                                             ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
+                                                             CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+
+    long addAnyTimeModificationRequest(SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
+                                       ModificationRequestForCFInfo modificationRequestForCfInfo,
+                                       ModificationRequestForCBInfo modificationRequestForCbInfo,
+                                       ModificationRequestForCSI modificationRequestForCSI,
+                                       MAPExtensionContainer extensionContainer, boolean longFtnSupported,
+                                       ModificationRequestForODBdata modificationRequestForODBdata,
+                                       ModificationRequestForIPSMGWData modificationRequestForIpSmGwData,
+                                       RequestedServingNode activationRequestForUEReachability,
+                                       ModificationRequestForCSG modificationRequestForCSG,
+                                       ModificationRequestForCWInfo modificationRequestForCwData,
+                                       ModificationRequestForCLIPInfo modificationRequestForClipData,
+                                       ModificationRequestForCLIRInfo modificationRequestForClirData,
+                                       ModificationRequestForCHInfo modificationRequestForHoldData,
+                                       ModificationRequestForECTInfo modificationRequestForEctData) throws MAPException;
+
+    long addAnyTimeModificationRequest(long customInvokeTimeout, SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
+                                       ModificationRequestForCFInfo modificationRequestForCfInfo,
+                                       ModificationRequestForCBInfo modificationRequestForCbInfo,
+                                       ModificationRequestForCSI modificationRequestForCSI,
+                                       MAPExtensionContainer extensionContainer, boolean longFtnSupported,
+                                       ModificationRequestForODBdata modificationRequestForODBdata,
+                                       ModificationRequestForIPSMGWData modificationRequestForIpSmGwData,
+                                       RequestedServingNode activationRequestForUEReachability,
+                                       ModificationRequestForCSG modificationRequestForCSG,
+                                       ModificationRequestForCWInfo modificationRequestForCwData,
+                                       ModificationRequestForCLIPInfo modificationRequestForClipData,
+                                       ModificationRequestForCLIRInfo modificationRequestForClirData,
+                                       ModificationRequestForCHInfo modificationRequestForHoldData,
+                                       ModificationRequestForECTInfo modificationRequestForEctData)
+            throws MAPException;
+
+    void addAnyTimeModificationResponse(long invokeId, ExtSSInfoForCSE ssInfoForCSE, CAMELSubscriptionInfo camelSubscriptionInfo,
+                                        MAPExtensionContainer extensionContainer, ODBInfo odbInfo, CallWaitingData cwData,
+                                        CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData,
+                                        AddressString serviceCentreAddress) throws MAPException;
+
+    long addAnyTimeSubscriptionInterrogationRequest(
+            long customInvokeTimeout, SubscriberIdentity subscriberIdentity,
+            RequestedSubscriptionInfo requestedSubscriptionInfo, ISDNAddressString gsmSCFAddress,
+            MAPExtensionContainer extensionContainer, boolean longFtnSupported)
+            throws MAPException;
 
     long addProvideSubscriberInfoRequest(IMSI imsi, LMSI lmsi, RequestedInfo requestedInfo, MAPExtensionContainer extensionContainer, EMLPPPriority callPriority)
             throws MAPException;
 
     long addProvideSubscriberInfoRequest(long customInvokeTimeout, IMSI imsi, LMSI lmsi, RequestedInfo requestedInfo, MAPExtensionContainer extensionContainer,
-            EMLPPPriority callPriority) throws MAPException;
+                                         EMLPPPriority callPriority) throws MAPException;
 
     void addProvideSubscriberInfoResponse(long invokeId, SubscriberInfo subscriberInfo, MAPExtensionContainer extensionContainer) throws MAPException;
+
+    long addNoteSubscriberDataModifiedRequest(IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                              ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                              CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                              MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                              ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                              CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData)
+            throws MAPException;
+
+    long addNoteSubscriberDataModifiedRequest(long customInvokeTimeout, IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                              ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                              CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                              MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                              ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                              CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+
+    void addNoteSubscriberDataModifiedResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException;
 
     void addProvideSubscriberInfoResponse_NonLast(long invokeId, SubscriberInfo subscriberInfo, MAPExtensionContainer extensionContainer) throws MAPException;
 
     // -- Subscriber Management services
     Long addInsertSubscriberDataRequest(IMSI imsi, ISDNAddressString msisdn, Category category,
-            SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
-            ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
-            boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
-            ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
-            VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo) throws MAPException;
+                                        SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
+                                        ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
+                                        boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
+                                        ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
+                                        VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo) throws MAPException;
 
     Long addInsertSubscriberDataRequest(long customInvokeTimeout, IMSI imsi, ISDNAddressString msisdn,
-            Category category, SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
-            ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
-            boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
-            ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
-            VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo) throws MAPException;
+                                        Category category, SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
+                                        ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
+                                        boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
+                                        ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
+                                        VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo) throws MAPException;
 
     Long addInsertSubscriberDataRequest(IMSI imsi, ISDNAddressString msisdn, Category category,
-            SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
-            ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
-            boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
-            ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
-            VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo, MAPExtensionContainer extensionContainer,
-            NAEAPreferredCI naeaPreferredCI, GPRSSubscriptionData gprsSubscriptionData,
-            boolean roamingRestrictedInSgsnDueToUnsupportedFeature, NetworkAccessMode networkAccessMode,
-            LSAInformation lsaInformation, boolean lmuIndicator, LCSInformation lcsInformation, Integer istAlertTimer,
-            AgeIndicator superChargerSupportedInHLR, MCSSInfo mcSsInfo,
-            CSAllocationRetentionPriority csAllocationRetentionPriority, SGSNCAMELSubscriptionInfo sgsnCamelSubscriptionInfo,
-            ChargingCharacteristics chargingCharacteristics, AccessRestrictionData accessRestrictionData, Boolean icsIndicator,
-            EPSSubscriptionData epsSubscriptionData, ArrayList<CSGSubscriptionData> csgSubscriptionDataList,
-            boolean ueReachabilityRequestIndicator, ISDNAddressString sgsnNumber, DiameterIdentity mmeName,
-            Long subscribedPeriodicRAUTAUtimer, boolean vplmnLIPAAllowed, Boolean mdtUserConsent,
-            Long subscribedPeriodicLAUtimer) throws MAPException;
+                                        SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
+                                        ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
+                                        boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
+                                        ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
+                                        VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo, MAPExtensionContainer extensionContainer,
+                                        NAEAPreferredCI naeaPreferredCI, GPRSSubscriptionData gprsSubscriptionData,
+                                        boolean roamingRestrictedInSgsnDueToUnsupportedFeature, NetworkAccessMode networkAccessMode,
+                                        LSAInformation lsaInformation, boolean lmuIndicator, LCSInformation lcsInformation, Integer istAlertTimer,
+                                        AgeIndicator superChargerSupportedInHLR, MCSSInfo mcSsInfo,
+                                        CSAllocationRetentionPriority csAllocationRetentionPriority, SGSNCAMELSubscriptionInfo sgsnCamelSubscriptionInfo,
+                                        ChargingCharacteristics chargingCharacteristics, AccessRestrictionData accessRestrictionData, Boolean icsIndicator,
+                                        EPSSubscriptionData epsSubscriptionData, ArrayList<CSGSubscriptionData> csgSubscriptionDataList,
+                                        boolean ueReachabilityRequestIndicator, ISDNAddressString sgsnNumber, DiameterIdentity mmeName,
+                                        Long subscribedPeriodicRAUTAUtimer, boolean vplmnLIPAAllowed, Boolean mdtUserConsent,
+                                        Long subscribedPeriodicLAUtimer) throws MAPException;
 
     Long addInsertSubscriberDataRequest(long customInvokeTimeout, IMSI imsi, ISDNAddressString msisdn,
-            Category category, SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
-            ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
-            boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
-            ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
-            VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo, MAPExtensionContainer extensionContainer,
-            NAEAPreferredCI naeaPreferredCI, GPRSSubscriptionData gprsSubscriptionData,
-            boolean roamingRestrictedInSgsnDueToUnsupportedFeature, NetworkAccessMode networkAccessMode,
-            LSAInformation lsaInformation, boolean lmuIndicator, LCSInformation lcsInformation, Integer istAlertTimer,
-            AgeIndicator superChargerSupportedInHLR, MCSSInfo mcSsInfo,
-            CSAllocationRetentionPriority csAllocationRetentionPriority, SGSNCAMELSubscriptionInfo sgsnCamelSubscriptionInfo,
-            ChargingCharacteristics chargingCharacteristics, AccessRestrictionData accessRestrictionData, Boolean icsIndicator,
-            EPSSubscriptionData epsSubscriptionData, ArrayList<CSGSubscriptionData> csgSubscriptionDataList,
-            boolean ueReachabilityRequestIndicator, ISDNAddressString sgsnNumber, DiameterIdentity mmeName,
-            Long subscribedPeriodicRAUTAUtimer, boolean vplmnLIPAAllowed, Boolean mdtUserConsent,
-            Long subscribedPeriodicLAUtimer) throws MAPException;
+                                        Category category, SubscriberStatus subscriberStatus, ArrayList<ExtBearerServiceCode> bearerServiceList,
+                                        ArrayList<ExtTeleserviceCode> teleserviceList, ArrayList<ExtSSInfo> provisionedSS, ODBData odbData,
+                                        boolean roamingRestrictionDueToUnsupportedFeature, ArrayList<ZoneCode> regionalSubscriptionData,
+                                        ArrayList<VoiceBroadcastData> vbsSubscriptionData, ArrayList<VoiceGroupCallData> vgcsSubscriptionData,
+                                        VlrCamelSubscriptionInfo vlrCamelSubscriptionInfo, MAPExtensionContainer extensionContainer,
+                                        NAEAPreferredCI naeaPreferredCI, GPRSSubscriptionData gprsSubscriptionData,
+                                        boolean roamingRestrictedInSgsnDueToUnsupportedFeature, NetworkAccessMode networkAccessMode,
+                                        LSAInformation lsaInformation, boolean lmuIndicator, LCSInformation lcsInformation, Integer istAlertTimer,
+                                        AgeIndicator superChargerSupportedInHLR, MCSSInfo mcSsInfo,
+                                        CSAllocationRetentionPriority csAllocationRetentionPriority, SGSNCAMELSubscriptionInfo sgsnCamelSubscriptionInfo,
+                                        ChargingCharacteristics chargingCharacteristics, AccessRestrictionData accessRestrictionData, Boolean icsIndicator,
+                                        EPSSubscriptionData epsSubscriptionData, ArrayList<CSGSubscriptionData> csgSubscriptionDataList,
+                                        boolean ueReachabilityRequestIndicator, ISDNAddressString sgsnNumber, DiameterIdentity mmeName,
+                                        Long subscribedPeriodicRAUTAUtimer, boolean vplmnLIPAAllowed, Boolean mdtUserConsent,
+                                        Long subscribedPeriodicLAUtimer) throws MAPException;
 
     void addInsertSubscriberDataResponse(long invokeId, ArrayList<ExtTeleserviceCode> teleserviceList,
-            ArrayList<ExtBearerServiceCode> bearerServiceList, ArrayList<SSCode> ssList, ODBGeneralData odbGeneralData,
-            RegionalSubscriptionResponse regionalSubscriptionResponse) throws MAPException;
+                                         ArrayList<ExtBearerServiceCode> bearerServiceList, ArrayList<SSCode> ssList, ODBGeneralData odbGeneralData,
+                                         RegionalSubscriptionResponse regionalSubscriptionResponse) throws MAPException;
 
     void addInsertSubscriberDataResponse(long invokeId, ArrayList<ExtTeleserviceCode> teleserviceList,
-            ArrayList<ExtBearerServiceCode> bearerServiceList, ArrayList<SSCode> ssList, ODBGeneralData odbGeneralData,
-            RegionalSubscriptionResponse regionalSubscriptionResponse, SupportedCamelPhases supportedCamelPhases,
-            MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIs, SupportedFeatures supportedFeatures)
+                                         ArrayList<ExtBearerServiceCode> bearerServiceList, ArrayList<SSCode> ssList, ODBGeneralData odbGeneralData,
+                                         RegionalSubscriptionResponse regionalSubscriptionResponse, SupportedCamelPhases supportedCamelPhases,
+                                         MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIs, SupportedFeatures supportedFeatures)
             throws MAPException;
 
     Long addDeleteSubscriberDataRequest(IMSI imsi, ArrayList<ExtBasicServiceCode> basicServiceList, ArrayList<SSCode> ssList,
-            boolean roamingRestrictionDueToUnsupportedFeature, ZoneCode regionalSubscriptionIdentifier, boolean vbsGroupIndication,
-            boolean vgcsGroupIndication, boolean camelSubscriptionInfoWithdraw, MAPExtensionContainer extensionContainer,
-            GPRSSubscriptionDataWithdraw gprsSubscriptionDataWithdraw, boolean roamingRestrictedInSgsnDueToUnsuppportedFeature,
-            LSAInformationWithdraw lsaInformationWithdraw, boolean gmlcListWithdraw, boolean istInformationWithdraw, SpecificCSIWithdraw specificCSIWithdraw,
-            boolean chargingCharacteristicsWithdraw, boolean stnSrWithdraw, EPSSubscriptionDataWithdraw epsSubscriptionDataWithdraw,
-            boolean apnOiReplacementWithdraw, boolean csgSubscriptionDeleted) throws MAPException;
+                                        boolean roamingRestrictionDueToUnsupportedFeature, ZoneCode regionalSubscriptionIdentifier, boolean vbsGroupIndication,
+                                        boolean vgcsGroupIndication, boolean camelSubscriptionInfoWithdraw, MAPExtensionContainer extensionContainer,
+                                        GPRSSubscriptionDataWithdraw gprsSubscriptionDataWithdraw, boolean roamingRestrictedInSgsnDueToUnsuppportedFeature,
+                                        LSAInformationWithdraw lsaInformationWithdraw, boolean gmlcListWithdraw, boolean istInformationWithdraw, SpecificCSIWithdraw specificCSIWithdraw,
+                                        boolean chargingCharacteristicsWithdraw, boolean stnSrWithdraw, EPSSubscriptionDataWithdraw epsSubscriptionDataWithdraw,
+                                        boolean apnOiReplacementWithdraw, boolean csgSubscriptionDeleted) throws MAPException;
 
     Long addDeleteSubscriberDataRequest(long customInvokeTimeout, IMSI imsi, ArrayList<ExtBasicServiceCode> basicServiceList, ArrayList<SSCode> ssList,
-            boolean roamingRestrictionDueToUnsupportedFeature, ZoneCode regionalSubscriptionIdentifier, boolean vbsGroupIndication,
-            boolean vgcsGroupIndication, boolean camelSubscriptionInfoWithdraw, MAPExtensionContainer extensionContainer,
-            GPRSSubscriptionDataWithdraw gprsSubscriptionDataWithdraw, boolean roamingRestrictedInSgsnDueToUnsuppportedFeature,
-            LSAInformationWithdraw lsaInformationWithdraw, boolean gmlcListWithdraw, boolean istInformationWithdraw, SpecificCSIWithdraw specificCSIWithdraw,
-            boolean chargingCharacteristicsWithdraw, boolean stnSrWithdraw, EPSSubscriptionDataWithdraw epsSubscriptionDataWithdraw,
-            boolean apnOiReplacementWithdraw, boolean csgSubscriptionDeleted) throws MAPException;
+                                        boolean roamingRestrictionDueToUnsupportedFeature, ZoneCode regionalSubscriptionIdentifier, boolean vbsGroupIndication,
+                                        boolean vgcsGroupIndication, boolean camelSubscriptionInfoWithdraw, MAPExtensionContainer extensionContainer,
+                                        GPRSSubscriptionDataWithdraw gprsSubscriptionDataWithdraw, boolean roamingRestrictedInSgsnDueToUnsuppportedFeature,
+                                        LSAInformationWithdraw lsaInformationWithdraw, boolean gmlcListWithdraw, boolean istInformationWithdraw, SpecificCSIWithdraw specificCSIWithdraw,
+                                        boolean chargingCharacteristicsWithdraw, boolean stnSrWithdraw, EPSSubscriptionDataWithdraw epsSubscriptionDataWithdraw,
+                                        boolean apnOiReplacementWithdraw, boolean csgSubscriptionDeleted) throws MAPException;
 
     void addDeleteSubscriberDataResponse(long invokeId, RegionalSubscriptionResponse regionalSubscriptionResponse, MAPExtensionContainer extensionContainer)
             throws MAPException;
 
     // -- International mobile equipment identities management services
     Long addCheckImeiRequest(IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo,
-            MAPExtensionContainer extensionContainer) throws MAPException;
+                             MAPExtensionContainer extensionContainer) throws MAPException;
 
     Long addCheckImeiRequest(long customInvokeTimeout, IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo,
-            MAPExtensionContainer extensionContainer) throws MAPException;
+                             MAPExtensionContainer extensionContainer) throws MAPException;
 
     void addCheckImeiResponse(long invokeId, EquipmentStatus equipmentStatus, UESBIIu bmuef,
-            MAPExtensionContainer extensionContainer) throws MAPException;
+                              MAPExtensionContainer extensionContainer) throws MAPException;
 
     Long addCheckImeiRequest_Huawei(IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo,
-            MAPExtensionContainer extensionContainer, IMSI imsi) throws MAPException;
+                                    MAPExtensionContainer extensionContainer, IMSI imsi) throws MAPException;
 
     Long addCheckImeiRequest_Huawei(long customInvokeTimeout, IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo,
-            MAPExtensionContainer extensionContainer, IMSI imsi) throws MAPException;
+                                    MAPExtensionContainer extensionContainer, IMSI imsi) throws MAPException;
 
     // -- OAM service: activateTraceMode operation can be present in networkLocUpContext and gprsLocationUpdateContext application contexts
     Long addActivateTraceModeRequest(IMSI imsi, TraceReference traceReference, TraceType traceType, AddressString omcId,
-            MAPExtensionContainer extensionContainer, TraceReference2 traceReference2, TraceDepthList traceDepthList, TraceNETypeList traceNeTypeList,
-            TraceInterfaceList traceInterfaceList, TraceEventList traceEventList, GSNAddress traceCollectionEntity, MDTConfiguration mdtConfiguration)
+                                     MAPExtensionContainer extensionContainer, TraceReference2 traceReference2, TraceDepthList traceDepthList, TraceNETypeList traceNeTypeList,
+                                     TraceInterfaceList traceInterfaceList, TraceEventList traceEventList, GSNAddress traceCollectionEntity, MDTConfiguration mdtConfiguration)
             throws MAPException;
 
     Long addActivateTraceModeRequest(int customInvokeTimeout, IMSI imsi, TraceReference traceReference, TraceType traceType, AddressString omcId,
-            MAPExtensionContainer extensionContainer, TraceReference2 traceReference2, TraceDepthList traceDepthList, TraceNETypeList traceNeTypeList,
-            TraceInterfaceList traceInterfaceList, TraceEventList traceEventList, GSNAddress traceCollectionEntity, MDTConfiguration mdtConfiguration)
+                                     MAPExtensionContainer extensionContainer, TraceReference2 traceReference2, TraceDepthList traceDepthList, TraceNETypeList traceNeTypeList,
+                                     TraceInterfaceList traceInterfaceList, TraceEventList traceEventList, GSNAddress traceCollectionEntity, MDTConfiguration mdtConfiguration)
             throws MAPException;
 
     void addActivateTraceModeResponse(long invokeId, MAPExtensionContainer extensionContainer, boolean traceSupportIndicator) throws MAPException;

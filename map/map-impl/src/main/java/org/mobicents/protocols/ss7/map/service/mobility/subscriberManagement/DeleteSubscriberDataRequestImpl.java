@@ -346,7 +346,7 @@ public class DeleteSubscriberDataRequestImpl extends MobilityMessageImpl impleme
                         }
                         if (this.basicServiceList.size() < 1 || this.basicServiceList.size() > 70) {
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter basicServiceList size must be from 1 to 70, found: " + this.ssList.size(),
+                                    + ": Parameter basicServiceList size must be from 1 to 70, found: " + this.basicServiceList.size(),
                                     MAPParsingComponentExceptionReason.MistypedParameter);
                         }
                         break;

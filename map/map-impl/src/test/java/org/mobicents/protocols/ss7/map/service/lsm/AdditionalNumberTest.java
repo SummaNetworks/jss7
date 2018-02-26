@@ -22,11 +22,6 @@
 
 package org.mobicents.protocols.ss7.map.service.lsm;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -37,16 +32,23 @@ import java.util.Arrays;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.ss7.map.MAPParameterFactoryImpl;
+import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParameterFactory;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan;
 import org.mobicents.protocols.ss7.map.api.service.lsm.AdditionalNumber;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * TODO Self generated trace. Please test from real trace
@@ -121,7 +123,7 @@ public class AdditionalNumberTest {
 
         ISDNAddressString isdnAdd = MAPParameterFactory.createISDNAddressString(AddressNature.international_number,
                 NumberingPlan.ISDN, "55619007");
-        AdditionalNumber addNum = new AdditionalNumberImpl(isdnAdd, null);
+        AdditionalNumber addNum = new AdditionalNumberImpl(isdnAdd, true);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
@@ -132,21 +134,22 @@ public class AdditionalNumberTest {
 
         data = getEncodedSgsnNumber();
 
-        addNum = new AdditionalNumberImpl(null, isdnAdd);
+        addNum = new AdditionalNumberImpl(null, true);
 
         asnOS = new AsnOutputStream();
-        ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
-
-        encodedData = asnOS.toByteArray();
-
-        assertTrue(Arrays.equals(data, encodedData));
+        try {
+            ((AdditionalNumberImpl) addNum).encodeAll(asnOS);
+            Assert.fail("Address can not be null");
+        } catch (MAPException e){
+            assertTrue(e.getMessage().contains("both mscNumber and sgsnNumber must not be null"));
+        }
     }
 
     @Test(groups = { "functional.serialize", "service.lsm" })
     public void testSerialization() throws Exception {
         ISDNAddressString isdnAdd = MAPParameterFactory.createISDNAddressString(AddressNature.international_number,
                 NumberingPlan.ISDN, "55619007");
-        AdditionalNumber original = new AdditionalNumberImpl(isdnAdd, null);
+        AdditionalNumber original = new AdditionalNumberImpl(isdnAdd, true);
         // serialize
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(out);

@@ -232,9 +232,9 @@ public class VlrCamelSubscriptionInfoImpl extends SequenceBase implements VlrCam
                                 this.oBcsmCamelTDPCriteriaList.add(elem);
                             }
 
-                            if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 6) {
+                            if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 4, found: "
+                                        + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
                                         + this.oBcsmCamelTDPCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
                             }
@@ -290,9 +290,9 @@ public class VlrCamelSubscriptionInfoImpl extends SequenceBase implements VlrCam
                                 this.tBcsmCamelTdpCriteriaList.add(elem);
                             }
 
-                            if (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 6) {
+                            if (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ": Parameter tBcsmCamelTdpCriteriaList from 1 to 4, found: "
+                                        + ": Parameter tBcsmCamelTdpCriteriaList from 1 to 10, found: "
                                         + this.tBcsmCamelTdpCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
                             }
@@ -333,9 +333,9 @@ public class VlrCamelSubscriptionInfoImpl extends SequenceBase implements VlrCam
                                 this.mtSmsCamelTdpCriteriaList.add(elem);
                             }
 
-                            if (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 6) {
+                            if (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ": Parameter mtSmsCamelTdpCriteriaList from 1 to 4, found: "
+                                        + ": Parameter mtSmsCamelTdpCriteriaList from 1 to 10, found: "
                                         + this.mtSmsCamelTdpCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
                             }
@@ -358,24 +358,24 @@ public class VlrCamelSubscriptionInfoImpl extends SequenceBase implements VlrCam
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
 
         if (this.oBcsmCamelTDPCriteriaList != null
-                && (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 4)) {
+                && (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10)) {
             throw new MAPException("Error while encoding " + _PrimitiveName
-                    + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 4, found: "
+                    + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
                     + this.oBcsmCamelTDPCriteriaList.size());
         }
 
-        if (this.oBcsmCamelTDPCriteriaList != null
-                && (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 4)) {
+        if (this.mtSmsCamelTdpCriteriaList != null
+                && (this.mtSmsCamelTdpCriteriaList.size() < 1 || this.mtSmsCamelTdpCriteriaList.size() > 10)) {
             throw new MAPException("Error while encoding " + _PrimitiveName
-                    + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 4, found: "
-                    + this.oBcsmCamelTDPCriteriaList.size());
+                    + ": Parameter mtSmsCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.mtSmsCamelTdpCriteriaList.size());
         }
 
-        if (this.oBcsmCamelTDPCriteriaList != null
-                && (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 4)) {
+        if (this.tBcsmCamelTdpCriteriaList != null
+                && (this.tBcsmCamelTdpCriteriaList.size() < 1 || this.tBcsmCamelTdpCriteriaList.size() > 10)) {
             throw new MAPException("Error while encoding " + _PrimitiveName
-                    + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 4, found: "
-                    + this.oBcsmCamelTDPCriteriaList.size());
+                    + ": Parameter tBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                    + this.tBcsmCamelTdpCriteriaList.size());
         }
 
         try {

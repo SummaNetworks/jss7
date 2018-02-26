@@ -201,6 +201,7 @@ public class SendRoutingInfoForLCSRequestImpl extends LsmMessageImpl implements 
                     + ": Parameter [mlcNumber [0] ISDN-AddressString] bad tag class or not primitive or not Sequence",
                     MAPParsingComponentExceptionReason.MistypedParameter);
         }
+
         this.mlcNumber = new ISDNAddressStringImpl();
         ((ISDNAddressStringImpl) this.mlcNumber).decodeAll(ais);
 

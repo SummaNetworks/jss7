@@ -1,24 +1,28 @@
 /*
- * TeleStax, Open Source Cloud Communications
- * Copyright 2011-2016, Telestax Inc and individual contributors
- * by the @authors tag.
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and/or its affiliates, and individual
+ * contributors as indicated by the @authors tag. All rights reserved.
+ * See the copyright.txt in the distribution for a full listing
+ * of individual contributors.
  *
- * This program is free software: you can redistribute it and/or modify
- * under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation; either version 3 of
- * the License, or (at your option) any later version.
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU General Public License, v. 2.0.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ * You should have received a copy of the GNU General Public License,
+ * v. 2.0 along with this distribution; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
  */
 
-
 package org.mobicents.protocols.ss7.map.service.mobility.subscriberInformation;
+
+import java.io.IOException;
 
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -34,18 +38,32 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.primitives.SubscriberIdentity;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.RequestedSubscriptionInfo;
+import org.mobicents.protocols.ss7.map.datacoding.NullEncoderFacility;
+import org.mobicents.protocols.ss7.map.datacoding.ObjectEncoderFacility;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
 import org.mobicents.protocols.ss7.map.primitives.SubscriberIdentityImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.MobilityMessageImpl;
 
-import java.io.IOException;
-
 /**
- * Created by vsubbotin on 24/05/16.
+ *
+ * <code>
+ *     AnyTimeSubscriptionInterrogationArg ::= SEQUENCE {
+ *          subscriberIdentity          [0] SubscriberIdentity,
+ *          requestedSubscriptionInfo   [1] RequestedSubscriptionInfo,
+ *          gsmSCF-Address              [2] ISDN-AddressString,
+ *          extensionContainer          [3] ExtensionContainer OPTIONAL,
+ *          longFTN-Supported           [4] NULL OPTIONAL,
+ *          ...
+ *          }
+ * </code>
+ * @author eva ogallar
+ *
  */
-public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessageImpl implements AnyTimeSubscriptionInterrogationRequest, MAPAsnPrimitive {
+public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessageImpl implements AnyTimeSubscriptionInterrogationRequest,
+        MAPAsnPrimitive {
+
     private static final int _TAG_SUBSCRIBER_IDENTITY = 0;
     private static final int _TAG_REQUESTED_SUBSCRIPTION_INFO = 1;
     private static final int _TAG_GSM_SCF_ADDRESS = 2;
@@ -57,54 +75,54 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
     private SubscriberIdentity subscriberIdentity;
     private RequestedSubscriptionInfo requestedSubscriptionInfo;
     private ISDNAddressString gsmSCFAddress;
-    private MAPExtensionContainer mapExtensionContainer;
-    private boolean isLongFTNSupported;
+    private MAPExtensionContainer extensionContainer;
+    private boolean longFtnSupported;
 
     public AnyTimeSubscriptionInterrogationRequestImpl() {
 
     }
 
     public AnyTimeSubscriptionInterrogationRequestImpl(SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
-            ISDNAddressString gsmSCFAddress, MAPExtensionContainer mapExtensionContainer, boolean isLongFTNSupported) {
+                                                       ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean longFtnSupported) {
         this.subscriberIdentity = subscriberIdentity;
         this.requestedSubscriptionInfo = requestedSubscriptionInfo;
         this.gsmSCFAddress = gsmSCFAddress;
-        this.mapExtensionContainer = mapExtensionContainer;
-        this.isLongFTNSupported = isLongFTNSupported;
+        this.extensionContainer = extensionContainer;
+        this.longFtnSupported = longFtnSupported;
     }
 
-    public SubscriberIdentity getSubscriberIdentity() {
-        return this.subscriberIdentity;
-    }
-
-    public RequestedSubscriptionInfo getRequestedSubscriptionInfo() {
-        return this.requestedSubscriptionInfo;
-    }
-
-    public ISDNAddressString getGsmScfAddress() {
-        return this.gsmSCFAddress;
-    }
-
-    public MAPExtensionContainer getExtensionContainer() {
-        return this.mapExtensionContainer;
-    }
-
-    public boolean getLongFTNSupported() {
-        return this.isLongFTNSupported;
-    }
-
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#getTag()
+     */
     public int getTag() throws MAPException {
         return Tag.SEQUENCE;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#getTagClass()
+     */
     public int getTagClass() {
         return Tag.CLASS_UNIVERSAL;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#getIsPrimitive ()
+     */
     public boolean getIsPrimitive() {
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#decodeAll( org.mobicents.protocols.asn.AsnInputStream)
+     */
     public void decodeAll(AsnInputStream ansIS) throws MAPParsingComponentException {
         try {
             int length = ansIS.readLength();
@@ -118,6 +136,12 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#decodeData (org.mobicents.protocols.asn.AsnInputStream,
+     * int)
+     */
     public void decodeData(AsnInputStream ansIS, int length) throws MAPParsingComponentException {
         try {
             this._decode(ansIS, length);
@@ -131,24 +155,29 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
     }
 
     private void _decode(AsnInputStream ansIS, int length) throws MAPParsingComponentException, IOException, AsnException {
-        AsnInputStream ais = ansIS.readSequenceStreamData(length);
 
         this.subscriberIdentity = null;
         this.requestedSubscriptionInfo = null;
         this.gsmSCFAddress = null;
-        this.mapExtensionContainer = null;
-        this.isLongFTNSupported = false;
+        this.extensionContainer = null;
+        this.longFtnSupported = false;
+
+        AsnInputStream ais = ansIS.readSequenceStreamData(length);
 
         while (true) {
             if (ais.available() == 0)
                 break;
 
-            int tag = ais.readTag();
-
+            int tag = ais.readTag(); //
             if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
                 switch (tag) {
                     case _TAG_SUBSCRIBER_IDENTITY:
-                        // decode SubscriberIdentity
+/*
+                        subscriberIdentity = (SubscriberIdentity) ObjectEncoderFacility.
+                                decodeObject(ais, new SubscriberIdentityImpl(), "subscriberIdentity", _PrimitiveName);
+                        break;
+                    // decode SubscriberIdentity
+*/
                         if (ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
                                     + ": Parameter subscriberIdentity is primitive",
@@ -159,40 +188,31 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
                         ais2.readTag();
                         ((SubscriberIdentityImpl) this.subscriberIdentity).decodeAll(ais2);
                         break;
+
                     case _TAG_REQUESTED_SUBSCRIPTION_INFO:
-                        // decode RequestedSubscriptionInfo
+/*
+                        // decode RequestedInfo
                         if (ais.isTagPrimitive())
                             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
                                     + ": Parameter requestedInfo is primitive",
                                     MAPParsingComponentExceptionReason.MistypedParameter);
                         this.requestedSubscriptionInfo = new RequestedSubscriptionInfoImpl();
-                        ((RequestedSubscriptionInfoImpl)this.requestedSubscriptionInfo).decodeAll(ais);
+                        ((RequestedSubscriptionInfoImpl) this.requestedSubscriptionInfo).decodeAll(ais);
+                        //break;
+*/
+                        requestedSubscriptionInfo = (RequestedSubscriptionInfo) ObjectEncoderFacility.
+                                decodeObject(ais, new RequestedSubscriptionInfoImpl(), "requestedSubscriptionInfo", _PrimitiveName);
                         break;
                     case _TAG_GSM_SCF_ADDRESS:
-                        // decode gsmSCF-Address
-                        if (!ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter gsmSCFAddress is not primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-                        this.gsmSCFAddress = new ISDNAddressStringImpl();
-                        ((ISDNAddressStringImpl) this.gsmSCFAddress).decodeAll(ais);
+                        gsmSCFAddress = (ISDNAddressString) ObjectEncoderFacility.
+                                decodePrimitiveObject(ais, new ISDNAddressStringImpl(), "gsmSCFAddress", _PrimitiveName);
                         break;
                     case _TAG_EXTENSION_CONTAINER:
-                        // decode extensionContainer
-                        if (ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter extensionContainer is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-                        mapExtensionContainer = new MAPExtensionContainerImpl();
-                        ((MAPExtensionContainerImpl) mapExtensionContainer).decodeAll(ais);
+                        extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
+                                decodePrimitiveObject(ais, new MAPExtensionContainerImpl(), "extensionContainer", _PrimitiveName);
                         break;
                     case _TAG_LONG_FTN_SUPPORTED:
-                        if (!ais.isTagPrimitive())
-                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                    + ": Parameter longFTNSupported is primitive",
-                                    MAPParsingComponentExceptionReason.MistypedParameter);
-                        ais.readNull();
-                        this.isLongFTNSupported = Boolean.TRUE;
+                        this.longFtnSupported = NullEncoderFacility.decode(ais, "longFtnSupported", _PrimitiveName);
                         break;
                     default:
                         ais.advanceElement();
@@ -202,25 +222,30 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
                 ais.advanceElement();
             }
         }
-
-        if (this.subscriberIdentity == null)
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                    + ": subscriberIdentity parameter is mandatory but is not found",
+        if (this.subscriberIdentity == null || this.requestedSubscriptionInfo == null || this.gsmSCFAddress == null) {
+            throw new MAPParsingComponentException(
+                    "Error while decoding " + _PrimitiveName + ": subscriberIdentity, requestedSubscriptionInfo " +
+                            "and gsmSCFAddress parameters are mandatory but some of them are not found",
                     MAPParsingComponentExceptionReason.MistypedParameter);
-        if (this.requestedSubscriptionInfo == null)
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                    + ": requestedSubscriptionInfo parameter is mandatory but is not found",
-                    MAPParsingComponentExceptionReason.MistypedParameter);
-        if (this.gsmSCFAddress == null)
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                    + ": gsmSCFAddress parameter is mandatory but is not found",
-                    MAPParsingComponentExceptionReason.MistypedParameter);
+        }
     }
 
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#encodeAll( org.mobicents.protocols.asn.AsnOutputStream)
+     */
     public void encodeAll(AsnOutputStream asnOs) throws MAPException {
         this.encodeAll(asnOs, this.getTagClass(), this.getTag());
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#encodeAll( org.mobicents.protocols.asn.AsnOutputStream,
+     * int, int)
+     */
     public void encodeAll(AsnOutputStream asnOs, int tagClass, int tag) throws MAPException {
         try {
             asnOs.writeTag(tagClass, this.getIsPrimitive(), tag);
@@ -232,6 +257,11 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#encodeData (org.mobicents.protocols.asn.AsnOutputStream)
+     */
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
         if (this.subscriberIdentity == null) {
             throw new MAPException("Error while encoding " + _PrimitiveName
@@ -243,7 +273,7 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
         }
         if (this.gsmSCFAddress == null) {
             throw new MAPException("Error while encoding " + _PrimitiveName
-                    + " the mandatory parameter gsmSCFAddress is not defined");
+                    + " the mandatory parameter gsmSCF-Address is not defined");
         }
 
         try {
@@ -252,32 +282,85 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
             ((SubscriberIdentityImpl) this.subscriberIdentity).encodeAll(asnOs);
             asnOs.FinalizeContent(pos);
         } catch (AsnException e) {
-            throw new MAPException("AsnException while encoding " + _PrimitiveName
-                    + " parameter subscriberIdentity [0] SubscriberIdentity");
+            throw new MAPException("AsnException while encoding parameter targetMS [1] SubscriberIdentity");
         }
 
-        ((RequestedSubscriptionInfoImpl)this.requestedSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
-        ((ISDNAddressStringImpl)this.gsmSCFAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GSM_SCF_ADDRESS);
+        ((RequestedSubscriptionInfoImpl) this.requestedSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
 
-        if (this.mapExtensionContainer != null) {
-            ((MAPExtensionContainerImpl) this.mapExtensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_EXTENSION_CONTAINER);
+        ((ISDNAddressStringImpl) this.gsmSCFAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GSM_SCF_ADDRESS);
+
+        if (this.extensionContainer != null) {
+            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_EXTENSION_CONTAINER);
         }
 
-        if (this.isLongFTNSupported) {
-            try {
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_LONG_FTN_SUPPORTED);
-            } catch (IOException e) {
-                throw new MAPException("IOException when encoding parameter longFTNSupported: ", e);
-            } catch (AsnException e) {
-                throw new MAPException("AsnException when encoding parameter longFTNSupported: ", e);
-            }
-        }
+        NullEncoderFacility.encode(asnOs, this.longFtnSupported, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_LONG_FTN_SUPPORTED, "longFtnSupported");
+
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * AnyTimeSubscriptionInterrogationRequestIndication#getSubscriberIdentity()
+     */
+    public SubscriberIdentity getSubscriberIdentity() {
+        return this.subscriberIdentity;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * AnyTimeSubscriptionInterrogationRequestIndication#getRequestedSubscriptionInfo()
+     */
+    public RequestedSubscriptionInfo getRequestedSubscriptionInfo() {
+        return this.requestedSubscriptionInfo;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * AnyTimeSubscriptionInterrogationRequestIndication#getGsmScfAddress()
+     */
+    public ISDNAddressString getGsmScfAddress() {
+        return this.gsmSCFAddress;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * AnyTimeSubscriptionInterrogationRequestIndication#getLongFTNSupported()
+     */
+    public boolean getLongFTNSupported() {
+        return longFtnSupported;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * AnyTimeSubscriptionInterrogationRequestIndication#getExtensionContainer()
+     */
+    public MAPExtensionContainer getExtensionContainer() {
+        return this.extensionContainer;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.MAPMessage#getMessageType()
+     */
     public MAPMessageType getMessageType() {
         return MAPMessageType.anyTimeSubscriptionInterrogation_Request;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.MAPMessage#getOperationCode()
+     */
     public int getOperationCode() {
         return MAPOperationCode.anyTimeSubscriptionInterrogation;
     }
@@ -292,22 +375,20 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
             sb.append(this.subscriberIdentity);
         }
         if (this.requestedSubscriptionInfo != null) {
-            sb.append(", requestedSubscriptionInfo=");
+            sb.append(", requestedInfo=");
             sb.append(this.requestedSubscriptionInfo);
         }
         if (this.gsmSCFAddress != null) {
             sb.append(", gsmSCFAddress=");
             sb.append(this.gsmSCFAddress);
         }
-        if (this.mapExtensionContainer != null) {
+        if (this.extensionContainer != null) {
             sb.append(", extensionContainer=");
-            sb.append(this.mapExtensionContainer);
+            sb.append(this.extensionContainer);
         }
-
-        if (this.isLongFTNSupported) {
-            sb.append(", isLongFTNSupported");
+        if (longFtnSupported){
+            sb.append(", longFtnSupported");
         }
-
         sb.append("]");
         return sb.toString();
     }

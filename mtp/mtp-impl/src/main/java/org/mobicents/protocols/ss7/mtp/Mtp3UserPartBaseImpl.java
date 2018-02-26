@@ -89,6 +89,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
         return this.deliveryTransferMessageThreadCount;
     }
 
+    //TODO 2018/02/24 ¿Porqué esta limitación de thread a 100?
     public void setDeliveryMessageThreadCount(int deliveryMessageThreadCount) throws Exception {
         if (deliveryMessageThreadCount > 0 && deliveryMessageThreadCount <= 100)
             this.deliveryTransferMessageThreadCount = deliveryMessageThreadCount;
