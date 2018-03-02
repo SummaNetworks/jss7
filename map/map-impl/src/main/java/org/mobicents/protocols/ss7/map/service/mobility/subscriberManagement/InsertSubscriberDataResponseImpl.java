@@ -403,10 +403,6 @@ public class InsertSubscriberDataResponseImpl extends MobilityMessageImpl implem
 
             num++;
         }
-
-        if (num == 0)
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                    + ": Needs at least 1 parameter, found " + num, MAPParsingComponentExceptionReason.MistypedParameter);
     }
 
     @Override
