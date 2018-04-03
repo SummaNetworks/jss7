@@ -37,6 +37,7 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
  * IST-AlertTimerValue ::= INTEGER (15..255)
  *</code>
  *
+ * @author sergey vetyutnev
  * @author eva ogallar
  *
  */

@@ -104,6 +104,9 @@ public interface SendRoutingInfoForSMRequest extends SmsMessage {
 
     IMSI getImsi();
 
+    // TODO: CorrelationID parameter is not still implemented
+    // CorrelationID getCorrelationID();
+
     SMDeliveryNotIntended getSmDeliveryNotIntended();
 
 }

@@ -1334,7 +1334,6 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
 
         for (MAPServiceListener serLis : this.serviceListeners) {
             try {
-                //TODO: por qué hace eso?
                 serLis.onMAPMessage(ind);
                 ((MAPServiceMobilityListener) serLis).onAnyTimeSubscriptionInterrogationRequest(ind);
             } catch (Exception e) {

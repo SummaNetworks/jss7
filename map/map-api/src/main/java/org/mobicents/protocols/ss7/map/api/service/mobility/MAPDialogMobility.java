@@ -262,25 +262,6 @@ public interface MAPDialogMobility extends MAPDialog {
     void addAnyTimeInterrogationResponse(long invokeId, SubscriberInfo subscriberInfo, MAPExtensionContainer extensionContainer)
             throws MAPException;
 
-    void addAnyTimeInterrogationResponse_NonLast(long invokeId, SubscriberInfo subscriberInfo,
-                                                 MAPExtensionContainer extensionContainer) throws MAPException;
-
-    long addAnyTimeSubscriptionInterrogationRequest(SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
-                                                    ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean isLongFTNSupported) throws MAPException;
-
-
-    void addAnyTimeSubscriptionInterrogationResponse(long invokeId, CallForwardingData callForwardingData, CallBarringData callBarringData, ODBInfo odbInfo,
-                                                     CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
-                                                     MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
-                                                     ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
-                                                     CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
-
-    void addAnyTimeSubscriptionInterrogationResponse_NonLast(long invokeId, CallForwardingData callForwardingData, CallBarringData callBarringData, ODBInfo odbInfo,
-                                                             CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
-                                                             MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
-                                                             ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
-                                                             CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
-
     long addAnyTimeModificationRequest(SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
                                        ModificationRequestForCFInfo modificationRequestForCfInfo,
                                        ModificationRequestForCBInfo modificationRequestForCbInfo,
@@ -317,11 +298,33 @@ public interface MAPDialogMobility extends MAPDialog {
                                         CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData,
                                         AddressString serviceCentreAddress) throws MAPException;
 
+    void addAnyTimeInterrogationResponse_NonLast(long invokeId, SubscriberInfo subscriberInfo,
+                                                 MAPExtensionContainer extensionContainer) throws MAPException;
+
+    long addAnyTimeSubscriptionInterrogationRequest(
+            SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
+            ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean isLongFTNSupported) throws MAPException;
+
     long addAnyTimeSubscriptionInterrogationRequest(
             long customInvokeTimeout, SubscriberIdentity subscriberIdentity,
             RequestedSubscriptionInfo requestedSubscriptionInfo, ISDNAddressString gsmSCFAddress,
             MAPExtensionContainer extensionContainer, boolean longFtnSupported)
-            throws MAPException;
+    throws MAPException;
+
+
+    void addAnyTimeSubscriptionInterrogationResponse(long invokeId, CallForwardingData callForwardingData, CallBarringData callBarringData, ODBInfo odbInfo,
+                                                     CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
+                                                     MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
+                                                     ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
+                                                     CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+
+    void addAnyTimeSubscriptionInterrogationResponse_NonLast(long invokeId, CallForwardingData callForwardingData, CallBarringData callBarringData, ODBInfo odbInfo,
+                                                             CAMELSubscriptionInfo camelSubscriptionInfo, SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
+                                                             MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr, OfferedCamel4CSIs offeredCamel4CSIsInSgsn,
+                                                             ArrayList<MSISDNBS> msisdnBsList, ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData callWaitingData,
+                                                             CallHoldData callHoldData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException;
+
+
 
     long addProvideSubscriberInfoRequest(IMSI imsi, LMSI lmsi, RequestedInfo requestedInfo, MAPExtensionContainer extensionContainer, EMLPPPriority callPriority)
             throws MAPException;

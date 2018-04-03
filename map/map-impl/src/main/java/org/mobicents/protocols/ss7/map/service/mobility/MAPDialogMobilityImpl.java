@@ -188,6 +188,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.ReturnResultLast;
 /**
  *
  * @author sergey vetyutnev
+ * @author eva ogallar
  *
  */
 public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMobility {

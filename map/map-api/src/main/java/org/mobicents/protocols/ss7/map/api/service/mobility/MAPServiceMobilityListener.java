@@ -111,13 +111,13 @@ public interface MAPServiceMobilityListener extends MAPServiceListener {
 
     void onAnyTimeInterrogationResponse(AnyTimeInterrogationResponse response);
 
-    void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request);
-
-    void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response);
-
     void onAnyTimeModificationRequest(AnyTimeModificationRequest request);
 
     void onAnyTimeModificationResponse(AnyTimeModificationResponse response);
+
+    void onAnyTimeSubscriptionInterrogationRequest(AnyTimeSubscriptionInterrogationRequest request);
+
+    void onAnyTimeSubscriptionInterrogationResponse(AnyTimeSubscriptionInterrogationResponse response);
 
     void onProvideSubscriberInfoRequest(ProvideSubscriberInfoRequest request);
 
