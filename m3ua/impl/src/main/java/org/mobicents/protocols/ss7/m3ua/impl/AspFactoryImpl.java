@@ -148,6 +148,8 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
 
     private FastMap<Integer, AtomicInteger> congDpcList = new FastMap<Integer, AtomicInteger>().shared();
 
+    private AtomicInteger sctpStreamIndex;
+
     public AspFactoryImpl() {
         // clean transmission buffer
         txBuffer.clear();
@@ -478,12 +480,16 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
             org.mobicents.protocols.api.PayloadData payloadData = null;
 
             if (this.m3UAManagementImpl.isSctpLibNettySupport()) {
+                // TODO: 3/04/18 Usar en stream que se usó para la request, si es el caso.
+                int nextValue = sctpStreamIndex.getAndIncrement();
+                nextValue = (nextValue % maxOutboundStreams) + 1;
+
                 switch (message.getMessageClass()) {
                     case MessageClass.ASP_STATE_MAINTENANCE:
                     case MessageClass.MANAGEMENT:
                     case MessageClass.ROUTING_KEY_MANAGEMENT:
                         payloadData = new org.mobicents.protocols.api.PayloadData(byteBuf.readableBytes(), byteBuf, true, true,
-                                SCTP_PAYLOAD_PROT_ID_M3UA, 0);
+                                SCTP_PAYLOAD_PROT_ID_M3UA, nextValue);
                         break;
                     case MessageClass.TRANSFER_MESSAGES:
                         PayloadData payload = (PayloadData) message;
@@ -493,7 +499,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
                         break;
                     default:
                         payloadData = new org.mobicents.protocols.api.PayloadData(byteBuf.readableBytes(), byteBuf, true, true,
-                                SCTP_PAYLOAD_PROT_ID_M3UA, 0);
+                                SCTP_PAYLOAD_PROT_ID_M3UA, nextValue);
                         break;
                 }
 
@@ -777,6 +783,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
         // Recreate SLS table. Minimum of two is correct?
         this.createSLSTable(Math.min(maxInboundStreams, maxOutboundStreams) - 1);
         this.handleCommUp();
+        sctpStreamIndex = new AtomicInteger(1);
     }
 
     protected void createSLSTable(int minimumBoundStream) {
