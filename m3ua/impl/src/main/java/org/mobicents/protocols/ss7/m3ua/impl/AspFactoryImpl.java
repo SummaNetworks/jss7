@@ -140,6 +140,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     private int maxSequenceNumber = M3UAManagementImpl.MAX_SEQUENCE_NUMBER;
     private int[] slsTable = null;
     private int maxOutboundStreams;
+    private int maxEfectiveOutboundStreams = 10;
 
     protected AspFactoryStopTimer aspFactoryStopTimer = null;
 
@@ -482,7 +483,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
             if (this.m3UAManagementImpl.isSctpLibNettySupport()) {
                 // TODO: 3/04/18 Usar en stream que se usó para la request, si es el caso.
                 int nextValue = sctpStreamIndex.getAndIncrement();
-                nextValue = (nextValue % maxOutboundStreams) + 1;
+                nextValue = (nextValue % maxEfectiveOutboundStreams) + 1;
 
                 switch (message.getMessageClass()) {
                     case MessageClass.ASP_STATE_MAINTENANCE:
@@ -784,6 +785,8 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
         this.createSLSTable(Math.min(maxInboundStreams, maxOutboundStreams) - 1);
         this.handleCommUp();
         sctpStreamIndex = new AtomicInteger(1);
+        //There is a bug on linux sctp library so limit max out bound to 10.
+        this.maxEfectiveOutboundStreams = this.maxOutboundStreams <= 10 ? this.maxOutboundStreams: 10;
     }
 
     protected void createSLSTable(int minimumBoundStream) {
