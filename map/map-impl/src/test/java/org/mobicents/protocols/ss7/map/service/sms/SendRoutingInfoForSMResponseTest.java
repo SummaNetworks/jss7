@@ -171,8 +171,8 @@ public class SendRoutingInfoForSMResponseTest {
         assertNull(li.getAdditionalNumber());
         assertNull(ind.getExtensionContainer());
         assertNotNull(ind.getIpSmGwGuidance());
-        assertEquals(ind.getIpSmGwGuidance().getMinimumDeliveryTimeValue(), new Integer(10));
-        assertEquals(ind.getIpSmGwGuidance().getRecommendedDeliveryTimeValue(), new Integer(20));
+        assertEquals(ind.getIpSmGwGuidance().getMinimumDeliveryTimeValue(), 10);
+        assertEquals(ind.getIpSmGwGuidance().getRecommendedDeliveryTimeValue(),20);
         assertFalse(ind.getMwdSet());
     }
 
