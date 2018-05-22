@@ -600,7 +600,7 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
         if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.anyTimeEnquiryContext)
                 || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
             throw new MAPException(
-                    "Bad application context name for AnyTimeInterrogationRequest: must be networkLocUpContext_V3");
+                    "Bad application context name for AnyTimeInterrogationResponse: must be networkLocUpContext_V3");
 
         AnyTimeInterrogationResponseImpl req = new AnyTimeInterrogationResponseImpl(subscriberInfo, extensionContainer);
         AsnOutputStream aos = new AsnOutputStream();
@@ -895,6 +895,247 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
     }
 
     @Override
+    public long addAnyTimeModificationRequest(SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
+                                              ModificationRequestForCFInfo modificationRequestForCfInfo,
+                                              ModificationRequestForCBInfo modificationRequestForCbInfo,
+                                              ModificationRequestForCSI modificationRequestForCSI,
+                                              MAPExtensionContainer extensionContainer, boolean longFtnSupported,
+                                              ModificationRequestForODBdata modificationRequestForODBdata,
+                                              ModificationRequestForIPSMGWData modificationRequestForIpSmGwData,
+                                              RequestedServingNode activationRequestForUEReachability,
+                                              ModificationRequestForCSG modificationRequestForCSG,
+                                              ModificationRequestForCWInfo modificationRequestForCwData,
+                                              ModificationRequestForCLIPInfo modificationRequestForClipData,
+                                              ModificationRequestForCLIRInfo modificationRequestForClirData,
+                                              ModificationRequestForCHInfo modificationRequestForHoldData,
+                                              ModificationRequestForECTInfo modificationRequestForEctData) throws MAPException {
+        return this.addAnyTimeModificationRequest(_Timer_Default, subscriberIdentity, gsmSCFAddress, modificationRequestForCfInfo,
+                modificationRequestForCbInfo, modificationRequestForCSI, extensionContainer, longFtnSupported,
+                modificationRequestForODBdata, modificationRequestForIpSmGwData, activationRequestForUEReachability,
+                modificationRequestForCSG, modificationRequestForCwData, modificationRequestForClipData, modificationRequestForClirData,
+                modificationRequestForHoldData, modificationRequestForEctData);
+    }
+
+    @Override
+    public long addAnyTimeModificationRequest(long customInvokeTimeout,
+                                              SubscriberIdentity subscriberIdentity, ISDNAddressString gsmSCFAddress,
+                                              ModificationRequestForCFInfo modificationRequestForCfInfo,
+                                              ModificationRequestForCBInfo modificationRequestForCbInfo,
+                                              ModificationRequestForCSI modificationRequestForCSI,
+                                              MAPExtensionContainer extensionContainer, boolean longFtnSupported,
+                                              ModificationRequestForODBdata modificationRequestForODBdata,
+                                              ModificationRequestForIPSMGWData modificationRequestForIpSmGwData,
+                                              RequestedServingNode activationRequestForUEReachability,
+                                              ModificationRequestForCSG modificationRequestForCSG,
+                                              ModificationRequestForCWInfo modificationRequestForCwData,
+                                              ModificationRequestForCLIPInfo modificationRequestForClipData,
+                                              ModificationRequestForCLIRInfo modificationRequestForClirData,
+                                              ModificationRequestForCHInfo modificationRequestForHoldData,
+                                              ModificationRequestForECTInfo modificationRequestForEctData) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.anyTimeInfoHandlingContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException(
+                    "Bad application context name for AnyTimeModificationRequest: must be networkLocUpContext_V3");
+
+        Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
+        if (customInvokeTimeout == _Timer_Default)
+            invoke.setTimeout(_Timer_m);
+        else
+            invoke.setTimeout(customInvokeTimeout);
+
+        // Operation Code
+        OperationCode oc = TcapFactory.createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.anyTimeModification);
+        invoke.setOperationCode(oc);
+
+        AnyTimeModificationRequestImpl req = new AnyTimeModificationRequestImpl(subscriberIdentity, gsmSCFAddress,
+                modificationRequestForCfInfo, modificationRequestForCbInfo, modificationRequestForCSI, extensionContainer,
+                longFtnSupported, modificationRequestForODBdata, modificationRequestForIpSmGwData, activationRequestForUEReachability,
+                modificationRequestForCSG, modificationRequestForCwData, modificationRequestForClipData, modificationRequestForClirData,
+                modificationRequestForHoldData, modificationRequestForEctData);
+
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        invoke.setParameter(p);
+
+        Long invokeId;
+        try {
+            invokeId = this.tcapDialog.getNewInvokeId();
+            invoke.setInvokeId(invokeId);
+        } catch (TCAPException e) {
+            throw new MAPException(e.getMessage(), e);
+        }
+
+        this.sendInvokeComponent(invoke);
+
+        return invokeId;
+
+    }
+
+    @Override
+    public void addAnyTimeModificationResponse(long invokeId, ExtSSInfoForCSE ssInfoForCSE, CAMELSubscriptionInfo camelSubscriptionInfo,
+                                               MAPExtensionContainer extensionContainer, ODBInfo odbInfo, CallWaitingData cwData,
+                                               CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData,
+                                               AddressString serviceCentreAddress) throws MAPException {
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.anyTimeInfoHandlingContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException(
+                    "Bad application context name for AnyTimeModificationResponse: must be networkLocUpContext_V3");
+
+        ReturnResultLast resultLast = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCResultLastRequest();
+
+        resultLast.setInvokeId(invokeId);
+
+        // Operation Code
+        OperationCode oc = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.anyTimeModification);
+        resultLast.setOperationCode(oc);
+
+        AnyTimeModificationResponseImpl req = new AnyTimeModificationResponseImpl(ssInfoForCSE, camelSubscriptionInfo,
+                extensionContainer, odbInfo, cwData, chData, clipData, clirData, ectData, serviceCentreAddress);
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        resultLast.setParameter(p);
+
+        this.sendReturnResultLastComponent(resultLast);
+
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation. MAPDialogSubscriberInformation
+         * #addAnyTimeSubscriptionInterrogationRequest(org.mobicents .protocols.ss7.map.api.primitives.SubscriberIdentity,
+         * org.mobicents.protocols .ss7.map.api.service.subscriberInformation.RequestedInfo,
+         * org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString,
+         * org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer)
+         */
+    public long addAnyTimeSubscriptionInterrogationRequest(SubscriberIdentity subscriberIdentity, RequestedSubscriptionInfo requestedSubscriptionInfo,
+            ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer, boolean longFtnSupported) throws MAPException {
+
+        return this.addAnyTimeSubscriptionInterrogationRequest(_Timer_Default, subscriberIdentity, requestedSubscriptionInfo, gsmSCFAddress,
+                extensionContainer, longFtnSupported);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * MAPDialogSubscriberInformation#addAnyTimeSubscriptionInterrogationRequest(long,
+     * org.mobicents.protocols.ss7.map.api.primitives.SubscriberIdentity, org.mobicents
+     * .protocols.ss7.map.api.service.subscriberInformation.RequestedInfo,
+     * org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString,
+     * org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer)
+     */
+    public long addAnyTimeSubscriptionInterrogationRequest(long customInvokeTimeout, SubscriberIdentity subscriberIdentity,
+                                                           RequestedSubscriptionInfo requestedSubscriptionInfo,
+                                                           ISDNAddressString gsmSCFAddress, MAPExtensionContainer extensionContainer,
+                                                           boolean longFtnSupported)
+            throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.anyTimeInfoHandlingContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException(
+                    "Bad application context name for AnyTimeSubscriptionInterrogationRequest: must be anyTimeInfoHandlingContext_V3");
+
+        Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
+        if (customInvokeTimeout == _Timer_Default)
+            invoke.setTimeout(_Timer_m);
+        else
+            invoke.setTimeout(customInvokeTimeout);
+
+        // Operation Code
+        OperationCode oc = TcapFactory.createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.anyTimeSubscriptionInterrogation);
+        invoke.setOperationCode(oc);
+
+        AnyTimeSubscriptionInterrogationRequestImpl req = new AnyTimeSubscriptionInterrogationRequestImpl(subscriberIdentity,
+                requestedSubscriptionInfo, gsmSCFAddress, extensionContainer, longFtnSupported);
+
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        invoke.setParameter(p);
+
+        Long invokeId;
+        try {
+            invokeId = this.tcapDialog.getNewInvokeId();
+            invoke.setInvokeId(invokeId);
+        } catch (TCAPException e) {
+            throw new MAPException(e.getMessage(), e);
+        }
+
+        this.sendInvokeComponent(invoke);
+
+        return invokeId;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.mobicents.protocols.ss7.map.api.service.subscriberInformation.
+     * MAPDialogSubscriberInformation#addAnyTimeSubscriptionInterrogationResponse(long)
+     */
+    public void addAnyTimeSubscriptionInterrogationResponse(long invokeId, CallForwardingData callForwardingData,
+                CallBarringData callBarringData, ODBInfo odbInfo, CAMELSubscriptionInfo camelSubscriptionInfo,
+                SupportedCamelPhases supportedVlrCamelPhases, SupportedCamelPhases supportedSgsnCamelPhases,
+                MAPExtensionContainer extensionContainer, OfferedCamel4CSIs offeredCamel4CSIsInVlr,
+                OfferedCamel4CSIs offeredCamel4CSIsInSgsn, ArrayList<MSISDNBS> msisdnBsList,
+                ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData, CallHoldData chData,
+                ClipData clipData, ClirData clirData, EctData ectData) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.anyTimeInfoHandlingContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException(
+                    "Bad application context name for AnyTimeSubscriptionInterrogationRequest: must be anyTimeInfoHandlingContext_V3");
+
+        ReturnResultLast resultLast = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCResultLastRequest();
+
+        resultLast.setInvokeId(invokeId);
+
+        // Operation Code
+        OperationCode oc = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.anyTimeSubscriptionInterrogation);
+        resultLast.setOperationCode(oc);
+
+        AnyTimeSubscriptionInterrogationResponseImpl req = new AnyTimeSubscriptionInterrogationResponseImpl(
+                callForwardingData, callBarringData, odbInfo, camelSubscriptionInfo,
+                supportedVlrCamelPhases, supportedSgsnCamelPhases, extensionContainer, offeredCamel4CSIsInVlr,
+                offeredCamel4CSIsInSgsn, msisdnBsList, csgSubscriptionDataList, cwData, chData, clipData, clirData, ectData);
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        resultLast.setParameter(p);
+
+        this.sendReturnResultLastComponent(resultLast);
+    }
+
+    @Override
     public long addProvideSubscriberInfoRequest(IMSI imsi, LMSI lmsi, RequestedInfo requestedInfo, MAPExtensionContainer extensionContainer,
             EMLPPPriority callPriority) throws MAPException {
         return this.addProvideSubscriberInfoRequest(_Timer_Default, imsi, lmsi, requestedInfo, extensionContainer, callPriority);
@@ -1006,6 +1247,100 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
 
         this.sendReturnResultLastComponent(resultLast);
     }
+    }
+
+    @Override
+    public long addNoteSubscriberDataModifiedRequest(IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                                     ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                                     CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                                     MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                                     ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                                     CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException {
+        return this.addNoteSubscriberDataModifiedRequest(_Timer_Default, imsi, msisdn, forwardingInfoForCSE, callBarringInfoForCSE, odbInfo,
+                camelSubscriptionInfo, allInformationSent, extensionContainer, ueReachable, csgSubscriptionDataList,
+                cwData, chData, clipData, clirData, ectData);
+    }
+
+    @Override
+    public long addNoteSubscriberDataModifiedRequest(long customInvokeTimeout, IMSI imsi, ISDNAddressString msisdn, ExtForwardingInfoForCSE forwardingInfoForCSE,
+                                                     ExtCallBarringInfoForCSE callBarringInfoForCSE, ODBInfo odbInfo,
+                                                     CAMELSubscriptionInfo camelSubscriptionInfo, boolean allInformationSent,
+                                                     MAPExtensionContainer extensionContainer, ServingNode ueReachable,
+                                                     ArrayList<CSGSubscriptionData> csgSubscriptionDataList, CallWaitingData cwData,
+                                                     CallHoldData chData, ClipData clipData, ClirData clirData, EctData ectData) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.subscriberDataModificationNotificationContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException("Bad application context name for NoteSubscriberDataModifiedRequest: must be subscriberDataModificationNotificationContext_V3");
+
+        Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
+        if (customInvokeTimeout == _Timer_Default)
+            invoke.setTimeout(_Timer_m);
+        else
+            invoke.setTimeout(customInvokeTimeout);
+
+        // Operation Code
+        OperationCode oc = TcapFactory.createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.noteSubscriberDataModified);
+        invoke.setOperationCode(oc);
+
+        NoteSubscriberDataModifiedRequestImpl req = new NoteSubscriberDataModifiedRequestImpl(imsi, msisdn,
+                forwardingInfoForCSE, callBarringInfoForCSE, odbInfo, camelSubscriptionInfo, allInformationSent,
+                extensionContainer, ueReachable, csgSubscriptionDataList, cwData, chData, clipData, clirData, ectData);
+
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        invoke.setParameter(p);
+
+        Long invokeId;
+        try {
+            invokeId = this.tcapDialog.getNewInvokeId();
+            invoke.setInvokeId(invokeId);
+        } catch (TCAPException e) {
+            throw new MAPException(e.getMessage(), e);
+        }
+
+        this.sendInvokeComponent(invoke);
+
+        return invokeId;
+    }
+
+    @Override
+    public void addNoteSubscriberDataModifiedResponse(long invokeId, MAPExtensionContainer extensionContainer) throws MAPException {
+
+        if ((this.appCntx.getApplicationContextName() != MAPApplicationContextName.subscriberDataModificationNotificationContext)
+                || (this.appCntx.getApplicationContextVersion() != MAPApplicationContextVersion.version3))
+            throw new MAPException(
+                    "Bad application context name for NoteSubscriberDataModifiedResponse: must be subscriberDataModificationNotificationContext_v3");
+
+        ReturnResultLast resultLast = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory()
+                .createTCResultLastRequest();
+
+        resultLast.setInvokeId(invokeId);
+
+        // Operation Code
+        OperationCode oc = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createOperationCode();
+        oc.setLocalOperationCode((long) MAPOperationCode.noteSubscriberDataModified);
+        resultLast.setOperationCode(oc);
+
+        NoteSubscriberDataModifiedResponseImpl req = new NoteSubscriberDataModifiedResponseImpl(extensionContainer);
+        AsnOutputStream aos = new AsnOutputStream();
+        req.encodeData(aos);
+
+        Parameter p = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createParameter();
+        p.setTagClass(req.getTagClass());
+        p.setPrimitive(req.getIsPrimitive());
+        p.setTag(req.getTag());
+        p.setData(aos.toByteArray());
+        resultLast.setParameter(p);
+
+        this.sendReturnResultLastComponent(resultLast);
     }
 
     @Override

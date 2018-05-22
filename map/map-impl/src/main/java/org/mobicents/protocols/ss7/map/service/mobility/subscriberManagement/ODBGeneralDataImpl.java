@@ -34,12 +34,12 @@ public class ODBGeneralDataImpl extends BitStringBase implements ODBGeneralData 
     private static final int _INDEX_allOGCallsBarred = 0;
     private static final int _INDEX_internationalOGCallsBarred = 1;
     private static final int _INDEX_internationalOGCallsNotToHPLMNCountryBarred = 2;
-    private static final int _INDEX_interzonalOGCallsBarred = 6;
-    private static final int _INDEX_interzonalOGCallsNotToHPLMNCountryBarred = 7;
-    private static final int _INDEX_interzonalOGCallsAndInternationalOGCallsNotToHPLMNCountryBarred = 8;
     private static final int _INDEX_premiumRateInformationOGCallsBarred = 3;
     private static final int _INDEX_premiumRateEntertainementOGCallsBarred = 4;
     private static final int _INDEX_ssAccessBarred = 5;
+    private static final int _INDEX_interzonalOGCallsBarred = 6;
+    private static final int _INDEX_interzonalOGCallsNotToHPLMNCountryBarred = 7;
+    private static final int _INDEX_interzonalOGCallsAndInternationalOGCallsNotToHPLMNCountryBarred = 8;
     private static final int _INDEX_allECTBarred = 9;
     private static final int _INDEX_chargeableECTBarred = 10;
     private static final int _INDEX_internationalECTBarred = 11;
@@ -66,6 +66,25 @@ public class ODBGeneralDataImpl extends BitStringBase implements ODBGeneralData 
 
         // we make here 8 minimum bit size instead of 15
         // because of some trace data contains 1-byte length primitive
+    }
+
+    public ODBGeneralDataImpl(boolean allOGCallsBarred, boolean internationalOGCallsBarred,
+                              boolean internationalOGCallsNotToHPLMNCountryBarred,
+                              boolean premiumRateInformationOGCallsBarred, boolean premiumRateEntertainementOGCallsBarred,
+                              boolean ssAccessBarred) {
+        super(6, 8, 6, "ODBGeneralData");
+        if (allOGCallsBarred)
+            this.bitString.set(_INDEX_allOGCallsBarred);
+        if (internationalOGCallsBarred)
+            this.bitString.set(_INDEX_internationalOGCallsBarred);
+        if (internationalOGCallsNotToHPLMNCountryBarred)
+            this.bitString.set(_INDEX_internationalOGCallsNotToHPLMNCountryBarred);
+        if (premiumRateInformationOGCallsBarred)
+            this.bitString.set(_INDEX_premiumRateInformationOGCallsBarred);
+        if (premiumRateEntertainementOGCallsBarred)
+            this.bitString.set(_INDEX_premiumRateEntertainementOGCallsBarred);
+        if (ssAccessBarred)
+            this.bitString.set(_INDEX_ssAccessBarred);
     }
 
     public ODBGeneralDataImpl(boolean allOGCallsBarred, boolean internationalOGCallsBarred,

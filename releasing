@@ -1,0 +1,24 @@
+
+mvn -B release:prepare -Darguments="-Dmaven.test.skip=true"
+
+mvn release:perform -Darguments="-Dgpg.skip"
+
+
+mvn -B -Dtag=TAG-VERSION release:prepare -DreleaseVersion=RELEASE-VERSION -DdevelopmentVersion=NEXT-SNAPSHOT-VERSION -Darguments="-Dmaven.test.skip=true"
+
+
+
+# Añadir en el setting.xml
+<settings>
+   <servers>
+      <server>
+         <id>git</id>
+         <username>myUser</username>
+         <password>myPassword</password>
+      </server>
+   </servers>
+</settings>
+
+#If repeat:
+#Delete gat just created:
+>git tag -d TagName && git push origin :TagName

@@ -103,7 +103,7 @@ public class ClirDataImpl extends AbstractMAPAsnPrimitive implements ClirData, M
                                 decodePrimitiveObject(ais, new ExtSSStatusImpl(), "ssStatus", getPrimitiveName());
                         break;
                     case _TAG_CLI_RESTRICTION_OPTION:
-                        int i1 = (int) ais.readIntegerData(length);
+                        int i1 = (int) ais.readInteger();
                         this.cliRestrictionOption = CliRestrictionOption.getInstance(i1);
                         break;
                     case _TAG_NOTIFICATION_TO_CSE:

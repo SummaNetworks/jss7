@@ -126,8 +126,7 @@
 			<artifactId>javolution</artifactId>
 			<version>${javolution.version}</version>
 		</dependency>
-		
-		
+
 		<dependency>
 		   <groupId>org.apache.commons</groupId>
 		   <artifactId>commons-email</artifactId>
