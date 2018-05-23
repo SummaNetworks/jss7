@@ -72,8 +72,8 @@ public class IpSmGwGuidanceTest {
         assertEquals(tag, 0);
         assertEquals(asn.getTagClass(), Tag.CLASS_UNIVERSAL);
 
-        assertEquals(ipSmGwGuidance.getMinimumDeliveryTimeValue(), new Integer(10));
-        assertEquals(ipSmGwGuidance.getRecommendedDeliveryTimeValue(), new Integer(20));
+        assertEquals(ipSmGwGuidance.getMinimumDeliveryTimeValue(), 10);
+        assertEquals(ipSmGwGuidance.getRecommendedDeliveryTimeValue(), 20);
 
         rawData = getEncodedDataFull();
         asn = new AsnInputStream(rawData);
@@ -85,8 +85,8 @@ public class IpSmGwGuidanceTest {
         assertEquals(tag, 0);
         assertEquals(asn.getTagClass(), Tag.CLASS_UNIVERSAL);
 
-        assertEquals(ipSmGwGuidance.getMinimumDeliveryTimeValue(), new Integer(10));
-        assertEquals(ipSmGwGuidance.getRecommendedDeliveryTimeValue(), new Integer(20));
+        assertEquals(ipSmGwGuidance.getMinimumDeliveryTimeValue(),10);
+        assertEquals(ipSmGwGuidance.getRecommendedDeliveryTimeValue(), 20);
         assertTrue(MAPExtensionContainerTest.CheckTestExtensionContainer(ipSmGwGuidance.getExtensionContainer()));
     }
 

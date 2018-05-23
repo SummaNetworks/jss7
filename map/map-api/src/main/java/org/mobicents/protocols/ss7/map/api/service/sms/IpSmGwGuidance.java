@@ -44,8 +44,8 @@ public interface IpSmGwGuidance extends Serializable {
 
     MAPExtensionContainer getExtensionContainer();
 
-    Integer getMinimumDeliveryTimeValue();
+    int getMinimumDeliveryTimeValue();
 
-    Integer getRecommendedDeliveryTimeValue();
+    int getRecommendedDeliveryTimeValue();
 
 }
