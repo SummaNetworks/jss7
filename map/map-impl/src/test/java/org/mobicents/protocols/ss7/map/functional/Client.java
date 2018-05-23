@@ -967,7 +967,7 @@ public class Client extends EventTestHarness {
         GSNAddress sgsnAddress = new GSNAddressImpl(new byte[] { 23, 5, 38, 48, 81, 5 });
         MAPExtensionContainer extensionContainer = MAPExtensionContainerTest.GetTestExtensionContainer();
         SGSNCapability sgsnCapability = new SGSNCapabilityImpl(true, extensionContainer, null, false, null, null, null, false,
-                null, null, false, null);
+                null, null, false, null, false, false, false);
         boolean informPreviousNetworkEntity = true;
         boolean psLCSNotSupportedByUE = true;
         GSNAddress vGmlcAddress = new GSNAddressImpl(new byte[] { 23, 5, 38, 48, 81, 5 });

@@ -2422,11 +2422,13 @@ public class MAPParameterFactoryImpl implements MAPParameterFactory {
             SupportedCamelPhases supportedCamelPhases, SupportedLCSCapabilitySets supportedLCSCapabilitySets,
             OfferedCamel4CSIs offeredCamel4CSIs, boolean smsCallBarringSupportIndicator,
             SupportedRATTypes supportedRATTypesIndicator, SupportedFeatures supportedFeatures, boolean tAdsDataRetrieval,
-            Boolean homogeneousSupportOfIMSVoiceOverPSSessions) {
+            Boolean homogeneousSupportOfIMSVoiceOverPSSessions, boolean cancellationTypeInitialAttach,
+            boolean msisdnLessOperationSupported, boolean updateOfHomogeneousSupportOfIMSVoiceOverPSSessions) {
         return new SGSNCapabilityImpl(solsaSupportIndicator, extensionContainer, superChargerSupportedInServingNetworkEntity,
                 gprsEnhancementsSupportIndicator, supportedCamelPhases, supportedLCSCapabilitySets, offeredCamel4CSIs,
                 smsCallBarringSupportIndicator, supportedRATTypesIndicator, supportedFeatures, tAdsDataRetrieval,
-                homogeneousSupportOfIMSVoiceOverPSSessions);
+                homogeneousSupportOfIMSVoiceOverPSSessions, cancellationTypeInitialAttach,
+                msisdnLessOperationSupported, updateOfHomogeneousSupportOfIMSVoiceOverPSSessions);
     }
 
     @Override

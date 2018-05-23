@@ -49,10 +49,10 @@ import org.testng.annotations.Test;
 public class SGSNCapabilityTest {
 
     public byte[] getData() {
-        return new byte[] { 48, 81, 5, 0, -95, 39, -96, 32, 48, 10, 6, 3, 42, 3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42, 3, 6,
-                48, 11, 6, 3, 42, 3, 5, 21, 22, 23, 24, 25, 26, -95, 3, 31, 32, 33, -94, 2, -128, 0, -125, 0, -124, 2, 4, -16,
-                -123, 2, 3, -8, -122, 2, 1, -2, -121, 0, -120, 2, 3, -8, -119, 5, 6, -1, -1, -1, -64, -121, 0, -118, 0, -117,
-                1, -1 };
+        return new byte[] {48, 87, 5, 0, -95, 39, -96, 32, 48, 10, 6, 3, 42, 3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42,
+                3, 6, 48, 11, 6, 3, 42, 3, 5, 21, 22, 23, 24, 25, 26, -95, 3, 31, 32, 33, -94, 2, -128, 0, -125, 0, -124,
+                2, 4, -16, -123, 2, 3, -8, -122, 2, 1, -2, -121, 0, -120, 2, 3, -8, -119, 5, 6, -1, -1, -1, -64, -121,
+                0, -118, 0, -117, 1, -1, -116, 0, -114, 0, -113, 0};
     };
 
     @Test(groups = { "functional.decode", "primitives" })
@@ -80,7 +80,9 @@ public class SGSNCapabilityTest {
 
         assertTrue(prim.getTAdsDataRetrieval());
         assertTrue(prim.getHomogeneousSupportOfIMSVoiceOverPSSessions());
-
+        assertTrue(prim.getCancellationTypeInitialAttach());
+        assertTrue(prim.getMsisdnLessOperationSupported());
+        assertTrue(prim.getUpdateOfHomogeneousSupportOfIMSVoiceOverPSSessions());
     }
 
     @Test(groups = { "functional.decode", "primitives" })
@@ -100,11 +102,15 @@ public class SGSNCapabilityTest {
                 true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true);
         boolean tAdsDataRetrieval = true;
         Boolean homogeneousSupportOfIMSVoiceOverPSSessions = Boolean.TRUE;
+        boolean cancellationTypeInitialAttach = true;
+        boolean msisdnLessOperationSupported = true;
+        boolean updateOfHomogeneousSupportOfIMSVoiceOverPSSessions = true;
 
         SGSNCapabilityImpl prim = new SGSNCapabilityImpl(solsaSupportIndicator, extensionContainer,
                 superChargerSupportedInServingNetworkEntity, gprsEnhancementsSupportIndicator, supportedCamelPhases,
                 supportedLCSCapabilitySets, offeredCamel4CSIs, smsCallBarringSupportIndicator, supportedRATTypesIndicator,
-                supportedFeatures, tAdsDataRetrieval, homogeneousSupportOfIMSVoiceOverPSSessions);
+                supportedFeatures, tAdsDataRetrieval, homogeneousSupportOfIMSVoiceOverPSSessions, cancellationTypeInitialAttach,
+                msisdnLessOperationSupported, updateOfHomogeneousSupportOfIMSVoiceOverPSSessions);
         AsnOutputStream asn = new AsnOutputStream();
         prim.encodeAll(asn);
 

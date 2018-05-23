@@ -111,7 +111,7 @@ public class UpdateGprsLocationRequestTest {
         GSNAddress sgsnAddress = new GSNAddressImpl(getGSNAddressData());
         MAPExtensionContainer extensionContainer = MAPExtensionContainerTest.GetTestExtensionContainer();
         SGSNCapability sgsnCapability = new SGSNCapabilityImpl(true, extensionContainer, null, false, null, null, null, false,
-                null, null, false, null);
+                null, null, false, null, false, false, false);
         boolean informPreviousNetworkEntity = true;
         boolean psLCSNotSupportedByUE = true;
         GSNAddress vGmlcAddress = new GSNAddressImpl(getGSNAddressData());

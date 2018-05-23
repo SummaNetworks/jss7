@@ -63,6 +63,10 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
     private static final int TAG_supportedFeatures = 9;
     private static final int TAG_tAdsDataRetrieval = 10;
     private static final int TAG_homogeneousSupportOfIMSVoiceOverPSSessions = 11;
+    private static final int TAG_cancellationTypeInitialAttach = 12;//] NULL  OPTIONAL,
+    private static final int TAG_msisdnLessOperationSupported = 14;//] NULL  OPTIONAL,
+    private static final int TAG_updateOfHomogeneousSupportOfIMSVoiceOverPSSessions = 15;//] NULL  OPTIONAL
+
 
     private boolean solsaSupportIndicator;
     private MAPExtensionContainer extensionContainer;
@@ -76,6 +80,9 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
     private SupportedFeatures supportedFeatures;
     private boolean tAdsDataRetrieval;
     private Boolean homogeneousSupportOfIMSVoiceOverPSSessions;
+    private boolean cancellationTypeInitialAttach;
+    private boolean msisdnLessOperationSupported;
+    private boolean updateOfHomogeneousSupportOfIMSVoiceOverPSSessions;
 
     public SGSNCapabilityImpl() {
         super("SGSNCapability");
@@ -86,7 +93,8 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
             SupportedCamelPhases supportedCamelPhases, SupportedLCSCapabilitySets supportedLCSCapabilitySets,
             OfferedCamel4CSIs offeredCamel4CSIs, boolean smsCallBarringSupportIndicator,
             SupportedRATTypes supportedRATTypesIndicator, SupportedFeatures supportedFeatures, boolean tAdsDataRetrieval,
-            Boolean homogeneousSupportOfIMSVoiceOverPSSessions) {
+            Boolean homogeneousSupportOfIMSVoiceOverPSSessions, boolean cancellationTypeInitialAttach,
+            boolean msisdnLessOperationSupported, boolean updateOfHomogeneousSupportOfIMSVoiceOverPSSessions) {
         super("SGSNCapability");
         this.solsaSupportIndicator = solsaSupportIndicator;
         this.extensionContainer = extensionContainer;
@@ -100,6 +108,9 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
         this.supportedFeatures = supportedFeatures;
         this.tAdsDataRetrieval = tAdsDataRetrieval;
         this.homogeneousSupportOfIMSVoiceOverPSSessions = homogeneousSupportOfIMSVoiceOverPSSessions;
+        this.cancellationTypeInitialAttach = cancellationTypeInitialAttach;
+        this.msisdnLessOperationSupported = msisdnLessOperationSupported;
+        this.updateOfHomogeneousSupportOfIMSVoiceOverPSSessions = updateOfHomogeneousSupportOfIMSVoiceOverPSSessions;
     }
 
     @Override
@@ -163,6 +174,21 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
     }
 
     @Override
+    public boolean getCancellationTypeInitialAttach() {
+        return cancellationTypeInitialAttach;
+    }
+
+    @Override
+    public boolean getMsisdnLessOperationSupported() {
+        return msisdnLessOperationSupported;
+    }
+
+    @Override
+    public boolean getUpdateOfHomogeneousSupportOfIMSVoiceOverPSSessions() {
+        return updateOfHomogeneousSupportOfIMSVoiceOverPSSessions;
+    }
+
+    @Override
     protected void _decode(AsnInputStream asnIS, int length) throws MAPParsingComponentException, IOException, AsnException {
 
         this.solsaSupportIndicator = false;
@@ -177,6 +203,9 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
         this.supportedFeatures = null;
         this.tAdsDataRetrieval = false;
         this.homogeneousSupportOfIMSVoiceOverPSSessions = null;
+        this.cancellationTypeInitialAttach = false;
+        this.msisdnLessOperationSupported = false;
+        this.updateOfHomogeneousSupportOfIMSVoiceOverPSSessions = false;
 
         AsnInputStream ais = asnIS.readSequenceStreamData(length);
 
@@ -291,6 +320,27 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
                                 MAPParsingComponentExceptionReason.MistypedParameter);
                     this.homogeneousSupportOfIMSVoiceOverPSSessions = ais.readBoolean();
                     break;
+                case TAG_cancellationTypeInitialAttach:
+                    if (!ais.isTagPrimitive())
+                        throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ".cancellationTypeInitialAttach: Parameter is not primitive",
+                                MAPParsingComponentExceptionReason.MistypedParameter);
+                    ais.readNull();
+                    this.cancellationTypeInitialAttach = true;
+                    break;
+                case TAG_msisdnLessOperationSupported:
+                    if (!ais.isTagPrimitive())
+                        throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ".msisdnLessOperationSupported: Parameter is not primitive",
+                                MAPParsingComponentExceptionReason.MistypedParameter);
+                    ais.readNull();
+                    this.msisdnLessOperationSupported = true;
+                    break;
+                case TAG_updateOfHomogeneousSupportOfIMSVoiceOverPSSessions:
+                    if (!ais.isTagPrimitive())
+                        throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ".updateOfHomogeneousSupportOfIMSVoiceOverPSSessions: Parameter is not primitive",
+                                MAPParsingComponentExceptionReason.MistypedParameter);
+                    ais.readNull();
+                    this.updateOfHomogeneousSupportOfIMSVoiceOverPSSessions = true;
+                    break;
                 default:
                     ais.advanceElement();
                     break;
@@ -358,6 +408,16 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
                 asnOs.writeBoolean(Tag.CLASS_CONTEXT_SPECIFIC, TAG_homogeneousSupportOfIMSVoiceOverPSSessions,
                         this.homogeneousSupportOfIMSVoiceOverPSSessions);
             }
+
+            if (this.cancellationTypeInitialAttach)
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, TAG_cancellationTypeInitialAttach);
+
+            if (this.msisdnLessOperationSupported)
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, TAG_msisdnLessOperationSupported);
+
+            if (this.updateOfHomogeneousSupportOfIMSVoiceOverPSSessions)
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, TAG_updateOfHomogeneousSupportOfIMSVoiceOverPSSessions);
+
 
         } catch (IOException e) {
             throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
@@ -435,6 +495,17 @@ public class SGSNCapabilityImpl extends SequenceBase implements SGSNCapability {
             sb.append(this.homogeneousSupportOfIMSVoiceOverPSSessions.toString());
         }
 
+        if (this.cancellationTypeInitialAttach) {
+            sb.append("cancellationTypeInitialAttach, ");
+        }
+
+        if (this.msisdnLessOperationSupported) {
+            sb.append("msisdnLessOperationSupported, ");
+        }
+
+        if (this.updateOfHomogeneousSupportOfIMSVoiceOverPSSessions) {
+            sb.append("updateOfHomogeneousSupportOfIMSVoiceOverPSSessions, ");
+        }
         sb.append("]");
 
         return sb.toString();

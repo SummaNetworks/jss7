@@ -47,6 +47,9 @@ SGSN-Capability ::= SEQUENCE {
   homogeneousSupportOfIMSVoiceOverPSSessions     [11] BOOLEAN OPTIONAL
   -- "true" indicates homogeneous support, "false" indicates homogeneous non-support
   -- in the complete SGSN area
+ cancellationTypeInitialAttach                   [12] NULL  OPTIONAL,
+ msisdn-lessOperation-Supported                  [14] NULL  OPTIONAL,
+ updateofHomogeneousSupportOfIMSVoiceOverPSSessions [15] NULL  OPTIONAL
 }
 </code>
  *
@@ -80,4 +83,9 @@ public interface SGSNCapability extends Serializable {
 
     Boolean getHomogeneousSupportOfIMSVoiceOverPSSessions();
 
+    boolean getCancellationTypeInitialAttach();
+
+    boolean getMsisdnLessOperationSupported();
+
+    boolean getUpdateOfHomogeneousSupportOfIMSVoiceOverPSSessions();
 }
