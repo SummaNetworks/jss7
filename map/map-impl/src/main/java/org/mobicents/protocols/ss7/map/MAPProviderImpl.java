@@ -1942,7 +1942,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
      * @param alternativeApplicationContext
      * @throws MAPException
      */
-    private void fireTCAbortACNNotSupported(Dialog tcapDialog, MAPExtensionContainer mapExtensionContainer,
+    public void fireTCAbortACNNotSupported(Dialog tcapDialog, MAPExtensionContainer mapExtensionContainer,
             ApplicationContextName alternativeApplicationContext, boolean returnMessageOnError) throws MAPException {
 
         if (this.getTCAPProvider().getPreviewMode()) {
@@ -1974,6 +1974,8 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
             tcUserAbort.setApplicationContextName(alternativeApplicationContext);
         else
             tcUserAbort.setApplicationContextName(tcapDialog.getApplicationContextName());
+
+
         tcUserAbort.setDialogServiceUserType(DialogServiceUserType.AcnNotSupported);
         tcUserAbort.setUserInformation(userInformation);
 
