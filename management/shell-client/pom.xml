@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.management</groupId>
 		<artifactId>management</artifactId>
-		<version>7.1.5-SUMMA</version>
+		<version>7.1.6-SUMMA-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>shell-client</artifactId>
