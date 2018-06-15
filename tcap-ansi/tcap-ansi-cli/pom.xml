@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>tcap-ansi-parent</artifactId>
 		<groupId>org.mobicents.protocols.ss7.tcapAnsi</groupId>
-		<version>7.1.5-SUMMA-SNAPSHOT</version>
+		<version>7.1.6-SUMMA-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>tcap-ansi-cli</artifactId>
