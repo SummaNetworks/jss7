@@ -781,12 +781,13 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     @Override
     public void onCommunicationUp(Association association, int maxInboundStreams, int maxOutboundStreams) {
         this.maxOutboundStreams = maxOutboundStreams;
-        // Recreate SLS table. Minimum of two is correct?
-        this.createSLSTable(Math.min(maxInboundStreams, maxOutboundStreams) - 1);
-        this.handleCommUp();
         sctpStreamIndex = new AtomicInteger(1);
         //There is a bug on linux sctp library so limit max out bound to 10.
         this.maxEfectiveOutboundStreams = this.maxOutboundStreams <= 10 ? this.maxOutboundStreams: 10;
+
+        // Recreate SLS table. Minimum of two is correct?
+        this.createSLSTable(Math.min(maxInboundStreams, maxOutboundStreams) - 1);
+        this.handleCommUp();
     }
 
     protected void createSLSTable(int minimumBoundStream) {
