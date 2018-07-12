@@ -9,12 +9,13 @@ import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
-import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AbstractMAPAsnPrimitive;
+import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.CallWaitingData;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtCwFeature;
 import org.mobicents.protocols.ss7.map.datacoding.NullEncoderFacility;
 import org.mobicents.protocols.ss7.map.datacoding.ObjectEncoderFacility;
 import org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive;
+import org.mobicents.protocols.ss7.map.primitives.SequenceBase;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.ExtCwFeatureImpl;
 
 /**
@@ -32,7 +33,7 @@ import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.Ext
  *
  * @author eva ogallar
  */
-public class CallWaitingDataImpl extends AbstractMAPAsnPrimitive implements CallWaitingData, MAPAsnPrimitive {
+public class CallWaitingDataImpl extends SequenceBase implements CallWaitingData, MAPAsnPrimitive {
 
     public static final String _PrimitiveName = "CallWaitingData";
     private static final int _TAG_CW_FEATURE_LIST = 1;
@@ -42,9 +43,11 @@ public class CallWaitingDataImpl extends AbstractMAPAsnPrimitive implements Call
     private boolean notificationToCSE;
 
     public CallWaitingDataImpl() {
+        super("CallWaitingData");
     }
 
     public CallWaitingDataImpl(ArrayList<ExtCwFeature> cwFeatureList, boolean notificationToCSE) {
+        super("CallWaitingData");
         this.cwFeatureList = cwFeatureList;
         this.notificationToCSE = notificationToCSE;
     }
@@ -74,24 +77,52 @@ public class CallWaitingDataImpl extends AbstractMAPAsnPrimitive implements Call
         return false;
     }
 
-    protected void _decode(AsnInputStream ansIS, int length) throws AsnException, IOException, MAPParsingComponentException {
+    private String getPrimitiveName() {
+        return _PrimitiveName;
+    }
 
-        cwFeatureList = new ArrayList<ExtCwFeature>();
-        notificationToCSE = false;
+    @Override
+    protected void _decode(AsnInputStream asnIS, int length) throws MAPParsingComponentException, IOException, AsnException {
+        this.cwFeatureList = null;
+        this.notificationToCSE = false;
 
-        AsnInputStream ais = ansIS.readSequenceStreamData(length);
-        int num = 0;
+        AsnInputStream ais = asnIS.readSequenceStreamData(length);
         while (true) {
-            if (ais.available() == 0)
+            if (ais.available() == 0) {
                 break;
+            }
 
             int tag = ais.readTag();
-
             if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
                 switch (tag) {
                     case _TAG_CW_FEATURE_LIST:
-                        this.cwFeatureList.add((ExtCwFeature) ObjectEncoderFacility.
-                                decodeObject(ais, new ExtCwFeatureImpl(), "cwFeatureList", getPrimitiveName()));
+                        if (ais.isTagPrimitive())
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter cwFeatureList is primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+
+                        this.cwFeatureList = new ArrayList<>();
+                        AsnInputStream ais2 = ais.readSequenceStream();
+                        while (true) {
+                            if (ais2.available() == 0) {
+                                break;
+                            }
+
+                            if (ais2.readTag() != Tag.SEQUENCE || ais2.getTagClass() != Tag.CLASS_UNIVERSAL || ais2.isTagPrimitive())
+                                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                        + ".extCwFeature: Parameter extCwFeature is primitive",
+                                        MAPParsingComponentExceptionReason.MistypedParameter);
+
+                            this.cwFeatureList.add((ExtCwFeature) ObjectEncoderFacility.
+                                    decodeObject(ais2, new ExtCwFeatureImpl(), "cwFeatureList", getPrimitiveName()));
+
+                        }
+
+                        if (this.cwFeatureList.size() < 1 || this.cwFeatureList.size() > 32) {
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter cwFeatureList size must be from 1 to 32, found: "
+                                    + this.cwFeatureList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
                         break;
                     case _TAG_NOTIFICATION_TO_CSE:
                         this.notificationToCSE = NullEncoderFacility.decode(ais, "notificationToCSE", getPrimitiveName());
@@ -103,9 +134,15 @@ public class CallWaitingDataImpl extends AbstractMAPAsnPrimitive implements Call
             } else {
                 ais.advanceElement();
             }
-            num++;
         }
-   }
+
+        if (this.cwFeatureList == null) {
+            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                    + "cwFeatureList is mandatory but it is absent",
+                    MAPParsingComponentExceptionReason.MistypedParameter);
+        }
+    }
+
 
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
 
@@ -114,20 +151,78 @@ public class CallWaitingDataImpl extends AbstractMAPAsnPrimitive implements Call
             throw new MAPException("CwFeatureList list must contains from 1 to 32 elements");
         }
 
-        for (ExtCwFeature extCwFeature : this.cwFeatureList) {
-            ((ExtCwFeatureImpl) extCwFeature).encodeAll(asnOs);
+        try {
+            asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_CW_FEATURE_LIST);
+            int pos = asnOs.StartContentDefiniteLength();
+            for (ExtCwFeature extCwFeature : this.cwFeatureList) {
+                ((ExtCwFeatureImpl) extCwFeature).encodeAll(asnOs);
+            }
+            asnOs.FinalizeContent(pos);
+
+            NullEncoderFacility.encode(asnOs, this.notificationToCSE, Tag.CLASS_CONTEXT_SPECIFIC,
+                    _TAG_NOTIFICATION_TO_CSE, "notificationToCSE");
+        } catch (AsnException ae) {
+            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
         }
-
-        NullEncoderFacility.encode(asnOs, this.notificationToCSE, Tag.CLASS_CONTEXT_SPECIFIC,
-                _TAG_NOTIFICATION_TO_CSE, "notificationToCSE");
-
-
 
     }
 
+
+    public void encodeData2(AsnOutputStream asnOs) throws MAPException {
+        if (this.cwFeatureList == null) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + " the mandatory parameter cwFeatureList is not defined");
+        }
+
+        if (this.cwFeatureList.size() < 1 || this.cwFeatureList.size() > 32) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + " size cwFeatureList is out of range (1..32). Actual size: "
+                    + this.cwFeatureList.size());
+        }
+
+        try {
+            asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_CW_FEATURE_LIST);
+            int pos = asnOs.StartContentDefiniteLength();
+            for (ExtCwFeature extCwFeature: this.cwFeatureList) {
+                ((ExtCwFeatureImpl)extCwFeature).encodeAll(asnOs);
+            }
+            asnOs.FinalizeContent(pos);
+
+            if (this.notificationToCSE) {
+                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_NOTIFICATION_TO_CSE);
+            }
+        } catch (IOException e) {
+            throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
+        } catch (AsnException ae) {
+            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + ae.getMessage(), ae);
+        }
+    }
+
     @Override
-    protected String getPrimitiveName() {
-        return _PrimitiveName;
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(_PrimitiveName);
+        sb.append(" [");
+
+        if (this.cwFeatureList != null) {
+            sb.append("cwFeatureList=[");
+            boolean firstItem = true;
+            for (ExtCwFeature extCwFeature : cwFeatureList) {
+                if (firstItem) {
+                    firstItem = false;
+                } else {
+                    sb.append(", ");
+                }
+                sb.append(extCwFeature);
+            }
+            sb.append("], ");
+        }
+        if (this.notificationToCSE) {
+            sb.append("isNotificationToCSE, ");
+        }
+
+        sb.append("]");
+        return sb.toString();
     }
 
 }
