@@ -34,7 +34,6 @@ import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.ExtCwFeature;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtBasicServiceCode;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.ExtSSStatus;
-import org.mobicents.protocols.ss7.map.datacoding.ObjectEncoderFacility;
 import org.mobicents.protocols.ss7.map.primitives.SequenceBase;
 
 /**
@@ -50,23 +49,18 @@ import org.mobicents.protocols.ss7.map.primitives.SequenceBase;
  *
  */
 public class ExtCwFeatureImpl extends SequenceBase implements ExtCwFeature {
+    private static final int _TAG_EXT_BASIC_SERVICE_CODE = 1;
+    private static final int _TAG_EXT_SS_STATUS = 2;
 
-    private static final int TAG_BASIC_SERVICE = 1;
-    private static final int TAG_SS_STATUS = 2;
-
-    private ExtBasicServiceCode basicService = null;
-    private ExtSSStatus ssStatus = null;
+    private ExtBasicServiceCode basicService;
+    private ExtSSStatus ssStatus;
 
     public ExtCwFeatureImpl() {
         super("ExtCwFeature");
     }
 
-    /**
-     *
-     */
     public ExtCwFeatureImpl(ExtBasicServiceCode basicService, ExtSSStatus ssStatus) {
         super("ExtCwFeature");
-
         this.basicService = basicService;
         this.ssStatus = ssStatus;
     }
@@ -79,94 +73,95 @@ public class ExtCwFeatureImpl extends SequenceBase implements ExtCwFeature {
         return this.ssStatus;
     }
 
-    protected void _decode(AsnInputStream ansIS, int length) throws MAPParsingComponentException, IOException, AsnException {
+    @Override
+    protected void _decode(AsnInputStream asnIS, int length) throws MAPParsingComponentException, IOException, AsnException {
         this.basicService = null;
         this.ssStatus = null;
 
-        AsnInputStream ais = ansIS.readSequenceStreamData(length);
-
+        AsnInputStream ais = asnIS.readSequenceStreamData(length);
         while (true) {
-            if (ais.available() == 0)
+            if (ais.available() == 0) {
                 break;
+            }
 
             int tag = ais.readTag();
+            if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
+                switch (tag) {
+                    case _TAG_EXT_BASIC_SERVICE_CODE:
+                        this.basicService = new ExtBasicServiceCodeImpl();
+                        AsnInputStream ais2 = ais.readSequenceStream();
+                        ais2.readTag();
+                        ((ExtBasicServiceCodeImpl) this.basicService).decodeAll(ais2);
+                        break;
+                    case _TAG_EXT_SS_STATUS:
+                        if (!ais.isTagPrimitive())
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter ssStatus is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
 
-            switch (ais.getTagClass()) {
-                case Tag.CLASS_CONTEXT_SPECIFIC:
-                    switch (tag) {
-                        case TAG_BASIC_SERVICE:
-                            this.basicService = (ExtBasicServiceCode) ObjectEncoderFacility.
-                                    decodeObject(ais, new ExtBasicServiceCodeImpl(), "basicService", _PrimitiveName);
-                            break;
-                        case TAG_SS_STATUS:
-                            this.ssStatus = (ExtSSStatus) ObjectEncoderFacility.
-                                    decodeObject(ais, new ExtSSStatusImpl(), "ssStatus", _PrimitiveName);
-                            break;
-                        default:
-                            ais.advanceElement();
-                            break;
-
-                    }
-                    break;
-
-                default:
-                    ais.advanceElement();
-                    break;
+                        this.ssStatus = new ExtSSStatusImpl();
+                        ((ExtSSStatusImpl)this.ssStatus).decodeAll(ais);
+                        break;
+                    default:
+                        ais.advanceElement();
+                        break;
+                }
+            } else {
+                ais.advanceElement();
             }
         }
 
-        if (this.ssStatus == null) {
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ": ssStatus required.",
+        if (this.basicService == null) {
+            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                    + "basicService is mandatory but it is absent",
                     MAPParsingComponentExceptionReason.MistypedParameter);
         }
-
-        if (this.basicService == null) {
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ": basicService required.",
+        if (this.ssStatus == null) {
+            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                    + "ssStatus is mandatory but it is absent",
                     MAPParsingComponentExceptionReason.MistypedParameter);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.mobicents.protocols.ss7.map.primitives.MAPAsnPrimitive#encodeData (org.mobicents.protocols.asn.AsnOutputStream)
-     */
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
+        if (this.basicService == null) {
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + " the mandatory parameter basicService is not defined");
+        }
 
         if (this.ssStatus == null) {
-            throw new MAPException("Error while encoding " + _PrimitiveName + ": ssStatus required.");
+            throw new MAPException("Error while encoding " + _PrimitiveName
+                    + " the mandatory parameter ssStatus is not defined");
         }
 
-        if (this.basicService == null) {
-            throw new MAPException("Error while encoding " + _PrimitiveName + ": basicService required.");
+        try {
+            asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_EXT_BASIC_SERVICE_CODE);
+            int pos = asnOs.StartContentDefiniteLength();
+            ((ExtBasicServiceCodeImpl) this.basicService).encodeAll(asnOs);
+            asnOs.FinalizeContent(pos);
+
+            ((ExtSSStatusImpl)this.ssStatus).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_EXT_SS_STATUS);
+        } catch (AsnException e) {
+            throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
         }
-
-        ((ExtBasicServiceCodeImpl) this.basicService).encodeAll(asnOs);
-
-        ((ExtSSStatusImpl) this.ssStatus).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, TAG_SS_STATUS);
-
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(_PrimitiveName + " [");
+        sb.append(_PrimitiveName);
+        sb.append(" [");
 
         if (this.basicService != null) {
             sb.append("basicService=");
-            sb.append(this.basicService.toString());
-            sb.append(", ");
+            sb.append(this.basicService);
         }
-
         if (this.ssStatus != null) {
-            sb.append("ssStatus=");
-            sb.append(this.ssStatus.toString());
-            sb.append(", ");
+            sb.append(", ssStatus=");
+            sb.append(this.ssStatus);
         }
 
         sb.append("]");
-
         return sb.toString();
     }
-
 }

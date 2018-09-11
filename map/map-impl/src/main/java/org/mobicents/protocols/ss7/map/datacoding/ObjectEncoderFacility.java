@@ -15,7 +15,7 @@ public class ObjectEncoderFacility {
 
 
     public static MAPAsnPrimitive decodeObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive, String field, String primitiveName)
-            throws MAPParsingComponentException, AsnException, IOException {
+            throws MAPParsingComponentException {
         if (ais.isTagPrimitive()) {
             throw new MAPParsingComponentException("Error while decoding " + primitiveName
                     + ": Parameter " + field + " is primitive",
@@ -35,7 +35,7 @@ public class ObjectEncoderFacility {
     }
 
     public static MAPAsnPrimitive decodePrimitiveObject(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive,
-                                                        String field, String primitiveName) throws MAPParsingComponentException, AsnException, IOException {
+                                                        String field, String primitiveName) throws MAPParsingComponentException {
         if (!ais.isTagPrimitive()) {
             throw new MAPParsingComponentException("Error while decoding " + primitiveName
                     + ": Parameter " + field + " is not primitive",
@@ -67,7 +67,7 @@ public class ObjectEncoderFacility {
     }
 
     private static MAPAsnPrimitive decodeObjectNotFramed(AsnInputStream ais, MAPAsnPrimitive mapAsnPrimitive)
-            throws AsnException, IOException, MAPParsingComponentException {
+            throws MAPParsingComponentException {
         mapAsnPrimitive.decodeAll(ais);
         return mapAsnPrimitive;
     }
