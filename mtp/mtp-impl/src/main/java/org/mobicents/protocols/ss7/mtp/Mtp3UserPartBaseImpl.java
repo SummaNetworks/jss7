@@ -27,6 +27,7 @@ package org.mobicents.protocols.ss7.mtp;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -209,12 +210,19 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
      * @param msg
      * @param effectiveSls For the thread selection (for message delivering)
      */
+    AtomicInteger roundRobbing = new AtomicInteger(0);
     protected void sendTransferMessageToLocalUser(Mtp3TransferPrimitive msg, int seqControl) {
         if (this.isStarted) {
             MsgTransferDeliveryHandler hdl = new MsgTransferDeliveryHandler(msg);
 
             seqControl = seqControl & slsFilter;
-            this.msgDeliveryExecutors[this.slsTable[seqControl]].execute(hdl);
+            //this.msgDeliveryExecutors[this.slsTable[seqControl]].execute(hdl);
+
+            this.msgDeliveryExecutors[roundRobbing.getAndIncrement()].execute(hdl);
+
+            if(roundRobbing.get() == msgDeliveryExecutors.length){
+                roundRobbing.set(0);
+            }
         } else {
             logger.error(String.format(
                     "Received Mtp3TransferPrimitive=%s but Mtp3UserPart is not started. Message will be dropped", msg));
