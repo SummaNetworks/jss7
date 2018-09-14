@@ -269,13 +269,13 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
 
     public void onCongestionFinish(String congName) {
         synchronized (this.congSources) {
-            this.congSources.put(congName, congName);
+            this.congSources.remove(congName);
         }
     }
 
     public void onCongestionStart(String congName) {
         synchronized (this.congSources) {
-            this.congSources.remove(congName);
+            this.congSources.put(congName,congName);
         }
     }
 
