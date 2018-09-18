@@ -24,6 +24,7 @@ package org.mobicents.protocols.ss7.m3ua.impl;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javolution.util.FastList;
 import javolution.xml.XMLFormat;
@@ -139,11 +140,14 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     private int maxSequenceNumber = M3UAManagementImpl.MAX_SEQUENCE_NUMBER;
     private int[] slsTable = null;
     private int maxOutboundStreams;
+    private int maxEfectiveOutboundStreams = 10;
 
     protected AspFactoryStopTimer aspFactoryStopTimer = null;
 
     protected HeartBeatTimer heartBeatTimer = null;
     private boolean isHeartBeatEnabled = false;
+
+    private AtomicInteger sctpStreamIndex;
 
     public AspFactoryImpl() {
         // clean transmission buffer
@@ -486,8 +490,10 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
                                 SCTP_PAYLOAD_PROT_ID_M3UA, this.slsTable[seqControl]);
                         break;
                     default:
+                        int nextValue = sctpStreamIndex.getAndIncrement();
+                        nextValue = (nextValue % maxEfectiveOutboundStreams) + 1;
                         payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, true,
-                                SCTP_PAYLOAD_PROT_ID_M3UA, 0);
+                                SCTP_PAYLOAD_PROT_ID_M3UA, nextValue);
                         break;
                 }
                 this.association.send(payloadData);
@@ -705,13 +711,17 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     @Override
     public void onCommunicationUp(Association association, int maxInboundStreams, int maxOutboundStreams) {
         this.maxOutboundStreams = maxOutboundStreams;
+        sctpStreamIndex = new AtomicInteger(1);
+        //There is a bug on linux sctp library so limit max out bound to 10.
+        this.maxEfectiveOutboundStreams = this.maxOutboundStreams <= 10 ? this.maxOutboundStreams: 10;
+
         // Recreate SLS table. Minimum of two is correct?
         this.createSLSTable(Math.min(maxInboundStreams, maxOutboundStreams) - 1);
         this.handleCommUp();
     }
 
-    protected void createSLSTable(int minimumBoundStream) {
-        if (minimumBoundStream == 0) { // special case - only 1 stream
+    protected void createSLSTable(int maxBoundStream) {
+        if (maxBoundStream == 0) { // special case - only 1 stream
             for (int i = 0; i < this.maxSequenceNumber; i++) {
                 slsTable[i] = 0;
             }
@@ -719,7 +729,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
             // SCTP Stream 0 is for management messages, we start from 1
             int stream = 1;
             for (int i = 0; i < this.maxSequenceNumber; i++) {
-                if (stream > minimumBoundStream) {
+                if (stream > maxBoundStream) {
                     stream = 1;
                 }
                 slsTable[i] = stream++;
