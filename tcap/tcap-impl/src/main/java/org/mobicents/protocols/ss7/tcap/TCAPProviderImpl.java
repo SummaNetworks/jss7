@@ -173,7 +173,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
      */
     public void removeTCListener(TCListener lst) {
         this.tcListeners.remove(lst);
-
     }
 
     private boolean checkAvailableTxId(Long id) {
@@ -282,6 +281,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             throw new NullPointerException("LocalAddress must not be null");
         }
 
+        // TODO: 18/09/18 Review if sync can be removed.
         synchronized (this.dialogs) {
             if (id == null) {
                 id = this.getAvailableTxId();
