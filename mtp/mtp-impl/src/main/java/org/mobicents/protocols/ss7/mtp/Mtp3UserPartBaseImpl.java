@@ -214,15 +214,9 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     protected void sendTransferMessageToLocalUser(Mtp3TransferPrimitive msg, int seqControl) {
         if (this.isStarted) {
             MsgTransferDeliveryHandler hdl = new MsgTransferDeliveryHandler(msg);
-
-            seqControl = seqControl & slsFilter;
-            //this.msgDeliveryExecutors[this.slsTable[seqControl]].execute(hdl);
-
-            this.msgDeliveryExecutors[roundRobbing.getAndIncrement()].execute(hdl);
-
-            if(roundRobbing.get() == msgDeliveryExecutors.length){
-                roundRobbing.set(0);
-            }
+            //Positive position lower than length.
+            int executorPos = (roundRobbing.getAndIncrement() % msgDeliveryExecutors.length + msgDeliveryExecutors.length) % msgDeliveryExecutors.length;
+            this.msgDeliveryExecutors[executorPos].execute(hdl);
         } else {
             logger.error(String.format(
                     "Received Mtp3TransferPrimitive=%s but Mtp3UserPart is not started. Message will be dropped", msg));
