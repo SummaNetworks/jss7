@@ -489,11 +489,9 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
                         payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, false,
                                 SCTP_PAYLOAD_PROT_ID_M3UA, this.slsTable[seqControl]);
                         break;
-                    default:
-                        int nextValue = sctpStreamIndex.getAndIncrement();
-                        nextValue = (nextValue % maxEfectiveOutboundStreams) + 1;
+                    default: //SIGNALING_NETWORK_MANAGEMENT, ASP_TRAFFIC_MAINTENANCE
                         payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, true,
-                                SCTP_PAYLOAD_PROT_ID_M3UA, nextValue);
+                                SCTP_PAYLOAD_PROT_ID_M3UA, 0);
                         break;
                 }
                 this.association.send(payloadData);
@@ -710,6 +708,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
 
     @Override
     public void onCommunicationUp(Association association, int maxInboundStreams, int maxOutboundStreams) {
+        logger.info(String.format("onCommunicationUp(): maxInboundStreams %d, maxOutboundStreams %d",maxInboundStreams,maxOutboundStreams));
         this.maxOutboundStreams = maxOutboundStreams;
         sctpStreamIndex = new AtomicInteger(1);
         //There is a bug on linux sctp library so limit max out bound to 10.
