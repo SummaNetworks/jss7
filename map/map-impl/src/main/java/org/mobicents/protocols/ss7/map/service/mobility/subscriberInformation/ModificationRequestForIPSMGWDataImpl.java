@@ -32,8 +32,8 @@ public class ModificationRequestForIPSMGWDataImpl extends AbstractMAPAsnPrimitiv
     private ModificationInstruction modifyRegistrationStatus;
     private MAPExtensionContainer extensionContainer;
 
-    private static final int TAG_MODIFY_NOTIFICATION_TO_CSE = 1;
-    private static final int TAG_EXTENSION_CONTAINER = 2;
+    private static final int TAG_MODIFY_REGISTRATION_STATUS = 0;
+    private static final int TAG_EXTENSION_CONTAINER = 1;
 
 
     public static final String PRIMITIVE_NAME = "ModificationRequestForIPSMGWData";
@@ -61,9 +61,9 @@ public class ModificationRequestForIPSMGWDataImpl extends AbstractMAPAsnPrimitiv
             int tag = ais.readTag(); //
             if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
                 switch (tag) {
-                    case TAG_MODIFY_NOTIFICATION_TO_CSE:
+                    case TAG_MODIFY_REGISTRATION_STATUS:
                         modifyRegistrationStatus = ModificationInstruction.getInstance(
-                                new IntegerEncoderFacility(getPrimitiveName()).decode(ais, "modifyNotificationToCSE"));
+                                new IntegerEncoderFacility(getPrimitiveName()).decode(ais, "modifyRegistrationStatus"));
                         break;
                     case TAG_EXTENSION_CONTAINER:
                         extensionContainer = (MAPExtensionContainer) ObjectEncoderFacility.
@@ -95,7 +95,7 @@ public class ModificationRequestForIPSMGWDataImpl extends AbstractMAPAsnPrimitiv
 
         if (this.modifyRegistrationStatus != null) {
             IntegerEncoderFacility.encode(asnOs, modifyRegistrationStatus.getCode(), Tag.CLASS_CONTEXT_SPECIFIC,
-                    TAG_MODIFY_NOTIFICATION_TO_CSE, "modifyNotificationToCSE");
+                    TAG_MODIFY_REGISTRATION_STATUS, "modifyRegistrationStatus");
         }
         if (this.extensionContainer != null) {
             ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, TAG_EXTENSION_CONTAINER);
