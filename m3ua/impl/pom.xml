@@ -41,6 +41,14 @@
                         <groupId>javolution</groupId>
                         <artifactId>javolution</artifactId>
                 </dependency>
+
+		<!-- netty -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>${netty.version}</version>
+		</dependency>
+
                 <dependency>
                         <groupId>org.mobicents.protocols.ss7.mtp</groupId>
                         <artifactId>mtp</artifactId>

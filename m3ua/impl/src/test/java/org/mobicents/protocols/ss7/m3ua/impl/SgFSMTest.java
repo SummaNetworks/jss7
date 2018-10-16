@@ -33,12 +33,14 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import io.netty.buffer.ByteBufAllocator;
 import javolution.util.FastList;
 import javolution.util.FastMap;
 
 import org.mobicents.protocols.api.Association;
 import org.mobicents.protocols.api.AssociationListener;
 import org.mobicents.protocols.api.AssociationType;
+import org.mobicents.protocols.api.CongestionListener;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
 import org.mobicents.protocols.api.ManagementEventListener;
@@ -1577,7 +1579,7 @@ public class SgFSMTest {
 
     /**
      *
-     * @param factory
+     * @param testAssociation
      * @param msgClass
      * @param msgType
      * @param type The type for Notify message Or Error Code for Error Messages
@@ -1685,6 +1687,16 @@ public class SgFSMTest {
         public void send(PayloadData payloadData) throws Exception {
             M3UAMessage m3uaMessage = messageFactory.createSctpMessage(payloadData.getData());
             this.messageRxFromUserPart.add(m3uaMessage);
+        }
+
+        @Override
+        public ByteBufAllocator getByteBufAllocator() throws Exception {
+            return null;
+        }
+
+        @Override
+        public int getCongestionLevel() {
+            return 0;
         }
 
         @Override
@@ -1842,6 +1854,156 @@ public class SgFSMTest {
         }
 
         @Override
+        public double getCongControl_DelayThreshold_1() {
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_DelayThreshold_2() {
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_DelayThreshold_3() {
+            return 0;
+        }
+
+        @Override
+        public void setCongControl_DelayThreshold_1(double v) throws Exception {
+
+        }
+
+        @Override
+        public void setCongControl_DelayThreshold_2(double v) throws Exception {
+
+        }
+
+        @Override
+        public void setCongControl_DelayThreshold_3(double v) throws Exception {
+
+        }
+
+        @Override
+        public double getCongControl_BackToNormalDelayThreshold_1() {
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_BackToNormalDelayThreshold_2() {
+            return 0;
+        }
+
+        @Override
+        public double getCongControl_BackToNormalDelayThreshold_3() {
+            return 0;
+        }
+
+        @Override
+        public void setCongControl_BackToNormalDelayThreshold_1(double v) throws Exception {
+
+        }
+
+        @Override
+        public void setCongControl_BackToNormalDelayThreshold_2(double v) throws Exception {
+
+        }
+
+        @Override
+        public void setCongControl_BackToNormalDelayThreshold_3(double v) throws Exception {
+
+        }
+
+        @Override
+        public Boolean getOptionSctpDisableFragments() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSctpDisableFragments(Boolean aBoolean) {
+
+        }
+
+        @Override
+        public Integer getOptionSctpFragmentInterleave() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSctpFragmentInterleave(Integer integer) {
+
+        }
+
+        @Override
+        public Integer getOptionSctpInitMaxstreams_MaxOutStreams() {
+            return null;
+        }
+
+        @Override
+        public Integer getOptionSctpInitMaxstreams_MaxInStreams() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSctpInitMaxstreams_MaxOutStreams(Integer integer) {
+
+        }
+
+        @Override
+        public void setOptionSctpInitMaxstreams_MaxInStreams(Integer integer) {
+
+        }
+
+        @Override
+        public Boolean getOptionSctpNodelay() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSctpNodelay(Boolean aBoolean) {
+
+        }
+
+        @Override
+        public Integer getOptionSoSndbuf() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSoSndbuf(Integer integer) {
+
+        }
+
+        @Override
+        public Integer getOptionSoRcvbuf() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSoRcvbuf(Integer integer) {
+
+        }
+
+        @Override
+        public Integer getOptionSoLinger() {
+            return null;
+        }
+
+        @Override
+        public void setOptionSoLinger(Integer integer) {
+
+        }
+
+        @Override
+        public int getBufferSize() {
+            return 0;
+        }
+
+        @Override
+        public void setBufferSize(int i) throws Exception {
+
+        }
+
+        @Override
         public void setWorkerThreads(int arg0) {
             // TODO Auto-generated method stub
 
@@ -1944,6 +2106,16 @@ public class SgFSMTest {
         @Override
         public void removeManagementEventListener(ManagementEventListener arg0) {
             // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void addCongestionListener(CongestionListener congestionListener) {
+
+        }
+
+        @Override
+        public void removeCongestionListener(CongestionListener congestionListener) {
 
         }
 

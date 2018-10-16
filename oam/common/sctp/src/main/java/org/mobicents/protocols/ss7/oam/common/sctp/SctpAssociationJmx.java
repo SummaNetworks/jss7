@@ -21,6 +21,8 @@
  */
 package org.mobicents.protocols.ss7.oam.common.sctp;
 
+import io.netty.buffer.ByteBufAllocator;
+
 import javax.naming.OperationNotSupportedException;
 
 import org.mobicents.protocols.api.Association;
@@ -116,6 +118,11 @@ public class SctpAssociationJmx implements SctpAssociationJmxMBean {
     }
 
     @Override
+    public int getCongestionLevel() {
+        return this.wrappedAssociation.getCongestionLevel();
+    }
+
+    @Override
     public void rejectAnonymousAssociation() {
         // TODO Auto-generated method stub
 
@@ -124,6 +131,11 @@ public class SctpAssociationJmx implements SctpAssociationJmxMBean {
     @Override
     public void send(PayloadData arg0) throws Exception {
         throw new OperationNotSupportedException();
+    }
+
+    @Override
+    public ByteBufAllocator getByteBufAllocator() throws Exception {
+        return null;
     }
 
     @Override
