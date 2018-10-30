@@ -928,7 +928,7 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
             sb.append(this.interrogationType);
         }
 
-        if (this.orInterrogation != false)
+        if (this.orInterrogation)
             sb.append(", orInterrogation=TRUE");
 
         if (this.orCapability != null) {
@@ -971,7 +971,7 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
             sb.append(this.camelInfo);
         }
 
-        if (this.suppressionOfAnnouncement != false)
+        if (this.suppressionOfAnnouncement)
             sb.append(", suppressionOfAnnouncement=TRUE");
 
         if (this.extensionContainer != null) {
@@ -984,7 +984,7 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
             sb.append(this.alertingPattern);
         }
 
-        if (this.ccbsCall != false)
+        if (this.ccbsCall)
             sb.append(", ccbsCall=TRUE");
 
         if (this.supportedCCBSPhase != null) {
@@ -1002,7 +1002,7 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
             sb.append(this.istSupportIndicator);
         }
 
-        if (this.prePagingSupported != false)
+        if (this.prePagingSupported)
             sb.append(", prePagingSupportedr=TRUE");
 
         if (this.callDiversionTreatmentIndicator != null) {
@@ -1010,16 +1010,16 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
             sb.append(this.callDiversionTreatmentIndicator);
         }
 
-        if (this.longFTNSupported != false)
+        if (this.longFTNSupported)
             sb.append(", longFTNSupported=TRUE");
 
-        if (this.suppressVtCSI != false)
+        if (this.suppressVtCSI)
             sb.append(", suppressVtCSI=TRUE");
 
-        if (this.suppressIncomingCallBarring != false)
+        if (this.suppressIncomingCallBarring)
             sb.append(", suppressIncomingCallBarring=TRUE");
 
-        if (this.gsmSCFInitiatedCall != false)
+        if (this.gsmSCFInitiatedCall)
             sb.append(", gsmSCFInitiatedCall=TRUE");
 
         if (this.basicServiceGroup2 != null) {
@@ -1037,7 +1037,7 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
             sb.append(this.suppressMTSS);
         }
 
-        if (this.mtRoamingRetrySupported != false)
+        if (this.mtRoamingRetrySupported)
             sb.append(", mtRoamingRetrySupported=TRUE");
 
         if (this.callPriority != null) {

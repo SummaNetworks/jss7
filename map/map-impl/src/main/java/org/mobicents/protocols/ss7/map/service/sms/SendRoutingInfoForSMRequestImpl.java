@@ -22,6 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.sms;
 
+import java.io.IOException;
+
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -40,13 +42,12 @@ import org.mobicents.protocols.ss7.map.api.service.sms.SMDeliveryNotIntended;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_MTI;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_SMEA;
 import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRequest;
+import org.mobicents.protocols.ss7.map.datacoding.NullEncoderFacility;
 import org.mobicents.protocols.ss7.map.primitives.AddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
 import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.TeleserviceCodeImpl;
-
-import java.io.IOException;
 
 /**
  *
@@ -67,8 +68,8 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
     protected static final int _TAG_smDeliveryNotIntended = 10;
     protected static final int _TAG_ipSmGwGuidanceIndicator = 11;
     protected static final int _TAG_imsi = 12;
-    protected static final int _TAG_singleAttemptDelivery = 13;
     protected static final int _TAG_t4TriggerIndicator = 14;
+    protected static final int _TAG_singleAttemptDelivery = 13;
     protected static final int _TAG_correlationId = 15;
 
     protected String _PrimitiveName = "SendRoutingInfoForSMRequest";
@@ -79,21 +80,28 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
     private MAPExtensionContainer extensionContainer;
     private boolean gprsSupportIndicator;
     private SM_RP_MTI sM_RP_MTI;
-    private SM_RP_SMEAImpl sM_RP_SMEA;
+    private SM_RP_SMEA sM_RP_SMEA;
     private TeleserviceCode teleservice;
     private boolean ipSmGwGuidanceIndicator;
     private SMDeliveryNotIntended smDeliveryNotIntended;
     private boolean t4TriggerIndicator;
     private boolean singleAttemptDelivery;
     private IMSI imsi;
+    private long mapProtocolVersion;
 
     public SendRoutingInfoForSMRequestImpl() {
+        this(3);
+    }
+
+    public SendRoutingInfoForSMRequestImpl(long mapProtocolVersion) {
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
     public SendRoutingInfoForSMRequestImpl(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
-            MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator, SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA,
-            SMDeliveryNotIntended smDeliveryNotIntended, boolean ipSmGwGuidanceIndicator, IMSI imsi, boolean t4TriggerIndicator,
-            boolean singleAttemptDelivery, TeleserviceCode teleservice) {
+                                           MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator, SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA,
+                                           SMDeliveryNotIntended smDeliveryNotIntended, boolean ipSmGwGuidanceIndicator, IMSI imsi, boolean t4TriggerIndicator,
+                                           boolean singleAttemptDelivery) {
+        this.mapProtocolVersion = 3;
         this.msisdn = msisdn;
         this.sm_RP_PRI = sm_RP_PRI;
         this.serviceCentreAddress = serviceCentreAddress;
@@ -106,7 +114,55 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
         this.imsi = imsi;
         this.t4TriggerIndicator = t4TriggerIndicator;
         this.singleAttemptDelivery = singleAttemptDelivery;
+    }
+
+    /**
+     *
+     MAP V2: RoutingInfoForSM-Arg ::= SEQUENCE {
+     msisdn                  [0] ISDN-AddressString,
+     sm-RP-PRI               [1] BOOLEAN,
+     erviceCentreAddress     [2] AddressString,
+     teleservice             [5] TeleserviceCode OPTIONAL,
+     -- teleservice must be absent in version greater 1 ...
+     }
+     * @param msisdn
+     * @param sm_RP_PRI
+     * @param serviceCentreAddress
+     * @param teleservice
+     */
+    public SendRoutingInfoForSMRequestImpl(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
+                                           TeleserviceCode teleservice) {
+        this.mapProtocolVersion = 1;
+        this.msisdn = msisdn;
+        this.sm_RP_PRI = sm_RP_PRI;
+        this.serviceCentreAddress = serviceCentreAddress;
         this.teleservice = teleservice;
+    }
+
+    public SendRoutingInfoForSMRequestImpl(long mapProtocolVersion, ISDNAddressString msisdn, boolean sm_RP_PRI,
+                                           AddressString serviceCentreAddress, MAPExtensionContainer extensionContainer,
+                                           boolean gprsSupportIndicator, SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA,
+                                           TeleserviceCode teleservice, boolean ipSmGwGuidanceIndicator,
+                                           SMDeliveryNotIntended smDeliveryNotIntended, boolean t4TriggerIndicator,
+                                           boolean singleAttemptDelivery, IMSI imsi) {
+        this.msisdn = msisdn;
+        this.sm_RP_PRI = sm_RP_PRI;
+        this.serviceCentreAddress = serviceCentreAddress;
+        if (mapProtocolVersion==3) {
+            this.extensionContainer = extensionContainer;
+            this.gprsSupportIndicator = gprsSupportIndicator;
+            this.sM_RP_MTI = sM_RP_MTI;
+            this.sM_RP_SMEA = sM_RP_SMEA;
+            this.ipSmGwGuidanceIndicator = ipSmGwGuidanceIndicator;
+            this.smDeliveryNotIntended = smDeliveryNotIntended;
+            this.t4TriggerIndicator = t4TriggerIndicator;
+            this.singleAttemptDelivery = singleAttemptDelivery;
+            this.imsi = imsi;
+        }
+        if (mapProtocolVersion==1) {
+            this.teleservice = teleservice;
+        }
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
     public MAPMessageType getMessageType() {
@@ -181,6 +237,14 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
         return false;
     }
 
+    public long getMapProtocolVersion() {
+        return mapProtocolVersion;
+    }
+
+    public void setMapProtocolVersion(long mapProtocolVersion) {
+        this.mapProtocolVersion = mapProtocolVersion;
+    }
+
     public void decodeAll(AsnInputStream ansIS) throws MAPParsingComponentException {
 
         try {
@@ -231,7 +295,6 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
                 break;
 
             int tag = ais.readTag();
-
             switch (num) {
                 case 0:
                     // msisdn
@@ -300,7 +363,7 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
                                             + ".sM_RP_SMEA: Parameter sM_RP_SMEA is not primitive",
                                             MAPParsingComponentExceptionReason.MistypedParameter);
                                 this.sM_RP_SMEA = new SM_RP_SMEAImpl();
-                                this.sM_RP_SMEA.decodeAll(ais);
+                                ((SM_RP_SMEAImpl)this.sM_RP_SMEA).decodeAll(ais);
                                 break;
 
                             case _TAG_teleservice:
@@ -379,7 +442,6 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
     }
 
     public void encodeAll(AsnOutputStream asnOs) throws MAPException {
-
         this.encodeAll(asnOs, Tag.CLASS_UNIVERSAL, Tag.SEQUENCE);
     }
 
@@ -395,38 +457,44 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
         }
     }
 
+    @Override
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
 
         if (msisdn == null || serviceCentreAddress == null)
             throw new MAPException("msisdn, sm_RP_PRI and serviceCentreAddress must not be null");
 
         try {
+
             ((ISDNAddressStringImpl) this.msisdn).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_msisdn);
-            asnOs.writeBoolean(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sm_RP_PRI, this.sm_RP_PRI);
+
+            asnOs.writeBoolean(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sm_RP_PRI, sm_RP_PRI);
+
             ((AddressStringImpl) this.serviceCentreAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
                     _TAG_serviceCentreAddress);
 
-            if (this.extensionContainer != null)
-                ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
-                        _TAG_extensionContainer);
-            if (this.gprsSupportIndicator == true)
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_gprsSupportIndicator);
-            if (this.sM_RP_MTI != null)
-                asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sm_RP_MTI, this.sM_RP_MTI.getCode());
-            if (this.sM_RP_SMEA != null)
-                this.sM_RP_SMEA.encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sm_RP_SMEA);
-            if (this.teleservice != null)
-                ((TeleserviceCodeImpl) this.teleservice).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_teleservice);
-            if (this.smDeliveryNotIntended != null)
-                asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_smDeliveryNotIntended, this.smDeliveryNotIntended.getCode());
-            if (this.ipSmGwGuidanceIndicator == true)
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_ipSmGwGuidanceIndicator);
-            if (this.imsi != null)
-                ((IMSIImpl) this.imsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,_TAG_imsi);
-            if (this.t4TriggerIndicator == true)
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_t4TriggerIndicator);
-            if (this.singleAttemptDelivery == true)
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_singleAttemptDelivery);
+            if (this.mapProtocolVersion == 1 ) {
+                if (this.teleservice != null)
+                    ((TeleserviceCodeImpl) this.teleservice).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_teleservice);
+            } else {
+
+                if (this.extensionContainer != null)
+                    ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
+                            _TAG_extensionContainer);
+
+                NullEncoderFacility.encode(asnOs, gprsSupportIndicator, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_gprsSupportIndicator, "gprsSupportIndicator");
+
+                if (this.sM_RP_MTI != null)
+                    asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sm_RP_MTI, this.sM_RP_MTI.getCode());
+                if (this.sM_RP_SMEA != null)
+                    ((SM_RP_SMEAImpl)this.sM_RP_SMEA).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sm_RP_SMEA);
+                if (this.smDeliveryNotIntended != null)
+                    asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_smDeliveryNotIntended, this.smDeliveryNotIntended.getCode());
+                NullEncoderFacility.encode(asnOs, ipSmGwGuidanceIndicator, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_ipSmGwGuidanceIndicator, "ipSmGwGuidanceIndicator");
+                if (this.imsi != null)
+                    ((IMSIImpl) this.imsi).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_imsi);
+                NullEncoderFacility.encode(asnOs, t4TriggerIndicator, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_t4TriggerIndicator, "t4TriggerIndicator");
+                NullEncoderFacility.encode(asnOs, singleAttemptDelivery, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_singleAttemptDelivery, "singleAttemptDelivery");
+            }
         } catch (IOException e) {
             throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
         } catch (AsnException e) {
@@ -438,6 +506,9 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("SendRoutingInfoForSMRequest [");
+
+        sb.append("mapProtocolVersion=");
+        sb.append(mapProtocolVersion);
 
         if (this.getMAPDialog() != null) {
             sb.append("DialogId=").append(this.getMAPDialog().getLocalDialogId());

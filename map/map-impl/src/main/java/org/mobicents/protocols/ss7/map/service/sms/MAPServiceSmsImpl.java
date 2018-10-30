@@ -469,20 +469,23 @@ public class MAPServiceSmsImpl extends MAPServiceBaseImpl implements MAPServiceS
 
     private void sendRoutingInfoForSMRequest(Parameter parameter, MAPDialogSmsImpl mapDialogImpl, Long invokeId)
             throws MAPParsingComponentException {
+        long version = mapDialogImpl.getApplicationContext().getApplicationContextVersion().getVersion();
+        SendRoutingInfoForSMRequestImpl ind = new SendRoutingInfoForSMRequestImpl(version);
 
-        if (parameter == null)
+        if (parameter == null) {
             throw new MAPParsingComponentException(
                     "Error while decoding sendRoutingInfoForSMRequest: Parameter is mandatory but not found",
                     MAPParsingComponentExceptionReason.MistypedParameter);
+        }
 
-        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
+        if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive()) {
             throw new MAPParsingComponentException(
                     "Error while decoding sendRoutingInfoForSMRequest: Bad tag or tagClass or parameter is primitive, received tag="
                             + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+        }
 
         byte[] buf = parameter.getData();
         AsnInputStream ais = new AsnInputStream(buf);
-        SendRoutingInfoForSMRequestImpl ind = new SendRoutingInfoForSMRequestImpl();
         ind.decodeData(ais, buf.length);
 
         ind.setInvokeId(invokeId);
@@ -493,7 +496,7 @@ public class MAPServiceSmsImpl extends MAPServiceBaseImpl implements MAPServiceS
                 serLis.onMAPMessage(ind);
                 ((MAPServiceSmsListener) serLis).onSendRoutingInfoForSMRequest(ind);
             } catch (Exception e) {
-                loger.error("Error processing onSendRoutingInfoForSMIndication: " + e.getMessage(), e);
+                loger.error("Error processing sendRoutingInfoForSMRequest: " + e.getMessage(), e);
             }
         }
     }

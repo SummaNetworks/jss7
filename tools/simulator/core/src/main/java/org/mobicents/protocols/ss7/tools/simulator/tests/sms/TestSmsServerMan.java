@@ -22,6 +22,10 @@
 
 package org.mobicents.protocols.ss7.tools.simulator.tests.sms;
 
+import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import org.apache.log4j.Level;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextName;
@@ -91,10 +95,6 @@ import org.mobicents.protocols.ss7.tools.simulator.level3.MapMan;
 import org.mobicents.protocols.ss7.tools.simulator.level3.MapProtocolVersion;
 import org.mobicents.protocols.ss7.tools.simulator.level3.NumberingPlanMapType;
 import org.mobicents.protocols.ss7.tools.simulator.management.TesterHost;
-
-import java.nio.charset.Charset;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  *
@@ -482,7 +482,7 @@ public class TestSmsServerMan extends TesterBase implements TestSmsServerManMBea
             curDialog.setUserObject(hostMessageData);
 
             curDialog.addSendRoutingInfoForSMRequest(msisdn, true, serviceCentreAddress, null, this.testerHost.getConfigurationData()
-                    .getTestSmsServerConfigurationData().isGprsSupportIndicator(), null, null, null, false, null, false, false, null);
+                    .getTestSmsServerConfigurationData().isGprsSupportIndicator(), null, null, null, false, null, false, false);
 
             // this cap helps us give SCCP error if any
             // curDialog.setReturnMessageOnError(true);

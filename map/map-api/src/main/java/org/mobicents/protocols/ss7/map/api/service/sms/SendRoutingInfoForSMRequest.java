@@ -106,4 +106,8 @@ public interface SendRoutingInfoForSMRequest extends SmsMessage {
 
     SMDeliveryNotIntended getSmDeliveryNotIntended();
 
+    long getMapProtocolVersion();
+
+    void setMapProtocolVersion(long mapProtocolVersion);
+
 }
