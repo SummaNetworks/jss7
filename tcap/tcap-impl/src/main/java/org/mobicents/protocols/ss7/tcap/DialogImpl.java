@@ -234,7 +234,6 @@ public class DialogImpl implements Dialog {
     /**
      * Create a Dialog for previewMode
      *
-     * @param dialogId
      * @param localAddress
      * @param remoteAddress
      * @param seqControl
@@ -505,6 +504,21 @@ public class DialogImpl implements Dialog {
         }
     }
 
+    public List<Long> getScheduledOperationsCode(){
+        List<Long> result = null;
+        if(scheduledComponentList.size() > 0){
+            result = new ArrayList<>();
+            for(Component c: scheduledComponentList) {
+                if(c.getType().equals(ComponentType.Invoke)) {
+                    Invoke inv = (Invoke) c;
+                    OperationCodeImpl oc = (OperationCodeImpl) inv.getOperationCode();
+                    result.add(oc.getLocalOperationCode());
+                }
+            }
+        }
+        return result;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -624,7 +638,7 @@ public class DialogImpl implements Dialog {
                     // WHERE THE HELL THIS COMES FROM!!!!
                     // WHEN REJECTED IS USED !!!!!
                     Result res = TcapFactory.createResult();
-                    res.setResultType(ResultType.Accepted);
+                    res.setResultType(ResultType.Accepted);m3ua
                     ResultSourceDiagnostic rsd = TcapFactory.createResultSourceDiagnostic();
                     rsd.setDialogServiceUserType(DialogServiceUserType.Null);
                     apdu.setResultSourceDiagnostic(rsd);
