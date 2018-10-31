@@ -638,7 +638,7 @@ public class DialogImpl implements Dialog {
                     // WHERE THE HELL THIS COMES FROM!!!!
                     // WHEN REJECTED IS USED !!!!!
                     Result res = TcapFactory.createResult();
-                    res.setResultType(ResultType.Accepted);m3ua
+                    res.setResultType(ResultType.Accepted);
                     ResultSourceDiagnostic rsd = TcapFactory.createResultSourceDiagnostic();
                     rsd.setDialogServiceUserType(DialogServiceUserType.Null);
                     apdu.setResultSourceDiagnostic(rsd);
