@@ -65,6 +65,7 @@ public class SccpAddressImpl extends AbstractParameter implements XMLSerializabl
 
     // If this SccpAddress is translated address
     private boolean translated;
+    private int incomingOpc;
 
     public SccpAddressImpl() {
     }
@@ -99,6 +100,16 @@ public class SccpAddressImpl extends AbstractParameter implements XMLSerializabl
 
     public GlobalTitle getGlobalTitle() {
         return gt;
+    }
+
+    @Override
+    public int getIncomingOpc() {
+        return incomingOpc;
+    }
+
+    @Override
+    public void setIncomingOpc(int pc) {
+        this.incomingOpc = pc;
     }
 
     @Override

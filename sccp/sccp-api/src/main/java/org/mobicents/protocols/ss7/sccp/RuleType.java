@@ -28,7 +28,7 @@ package org.mobicents.protocols.ss7.sccp;
  *
  */
 public enum RuleType {
-    SOLITARY("Solitary"), DOMINANT("Dominant"), LOADSHARED("Loadshared"), BROADCAST("Broadcast");
+    SOLITARY("Solitary"), DOMINANT("Dominant"), LOADSHARED("Loadshared"), BROADCAST("Broadcast"), ORIGINATED("Originated");
 
     private final String type;
 
@@ -45,6 +45,8 @@ public enum RuleType {
             return LOADSHARED;
         } else if (BROADCAST.getValue().equalsIgnoreCase(type)) {
             return BROADCAST;
+        } else if (ORIGINATED.getValue().equalsIgnoreCase(type)) {
+            return ORIGINATED;
         }
         throw new IllegalArgumentException("Wrong value '"+type+"'");
     }

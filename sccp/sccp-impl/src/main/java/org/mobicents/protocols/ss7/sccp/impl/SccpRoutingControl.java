@@ -50,6 +50,7 @@ import org.mobicents.protocols.ss7.sccp.impl.message.SccpDataMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.message.SccpMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.message.SccpNoticeMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
+import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.message.SccpNoticeMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
@@ -490,6 +491,29 @@ public class SccpRoutingControl {
                     translationAddress = translationAddressPri;
                     translationAddress2 = translationAddressSec;
                     break;
+
+                case ORIGINATED:
+                    //Used origin PC.
+                    SccpAddress org =  msg.getCalledPartyAddress();
+                    if(org.getIncomingOpc() > 0) {
+                        SccpAddress sccpAddress = new SccpAddressImpl(org.getAddressIndicator().getRoutingIndicator(),
+                                org.getGlobalTitle(), org.getIncomingOpc(), org.getSubsystemNumber());
+                        msg.setCalledPartyAddress(sccpAddress);
+                    }else{
+                        //Used load shared.
+                        if (msg.getSccpCreatesSls()) {
+                            if (this.sccpStackImpl.newSelector())
+                                translationAddress = translationAddressPri;
+                            else
+                                translationAddress = translationAddressSec;
+                        } else {
+                            if (this.selectLoadSharingRoute(rule.getLoadSharingAlgorithm(), msg))
+                                translationAddress = translationAddressPri;
+                            else
+                                translationAddress = translationAddressSec;
+                        }
+                    }
+                    break;
             }
         }
 
@@ -507,19 +531,22 @@ public class SccpRoutingControl {
         }
 
         // translate address
-        SccpAddress address = rule.translate(calledPartyAddress, translationAddress);
-        msg.setCalledPartyAddress(address);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Matching rule found: [%s] CalledPartyAddress after translation = %s", rule, address));
+        if(translationAddress != null) {
+            SccpAddress address = rule.translate(calledPartyAddress, translationAddress);
+            msg.setCalledPartyAddress(address);
         }
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Matching rule found: [%s] CalledPartyAddress after translation = %s", rule, msg.getCalledPartyAddress()));
+        }
+
+        msg.getCallingPartyAddress().setIncomingOpc(msg.getIncomingOpc());
 
         // routing procedures then continue's
         this.route(msg);
 
         if (translationAddress2 != null) {
             // for broadcast mode - route to a secondary destination if it is available
-            address = rule.translate(calledPartyAddress, translationAddress2);
+            SccpAddress address = rule.translate(calledPartyAddress, translationAddress2);
             msg.setCalledPartyAddress(address);
             msg.clearReturnMessageOnError();
 

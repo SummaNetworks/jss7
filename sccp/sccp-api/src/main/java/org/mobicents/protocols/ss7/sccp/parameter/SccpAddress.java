@@ -24,24 +24,77 @@ package org.mobicents.protocols.ss7.sccp.parameter;
 import org.mobicents.protocols.ss7.indicator.AddressIndicator;
 
 /**
- * @author baranowb
+ * The interface Sccp address.
  *
+ * @author baranowb
  */
 public interface SccpAddress extends Parameter {
-    // calling party address
+    /**
+     * The constant CGA_PARAMETER_CODE.
+     */
+// calling party address
     int CGA_PARAMETER_CODE = 0x4;
-    // called party address
+    /**
+     * The constant CDA_PARAMETER_CODE.
+     */
+// called party address
     int CDA_PARAMETER_CODE = 0x3;
 
+    /**
+     * Is translated boolean.
+     *
+     * @return the boolean
+     */
     boolean isTranslated();
 
+    /**
+     * Sets translated.
+     *
+     * @param translated the translated
+     */
     void setTranslated(boolean translated);
 
+    /**
+     * Gets address indicator.
+     *
+     * @return the address indicator
+     */
     AddressIndicator getAddressIndicator();
 
+    /**
+     * Gets signaling point code.
+     *
+     * @return the signaling point code
+     */
     int getSignalingPointCode();
 
+    /**
+     * Gets subsystem number.
+     *
+     * @return the subsystem number
+     */
     int getSubsystemNumber();
 
+    /**
+     * Gets global title.
+     *
+     * @return the global title
+     */
     GlobalTitle getGlobalTitle();
+
+
+    /**
+     * Gets incoming opc. Used to ORIGINATED routing type.
+     *
+     * @return the incoming opc
+     */
+    int getIncomingOpc();
+
+
+    /**
+     * Sets incoming pc. Used to ORIGINATED routing type.
+     *
+     * @param pc the pc
+     */
+    void setIncomingOpc(int pc);
 }
