@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javolution.util.FastList;
 import javolution.util.FastSet;
@@ -112,6 +113,7 @@ public class AsImpl implements XMLSerializable, As {
     private NetworkAppearance networkAppearance = null;
 
     private final int[] slsVsAspTable = new int[256];
+    private static AtomicInteger aspTableIndex = new AtomicInteger();
 
     private int aspSlsMask = 0x07;
     private int aspSlsShiftPlaces = 0x00;
@@ -613,23 +615,20 @@ public class AsImpl implements XMLSerializable, As {
             isASPLocalFsm = false;
         }
 
-        int sls = message.getData().getSLS();
-
         switch (AsState.getState(fsm.getState().getName())) {
             case ACTIVE:
                 boolean aspFound = false;
 
-                // TODO : Algo to select correct ASP
-
-                int aspIndex = (sls & this.aspSlsMask);
-                aspIndex = (aspIndex >> this.aspSlsShiftPlaces);
+                int aspNumber = this.appServerProcs.size();
+                int aspIndex = 0;
+                if(aspNumber > 1)
+                    aspIndex = ((aspTableIndex.getAndIncrement() % aspNumber ) + aspNumber ) % aspNumber;
 
                 for (int i = 0; i < this.appServerProcs.size(); i++) {
-
-                    AspImpl aspTemp = (AspImpl) this.appServerProcs.get(this.slsVsAspTable[aspIndex++]);
+                    //AspImpl aspTemp = (AspImpl) this.appServerProcs.get(this.slsVsAspTable[aspIndex++]);
+                    AspImpl aspTemp = (AspImpl) this.appServerProcs.get(aspIndex);
 
                     FSM aspFsm = null;
-
                     if (isASPLocalFsm) {
                         aspFsm = aspTemp.getLocalFSM();
                     } else {
@@ -641,6 +640,8 @@ public class AsImpl implements XMLSerializable, As {
                         aspFound = true;
                         break;
                     }
+                    //Increment to check next asp.
+                    aspIndex = ((++aspIndex % aspNumber ) + aspNumber ) % aspNumber;
                 }// for
 
                 if (!aspFound) {
