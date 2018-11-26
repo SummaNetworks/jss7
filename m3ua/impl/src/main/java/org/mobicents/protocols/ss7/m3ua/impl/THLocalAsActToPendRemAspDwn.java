@@ -78,7 +78,7 @@ public class THLocalAsActToPendRemAspDwn implements TransitionHandler {
                     }
                 }// for
 
-                if (this.lbCount >= this.asImpl.getMinAspActiveForLb()) {
+                if (this.lbCount != 0 && this.lbCount >= this.asImpl.getMinAspActiveForLb()) {
                     // we still have more ASP's ACTIVE for lb. Don't change
                     // state
                     return false;
