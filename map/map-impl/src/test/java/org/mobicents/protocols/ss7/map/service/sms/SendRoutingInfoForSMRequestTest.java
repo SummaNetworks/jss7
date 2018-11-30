@@ -22,6 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.sms;
 
+import java.util.Arrays;
+
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -30,7 +32,6 @@ import org.mobicents.protocols.ss7.map.api.primitives.AddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.NumberingPlan;
-import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberManagement.TeleserviceCodeValue;
 import org.mobicents.protocols.ss7.map.api.service.sms.SMDeliveryNotIntended;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_MTI;
 import org.mobicents.protocols.ss7.map.api.service.sms.SM_RP_SMEA;
@@ -38,10 +39,7 @@ import org.mobicents.protocols.ss7.map.primitives.AddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.ISDNAddressStringImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerTest;
-import org.mobicents.protocols.ss7.map.service.mobility.subscriberManagement.TeleserviceCodeImpl;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -70,27 +68,27 @@ public class SendRoutingInfoForSMRequestTest {
     }
 
     private byte[] getEncodedData1() {
-        return new byte[] { 48, 20, -128, 5, -111, 17, 17, 17, 17, -127, 1, 0, -126, 5, -111, 34, 34, 34, 34, -123, 1, 33 };
+        return new byte[] {48, 17, -128, 5, -111, 17, 17, 17, 17, -127, 1, 0, -126, 5, -111, 34, 34, 34, 34};
     }
 
     private byte[] getEncodedData2() {
-        return new byte[] { 48,25,-128,5,-111,17,17,17,17,-127,1,-1,-126,5,-111,34,34,34,34,-121,0,-117,0,-114,0,-115,0 };
+        return new byte[] {48, 25, -128, 5, -111, 17, 17, 17, 17, -127, 1, -1, -126, 5, -111, 34, 34, 34, 34, -121, 0, -117, 0, -114, 0, -115, 0 };
     }
 
     private byte[] getEncodedData3() {
-        return new byte[] { 48,20,-128,5,-111,17,17,17,17,-127,1,0,-126,5,-111,34,34,34,34,-118,1,0 };
+        return new byte[] {48, 20, -128, 5, -111, 17, 17, 17, 17, -127, 1, 0, -126, 5, -111, 34, 34, 34, 34, -118, 1, 0 };
     }
 
 
     private byte[] getEncodedData4() {
-        return new byte[] { 48,25,-128,5,-111,17,17,17,17,-127,1,0,-126,5,-111,34,34,34,34,-116,6,81,20,69,81,20,69};
+        return new byte[] {48, 25, -128, 5, -111, 17, 17, 17, 17, -127, 1, 0, -126, 5, -111, 34, 34, 34, 34, -116, 6, 81, 20, 69, 81, 20, 69};
     }
 
     private byte[] getEncodedDataAll() {
-        return new byte[] { 48, 91, -128, 5, -111, 17, 17, 17, 17, -127, 1, -1, -126, 5, -111, 34, 34, 34, 34, -90,
-                39, -96, 32, 48, 10, 6, 3, 42, 3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42, 3, 6, 48, 11, 6, 3, 42, 3,
-                5, 21, 22, 23, 24, 25, 26, -95, 3, 31, 32, 33, -121, 0, -120, 1, 0, -119, 6, -111, 105, 49, 3, -105,
-                97, -123, 1, 33, -118, 1, 0, -117, 0, -116, 6, 81, 20, 69, 81, 20, 69, -114, 0, -115, 0};
+        return new byte[] {48, 88, -128, 5, -111, 17, 17, 17, 17, -127, 1, -1, -126, 5, -111, 34, 34, 34, 34, -90, 39,
+                -96, 32, 48, 10, 6, 3, 42, 3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42, 3, 6, 48, 11, 6, 3, 42, 3, 5, 21,
+                22, 23, 24, 25, 26, -95, 3, 31, 32, 33, -121, 0, -120, 1, 0, -119, 6, -111, 105, 49, 3, -105, 97, -118,
+                1, 0, -117, 0, -116, 6, 81, 20, 69, 81, 20, 69, -114, 0, -115, 0};
     }
 
     @Test(groups = { "functional.decode", "service.sms" })
@@ -188,7 +186,7 @@ public class SendRoutingInfoForSMRequestTest {
         assertNull(ind.getSM_RP_SMEA());
         assertNull(ind.getExtensionContainer());
         assertNull(ind.getSM_RP_MTI());
-        assertEquals(ind.getTeleservice().getTeleserviceCodeValue(), TeleserviceCodeValue.shortMessageMT_PP);
+        //assertEquals(ind.getTeleservice().getTeleserviceCodeValue(), TeleserviceCodeValue.shortMessageMT_PP);
 
         rawData = getEncodedDataAll();
         asn = new AsnInputStream(rawData);
@@ -218,7 +216,6 @@ public class SendRoutingInfoForSMRequestTest {
         assertEquals(ind.getImsi().getData(), "154154154154");
         assertEquals(ind.getT4TriggerIndicator(), true);
         assertEquals(ind.getSingleAttemptDelivery(), true);
-        assertEquals(ind.getTeleservice().getTeleserviceCodeValue(), TeleserviceCodeValue.shortMessageMT_PP);
 
     }
 
@@ -230,7 +227,7 @@ public class SendRoutingInfoForSMRequestTest {
                 "13457745551");
         AddressString sca = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "9821113333");
         SendRoutingInfoForSMRequestImpl ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null,
-                null, false, null, false, false, null);
+                null, false, null, false, false);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -243,7 +240,7 @@ public class SendRoutingInfoForSMRequestTest {
         msisdn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "13457745551");
         sca = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "9821113333");
         SM_RP_SMEA sm_rp_smea = new SM_RP_SMEAImpl(new byte[] { -111, 105, 49, 3, -105, 97 });
-        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, true, null, sm_rp_smea, null, false, null, false, false, null);
+        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, true, null, sm_rp_smea, null, false, null, false, false);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -257,7 +254,7 @@ public class SendRoutingInfoForSMRequestTest {
         sca = new AddressStringImpl(AddressNature.network_specific_number, NumberingPlan.national, "4444");
         sm_rp_smea = new SM_RP_SMEAImpl(new byte[] { -111, 105, 49, 3, -105, 97 });
         ind = new SendRoutingInfoForSMRequestImpl(msisdn, true, sca, MAPExtensionContainerTest.GetTestExtensionContainer(),
-                true, SM_RP_MTI.SMS_Status_Report, sm_rp_smea, null, false, null, false, false, null);
+                true, SM_RP_MTI.SMS_Status_Report, sm_rp_smea, null, false, null, false, false);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -269,8 +266,7 @@ public class SendRoutingInfoForSMRequestTest {
         //msisdn + sca + tc
         msisdn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "11111111");
         sca = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "22222222");
-        TeleserviceCodeImpl tc = new TeleserviceCodeImpl(TeleserviceCodeValue.shortMessageMT_PP);
-        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null, null, false, null, false, false, tc);
+        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null, null, false, null, false, false);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -282,7 +278,7 @@ public class SendRoutingInfoForSMRequestTest {
         //msisdn + sca + sm_RP_PRI + gprsSupportIndicator + ipSmGwGuidanceIndicator + t4TriggerIndicator + this.singleAttemptDelivery
         msisdn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "11111111");
         sca = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "22222222");
-        ind = new SendRoutingInfoForSMRequestImpl(msisdn, true, sca, null, true, null, null, null, true, null, true, true, null);
+        ind = new SendRoutingInfoForSMRequestImpl(msisdn, true, sca, null, true, null, null, null, true, null, true, true);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -296,7 +292,7 @@ public class SendRoutingInfoForSMRequestTest {
         msisdn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "11111111");
         sca = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "22222222");
         SMDeliveryNotIntended smDeliveryNotIntended = SMDeliveryNotIntended.onlyIMSIRequested;
-        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null, smDeliveryNotIntended, false, null, false, false, null);
+        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null, smDeliveryNotIntended, false, null, false, false);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -309,7 +305,7 @@ public class SendRoutingInfoForSMRequestTest {
         msisdn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "11111111");
         sca = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "22222222");
         IMSI imsi = new IMSIImpl("154154154154");
-        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null, null, false, imsi, false, false, null);
+        ind = new SendRoutingInfoForSMRequestImpl(msisdn, false, sca, null, false, null, null, null, false, imsi, false, false);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -320,7 +316,7 @@ public class SendRoutingInfoForSMRequestTest {
 
         //all
         ind = new SendRoutingInfoForSMRequestImpl(msisdn, true, sca, MAPExtensionContainerTest.GetTestExtensionContainer(),
-                true, SM_RP_MTI.SMS_Deliver, sm_rp_smea, smDeliveryNotIntended, true, imsi, true, true, tc);
+                true, SM_RP_MTI.SMS_Deliver, sm_rp_smea, smDeliveryNotIntended, true, imsi, true, true);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);

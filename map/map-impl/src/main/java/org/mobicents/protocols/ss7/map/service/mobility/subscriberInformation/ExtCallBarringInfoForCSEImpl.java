@@ -187,9 +187,15 @@ public class ExtCallBarringInfoForCSEImpl extends AbstractMAPAsnPrimitive implem
                             ((ExtCallBarringFeatureImpl) elem).decodeAll(ais2);
                             this.callBarringFeatureList.add(elem);
                         }
+                        if (this.callBarringFeatureList.size() < 1 || this.callBarringFeatureList.size() > 32) {
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter callBarringFeatureList size must be from 1 to 32, found: "
+                                    + this.callBarringFeatureList.size(), MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
+
                         break;
                     case TAG_PASSWORD:
-                        password = (Password) ObjectEncoderFacility.decodeObject(ais, new PasswordImpl(), "password", getPrimitiveName());
+                        password = (Password) ObjectEncoderFacility.decodePrimitiveObject(ais, new PasswordImpl(), "password", getPrimitiveName());
                         break;
                     case TAG_WRONG_PASSWORD_ATTEMPTS_COUNTER:
                         wrongPasswordAttemptsCounter = IntegerEncoderFacility.decode(ais, "wrongPasswordAttemptsCounter", getPrimitiveName());
@@ -253,17 +259,18 @@ public class ExtCallBarringInfoForCSEImpl extends AbstractMAPAsnPrimitive implem
         }
 
         if (this.password != null) {
-            ((PasswordImpl) this.password).encodeAll(asnOs);
+            ((PasswordImpl) this.password).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, TAG_PASSWORD);
         }
 
         if (this.wrongPasswordAttemptsCounter != null) {
-            IntegerEncoderFacility.encode(asnOs, wrongPasswordAttemptsCounter, "wrongPasswordAttemptsCounter");
+            IntegerEncoderFacility.encode(asnOs, wrongPasswordAttemptsCounter, Tag.CLASS_CONTEXT_SPECIFIC,
+                    TAG_WRONG_PASSWORD_ATTEMPTS_COUNTER,"wrongPasswordAttemptsCounter");
         }
 
-        NullEncoderFacility.encode(asnOs, this.notificationToCSE, "notificationToCSE");
+        NullEncoderFacility.encode(asnOs, this.notificationToCSE, Tag.CLASS_CONTEXT_SPECIFIC, TAG_NOTIFICATION_TO_CSE, "longFtnSupported");
 
         if (this.extensionContainer != null) {
-            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs);
+            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, TAG_EXTENSION_CONTAINER);
         }
 
     }
