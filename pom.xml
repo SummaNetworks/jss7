@@ -42,6 +42,8 @@
 
         <project.scm.id>git</project.scm.id>
 
+        <gpg.skip>true</gpg.skip>
+
         <!-- lic dep -->
 	</properties>
 
