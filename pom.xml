@@ -318,26 +318,35 @@
 
 	<profiles>
 		<profile>
-			<id>maven-release</id>
+			<id>release</id>
 			<modules />
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-release-plugin</artifactId>
+                        <version>2.5.3</version>
 						<configuration>
                             <tagNameFormat>@{project.version}</tagNameFormat>
-							<allowTimestampedSnapshots>true</allowTimestampedSnapshots>
-							<!-- preparationGoals>clean install</preparationGoals -->
 							<autoVersionSubmodules>true</autoVersionSubmodules>
 						</configuration>
 					</plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>release</id>
-			<modules />
 		</profile>
 		<profile>
 			<id>docs</id>
@@ -345,128 +354,18 @@
 				<module>docs</module>
 			</modules>
 		</profile>
-
-        <!-- Comes in parent -->
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                        <!--
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        -->
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-
-
-		<!--profile>
-			<id>release-sign-artifacts</id>
-			<activation>
-				<property>
-					<name>performRelease</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>install</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-						<version>2.1.2</version>
-						<executions>
-							<execution>
-								<id>attach-sources</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile-->
 	</profiles>
 	<developers>
-		<developer>
-			<id>serg.vetyutnev</id>
-			<name>Sergey</name>
-			<email>serg.vetyutnev@gmail.com</email>
-			<organization>TeleStax</organization>
-			<organizationUrl>http://telestax.com/</organizationUrl>
-			<roles>
-				<role>Active Developer</role>
-			</roles>
-			<timezone>+3</timezone>
-		</developer>
-		<developer>
-			<id>amit.bhayani</id>
-			<name>Amit Bhayani</name>
-			<email>amit.bhayani@gmail.com</email>
-			<organization>TeleStax</organization>
-			<organizationUrl>http://telestax.com/</organizationUrl>
-			<roles>
-				<role>Active Developer</role>
-			</roles>
-			<timezone>+5.5</timezone>
-		</developer>
-		<developer>
-			<id>baranowb</id>
-			<name>Bartosz Baranowski</name>
-			<email>baranowb@gmail.com</email>
-			<organization>JBoss/Red Hat</organization>
-			<organizationUrl>http://www.redhat.com/</organizationUrl>
-			<roles>
-				<role>Active Developer</role>
-			</roles>
-			<timezone>+1</timezone>
-		</developer>
-		<developer>
-			<id>oleg.kulikoff</id>
-			<name>Oleg Kulikoff</name>
-			<email>oleg.kulikoff@gmail.com</email>
-			<organization>JBoss/Red Hat</organization>
-			<organizationUrl>http://www.redhat.com/</organizationUrl>
-			<roles>
-				<role>Inactive Developer</role>
-			</roles>
-			<timezone>+3</timezone>
-		</developer>
+        <developer>
+            <id>antonio.jimenez</id>
+            <name>ajimenez</name>
+            <email>antonio.jimenez@summanetworks.com</email>
+            <organization>Summanetworks</organization>
+            <organizationUrl>http://summanetworks.com</organizationUrl>
+            <roles>
+                <role>Active Developer</role>
+            </roles>
+        </developer>
 	</developers>
 
 	<licenses>
@@ -489,11 +388,6 @@
             <name>Onevox Repository</name>
             <url>dav:https://devel.onevox.io/repository-snapshots</url>
         </snapshotRepository>
-        <site>
-            <id>onevox</id>
-            <name>Onevox archive</name>
-            <url>dav:https://devel.onevox.io/archive/${project.artifactId}/${project.version}</url>
-        </site>
     </distributionManagement>
 
 	<build>
