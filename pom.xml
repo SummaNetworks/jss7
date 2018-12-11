@@ -9,7 +9,7 @@
 
 	<artifactId>ss7-parent</artifactId>
 	<groupId>org.mobicents.protocols.ss7</groupId>
-	<version>7.0.0-SUMMA-1.1.12-SNAPSHOT</version>
+	<version>7.0.0-SUMMA-1.1.11-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -320,7 +320,7 @@
 
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>maven-release</id>
 			<build>
 				<plugins>
                     <plugin>
@@ -398,7 +398,7 @@
                 <configuration>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <releaseProfiles>release</releaseProfiles>
+                    <releaseProfiles>maven-release</releaseProfiles>
                 </configuration>
             </plugin>
 			<plugin>
