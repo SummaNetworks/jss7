@@ -319,8 +319,22 @@
 	</dependencyManagement>
 
 	<profiles>
+        <profile>
+            <id>maven-release</id>
+            <modules />
+        </profile>
+        <profile>
+            <id>release</id>
+            <modules />
+        </profile>
+        <profile>
+            <id>docs</id>
+            <modules>
+                <module>docs</module>
+            </modules>
+        </profile>
 		<profile>
-			<id>maven-release</id>
+			<id>summa-release</id>
 			<build>
 				<plugins>
                     <plugin>
@@ -340,12 +354,7 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>docs</id>
-			<modules>
-				<module>docs</module>
-			</modules>
-		</profile>
+
 	</profiles>
 	<developers>
         <developer>
@@ -398,7 +407,7 @@
                 <configuration>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <releaseProfiles>maven-release</releaseProfiles>
+                    <releaseProfiles>summa-release</releaseProfiles>
                 </configuration>
             </plugin>
 			<plugin>
