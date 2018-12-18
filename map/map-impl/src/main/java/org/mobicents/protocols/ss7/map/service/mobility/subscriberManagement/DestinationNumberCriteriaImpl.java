@@ -216,7 +216,7 @@ public class DestinationNumberCriteriaImpl extends SequenceBase implements Desti
                 && (this.destinationNumberLengthList.size() < 1 || this.destinationNumberLengthList.size() > 3)) {
             throw new MAPException("Error while encoding " + _PrimitiveName
                     + ": Parameter destinationNumberLengthList size must be from 1 to 3, found: "
-                    + this.destinationNumberList.size());
+                    + this.destinationNumberLengthList.size());
         }
 
         try {
