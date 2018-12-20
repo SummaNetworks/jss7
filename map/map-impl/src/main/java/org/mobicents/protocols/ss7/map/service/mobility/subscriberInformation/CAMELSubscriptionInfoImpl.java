@@ -394,7 +394,7 @@ public class CAMELSubscriptionInfoImpl extends AbstractMAPAsnPrimitive implement
                                     ais, new MAPExtensionContainerImpl(), "extensionContainer", getPrimitiveName());
                             break;
                         case _TAG_specificCSIDeletedList:
-                            this.specificCSIDeletedList = (SpecificCSIWithdraw) ObjectEncoderFacility.decodeObject(
+                            this.specificCSIDeletedList = (SpecificCSIWithdraw) ObjectEncoderFacility.decodePrimitiveObject(
                                     ais, new SpecificCSIWithdrawImpl(), "specificCSIDeletedList", getPrimitiveName());
                             break;
                         case _TAG_mt_sms_CSI:
