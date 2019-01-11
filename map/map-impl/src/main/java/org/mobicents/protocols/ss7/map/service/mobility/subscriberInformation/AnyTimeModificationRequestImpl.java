@@ -86,11 +86,11 @@ public class AnyTimeModificationRequestImpl extends MobilityMessageImpl implemen
 
     private static final int TAG_SUBSCRIBER_IDENTITY = 0;
     private static final int TAG_GSM_SCF_ADDRESS = 1;
-    private static final int TAG_EXTENSION_CONTAINER = 5;
-    private static final int TAG_LONG_FTN_SUPPORTED = 6;
     private static final int TAG_MODIFICATION_REQUEST_FOR_CF_INFO = 2;
     private static final int TAG_MODIFICATION_REQUEST_FOR_CB_INFO = 3;
     private static final int TAG_MODIFICATION_REQUEST_FOR_CSI = 4;
+    private static final int TAG_EXTENSION_CONTAINER = 5;
+    private static final int TAG_LONG_FTN_SUPPORTED = 6;
     private static final int TAG_MODIFICATION_REQUEST_FOR_ODB_DATA = 7;
     private static final int TAG_MODIFICATION_REQUEST_FOR_IP_SM_GW_DATA = 8;
     private static final int TAG_ACTIVATION_REQUEST_FOR_UE_REACHABILITY = 9;

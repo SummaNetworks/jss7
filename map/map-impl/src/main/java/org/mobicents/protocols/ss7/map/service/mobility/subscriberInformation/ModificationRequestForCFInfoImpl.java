@@ -117,7 +117,7 @@ public class ModificationRequestForCFInfoImpl extends AbstractMAPAsnPrimitive im
                         ssCode = (SSCode) ObjectEncoderFacility.decodePrimitiveObject(ais, new SSCodeImpl(), "ssCode", getPrimitiveName());
                         break;
                     case TAG_BASIC_SERVICE:
-                        basicService = (ExtBasicServiceCode) ObjectEncoderFacility.decodePrimitiveObject(ais, new ExtBasicServiceCodeImpl(), "basicService", getPrimitiveName());
+                        basicService = (ExtBasicServiceCode) ObjectEncoderFacility.decodeNestedObject(ais, new ExtBasicServiceCodeImpl(), "basicService", getPrimitiveName());
                         break;
                     case TAG_SS_STATUS:
                         ssStatus = (ExtSSStatus) ObjectEncoderFacility.decodePrimitiveObject(ais, new ExtSSStatusImpl(), "ssStatus", getPrimitiveName());
@@ -180,8 +180,15 @@ public class ModificationRequestForCFInfoImpl extends AbstractMAPAsnPrimitive im
 
         ((SSCodeImpl) this.ssCode).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, TAG_SS_CODE);
 
-        if (this.basicService != null) {
-            ((ExtBasicServiceCodeImpl) this.basicService).encodeAll(asnOs);
+        try {
+            if (this.basicService != null) { // explicit tag encoding
+                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, TAG_BASIC_SERVICE);
+                int pos = asnOs.StartContentDefiniteLength();
+                ((ExtBasicServiceCodeImpl) this.basicService).encodeAll(asnOs);
+                asnOs.FinalizeContent(pos);
+            }
+        } catch (AsnException e) {
+            throw new MAPException("IOException when encoding basicService: " + e.getMessage(), e);
         }
 
         if (this.ssStatus != null) {

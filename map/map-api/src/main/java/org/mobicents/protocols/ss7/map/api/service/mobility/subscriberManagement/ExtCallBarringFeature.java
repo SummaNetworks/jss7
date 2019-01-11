@@ -27,9 +27,11 @@ import java.io.Serializable;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
- *
- Ext-CallBarringFeature ::= SEQUENCE { basicService Ext-BasicServiceCode OPTIONAL, ss-Status [4] Ext-SS-Status,
- * extensionContainer ExtensionContainer OPTIONAL, ...}
+ * Ext-CallBarringFeature ::= SEQUENCE {
+ * basicService Ext-BasicServiceCode OPTIONAL,
+ * ss-Status [4] Ext-SS-Status,
+ * extensionContainer ExtensionContainer OPTIONAL,
+ * ...}
  *
  *
  *
