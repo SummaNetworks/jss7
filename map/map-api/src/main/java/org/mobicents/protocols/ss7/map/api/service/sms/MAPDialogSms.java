@@ -118,7 +118,7 @@ public interface MAPDialogSms extends MAPDialog {
             throws MAPException;
 
     Long addSendRoutingInfoForSMRequest(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
-                                               TeleserviceCode teleservice) throws MAPException;
+                                               TeleserviceCode teleservice, Long invokeId) throws MAPException;
 
     Long addSendRoutingInfoForSMRequest(int customInvokeTimeout, ISDNAddressString msisdn, boolean sm_RP_PRI,
                                                AddressString serviceCentreAddress, TeleserviceCode teleservice)

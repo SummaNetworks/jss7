@@ -310,9 +310,10 @@ public class MAPDialogSmsImpl extends MAPDialogImpl implements MAPDialogSms {
 
     @Override
     public Long addSendRoutingInfoForSMRequest(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
-            TeleserviceCode teleservice) throws MAPException {
+            TeleserviceCode teleservice, Long invokeId) throws MAPException {
         return this.addSendRoutingInfoForSMRequest(_Timer_Default, msisdn, sm_RP_PRI, serviceCentreAddress, null,
-                false, null, null, null, false, null, false, false, teleservice, null);
+                false, null, null, null, false,
+                null, false, false, teleservice, invokeId);
     }
 
     @Override
@@ -320,7 +321,8 @@ public class MAPDialogSmsImpl extends MAPDialogImpl implements MAPDialogSms {
                                                AddressString serviceCentreAddress, TeleserviceCode teleservice)
             throws MAPException {
         return addSendRoutingInfoForSMRequest(customInvokeTimeout, msisdn, sm_RP_PRI, serviceCentreAddress, null,
-                false, null, null, null, false, null, false, false, teleservice, null);
+                false, null, null, null, false,
+                null, false, false, teleservice, null);
     }
 
     @Override
