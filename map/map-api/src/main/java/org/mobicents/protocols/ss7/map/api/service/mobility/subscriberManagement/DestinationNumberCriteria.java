@@ -28,10 +28,13 @@ import java.util.ArrayList;
 import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 
 /**
- *
- DestinationNumberCriteria ::= SEQUENCE { matchType [0] MatchType, destinationNumberList [1] DestinationNumberList OPTIONAL,
- * destinationNumberLengthList [2] DestinationNumberLengthList OPTIONAL, -- one or both of destinationNumberList and
- * destinationNumberLengthList -- shall be present ...}
+ * DestinationNumberCriteria ::= SEQUENCE {
+ *      matchType [0] MatchType,
+ *      destinationNumberList [1] DestinationNumberList OPTIONAL,
+ *      destinationNumberLengthList [2] DestinationNumberLengthList OPTIONAL,
+ * -- one or both of destinationNumberList and destinationNumberLengthList
+ * -- shall be present ...
+ * }
  *
  * DestinationNumberList ::= SEQUENCE SIZE (1..10) OF ISDN-AddressString -- The receiving entity shall not check the format of a
  * number in -- the dialled number list

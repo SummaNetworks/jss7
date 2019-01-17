@@ -364,10 +364,10 @@ public class CAMELSubscriptionInfoImpl extends AbstractMAPAsnPrimitive implement
                                         ais4, new TBcsmCamelTdpCriteriaImpl(), "vtBcsmCamelTdpCriteriaList", getPrimitiveName()));
                             }
 
-                            if (this.oBcsmCamelTDPCriteriaList.size() < 1 || this.oBcsmCamelTDPCriteriaList.size() > 10) {
+                            if (this.vtBcsmCamelTdpCriteriaList.size() < 1 || this.vtBcsmCamelTdpCriteriaList.size() > 10) {
                                 throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                                        + ": Parameter oBcsmCamelTDPCriteriaList size must be from 1 to 10, found: "
-                                        + this.oBcsmCamelTDPCriteriaList.size(),
+                                        + ": Parameter vtBcsmCamelTdpCriteriaList size must be from 1 to 10, found: "
+                                        + this.vtBcsmCamelTdpCriteriaList.size(),
                                         MAPParsingComponentExceptionReason.MistypedParameter);
                             }
                             break;
