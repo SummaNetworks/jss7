@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>cap-parent</artifactId>
 		<groupId>org.mobicents.protocols.ss7.cap</groupId>
-		<version>7.1.12-SUMMA</version>
+		<version>7.1.13-SUMMA-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>cap-api</artifactId>
