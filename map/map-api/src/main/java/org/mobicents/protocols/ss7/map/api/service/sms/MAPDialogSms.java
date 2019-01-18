@@ -118,7 +118,7 @@ public interface MAPDialogSms extends MAPDialog {
             throws MAPException;
 
     Long addSendRoutingInfoForSMRequest(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
-                                               TeleserviceCode teleservice) throws MAPException;
+                                               TeleserviceCode teleservice, Long invokeId) throws MAPException;
 
     Long addSendRoutingInfoForSMRequest(int customInvokeTimeout, ISDNAddressString msisdn, boolean sm_RP_PRI,
                                                AddressString serviceCentreAddress, TeleserviceCode teleservice)
@@ -127,7 +127,7 @@ public interface MAPDialogSms extends MAPDialog {
     Long addSendRoutingInfoForSMRequest(ISDNAddressString msisdn, boolean sm_RP_PRI, AddressString serviceCentreAddress,
                                         MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator, SM_RP_MTI sM_RP_MTI, SM_RP_SMEA sM_RP_SMEA,
                                         SMDeliveryNotIntended smDeliveryNotIntended, boolean ipSmGwGuidanceIndicator, IMSI imsi, boolean t4TriggerIndicator,
-                                        boolean singleAttemptDelivery) throws MAPException;
+                                        boolean singleAttemptDelivery, Long invokeId) throws MAPException;
 
     Long addSendRoutingInfoForSMRequest(int customInvokeTimeout, ISDNAddressString msisdn, boolean sm_RP_PRI,
             AddressString serviceCentreAddress, MAPExtensionContainer extensionContainer, boolean gprsSupportIndicator,
