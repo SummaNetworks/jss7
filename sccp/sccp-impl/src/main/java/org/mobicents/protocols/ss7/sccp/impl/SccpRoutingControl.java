@@ -422,7 +422,7 @@ public class SccpRoutingControl {
             return;
         }
 
-        // Check whether to use primary or backup address
+        // Check validatiosn of primary and backup address
         SccpAddress translationAddressPri = this.sccpStackImpl.router.getRoutingAddress(rule.getPrimaryAddressId());
         TranslationAddressCheckingResult resPri = this.checkTranslationAddress(msg, rule, translationAddressPri, "primary");
         if (resPri == TranslationAddressCheckingResult.translationFailure) {
@@ -458,6 +458,7 @@ public class SccpRoutingControl {
 
         SccpAddress translationAddress = null;
         SccpAddress translationAddress2 = null;
+        //If only one is avaiable used it.
         if (resPri == TranslationAddressCheckingResult.destinationAvailable
                 && resSec != TranslationAddressCheckingResult.destinationAvailable) {
             translationAddress = translationAddressPri;
@@ -465,6 +466,7 @@ public class SccpRoutingControl {
                 && resSec == TranslationAddressCheckingResult.destinationAvailable) {
             translationAddress = translationAddressSec;
         } else {
+            //Both are avaiable, use ruleType
             switch (rule.getRuleType()) {
                 case SOLITARY:
                 case DOMINANT:

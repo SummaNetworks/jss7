@@ -93,7 +93,6 @@ public class THLocalAsActToPendRemAspInac implements TransitionHandler {
             if (this.asImpl.getTrafficModeType().getMode() == TrafficModeType.Broadcast) {
                 // We don't support this
                 return false;
-
             }
 
             if (this.asImpl.getTrafficModeType().getMode() == TrafficModeType.Loadshare) {
