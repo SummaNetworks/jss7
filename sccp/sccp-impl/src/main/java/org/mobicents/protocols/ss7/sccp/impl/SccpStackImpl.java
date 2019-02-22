@@ -681,7 +681,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
                 int dpc = mtp3Msg.getDpc();
                 int sls = mtp3Msg.getSls();
 
-                RemoteSignalingPointCode remoteSpc = this.getSccpResource().getRemoteSpcByPC(dpc);
+                    RemoteSignalingPointCode remoteSpc = this.getSccpResource().getRemoteSpcByPC(dpc);
                 if (remoteSpc == null) {
                     if (logger.isEnabledFor(Level.WARN)) {
                         logger.warn(String.format("Incoming Mtp3 Message for nonlocal dpc=%d. But RemoteSpc is not found", dpc));

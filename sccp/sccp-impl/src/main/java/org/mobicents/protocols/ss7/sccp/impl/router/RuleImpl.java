@@ -69,6 +69,9 @@ public class RuleImpl implements Rule, Serializable {
     private static final String MASK_IGNORE = "-";
     private static final String NETWORK_ID = "networkId";
 
+    private static final Integer WILD_CARD_NUMBERING_PLAN = 0; // we will use UNKNOWN for allowing all types of Numbering PLAN
+    private static final Integer WILD_CARD_NATURE_OF_ADDRESS = 0; // we will use UNKNOWN for allowing all types of Numbering PLAN
+    private static final Integer WILD_CARD_TRANSLAATION_TYPE = -1; // we will negative number as WILD_CARD
     private static final Logger logger = Logger.getLogger(RuleImpl.class);
     /**
      *
@@ -257,6 +260,18 @@ public class RuleImpl implements Rule, Serializable {
                 // lets use GT from received address
                 gt = createNewGT(address.getAddressIndicator().getGlobalTitleIndicator(), address.getGlobalTitle(),
                         translatedDigits);
+            } else {
+                if (primaryGt instanceof GlobalTitle0100){
+                    logger.debug("translate is using WILD CARD TT so using the one given by the address");
+                    //check if the TT is WILD_CARD (-1)
+                    boolean isWildCardTT = (((GlobalTitle0100)primaryGt).getTranslationType() < 0);
+                    int newTT = ((GlobalTitle0100)address.getGlobalTitle()).getTranslationType();
+                    GlobalTitle0100 newGt = new GlobalTitle0100Impl(address.getGlobalTitle().getDigits(), newTT,
+                            ((GlobalTitle0100)address.getGlobalTitle()).getEncodingScheme(),
+                            ((GlobalTitle0100)address.getGlobalTitle()).getNumberingPlan(),
+                            ((GlobalTitle0100)address.getGlobalTitle()).getNatureOfAddress());
+                    gt = createNewGT(address.getAddressIndicator().getGlobalTitleIndicator(), newGt, translatedDigits);
+                }
             }
         }
 
@@ -355,8 +370,11 @@ public class RuleImpl implements Rule, Serializable {
         }
 
 
-        if ( !matchGt( address, pattern ) ) {
-            return false; // Called GT didn't match. No point in going forward to match calling
+        //If we don't define a pattern for the CalledPartyAddress we won't to continue to the next one
+        if (pattern != null) {
+            if (!matchGt(address, pattern)) {
+                return false; // Called GT didn't match. No point in going forward to match calling
+            }
         }
 
         if ( patternCallingAddress == null || callingAddress == null) {
@@ -462,31 +480,43 @@ public class RuleImpl implements Rule, Serializable {
                     return false;
                 }
 
-                // translation type should match
-                if (((GlobalTitle0100) patternGT).getTranslationType() != gt2.getTranslationType()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("TT didn't match. Pattern TT=%s Address TT=%s Return  False",
-                                ((GlobalTitle0100) patternGT).getTranslationType(), gt2.getTranslationType()));
+                // translation type should match if we are not using * on the PATTERN
+                if (!WILD_CARD_TRANSLAATION_TYPE.equals(((GlobalTitle0100) patternGT).getTranslationType())) {
+                    if (((GlobalTitle0100) patternGT).getTranslationType() != gt2.getTranslationType()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("TT didn't match. Pattern TT=%s Address TT=%s Return  False",
+                                    ((GlobalTitle0100) patternGT).getTranslationType(), gt2.getTranslationType()));
+                        }
+                        return false;
                     }
-                    return false;
+                } else {
+                    logger.debug("TranslationType defined with WILD_CARD, continue!!");
                 }
 
                 // numbering plan should match
-                if (((GlobalTitle0100) patternGT).getNumberingPlan() != gt2.getNumberingPlan()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Np didn't match. Pattern Np=%s Address Np=%s Return  False",
-                                ((GlobalTitle0100) patternGT).getNumberingPlan(), gt2.getNumberingPlan()));
+                if (!WILD_CARD_NUMBERING_PLAN.equals(((GlobalTitle0100)patternGT).getNumberingPlan().getValue())) {
+                    if (((GlobalTitle0100) patternGT).getNumberingPlan() != gt2.getNumberingPlan()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Np didn't match. Pattern Np=%s Address Np=%s Return  False",
+                                    ((GlobalTitle0100) patternGT).getNumberingPlan(), gt2.getNumberingPlan()));
+                        }
+                        return false;
                     }
-                    return false;
+                } else {
+                    logger.debug("Numbering plan defined with WILD_CARD UNKNOWN, continue!!");
                 }
 
                 // nature of address must match
-                if (((GlobalTitle0100) patternGT).getNatureOfAddress() != gt2.getNatureOfAddress()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Noa didn't match. Pattern Noa=%s Address Noa=%s Return  False",
-                                ((GlobalTitle0100) patternGT).getNatureOfAddress(), gt2.getNatureOfAddress()));
+                if (!WILD_CARD_NATURE_OF_ADDRESS.equals(((GlobalTitle0100)patternGT).getNatureOfAddress().getValue())) {
+                    if (((GlobalTitle0100) patternGT).getNatureOfAddress() != gt2.getNatureOfAddress()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Noa didn't match. Pattern Noa=%s Address Noa=%s Return  False",
+                                    ((GlobalTitle0100) patternGT).getNatureOfAddress(), gt2.getNatureOfAddress()));
+                        }
+                        return false;
                     }
-                    return false;
+                } else {
+                    logger.debug("Nature of address defined with WILD_CARD UNKNOWN, continue!!");
                 }
 
                 // digits must match
