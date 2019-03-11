@@ -358,6 +358,10 @@ public class DialogImpl implements Dialog {
         this.networkId = networkId;
     }
 
+    public int getSeqControl(){
+        return this.seqControl;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -585,8 +589,10 @@ public class DialogImpl implements Dialog {
                 if (this.provider.getStack().getStatisticsEnabled()) {
                     this.provider.getStack().getCounterProviderImpl().updateTcBeginSentCount();
                 }
-                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
-                        this.seqControl, this.networkId);
+                this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError());
+//                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
+//                        this.seqControl, this.networkId);
+
                 this.scheduledComponentList.clear();
             } catch (Throwable e) {
                 // FIXME: remove freshly added invokes to free invoke ID??
@@ -665,15 +671,18 @@ public class DialogImpl implements Dialog {
                     if (this.provider.getStack().getStatisticsEnabled()) {
                         this.provider.getStack().getCounterProviderImpl().updateTcContinueSentCount();
                     }
-                    this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress,
-                            this.localAddress, this.seqControl, this.networkId);
                     this.setState(TRPseudoState.Active);
+                    this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError());
+//                    this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress,
+//                            this.localAddress, this.seqControl, this.networkId);
                     this.scheduledComponentList.clear();
                 } catch (Exception e) {
                     // FIXME: remove freshly added invokes to free invoke ID??
                     if (logger.isEnabledFor(Level.ERROR)) {
                         logger.error("Failed to send message: ", e);
                     }
+                    //Undo changes previous to call provider.
+                    this.setState(TRPseudoState.InitialReceived);
                     throw new TCAPSendException("Failed to send TC-Continue message: " + e.getMessage(), e);
                 }
 
@@ -696,8 +705,9 @@ public class DialogImpl implements Dialog {
                 try {
                     tcbm.encode(aos);
                     this.provider.getStack().getCounterProviderImpl().updateTcContinueSentCount();
-                    this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress,
-                            this.localAddress, this.seqControl, this.networkId);
+                    this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError());
+//                    this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress,
+//                            this.localAddress, this.seqControl, this.networkId);
                     this.scheduledComponentList.clear();
                 } catch (Exception e) {
                     // FIXME: remove freshly added invokes to free invoke ID??
@@ -823,8 +833,9 @@ public class DialogImpl implements Dialog {
                 if (this.provider.getStack().getStatisticsEnabled()) {
                     this.provider.getStack().getCounterProviderImpl().updateTcEndSentCount();
                 }
-                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
-                        this.seqControl, this.networkId);
+                this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError());
+//                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
+//                        this.seqControl, this.networkId);
 
                 this.scheduledComponentList.clear();
             } catch (Exception e) {
@@ -888,8 +899,9 @@ public class DialogImpl implements Dialog {
                 if (this.provider.getStack().getStatisticsEnabled()) {
                     this.provider.getStack().getCounterProviderImpl().updateTcUniSentCount();
                 }
-                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
-                        this.seqControl, this.networkId);
+                this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError());
+//                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
+//                        this.seqControl, this.networkId);
                 this.scheduledComponentList.clear();
             } catch (Exception e) {
                 if (logger.isEnabledFor(Level.ERROR)) {
@@ -993,8 +1005,9 @@ public class DialogImpl implements Dialog {
                     if (this.provider.getStack().getStatisticsEnabled()) {
                         this.provider.getStack().getCounterProviderImpl().updateTcUserAbortSentCount();
                     }
-                    this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress,
-                            this.localAddress, this.seqControl, this.networkId);
+                    this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError());
+//                    this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress,
+//                            this.localAddress, this.seqControl, this.networkId);
 
                     this.scheduledComponentList.clear();
                 } catch (Exception e) {
@@ -1838,7 +1851,8 @@ public class DialogImpl implements Dialog {
                     if (this.provider.getStack().getStatisticsEnabled()) {
                         this.provider.getStack().getCounterProviderImpl().updateTcPAbortSentCount();
                     }
-                    this.provider.send(aos.toByteArray(), false, this.remoteAddress, this.localAddress, this.seqControl, this.networkId);
+                    this.provider.send(this, aos.toByteArray(),false);
+//                    this.provider.send(aos.toByteArray(), false, this.remoteAddress, this.localAddress, this.seqControl, this.networkId);
                 } catch (Exception e) {
                     if (logger.isEnabledFor(Level.ERROR)) {
                         logger.error("Failed to send message: ", e);

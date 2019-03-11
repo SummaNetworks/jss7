@@ -33,7 +33,6 @@ import org.mobicents.protocols.ss7.tcap.api.tc.dialog.Dialog;
  *
  */
 public interface TCAPProvider extends Serializable {
-
     /**
      * Create new structured dialog.
      *

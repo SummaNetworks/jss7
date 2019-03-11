@@ -119,6 +119,41 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private int minSls = 0;
     private int maxSls = 256;
 
+    private DialogReplicator dialogReplicator;
+
+    /**
+     * TODO: Colocar en su sitio (modulo api junto a TCAPProvider ?)
+     * Replicator interface to be implemented by the holder if it holds others dialogs.
+     */
+    public interface DialogReplicator {
+
+        /**
+         * Create if exist a dialog replication for given local transaction Id.
+         * @param transactionId
+         * @param localAddress
+         * @param remoteAddress
+         * @return
+         */
+        DialogImpl replicate(long transactionId, SccpAddress localAddress, SccpAddress remoteAddress);
+
+
+        /**
+         * Ask replicator for refresh local DialogImpl with data from cache if exist.
+         * @param dialog
+         */
+        void refreshDialog(DialogImpl dialog);
+
+
+        /**
+         * Ask replicator for refresh cache with local dialog.
+         * @param dialog
+         */
+        void refreshCache(DialogImpl dialog);
+    }
+
+    public void setDialogReplicator(DialogReplicator dialogReplicator) {
+        this.dialogReplicator = dialogReplicator;
+    }
 
     /**
      *
@@ -311,6 +346,13 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
 
     protected long getCurrentDialogsCount() {
         return this.dialogs.size();
+    }
+
+    public void send(DialogImpl dialog, byte[] data, boolean returnMessageOnError) throws IOException {
+        if(this.dialogReplicator != null){
+            this.dialogReplicator.refreshCache(dialog);
+        }
+        send(data, returnMessageOnError, dialog.getRemoteAddress(), dialog.getLocalAddress(), dialog.getSeqControl(), dialog.getNetworkId());
     }
 
     public void send(byte[] data, boolean returnMessageOnError, SccpAddress destinationAddress, SccpAddress originatingAddress,
@@ -534,6 +576,10 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         this.dialogPreviewList.clear();
     }
 
+//    protected void sendProviderAbort(PAbortCauseType pAbortCause, byte[] remoteTransactionId, SccpAddress remoteAddress,
+//                                     SccpAddress localAddress, int seqControl, int networkId) {
+//        sendProviderAbort(null, pAbortCause, remoteTransactionId, remoteAddress, localAddress, seqControl, networkId);
+//    }
     protected void sendProviderAbort(PAbortCauseType pAbortCause, byte[] remoteTransactionId, SccpAddress remoteAddress,
             SccpAddress localAddress, int seqControl, int networkId) {
         if (this.stack.getPreviewMode())
@@ -549,6 +595,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             if (this.stack.getStatisticsEnabled()) {
                 this.stack.getCounterProviderImpl().updateTcPAbortSentCount();
             }
+            //this.send(dialog, aos.toByteArray(), false);
             this.send(aos.toByteArray(), false, remoteAddress, localAddress, seqControl, networkId);
         } catch (Exception e) {
             if (logger.isEnabledFor(Level.ERROR)) {
@@ -587,6 +634,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             if (this.stack.getStatisticsEnabled()) {
                 this.stack.getCounterProviderImpl().updateTcPAbortSentCount();
             }
+            //this.send(dialog, aos.toByteArray(), false);
             this.send(aos.toByteArray(), false, remoteAddress, localAddress, seqControl, networkId);
         } catch (Exception e) {
             if (logger.isEnabledFor(Level.ERROR)) {
@@ -665,6 +713,14 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     di = (DialogImpl) this.getPreviewDialog(ky1, ky2, localAddress, remoteAddress, seqControl);
                 } else {
                     di = this.dialogs.get(dialogId);
+                    if(di == null && dialogReplicator != null){
+                        di = dialogReplicator.replicate(dialogId, localAddress, remoteAddress);
+                        if(di != null){
+                            this.dialogs.put(dialogId, di);
+                        }
+                    }else if(dialogReplicator != null){
+                        dialogReplicator.refreshDialog(di);
+                    }
                 }
                 if (di == null) {
                     logger.warn("TC-CONTINUE: No dialog/transaction for id: " + dialogId);
@@ -761,6 +817,14 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     di = (DialogImpl) this.getPreviewDialog(ky, null, localAddress, remoteAddress, seqControl);
                 } else {
                     di = this.dialogs.get(dialogId);
+                    if(di == null && dialogReplicator != null){
+                        di = dialogReplicator.replicate(dialogId, localAddress, remoteAddress);
+                        if(di != null){
+                            this.dialogs.put(dialogId, di);
+                        }
+                    }else if(dialogReplicator != null){
+                        dialogReplicator.refreshDialog(di);
+                    }
                 }
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
@@ -791,6 +855,14 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     di = (DialogImpl) this.getPreviewDialog(ky, null, localAddress, remoteAddress, seqControl);
                 } else {
                     di = this.dialogs.get(dialogId);
+                    if(di == null && dialogReplicator != null){
+                        di = dialogReplicator.replicate(dialogId, localAddress, remoteAddress);
+                        if(di != null){
+                            this.dialogs.put(dialogId, di);
+                        }
+                    }else if(dialogReplicator != null){
+                        dialogReplicator.refreshDialog(di);
+                    }
                 }
                 if (di == null) {
                     logger.warn("TC-ABORT: No dialog/transaction for id: " + dialogId);
@@ -871,6 +943,14 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             if (tcUnidentified.getOriginatingTransactionId() != null) {
                 long otid = Utils.decodeTransactionId(tcUnidentified.getOriginatingTransactionId());
                 dialog = this.dialogs.get(otid);
+                if(dialog == null && dialogReplicator != null){
+                    dialog = dialogReplicator.replicate(otid,msg.getCalledPartyAddress(),msg.getCallingPartyAddress());
+                    if(dialog != null){
+                        this.dialogs.put(otid, dialog);
+                    }
+                }else if(dialogReplicator != null){
+                    dialogReplicator.refreshDialog(dialog);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

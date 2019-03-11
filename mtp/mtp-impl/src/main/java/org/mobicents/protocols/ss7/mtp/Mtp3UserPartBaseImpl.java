@@ -27,6 +27,7 @@ package org.mobicents.protocols.ss7.mtp;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -180,9 +181,22 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.msgDeliveryExecutors = new ExecutorService[this.deliveryTransferMessageThreadCount];
         for (int i = 0; i < this.deliveryTransferMessageThreadCount; i++) {
+            final int executorIdx = i;
             this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1
                     //, new ("Mtp3-DeliveryExecutor-" + i)
-                     );
+                    , new ThreadFactory() {
+                        private int idx = 0;
+                        @Override
+                        public Thread newThread(Runnable r) {
+                            Thread t = new Thread(r, "Mtp3DeliveryExecutor-"+executorIdx+"-th-" + idx++);
+                            if (t.isDaemon())
+                                t.setDaemon(false);
+                            if (t.getPriority() != Thread.NORM_PRIORITY)
+                                t.setPriority(Thread.NORM_PRIORITY);
+                            return t;
+                        }
+                    }
+                );
         }
         this.msgDeliveryExecutorSystem = Executors.newSingleThreadScheduledExecutor(
                 //new DefaultThreadFactory("Mtp3-DeliveryExecutorSystem")
