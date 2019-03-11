@@ -140,6 +140,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     private int maxSequenceNumber = M3UAManagementImpl.MAX_SEQUENCE_NUMBER;
     private int[] slsTable = null;
     private int maxOutboundStreams;
+    private int maxInboundStreams;
     private int maxEfectiveOutboundStreams = 10;
 
     protected AspFactoryStopTimer aspFactoryStopTimer = null;
@@ -330,6 +331,14 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
 
     public String getName() {
         return this.name;
+    }
+
+    public int getMaxOutboundStreams() {
+        return maxOutboundStreams;
+    }
+
+    public int getMaxInboundStreams() {
+        return maxInboundStreams;
     }
 
     protected void read(M3UAMessage message) {
@@ -710,6 +719,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     public void onCommunicationUp(Association association, int maxInboundStreams, int maxOutboundStreams) {
         logger.info(String.format("onCommunicationUp(): maxInboundStreams %d, maxOutboundStreams %d",maxInboundStreams,maxOutboundStreams));
         this.maxOutboundStreams = maxOutboundStreams;
+        this.maxInboundStreams = maxInboundStreams;
         sctpStreamIndex = new AtomicInteger(1);
         //There is a bug on linux sctp library so limit max out bound to 10.
         this.maxEfectiveOutboundStreams = this.maxOutboundStreams <= 10 ? this.maxOutboundStreams: 10;

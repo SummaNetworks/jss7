@@ -29,6 +29,7 @@ import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
 /**
  *
  * @author amit bhayani
+ * @author ajimenez
  *
  */
 public interface AspFactory {
@@ -48,4 +49,8 @@ public interface AspFactory {
     ASPIdentifier getAspid();
 
     boolean isHeartBeatEnabled();
+
+    int getMaxOutboundStreams();
+
+    int getMaxInboundStreams();
 }

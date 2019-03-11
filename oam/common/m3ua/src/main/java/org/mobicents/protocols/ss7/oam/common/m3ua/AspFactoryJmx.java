@@ -34,7 +34,7 @@ import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
 
 /**
  * @author amit bhayani
- *
+ * @author ajimenez
  */
 public class AspFactoryJmx implements AspFactoryJmxMBean {
 
@@ -123,4 +123,14 @@ public class AspFactoryJmx implements AspFactoryJmxMBean {
         return this.wrappedAspFactory.isHeartBeatEnabled();
     }
 
+
+    @Override
+    public int getMaxOutboundStreams() {
+        return this.wrappedAspFactory.getMaxOutboundStreams();
+    }
+
+    @Override
+    public int getMaxInboundStreams() {
+        return this.wrappedAspFactory.getMaxInboundStreams();
+    }
 }
