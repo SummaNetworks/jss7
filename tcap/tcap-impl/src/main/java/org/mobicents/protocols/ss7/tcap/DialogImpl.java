@@ -504,15 +504,18 @@ public class DialogImpl implements Dialog {
         }
     }
 
-    public List<Long> getScheduledOperationsCode(){
+    /**
+     * Return pending invokeId to be respond from server.
+     * @return
+     */
+    @Override
+    public List<Long> getScheduledComponentsInvokeId(){
         List<Long> result = null;
         if(scheduledComponentList.size() > 0){
             result = new ArrayList<>();
             for(Component c: scheduledComponentList) {
-                if(c.getType().equals(ComponentType.Invoke)) {
-                    Invoke inv = (Invoke) c;
-                    OperationCodeImpl oc = (OperationCodeImpl) inv.getOperationCode();
-                    result.add(oc.getLocalOperationCode());
+                if(!c.getType().equals(ComponentType.Invoke)) {
+                    result.add(c.getInvokeId());
                 }
             }
         }
