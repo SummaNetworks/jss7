@@ -57,4 +57,5 @@ public interface MAPPrivateExtension extends Serializable {
      */
     void setData(byte[] data);
 
+    //ExtensionType getExtensionType();
 }

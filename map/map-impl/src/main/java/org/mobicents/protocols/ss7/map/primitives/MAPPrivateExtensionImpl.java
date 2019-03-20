@@ -36,8 +36,6 @@ import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPPrivateExtension;
-import org.mobicents.protocols.ss7.map.api.primitives.nokia.ExtensionType;
-import org.mobicents.protocols.ss7.map.api.primitives.nokia.ExtensionTypeImpl;
 
 /**
  * @author sergey vetyutnev
@@ -49,11 +47,9 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
     private static final String DATA = "data";
 
     private static final String DEFAULT_STRING = null;
-    public static final long[] NOKIA_OID = {1, 2, 826, 0, 1249, 58, 1, 0};
 
     private long[] oId;
     private byte[] data;
-    private ExtensionType extensionType = null;
 
     public MAPPrivateExtensionImpl() {
     }
@@ -97,11 +93,6 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
      */
     public void setData(byte[] data) {
         this.data = data;
-    }
-
-    @Override
-    public ExtensionType getExtensionType() {
-        return extensionType;
     }
 
     public int getTag() throws MAPException {
@@ -170,40 +161,12 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
 
         // extType
         if (ansIS.available() > 0) {
-            //this.data = new byte[ansIS.available()];
             this.data = new byte[ansIS.available()];
             ansIS.read(this.data);
-
-            if (Arrays.equals(NOKIA_OID, this.oId)){
-                AsnInputStream localAis2 = new AsnInputStream(this.data);
-
-                // TODO mapPrivateExtension.data
-                extensionType = new ExtensionTypeImpl();
-                ((ExtensionTypeImpl) this.extensionType).decodeAll(localAis2);
-            } else {
-            }
-
-        } else {
-            this.data = null;
-        }
-    }
-
-    /*
-
-        // extType
-        if (ansIS.available() > 0) {
-            this.data = new byte[ansIS.available()];
-            if (Arrays.equals(NOKIA_OID, this.oId)){
-                // TODO mapPrivateExtension.data
-                extensionType = new ExtensionTypeImpl();
-                int length = ansIS.readLength();
-                ((ExtensionTypeImpl) extensionType)._decode(ansIS, length);
-            } else {
-                ansIS.read(this.data);
-            }
         } else
             this.data = null;
-     */
+    }
+
     public void encodeAll(AsnOutputStream asnOs) throws MAPException {
         this.encodeAll(asnOs, Tag.CLASS_UNIVERSAL, Tag.SEQUENCE);
     }
