@@ -1128,7 +1128,7 @@ public class TestSmsClientMan extends TesterBase implements TestSmsClientManMBea
 
             switch (sriReaction.intValue()) {
             case SRIReaction.VAL_RETURN_SUCCESS:
-                li = mapProvider.getMAPParameterFactory().createLocationInfoWithLMSI(networkNodeNumber, null, null, false, null);
+                li = mapProvider.getMAPParameterFactory().createLocationInfoWithLMSI(3, networkNodeNumber, null, null, false, null);
                 curDialog.addSendRoutingInfoForSMResponse(invokeId, imsi, li, null, null, null);
 
                 this.countSriResp++;
@@ -1143,7 +1143,7 @@ public class TestSmsClientMan extends TesterBase implements TestSmsClientManMBea
 
             case SRIReaction.VAL_RETURN_SUCCESS_WITH_LMSI:
                 LMSI lmsi = mapProvider.getMAPParameterFactory().createLMSI(new byte[] { 11, 12, 13, 14 });
-                li = mapProvider.getMAPParameterFactory().createLocationInfoWithLMSI(networkNodeNumber, lmsi, null, false, null);
+                li = mapProvider.getMAPParameterFactory().createLocationInfoWithLMSI(3, networkNodeNumber, lmsi, null, false, null);
                 curDialog.addSendRoutingInfoForSMResponse(invokeId, imsi, li, null, null, null);
 
                 this.countSriResp++;

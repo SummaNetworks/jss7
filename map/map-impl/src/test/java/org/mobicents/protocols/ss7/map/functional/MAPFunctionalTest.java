@@ -2310,7 +2310,7 @@ public class MAPFunctionalTest extends SccpHarness {
                             // this.mapParameterFactory.createAddressString(AddressNature.international_number,
                             // NumberingPlan.ISDN, "1122334455");
                             IMSI imsi = this.mapParameterFactory.createIMSI("777222");
-                            LocationInfoWithLMSI locationInfoWithLMSI = this.mapParameterFactory.createLocationInfoWithLMSI(
+                            LocationInfoWithLMSI locationInfoWithLMSI = this.mapParameterFactory.createLocationInfoWithLMSI(3,
                                     msisdn, null, null, false, null);
                             clientDialogSms.addSendRoutingInfoForSMResponse(invokeId1, imsi, locationInfoWithLMSI, null, null, null);
 
@@ -4016,7 +4016,7 @@ public class MAPFunctionalTest extends SccpHarness {
                 ISDNAddressString sgsnAdditionalNumber = this.mapParameterFactory.createISDNAddressString(
                         AddressNature.subscriber_number, NumberingPlan.private_plan, "000111000");
                 AdditionalNumber additionalNumber = this.mapParameterFactory.createAdditionalNumberSgsnNumber(sgsnAdditionalNumber);
-                LocationInfoWithLMSI locationInfoWithLMSI = this.mapParameterFactory.createLocationInfoWithLMSI(networkNodeNumber, lmsi,
+                LocationInfoWithLMSI locationInfoWithLMSI = this.mapParameterFactory.createLocationInfoWithLMSI(3, networkNodeNumber, lmsi,
                         MAPExtensionContainerTest.GetTestExtensionContainer(), true, additionalNumber);
 
                 ISDNAddressString storedMSISDN = this.mapParameterFactory.createISDNAddressString(

@@ -183,8 +183,8 @@ public class SendRoutingInfoForSMResponseTest {
         ISDNAddressString nnn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "12032100295");
         LMSI lmsi = new LMSIImpl(new byte[] { 0, 3, 98, 49 });
 
-        LocationInfoWithLMSI li = new LocationInfoWithLMSIImpl(nnn, lmsi, null, false, null);
-        SendRoutingInfoForSMResponseImpl ind = new SendRoutingInfoForSMResponseImpl(imsi, li, null, null, null);
+        LocationInfoWithLMSI li = new LocationInfoWithLMSIImpl(3, nnn, lmsi, null, false, null);
+        SendRoutingInfoForSMResponseImpl ind = new SendRoutingInfoForSMResponseImpl(imsi, li, null, null);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -199,8 +199,8 @@ public class SendRoutingInfoForSMResponseTest {
         ISDNAddressString sgsnAdditionalNumber = new ISDNAddressStringImpl(AddressNature.national_significant_number,
                 NumberingPlan.land_mobile, "99999999");
         AdditionalNumber additionalNumber = new AdditionalNumberImpl(sgsnAdditionalNumber, false);
-        li = new LocationInfoWithLMSIImpl(nnn, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), false, additionalNumber);
-        ind = new SendRoutingInfoForSMResponseImpl(imsi, li, MAPExtensionContainerTest.GetTestExtensionContainer(), null, null);
+        li = new LocationInfoWithLMSIImpl(3, nnn, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), false, additionalNumber);
+        ind = new SendRoutingInfoForSMResponseImpl(imsi, li, MAPExtensionContainerTest.GetTestExtensionContainer(), null);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -211,8 +211,8 @@ public class SendRoutingInfoForSMResponseTest {
 
         imsi = new IMSIImpl("25001111111111");
         nnn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "7999911111");
-        li = new LocationInfoWithLMSIImpl(nnn, null, null, false, null);
-        ind = new SendRoutingInfoForSMResponseImpl(imsi, li, null, false, null);
+        li = new LocationInfoWithLMSIImpl(3, nnn, null, null, false, null);
+        ind = new SendRoutingInfoForSMResponseImpl(imsi, li, null, null);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);
@@ -223,9 +223,9 @@ public class SendRoutingInfoForSMResponseTest {
 
         imsi = new IMSIImpl("25001111111111");
         nnn = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "7999911111");
-        li = new LocationInfoWithLMSIImpl(nnn, null, null, false, null);
+        li = new LocationInfoWithLMSIImpl(3, nnn, null, null, false, null);
         IpSmGwGuidanceImpl ipSmGwGuidance = new IpSmGwGuidanceImpl(10, 20, null);
-        ind = new SendRoutingInfoForSMResponseImpl(imsi, li, null, false, ipSmGwGuidance);
+        ind = new SendRoutingInfoForSMResponseImpl(imsi, li, null,  ipSmGwGuidance);
 
         asnOS = new AsnOutputStream();
         ind.encodeAll(asnOS);

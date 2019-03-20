@@ -71,7 +71,7 @@ public class LocationInfoWithLMSITest {
         AsnInputStream asn = new AsnInputStream(rawData);
 
         int tag = asn.readTag();
-        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl();
+        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl(3);
         liw.decodeAll(asn);
 
         assertEquals(tag, 0);
@@ -89,7 +89,7 @@ public class LocationInfoWithLMSITest {
         asn = new AsnInputStream(rawData);
 
         tag = asn.readTag();
-        liw = new LocationInfoWithLMSIImpl();
+        liw = new LocationInfoWithLMSIImpl(3);
         liw.decodeAll(asn);
 
         assertEquals(tag, 0);
@@ -113,7 +113,7 @@ public class LocationInfoWithLMSITest {
 
         ISDNAddressString nnm = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "79033700222");
         LMSIImpl lmsi = new LMSIImpl(new byte[] { 0, 3, 98, 49 });
-        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl(nnm, lmsi, null, false, null);
+        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl(3, nnm, lmsi, null, false, null);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         liw.encodeAll(asnOS, Tag.CLASS_CONTEXT_SPECIFIC, 0);
@@ -127,7 +127,7 @@ public class LocationInfoWithLMSITest {
                 "987654321");
         lmsi = new LMSIImpl(new byte[] { 4, 3, 2, 1 });
         AdditionalNumber an = new AdditionalNumberImpl(sgsnAn, false);
-        liw = new LocationInfoWithLMSIImpl(nnm, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), true, an);
+        liw = new LocationInfoWithLMSIImpl(3, nnm, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), true, an);
 
         asnOS.reset();
         liw.encodeAll(asnOS, Tag.CLASS_CONTEXT_SPECIFIC, 0);
@@ -142,7 +142,7 @@ public class LocationInfoWithLMSITest {
     public void testSerialization() throws Exception {
         ISDNAddressString nnm = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "79033700222");
         LMSIImpl lmsi = new LMSIImpl(new byte[] { 0, 3, 98, 49 });
-        LocationInfoWithLMSIImpl original = new LocationInfoWithLMSIImpl(nnm, lmsi, null, true, null);
+        LocationInfoWithLMSIImpl original = new LocationInfoWithLMSIImpl(3, nnm, lmsi, null, true, null);
 
         // serialize
         ByteArrayOutputStream out = new ByteArrayOutputStream();

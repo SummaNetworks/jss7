@@ -66,7 +66,7 @@ MAP V3: RoutingInfoForSM-Arg ::= SEQUENCE {
 MAP V2: RoutingInfoForSM-Arg ::= SEQUENCE {
   msisdn                  [0] ISDN-AddressString,
   sm-RP-PRI               [1] BOOLEAN,
-  erviceCentreAddress     [2] AddressString,
+  serviceCentreAddress     [2] AddressString,
   teleservice             [5] TeleserviceCode OPTIONAL,
   -- teleservice must be absent in version greater 1 ...
 }

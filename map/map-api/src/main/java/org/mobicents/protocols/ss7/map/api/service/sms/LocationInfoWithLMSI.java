@@ -31,32 +31,61 @@ import org.mobicents.protocols.ss7.map.api.service.lsm.AdditionalNumber;
 
 /**
  *
-<code>
-LocationInfoWithLMSI ::= SEQUENCE {
-  networkNode-Number    [1] ISDN-AddressString,
-  lmsi                  LMSI OPTIONAL,
-  extensionContainer    ExtensionContainer OPTIONAL,
-  ...,
-  gprsNodeIndicator     [5] NULL OPTIONAL,
-  -- gprsNodeIndicator is set only if the SGSN number is sent as the
-  -- Network Node Number
-  additional-Number     [6] Additional-Number OPTIONAL
-  -- NetworkNode-number can be either msc-number or sgsn-number
-
-Additional-Number ::= CHOICE {
-    msc-Number          [0] ISDN-AddressString,
-    sgsn-Number         [1] ISDN-AddressString
-}
--- additional-number can be either msc-number or sgsn-number
--- if received networkNode-number is msc-number then the
--- additional number is sgsn-number
--- if received networkNode-number is sgsn-number then the
--- additional number is msc-number
-}
-</code>
+ * <code>
+ *  v3
+ *   LocationInfoWithLMSI ::= SEQUENCE {
+ *   networkNode-Number    [1] ISDN-AddressString,
+ *   lmsi                  LMSI OPTIONAL,
+ *   extensionContainer    ExtensionContainer OPTIONAL,
+ *   ...,
+ *   gprsNodeIndicator     [5] NULL OPTIONAL,
+ *                       -- gprsNodeIndicator is set only if the SGSN number is sent as the
+ *                       -- Network Node Number
+ *   additional-Number     [6] Additional-Number OPTIONAL
+ *                         -- NetworkNode-number can be either msc-number or sgsn-number
  *
+ * Additional-Number ::= CHOICE {
+ *     msc-Number          [0] ISDN-AddressString,
+ *     sgsn-Number         [1] ISDN-AddressString
+ * }
+ * -- additional-number can be either msc-number or sgsn-number
+ * -- if received networkNode-number is msc-number then the
+ * -- additional number is sgsn-number
+ * -- if received networkNode-number is sgsn-number then the
+ * -- additional number is msc-number
+ * }
  *
+ * v1-2
+ *  LocationInfoWithLMSI ::= SEQUENCE {
+ *              locationInfo    LocationInfo,
+ *              lmsi            LMSI                    OPTIONAL,
+ *  ...}
  *
+ *  LocationInfo ::= CHOICE {
+ *     roamingNumber    [0] ISDN-AddressString,
+ *         -- NU>1 roamingNumber must not be used in version greater 1
+ *     msc-Number       [1] ISDN-AddressString
+ *  }
+ *
+ *  TODO:
+ *  LocationInfoWithLMSI ::= SEQUENCE {
+ *         networkNode-Number [1] ISDN-AddressString,
+ *         lmsi LMSI OPTIONAL,
+ *         extensionContainer ExtensionContainer OPTIONAL,
+ *         ...,
+ *         gprsNodeIndicator [5] NULL OPTIONAL,
+ *                 -- gprsNodeIndicator is set only if the SGSN number is sent as the
+ *                 -- Network Node Number
+ *         additional-Number [6] Additional-Number OPTIONAL,
+ *         networkNodeDiameterAddress [7] NetworkNodeDiameterAddress OPTIONAL,
+ *         additionalNetworkNodeDiameterAddress [8] NetworkNodeDiameterAddress OPTIONAL,
+ *         thirdNumber [9] Additional-Number OPTIONAL,
+ *         thirdNetworkNodeDiameterAddress [10] NetworkNodeDiameterAddress OPTIONAL,
+ *         imsNodeIndicator [11] NULL OPTIONAL
+ *              -- gprsNodeIndicator and imsNodeIndicator shall not both be present.
+ *              -- additionalNumber and thirdNumber shall not both contain the same type of number.
+ *  }
+ * </code>
  * @author sergey vetyutnev
  *
  */

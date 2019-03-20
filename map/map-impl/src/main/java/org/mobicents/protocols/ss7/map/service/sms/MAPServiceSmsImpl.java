@@ -503,8 +503,8 @@ public class MAPServiceSmsImpl extends MAPServiceBaseImpl implements MAPServiceS
 
     private void sendRoutingInfoForSMResponse(Parameter parameter, MAPDialogSmsImpl mapDialogImpl, Long invokeId)
             throws MAPParsingComponentException {
-
-        SendRoutingInfoForSMResponseImpl ind = new SendRoutingInfoForSMResponseImpl();
+        long version = mapDialogImpl.getApplicationContext().getApplicationContextVersion().getVersion();
+        SendRoutingInfoForSMResponseImpl ind = new SendRoutingInfoForSMResponseImpl(version);
 
         if (parameter == null)
             throw new MAPParsingComponentException(

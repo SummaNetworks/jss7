@@ -423,7 +423,7 @@ public class MAPDialogSmsImpl extends MAPDialogImpl implements MAPDialogSms {
         oc.setLocalOperationCode((long) MAPOperationCode.sendRoutingInfoForSM);
         resultLast.setOperationCode(oc);
 
-        SendRoutingInfoForSMResponseImpl resp = new SendRoutingInfoForSMResponseImpl(imsi, locationInfoWithLMSI,
+        SendRoutingInfoForSMResponseImpl resp = new SendRoutingInfoForSMResponseImpl(this.appCntx.getApplicationContextVersion().getVersion(), imsi, locationInfoWithLMSI,
                 extensionContainer, mwdSet, ipSmGwGuidance);
         AsnOutputStream aos = new AsnOutputStream();
         resp.encodeData(aos);

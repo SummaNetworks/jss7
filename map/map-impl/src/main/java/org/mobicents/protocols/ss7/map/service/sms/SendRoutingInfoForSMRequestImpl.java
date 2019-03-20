@@ -108,7 +108,7 @@ public class SendRoutingInfoForSMRequestImpl extends SmsMessageImpl implements S
         this.extensionContainer = extensionContainer;
         this.gprsSupportIndicator = gprsSupportIndicator;
         this.sM_RP_MTI = sM_RP_MTI;
-        this.sM_RP_SMEA = (SM_RP_SMEAImpl) sM_RP_SMEA;
+        this.sM_RP_SMEA = sM_RP_SMEA;
         this.smDeliveryNotIntended = smDeliveryNotIntended;
         this.ipSmGwGuidanceIndicator = ipSmGwGuidanceIndicator;
         this.imsi = imsi;
