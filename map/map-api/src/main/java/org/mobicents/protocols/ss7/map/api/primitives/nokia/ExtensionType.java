@@ -1,6 +1,6 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * TeleStax, Open Source Cloud Communications  Copyright 2012.
+ * and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -20,44 +20,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.protocols.ss7.map.api.primitives;
+package org.mobicents.protocols.ss7.map.api.primitives.nokia;
 
 import java.io.Serializable;
-
-import org.mobicents.protocols.ss7.map.api.primitives.nokia.ExtensionType;
+import java.util.ArrayList;
 
 /**
- * @author sergey vetyutnev
+ *
+<code>
+ ExtensionType ::= CHOICE {
+         isdArgType [1] IsdArgType,
+         isdResType [2] IsdResType,
+         dsdArgType [3] DsdArgType,
+         sriArgType [4] SriArgType,
+         sriResType [5] SriResType,
+         prnArgType [6] PrnArgType,
+         ulArgType  [7] UlArgTypeList
+ }
+
+ UlArgType ::= SEQUENCE (SIZE(1..50)) OF UlArgData
+
+ </code>
+ *
+ * User: eva
+ * Date: 7/02/19 12:13
  */
-public interface MAPPrivateExtension extends Serializable {
+public interface ExtensionType extends Serializable {
 
-    /**
-     * Get the PrivateExtension element Object identifier
-     *
-     * @return
-     */
-    long[] getOId();
+    ArrayList<UlArgData> getUlArgTypeList();
 
-    /**
-     * Get the PrivateExtension element Object identifier
-     *
-     * @param oId
-     */
-    void setOId(long[] oId);
-
-    /**
-     * Get the PrivateExtension element user data - ASN.1 encoded byte array
-     *
-     * @return
-     */
-    byte[] getData();
-
-    /**
-     * Set the PrivateExtension element user data - ASN.1 encoded byte array
-     *
-     * @param data
-     */
-    void setData(byte[] data);
-
-    ExtensionType getExtensionType();
 }
