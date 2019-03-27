@@ -131,7 +131,7 @@ public class LocationInfoWithLMSIImpl extends SequenceBase implements LocationIn
                     this.roamingNumber = new ISDNAddressStringImpl();
                     ((ISDNAddressStringImpl) this.roamingNumber).decodeAll(ais);
                 }
-                break;
+                //break;
             } else {
                 // optional parameters
                 if (ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
