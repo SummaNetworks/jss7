@@ -23,6 +23,7 @@
 package org.mobicents.protocols.ss7.tcap.api.tc.dialog;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
@@ -168,6 +169,8 @@ public interface Dialog extends Serializable {
      * @param invokeId
      */
     void processInvokeWithoutAnswer(Long invokeId);
+
+    List<Long> getScheduledComponentsInvokeId();
 
     /**
      * Send initial primitive for Structured dialog.

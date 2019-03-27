@@ -561,7 +561,7 @@ public class MAPDialogSupplementaryImpl extends MAPDialogImpl implements MAPDial
 
         Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
         if (customInvokeTimeout == _Timer_Default)
-            invoke.setTimeout(_Timer_ml);
+            invoke.setTimeout(_Timer_m);
         else
             invoke.setTimeout(customInvokeTimeout);
 
@@ -636,7 +636,7 @@ public class MAPDialogSupplementaryImpl extends MAPDialogImpl implements MAPDial
 
         Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
         if (customInvokeTimeout == _Timer_Default)
-            invoke.setTimeout(_Timer_m);
+            invoke.setTimeout(_Timer_ml);
         else
             invoke.setTimeout(customInvokeTimeout);
 
@@ -703,7 +703,7 @@ public class MAPDialogSupplementaryImpl extends MAPDialogImpl implements MAPDial
 
         Invoke invoke = this.mapProviderImpl.getTCAPProvider().getComponentPrimitiveFactory().createTCInvokeRequest();
         if (customInvokeTimeout == _Timer_Default)
-            invoke.setTimeout(600000); // 10 minutes
+            invoke.setTimeout(600000); // 10 minutes, indicated by 29002
         else
             invoke.setTimeout(customInvokeTimeout);
 
