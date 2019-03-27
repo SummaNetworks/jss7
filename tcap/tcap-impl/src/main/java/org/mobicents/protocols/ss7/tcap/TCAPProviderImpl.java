@@ -348,8 +348,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         return this.dialogs.size();
     }
 
-    public void send(DialogImpl dialog, byte[] data, boolean returnMessageOnError) throws IOException {
-        if(this.dialogReplicator != null){
+    public void send(DialogImpl dialog, byte[] data, boolean returnMessageOnError, boolean replicate) throws IOException {
+        if(this.dialogReplicator != null && replicate){
             this.dialogReplicator.refreshCache(dialog);
         }
         send(data, returnMessageOnError, dialog.getRemoteAddress(), dialog.getLocalAddress(), dialog.getSeqControl(), dialog.getNetworkId());
