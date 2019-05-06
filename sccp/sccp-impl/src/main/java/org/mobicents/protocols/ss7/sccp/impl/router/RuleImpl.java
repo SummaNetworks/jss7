@@ -261,16 +261,27 @@ public class RuleImpl implements Rule, Serializable {
                 gt = createNewGT(address.getAddressIndicator().getGlobalTitleIndicator(), address.getGlobalTitle(),
                         translatedDigits);
             } else {
-                if (primaryGt instanceof GlobalTitle0100){
+                if (gti.equals(
+                        GlobalTitleIndicator.GLOBAL_TITLE_INCLUDES_TRANSLATION_TYPE_NUMBERING_PLAN_ENCODING_SCHEME_AND_NATURE_OF_ADDRESS)){
                     logger.debug("translate is using WILD CARD TT so using the one given by the address");
                     //check if the TT is WILD_CARD (-1)
                     boolean isWildCardTT = (((GlobalTitle0100)primaryGt).getTranslationType() < 0);
-                    int newTT = ((GlobalTitle0100)address.getGlobalTitle()).getTranslationType();
-                    GlobalTitle0100 newGt = new GlobalTitle0100Impl(address.getGlobalTitle().getDigits(), newTT,
-                            ((GlobalTitle0100)address.getGlobalTitle()).getEncodingScheme(),
-                            ((GlobalTitle0100)address.getGlobalTitle()).getNumberingPlan(),
-                            ((GlobalTitle0100)address.getGlobalTitle()).getNatureOfAddress());
-                    gt = createNewGT(address.getAddressIndicator().getGlobalTitleIndicator(), newGt, translatedDigits);
+                    if (isWildCardTT) {
+                        int newTT = ((GlobalTitle0100) address.getGlobalTitle()).getTranslationType();
+                        GlobalTitle0100 newGt = new GlobalTitle0100Impl(address.getGlobalTitle().getDigits(), newTT,
+                                ((GlobalTitle0100) address.getGlobalTitle()).getEncodingScheme(),
+                                ((GlobalTitle0100) address.getGlobalTitle()).getNumberingPlan(),
+                                ((GlobalTitle0100) address.getGlobalTitle()).getNatureOfAddress());
+                        gt = createNewGT(address.getAddressIndicator().getGlobalTitleIndicator(), newGt, translatedDigits);
+                    }
+                } else if (gti.equals(GlobalTitleIndicator.GLOBAL_TITLE_INCLUDES_TRANSLATION_TYPE_ONLY)){
+                    boolean isWildCardTT = (((GlobalTitle0010)primaryGt).getTranslationType() < 0);
+                    if (isWildCardTT) {
+                        int newTT = ((GlobalTitle0010) address.getGlobalTitle()).getTranslationType();
+                        GlobalTitle0010 newGt = new GlobalTitle0010Impl(address.getGlobalTitle().getDigits(), newTT);
+                        gt = createNewGT(address.getAddressIndicator().getGlobalTitleIndicator(), newGt, translatedDigits);
+                    }
+
                 }
             }
         }
@@ -441,23 +452,35 @@ public class RuleImpl implements Rule, Serializable {
                     return false;
                 }
 
-                // translation type should match
-                if (((GlobalTitle0011) patternGT).getTranslationType() != gt1.getTranslationType()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("TT didn't match. Pattern TT=%s Address TT=%s Return  False",
-                                ((GlobalTitle0011) patternGT).getTranslationType(), gt1.getTranslationType()));
+                // translation type should match if we are not using * on the PATTERN
+                if (!WILD_CARD_TRANSLAATION_TYPE.equals(((GlobalTitle0011) patternGT).getTranslationType())) {
+                    // translation type should match
+                    if (((GlobalTitle0011) patternGT).getTranslationType() != gt1.getTranslationType()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("TT didn't match. Pattern TT=%s Address TT=%s Return  False",
+                                    ((GlobalTitle0011) patternGT).getTranslationType(), gt1.getTranslationType()));
+                        }
+                        return false;
                     }
-                    return false;
+                } else {
+                    logger.debug("TranslationType defined with WILD_CARD, continue!!");
                 }
 
+
                 // numbering plan should match
-                if (((GlobalTitle0011) patternGT).getNumberingPlan() != gt1.getNumberingPlan()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Np didn't match. Pattern Np=%s Address Np=%s Return  False",
-                                ((GlobalTitle0011) patternGT).getNumberingPlan(), gt1.getNumberingPlan()));
+                if (!WILD_CARD_NUMBERING_PLAN.equals(((GlobalTitle0011)patternGT).getNumberingPlan().getValue())) {
+                    // numbering plan should match
+                    if (((GlobalTitle0011) patternGT).getNumberingPlan() != gt1.getNumberingPlan()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Np didn't match. Pattern Np=%s Address Np=%s Return  False",
+                                    ((GlobalTitle0011) patternGT).getNumberingPlan(), gt1.getNumberingPlan()));
+                        }
+                        return false;
                     }
-                    return false;
+                } else {
+                    logger.debug("Numbering plan defined with WILD_CARD UNKNOWN, continue!!");
                 }
+
 
                 // digits must match
                 if (!matchPattern(gt1.getDigits(), patternGT.getDigits())) {
@@ -540,14 +563,20 @@ public class RuleImpl implements Rule, Serializable {
                     return false;
                 }
 
-                // translation type should match
-                if (((GlobalTitle0010) patternGT).getTranslationType() != gt3.getTranslationType()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("TT didn't match. Pattern TT=%s Address TT=%s Return  False",
-                                ((GlobalTitle0010) patternGT).getTranslationType(), gt3.getTranslationType()));
+                // translation type should match if we are not using * on the PATTERN
+                if (!WILD_CARD_TRANSLAATION_TYPE.equals(((GlobalTitle0010) patternGT).getTranslationType())) {
+                    // translation type should match
+                    if (((GlobalTitle0010) patternGT).getTranslationType() != gt3.getTranslationType()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("TT didn't match. Pattern TT=%s Address TT=%s Return  False",
+                                    ((GlobalTitle0010) patternGT).getTranslationType(), gt3.getTranslationType()));
+                        }
+                        return false;
                     }
-                    return false;
+                } else {
+                    logger.debug("TranslationType defined with WILD_CARD, continue!!");
                 }
+
 
                 // digits must match
                 if (!matchPattern(gt3.getDigits(), patternAddress.getGlobalTitle().getDigits())) {

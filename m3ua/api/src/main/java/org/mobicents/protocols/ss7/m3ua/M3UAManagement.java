@@ -21,12 +21,12 @@
  */
 package org.mobicents.protocols.ss7.m3ua;
 
-import java.util.List;
-import java.util.Map;
-
 import org.mobicents.protocols.ss7.m3ua.parameter.NetworkAppearance;
 import org.mobicents.protocols.ss7.m3ua.parameter.RoutingContext;
 import org.mobicents.protocols.ss7.m3ua.parameter.TrafficModeType;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  *

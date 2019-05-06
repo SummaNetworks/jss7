@@ -48,6 +48,7 @@ import org.mobicents.protocols.ss7.m3ua.impl.parameter.NetworkAppearanceImpl;
 import org.mobicents.protocols.ss7.m3ua.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.m3ua.impl.parameter.RoutingContextImpl;
 import org.mobicents.protocols.ss7.m3ua.impl.parameter.TrafficModeTypeImpl;
+import org.mobicents.protocols.ss7.m3ua.listener.AsStateChangeListener;
 import org.mobicents.protocols.ss7.m3ua.message.MessageFactory;
 import org.mobicents.protocols.ss7.m3ua.message.transfer.PayloadData;
 import org.mobicents.protocols.ss7.m3ua.parameter.NetworkAppearance;
@@ -119,6 +120,8 @@ public class AsImpl implements XMLSerializable, As {
     private int aspSlsShiftPlaces = 0x00;
 
     protected State state = AsState.DOWN;
+
+    private AsStateChangeListener asStateChangeListener;
 
     public AsImpl() {
 
@@ -792,5 +795,13 @@ public class AsImpl implements XMLSerializable, As {
             }
             this.slsVsAspTable[count] = aspNumber++;
         }
+    }
+
+    public void setAsStateChangeListener(AsStateChangeListener asStateChangeListener){
+        this.asStateChangeListener = asStateChangeListener;
+    }
+
+    public AsStateChangeListener getAsStateChangeListener(){
+        return this.asStateChangeListener;
     }
 }

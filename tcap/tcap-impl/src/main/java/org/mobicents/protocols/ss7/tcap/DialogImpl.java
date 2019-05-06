@@ -510,7 +510,7 @@ public class DialogImpl implements Dialog {
      */
     @Override
     public List<Long> getScheduledComponentsInvokeId(){
-        List<Long> result = null;
+        List<Long> result = new ArrayList<>();
         if(scheduledComponentList.size() > 0){
             result = new ArrayList<>();
             for(Component c: scheduledComponentList) {
