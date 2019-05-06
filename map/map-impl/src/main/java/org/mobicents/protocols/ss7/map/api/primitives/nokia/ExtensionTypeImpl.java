@@ -101,16 +101,9 @@ public class ExtensionTypeImpl extends AbstractMAPAsnPrimitive implements Extens
 
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
         if (this.ulArgTypeList != null) {
-            try {
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_ulArgTypeList);
-                int pos = asnOs.StartContentDefiniteLength();
                 for (UlArgData item : this.ulArgTypeList) {
                     ((UlArgDataImpl) item).encodeAll(asnOs);
                 }
-                asnOs.FinalizeContent(pos);
-            } catch (AsnException e) {
-                throw new MAPException("AsnException when encoding " + _PrimitiveName + ".ulArgTypeList: " + e.getMessage(), e);
-            }
         }
 
 

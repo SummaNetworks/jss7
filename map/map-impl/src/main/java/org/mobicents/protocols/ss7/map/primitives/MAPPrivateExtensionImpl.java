@@ -187,22 +187,6 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
         }
     }
 
-    /*
-
-        // extType
-        if (ansIS.available() > 0) {
-            this.data = new byte[ansIS.available()];
-            if (Arrays.equals(NOKIA_OID, this.oId)){
-                // TODO mapPrivateExtension.data
-                extensionType = new ExtensionTypeImpl();
-                int length = ansIS.readLength();
-                ((ExtensionTypeImpl) extensionType)._decode(ansIS, length);
-            } else {
-                ansIS.read(this.data);
-            }
-        } else
-            this.data = null;
-     */
     public void encodeAll(AsnOutputStream asnOs) throws MAPException {
         this.encodeAll(asnOs, Tag.CLASS_UNIVERSAL, Tag.SEQUENCE);
     }
@@ -227,6 +211,12 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
 
         try {
             asnOs.writeObjectIdentifier(this.oId);
+
+            // extType
+            if (Arrays.equals(NOKIA_OID, this.oId) && extensionType!=null){
+                ((ExtensionTypeImpl) this.extensionType).encodeAll(asnOs);
+            }
+
             if (this.data != null)
                 asnOs.write(this.data);
         } catch (IOException e) {

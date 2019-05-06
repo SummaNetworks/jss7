@@ -144,11 +144,22 @@ public class MAPPrivateExtensionTest {
 
     @Test(groups = { "functional.encode", "primitives" })
     public void testEncode() throws Exception {
-        MAPExtensionContainerImpl extCont = (MAPExtensionContainerImpl) GetTestExtensionContainerMine();
+        byte[] data = hexStringToByteArray("3020a01e301c06092a863a0089613a0100a70f300d81010f83085335835026728187");
+        AsnInputStream ais = new AsnInputStream(data);
+        ais.readTag();
+        MAPExtensionContainerImpl extCont = new MAPExtensionContainerImpl();
+        extCont.decodeAll(ais);
+
         AsnOutputStream asnOS = new AsnOutputStream();
         extCont.encodeAll(asnOS);
+        byte[] res = asnOS.toByteArray();
 
-        System.out.println(extCont.getPrivateExtensionList().get(0).getExtensionType().getUlArgTypeList());
+        AsnInputStream ais2 = new AsnInputStream(res);
+        ais2.readTag();
+        MAPExtensionContainerImpl extContRes = new MAPExtensionContainerImpl();
+        extContRes.decodeAll(ais2);
+        assertEquals(data, res);
+        System.out.println(extContRes);
 
     }
 
