@@ -22,6 +22,7 @@
 package org.mobicents.protocols.ss7.m3ua.impl;
 
 import javolution.util.FastList;
+
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
@@ -131,4 +132,5 @@ public class THLocalAsActToActRemAspAct implements TransitionHandler {
 
         return msg;
     }
+
 }

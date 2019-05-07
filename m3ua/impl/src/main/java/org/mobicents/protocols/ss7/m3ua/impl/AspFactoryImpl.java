@@ -22,16 +22,20 @@
 
 package org.mobicents.protocols.ss7.m3ua.impl;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javolution.util.FastList;
 import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
+
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.api.Association;
 import org.mobicents.protocols.api.AssociationListener;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
-import org.mobicents.protocols.api.ManagementEventListener;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.AspFactory;
 import org.mobicents.protocols.ss7.m3ua.ExchangeType;
@@ -67,16 +71,13 @@ import org.mobicents.protocols.ss7.m3ua.message.transfer.PayloadData;
 import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
 import org.mobicents.protocols.ss7.m3ua.parameter.ParameterFactory;
 
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  *
  * @author amit bhayani
  *
  */
 public class AspFactoryImpl implements AssociationListener, XMLSerializable, AspFactory {
+
     private static final Logger logger = Logger.getLogger(AspFactoryImpl.class);
 
     private static long ASP_ID_COUNT = 1L;
@@ -89,6 +90,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
     private static final String MAX_SEQUENCE_NUMBER = "maxseqnumber";
     private static final String ASP_ID = "aspid";
     private static final String HEART_BEAT = "heartbeat";
+
 
     protected String name;
 
@@ -814,7 +816,4 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
         }
     }
 
-    public void addManagementEventListener(ManagementEventListener managementEventListener){
-        this.transportManagement.addManagementEventListener(managementEventListener);
-    }
 }

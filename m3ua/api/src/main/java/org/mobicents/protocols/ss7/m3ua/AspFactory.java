@@ -21,11 +21,10 @@
  */
 package org.mobicents.protocols.ss7.m3ua;
 
-import org.mobicents.protocols.api.Association;
-import org.mobicents.protocols.api.ManagementEventListener;
-import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
-
 import java.util.List;
+
+import org.mobicents.protocols.api.Association;
+import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
 
 /**
  *
@@ -54,7 +53,4 @@ public interface AspFactory {
     int getMaxOutboundStreams();
 
     int getMaxInboundStreams();
-
-    void addManagementEventListener(ManagementEventListener managementEventListener);
-
 }
