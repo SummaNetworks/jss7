@@ -121,12 +121,12 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
         // extensionContainer SEQUENCE {
         // privateExtensionList [0] IMPLICIT SEQUENCE ( SIZE( 1 .. 10 ) ) OF
         // SEQUENCE {
-        // extId MAP-EXTENSION .&extensionId ( {
-        // ,
-        // ...} ) ,
-        // extType MAP-EXTENSION .&ExtensionType ( {
-        // ,
-        // ...} { @extId } ) OPTIONAL} OPTIONAL,
+        //          extId MAP-EXTENSION .&extensionId ( {
+        //          ,
+        //          ...} ) ,
+        //          extType MAP-EXTENSION .&ExtensionType ( {
+        //          ,
+        //          ...} { @extId } ) OPTIONAL} OPTIONAL,
         // pcs-Extensions [1] IMPLICIT SEQUENCE {
         // ... } OPTIONAL,
         // ... } OPTIONAL,
@@ -174,8 +174,12 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
             if (Arrays.equals(NOKIA_OID, this.oId)){
                 extensionType = new ExtensionTypeImpl();
                 int tag2 = ansIS.readTag();
+/*
                 AsnInputStream localAis2 = ansIS.readSequenceStream();
-                ((ExtensionTypeImpl) extensionType).decodeAll(localAis2);
+                localAis2.readTag();
+*/
+                //TODO Validate TAG
+                ((ExtensionTypeImpl) extensionType).decodeAll(ansIS);
 
             } else {
                 this.data = new byte[ansIS.available()];
@@ -235,9 +239,14 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
             sb.append("Oid=");
             sb.append(this.ArrayToString(this.oId));
         }
+        if (extensionType!=null){
+            sb.append(", \nextensionType=");
+            sb.append(this.extensionType);
+
+        }
 
         if (this.data != null) {
-            sb.append(", data=");
+            sb.append(",  \ndata=");
             sb.append(this.ArrayToString(this.data));
         }
 

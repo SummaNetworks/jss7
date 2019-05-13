@@ -8,6 +8,7 @@ import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
+import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformation.AbstractMAPAsnPrimitive;
 
 
@@ -24,8 +25,8 @@ import org.mobicents.protocols.ss7.map.api.service.mobility.subscriberInformatio
  */
 public class UlArgDataImpl extends AbstractMAPAsnPrimitive implements UlArgData {
 
-    public static final int _ID_privateFeatureCode = 1;
-    public static final int _ID_imei = 3;
+    public static final int _TAG_privateFeatureCode = 1;
+    public static final int _TAG_imei = 3;
 
     public static final String _PrimitiveName = "UlArgDataImpl";
 
@@ -61,7 +62,7 @@ public class UlArgDataImpl extends AbstractMAPAsnPrimitive implements UlArgData 
         this.privateFeatureUlArgData = null;
         this.privateFeatureCode = null;
 
-        AsnInputStream ais = ansIS.readSequenceStreamData(length);
+        AsnInputStream ais = ansIS.readSequenceStreamData(length); //cojo el bloque de bytes. y el ansIS ha movido el cursor a la pos 7
         while (true) {
             if (ais.available() == 0) {
                 break;
@@ -71,11 +72,16 @@ public class UlArgDataImpl extends AbstractMAPAsnPrimitive implements UlArgData 
 
             if (ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
                 switch (tag) {
-                    case _ID_privateFeatureCode:
+                    case _TAG_privateFeatureCode:
+                        if (!ais.isTagPrimitive()) {
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter [privateFeatureCode [1] PrivateFeatureCode ] is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
                         this.privateFeatureCode = new PrivateFeatureCodeImpl();
                         ((PrivateFeatureCodeImpl) this.privateFeatureCode).decodeAll(ais);
                         break;
-                    case _ID_imei:
+                    case _TAG_imei:
                         this.privateFeatureUlArgData = new PrivateFeatureUlArgDataImpl();
                         ((PrivateFeatureUlArgDataImpl) this.privateFeatureUlArgData).decodeAll(ais);
                         break;
@@ -83,8 +89,6 @@ public class UlArgDataImpl extends AbstractMAPAsnPrimitive implements UlArgData 
                         ais.advanceElement();
                         break;
                 }
-            } else {
-                ais.advanceElement();
             }
         }
     }
@@ -96,7 +100,7 @@ public class UlArgDataImpl extends AbstractMAPAsnPrimitive implements UlArgData 
         }
         if (this.privateFeatureCode != null) {
             ((PrivateFeatureCodeImpl) this.privateFeatureCode).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
-                    _ID_privateFeatureCode);
+                    _TAG_privateFeatureCode);
         }
     }
 
@@ -119,7 +123,7 @@ public class UlArgDataImpl extends AbstractMAPAsnPrimitive implements UlArgData 
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(_PrimitiveName);
-        sb.append(" [");
+        sb.append("\n [");
 
         if (this.privateFeatureUlArgData != null) {
             sb.append("privateFeatureUlArgData=");

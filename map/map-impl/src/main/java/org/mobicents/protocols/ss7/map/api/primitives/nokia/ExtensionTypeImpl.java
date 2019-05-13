@@ -56,7 +56,7 @@ public class ExtensionTypeImpl extends AbstractMAPAsnPrimitive implements Extens
 
 
     public void _decode(AsnInputStream ais, int length) throws MAPParsingComponentException, IOException, AsnException {
-
+// a7 16...
         this.ulArgTypeList = null;
 
         int tag = ais.getTag();
@@ -69,17 +69,17 @@ public class ExtensionTypeImpl extends AbstractMAPAsnPrimitive implements Extens
                                 + ".ulArgTypeList: Parameter is primitive",
                                 MAPParsingComponentExceptionReason.MistypedParameter);
 
-                    //AsnInputStream ais2 = ais.readSequenceStream();
+                    AsnInputStream ais2 = ais.readSequenceStreamData(length);
                     this.ulArgTypeList = new ArrayList<>();
                     while (true) {
-                        if (ais.available() == 0)
+                        if (ais2.available() == 0)
                             break;
-
-                        //ais2.readTag();
+                        int tag2 = ais2.readTag();
 
                         UlArgData ulArgData = new UlArgDataImpl();
-                        ((UlArgDataImpl) ulArgData).decodeAll(ais);
+                        ((UlArgDataImpl) ulArgData).decodeAll(ais2);
                         this.ulArgTypeList.add(ulArgData);
+
                     }
                     if (this.ulArgTypeList.size() < 1 || this.ulArgTypeList.size() > 50) {
                         throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
