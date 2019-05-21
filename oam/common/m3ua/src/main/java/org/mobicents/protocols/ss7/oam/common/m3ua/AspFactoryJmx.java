@@ -21,16 +21,16 @@
  */
 package org.mobicents.protocols.ss7.oam.common.m3ua;
 
+import java.util.List;
+
 import javolution.util.FastList;
+
 import org.mobicents.protocols.api.Association;
-import org.mobicents.protocols.api.ManagementEventListener;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.AspFactory;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
 import org.mobicents.protocols.ss7.m3ua.IPSPType;
 import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
-
-import java.util.List;
 
 /**
  * @author amit bhayani
@@ -132,10 +132,5 @@ public class AspFactoryJmx implements AspFactoryJmxMBean {
     @Override
     public int getMaxInboundStreams() {
         return this.wrappedAspFactory.getMaxInboundStreams();
-    }
-
-    @Override
-    public void addManagementEventListener(ManagementEventListener managementEventListener) {
-        //not applicable now
     }
 }

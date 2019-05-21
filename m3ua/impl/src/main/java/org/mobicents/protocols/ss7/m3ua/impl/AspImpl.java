@@ -74,9 +74,9 @@ public class AspImpl implements XMLSerializable, Asp {
 
     }
 
-    public AspImpl(String name, AspFactoryImpl aspFactory) {
+    public AspImpl(String name, AspFactoryImpl aspFactroy) {
         this.name = name;
-        this.aspFactoryImpl = aspFactory;
+        this.aspFactoryImpl = aspFactroy;
         this.init();
     }
 
