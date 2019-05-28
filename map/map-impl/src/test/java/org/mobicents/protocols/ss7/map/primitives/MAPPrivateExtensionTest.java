@@ -136,7 +136,7 @@ public class MAPPrivateExtensionTest {
     @Test(groups = { "functional.decode", "primitives" })
     public void testDecode() throws Exception {
         //byte[] data = hexStringToByteArray("3020a01e301c06092a863a0089613a0100a70f300d81010f83085335835026728187");
-        byte[] data = hexStringToByteArray("3027a025302306092a863a0089613a0100a716300581010e8200300d81010f83085386355032713011");
+        byte[] data = hexStringToByteArray("ad3ea03c303a06092a863a0089613a0100a42d3003810111300381010630038101073017810109a212020101040d09010a0a088411979167764403300381010a");
         AsnInputStream ais = new AsnInputStream(data);
         int tag = ais.readTag();
         MAPExtensionContainerImpl extCont = new MAPExtensionContainerImpl();
@@ -146,7 +146,7 @@ public class MAPPrivateExtensionTest {
 
     @Test(groups = { "functional.encode", "primitives" })
     public void testEncode() throws Exception {
-        byte[] data = hexStringToByteArray("3027a025302306092a863a0089613a0100a716300581010e8200300d81010f83085386355032713011");
+        byte[] data = hexStringToByteArray("ad3ea03c303a06092a863a0089613a0100a42d3003810111300381010630038101073017810109a212020101040d09010a0a088411979167764403300381010a");
         AsnInputStream ais = new AsnInputStream(data);
         ais.readTag();
         MAPExtensionContainerImpl extCont = new MAPExtensionContainerImpl();
