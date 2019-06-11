@@ -97,6 +97,12 @@ public interface Dialog extends Serializable {
     ApplicationContextName getApplicationContextName();
 
     /**
+     * Set AplicationContextName of dialog.
+     * @param acn
+     */
+    void setApplicationContextName(ApplicationContextName acn);
+
+    /**
      * Last sent/received UI
      *
      * @return the ui

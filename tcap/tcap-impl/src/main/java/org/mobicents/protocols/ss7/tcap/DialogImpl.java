@@ -479,6 +479,16 @@ public class DialogImpl implements Dialog {
     }
 
     /**
+     * Set AplicationContextName of dialog.
+     * @param acn
+     */
+    @Override
+    public void setApplicationContextName(ApplicationContextName acn) {
+        this.lastACN = acn;
+    }
+
+
+    /**
      * @return the ui
      */
     public UserInformation getUserInformation() {
