@@ -49,23 +49,28 @@ import org.mobicents.protocols.ss7.map.service.lsm.AdditionalNumberImpl;
  */
 public class LocationInfoWithLMSIImpl extends SequenceBase implements LocationInfoWithLMSI {
 
-    private static final int _TAG_NetworkNodeNumber = 1;
+    private static final int _TAG_NetworkNodeNumber_or_MscNumber = 1;
+    private static final int _TAG_RoamingNumber = 0;
     private static final int _TAG_GprsNodeIndicator = 5;
     private static final int _TAG_AdditionalNumber = 6;
 
     private ISDNAddressString networkNodeNumber;
+    private ISDNAddressString roamingNumber;
     private LMSI lmsi;
     private MAPExtensionContainer extensionContainer;
     private boolean gprsNodeIndicator;
     private AdditionalNumber additionalNumber;
+    private long mapProtocolVersion;
 
-    public LocationInfoWithLMSIImpl() {
+    public LocationInfoWithLMSIImpl(long mapProtocolVersion) {
         super("LocationInfoWithLMSI");
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
-    public LocationInfoWithLMSIImpl(ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer, boolean gprsNodeIndicator,
+    public LocationInfoWithLMSIImpl(long mapProtocolVersion, ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer, boolean gprsNodeIndicator,
             AdditionalNumber additionalNumber) {
         super("LocationInfoWithLMSI");
+        this.mapProtocolVersion = mapProtocolVersion;
 
         this.networkNodeNumber = networkNodeNumber;
         this.lmsi = lmsi;
@@ -113,12 +118,20 @@ public class LocationInfoWithLMSIImpl extends SequenceBase implements LocationIn
 
             if (num == 0) {
                 // first parameter is mandatory - networkNode-Number
-                if (ais.getTagClass() != Tag.CLASS_CONTEXT_SPECIFIC || !ais.isTagPrimitive() || tag != _TAG_NetworkNodeNumber)
+                if (ais.getTagClass() != Tag.CLASS_CONTEXT_SPECIFIC || !ais.isTagPrimitive() ||
+                         (tag != _TAG_NetworkNodeNumber_or_MscNumber && (tag != _TAG_RoamingNumber || this.mapProtocolVersion != 1)))
                     throw new MAPParsingComponentException(
                             "Error when decoding LocationInfoWithLMSI: networkNode-Number: tagClass or tag is bad or element is not primitive: tagClass="
                                     + ais.getTagClass() + ", Tag=" + tag, MAPParsingComponentExceptionReason.MistypedParameter);
-                this.networkNodeNumber = new ISDNAddressStringImpl();
-                ((ISDNAddressStringImpl) this.networkNodeNumber).decodeAll(ais);
+
+                if (tag == _TAG_NetworkNodeNumber_or_MscNumber) {
+                    this.networkNodeNumber = new ISDNAddressStringImpl();
+                    ((ISDNAddressStringImpl) this.networkNodeNumber).decodeAll(ais);
+                } else {
+                    this.roamingNumber = new ISDNAddressStringImpl();
+                    ((ISDNAddressStringImpl) this.roamingNumber).decodeAll(ais);
+                }
+                //break;
             } else {
                 // optional parameters
                 if (ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
@@ -185,26 +198,33 @@ public class LocationInfoWithLMSIImpl extends SequenceBase implements LocationIn
     public void encodeData(AsnOutputStream asnOs) throws MAPException {
 
         try {
-            if (this.networkNodeNumber == null)
+            if (this.networkNodeNumber == null && mapProtocolVersion>1)
                 throw new MAPException("Error while encoding " + _PrimitiveName + ": networkNodeNumber must not be null");
 
-            ((ISDNAddressStringImpl) this.networkNodeNumber).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
-                    _TAG_NetworkNodeNumber);
+            if ((this.networkNodeNumber == null && this.roamingNumber==null) && mapProtocolVersion==1)
+                throw new MAPException("Error while encoding " + _PrimitiveName + ": networkNodeNumber and roaming number must not be null for protocol version 1");
+
+            if (this.networkNodeNumber != null)
+                ((ISDNAddressStringImpl) this.networkNodeNumber).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_NetworkNodeNumber_or_MscNumber);
+            else
+                ((ISDNAddressStringImpl) this.roamingNumber).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_RoamingNumber);
 
             if (this.lmsi != null)
                 ((LMSIImpl) this.lmsi).encodeAll(asnOs);
 
-            if (this.extensionContainer != null)
-                ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs);
+            if (mapProtocolVersion>2) {
+                if (this.extensionContainer != null)
+                    ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs);
 
-            if (gprsNodeIndicator)
-                asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GprsNodeIndicator);
+                if (gprsNodeIndicator)
+                    asnOs.writeNull(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GprsNodeIndicator);
 
-            if (this.additionalNumber != null) {
-                asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_AdditionalNumber);
-                int pos = asnOs.StartContentDefiniteLength();
-                ((AdditionalNumberImpl) this.additionalNumber).encodeAll(asnOs);
-                asnOs.FinalizeContent(pos);
+                if (this.additionalNumber != null) {
+                    asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_AdditionalNumber);
+                    int pos = asnOs.StartContentDefiniteLength();
+                    ((AdditionalNumberImpl) this.additionalNumber).encodeAll(asnOs);
+                    asnOs.FinalizeContent(pos);
+                }
             }
         } catch (IOException e) {
             throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);

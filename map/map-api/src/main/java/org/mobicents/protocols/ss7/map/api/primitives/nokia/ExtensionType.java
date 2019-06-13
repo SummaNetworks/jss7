@@ -20,31 +20,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.protocols.ss7.map.api.service.mobility.imei;
+package org.mobicents.protocols.ss7.map.api.primitives.nokia;
 
-import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
-import org.mobicents.protocols.ss7.map.api.service.mobility.MobilityMessage;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  *
- * MAP V3: CheckIMEIRes ::= SEQUENCE {
- *    equipmentStatus EquipmentStatus OPTIONAL,
- *    bmuef UESBI-Iu OPTIONAL,
- *    extensionContainer [0] ExtensionContainer OPTIONAL, ...
- * }
+<code>
+ ExtensionType ::= CHOICE {
+         isdArgType [1] IsdArgType,
+         isdResType [2] IsdResType,
+         dsdArgType [3] DsdArgType,
+         sriArgType [4] SriArgType,
+         sriResType [5] SriResType,
+         prnArgType [6] PrnArgType,
+         ulArgType  [7] UlArgTypeList
+ }
+
+ UlArgType ::= SEQUENCE (SIZE(1..50)) OF UlArgData
+
+ </code>
  *
- * MAP V2: RESULT equipmentStatus EquipmentStatus
- *
- *
- * @author normandes
- *
+ * User: eva
+ * Date: 7/02/19 12:13
  */
-public interface CheckImeiResponse extends MobilityMessage {
+public interface ExtensionType extends Serializable {
 
-    EquipmentStatus getEquipmentStatus();
-
-    UESBIIu getBmuef();
-
-    MAPExtensionContainer getExtensionContainer();
+    ArrayList<UlArgData> getUlArgTypeList();
 
 }

@@ -875,9 +875,9 @@ public class MAPParameterFactoryImpl implements MAPParameterFactory {
         return new MWStatusImpl(scAddressNotIncluded, mnrfSet, mcefSet, mnrgSet);
     }
 
-    public LocationInfoWithLMSI createLocationInfoWithLMSI(ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
+    public LocationInfoWithLMSI createLocationInfoWithLMSI(long mapProtocolVersion, ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
             boolean gprsNodeIndicator, AdditionalNumber additionalNumber) {
-        return new LocationInfoWithLMSIImpl(networkNodeNumber, lmsi, extensionContainer, gprsNodeIndicator, additionalNumber);
+        return new LocationInfoWithLMSIImpl(mapProtocolVersion, networkNodeNumber, lmsi, extensionContainer, gprsNodeIndicator, additionalNumber);
     }
 
     public Problem createProblemGeneral(GeneralProblemType prob) {

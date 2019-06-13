@@ -578,7 +578,7 @@ public interface MAPParameterFactory {
 
     MWStatus createMWStatus(boolean scAddressNotIncluded, boolean mnrfSet, boolean mcefSet, boolean mnrgSet);
 
-    LocationInfoWithLMSI createLocationInfoWithLMSI(ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
+    LocationInfoWithLMSI createLocationInfoWithLMSI(long mapProtocolVersion, ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
             boolean gprsNodeIndicator, AdditionalNumber additionalNumber);
 
     /**

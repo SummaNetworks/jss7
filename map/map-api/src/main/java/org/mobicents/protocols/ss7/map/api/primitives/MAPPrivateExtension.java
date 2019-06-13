@@ -24,6 +24,8 @@ package org.mobicents.protocols.ss7.map.api.primitives;
 
 import java.io.Serializable;
 
+import org.mobicents.protocols.ss7.map.api.primitives.nokia.ExtensionType;
+
 /**
  * @author sergey vetyutnev
  */
@@ -57,4 +59,5 @@ public interface MAPPrivateExtension extends Serializable {
      */
     void setData(byte[] data);
 
+    ExtensionType getExtensionType();
 }

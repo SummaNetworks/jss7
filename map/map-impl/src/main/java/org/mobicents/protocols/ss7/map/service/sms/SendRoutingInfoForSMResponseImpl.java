@@ -22,6 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.sms;
 
+import java.io.IOException;
+
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -39,9 +41,23 @@ import org.mobicents.protocols.ss7.map.api.service.sms.SendRoutingInfoForSMRespo
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
 import org.mobicents.protocols.ss7.map.primitives.MAPExtensionContainerImpl;
 
-import java.io.IOException;
-
 /**
+ * <code>
+ * RoutingInfoForSM-Res ::= SEQUENCE {
+ *          imsi IMSI,
+ *          locationInfoWithLMSI [0] LocationInfoWithLMSI,
+ *          extensionContainer [4] ExtensionContainer OPTIONAL,
+ *          ...,
+ *          ip-sm-gwGuidance [5] IP-SM-GW-Guidance OPTIONAL
+ *          }
+ *
+ *
+ * MAP V2: RoutingInfoForSM-Res::= SEQUENCE {
+ *          imsi IMSI,
+ *          locationInfoWithLMSI [0] LocationInfoWithLMSI,
+ *          mwd-Set [2] BOOLEAN OPTIONAL, -- mwd-Set must be absent in version greater 1 ...
+ *          }
+ * </code>
  *
  * @author sergey vetyutnev
  *
@@ -60,17 +76,51 @@ public class SendRoutingInfoForSMResponseImpl extends SmsMessageImpl implements 
     private MAPExtensionContainer extensionContainer;
     private Boolean mwdSet;
     private IpSmGwGuidance ipSmGwGuidance;
+    private long mapProtocolVersion;
 
     public SendRoutingInfoForSMResponseImpl() {
+        this(3);
+    }
+
+    public SendRoutingInfoForSMResponseImpl(long mapProtocolVersion) {
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
     public SendRoutingInfoForSMResponseImpl(IMSI imsi, LocationInfoWithLMSI locationInfoWithLMSI,
-            MAPExtensionContainer extensionContainer, Boolean mwdSet, IpSmGwGuidance ipSmGwGuidance) {
+            MAPExtensionContainer extensionContainer, IpSmGwGuidance ipSmGwGuidance) {
+        this.mapProtocolVersion = 3;
         this.imsi = imsi;
         this.locationInfoWithLMSI = locationInfoWithLMSI;
         this.extensionContainer = extensionContainer;
-        this.mwdSet = mwdSet;
         this.ipSmGwGuidance = ipSmGwGuidance;
+    }
+
+    public SendRoutingInfoForSMResponseImpl(IMSI imsi, LocationInfoWithLMSI locationInfoWithLMSI, Boolean mwdSet) {
+        this.mapProtocolVersion = 1;
+        this.imsi = imsi;
+        this.locationInfoWithLMSI = locationInfoWithLMSI;
+        this.mwdSet = mwdSet;
+    }
+
+    public SendRoutingInfoForSMResponseImpl(IMSI imsi, LocationInfoWithLMSI locationInfoWithLMSI) {
+        this.mapProtocolVersion = 2;
+        this.imsi = imsi;
+        this.locationInfoWithLMSI = locationInfoWithLMSI;
+    }
+
+    public SendRoutingInfoForSMResponseImpl(long mapProtocolVersion, IMSI imsi, LocationInfoWithLMSI locationInfoWithLMSI,
+                                            MAPExtensionContainer extensionContainer,
+                                            Boolean mwdSet, IpSmGwGuidance ipSmGwGuidance) {
+        this.imsi = imsi;
+        this.locationInfoWithLMSI = locationInfoWithLMSI;
+        if (mapProtocolVersion == 3) {
+            this.extensionContainer = extensionContainer;
+            this.ipSmGwGuidance = ipSmGwGuidance;
+        }
+        if (mapProtocolVersion == 1) {
+            this.mwdSet = mwdSet;
+        }
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
     public MAPMessageType getMessageType() {
@@ -173,7 +223,7 @@ public class SendRoutingInfoForSMResponseImpl extends SmsMessageImpl implements 
                         throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
                                 + ".locationInfoWithLMSI: Parameter 1 bad tag class or tag or primitive",
                                 MAPParsingComponentExceptionReason.MistypedParameter);
-                    this.locationInfoWithLMSI = new LocationInfoWithLMSIImpl();
+                    this.locationInfoWithLMSI = new LocationInfoWithLMSIImpl(mapProtocolVersion);
                     ((LocationInfoWithLMSIImpl) this.locationInfoWithLMSI).decodeAll(ais);
                     break;
 
@@ -248,21 +298,32 @@ public class SendRoutingInfoForSMResponseImpl extends SmsMessageImpl implements 
         ((IMSIImpl) this.imsi).encodeAll(asnOs);
         ((LocationInfoWithLMSIImpl) this.locationInfoWithLMSI).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
                 _TAG_LocationInfoWithLMSI);
-        if (this.extensionContainer != null)
-            ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
-                    _TAG_ExtensionContainer);
-        if (this.mwdSet != null) {
-            try {
-                asnOs.writeBoolean(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mwdSet, this.mwdSet);
-            } catch (IOException e) {
-                throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
-            } catch (AsnException e) {
-                throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
+        /*
+         * MAP V2: RoutingInfoForSM-Res::= SEQUENCE {
+         *          imsi IMSI,
+         *          locationInfoWithLMSI [0] LocationInfoWithLMSI,
+         *          mwd-Set [2] BOOLEAN OPTIONAL, -- mwd-Set must be absent in version greater 1 ...
+         *          }
+         */
+        if (this.mapProtocolVersion < 3) {
+            if (this.mwdSet != null) {
+                try {
+                    asnOs.writeBoolean(Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mwdSet, this.mwdSet);
+                } catch (IOException e) {
+                    throw new MAPException("IOException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
+                } catch (AsnException e) {
+                    throw new MAPException("AsnException when encoding " + _PrimitiveName + ": " + e.getMessage(), e);
+                }
             }
-        }
-        if (this.ipSmGwGuidance != null) {
-            ((IpSmGwGuidanceImpl) this.ipSmGwGuidance).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
-                    _TAG_IpSmGwGuidance);
+        } else {
+            if (this.extensionContainer != null) {
+                ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
+                        _TAG_ExtensionContainer);
+            }
+            if (this.ipSmGwGuidance != null) {
+                ((IpSmGwGuidanceImpl) this.ipSmGwGuidance).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC,
+                        _TAG_IpSmGwGuidance);
+            }
         }
     }
 

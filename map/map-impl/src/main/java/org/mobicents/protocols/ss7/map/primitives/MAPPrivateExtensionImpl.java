@@ -27,7 +27,6 @@ import java.util.Arrays;
 
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
-
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -37,6 +36,8 @@ import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentException;
 import org.mobicents.protocols.ss7.map.api.MAPParsingComponentExceptionReason;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPPrivateExtension;
+import org.mobicents.protocols.ss7.map.api.primitives.nokia.ExtensionType;
+import org.mobicents.protocols.ss7.map.api.primitives.nokia.ExtensionTypeImpl;
 
 /**
  * @author sergey vetyutnev
@@ -48,9 +49,11 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
     private static final String DATA = "data";
 
     private static final String DEFAULT_STRING = null;
+    public static final long[] NOKIA_OID = {1, 2, 826, 0, 1249, 58, 1, 0};
 
     private long[] oId;
     private byte[] data;
+    private ExtensionType extensionType = null;
 
     public MAPPrivateExtensionImpl() {
     }
@@ -96,6 +99,11 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
         this.data = data;
     }
 
+    @Override
+    public ExtensionType getExtensionType() {
+        return extensionType;
+    }
+
     public int getTag() throws MAPException {
         return Tag.SEQUENCE;
     }
@@ -113,12 +121,12 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
         // extensionContainer SEQUENCE {
         // privateExtensionList [0] IMPLICIT SEQUENCE ( SIZE( 1 .. 10 ) ) OF
         // SEQUENCE {
-        // extId MAP-EXTENSION .&extensionId ( {
-        // ,
-        // ...} ) ,
-        // extType MAP-EXTENSION .&ExtensionType ( {
-        // ,
-        // ...} { @extId } ) OPTIONAL} OPTIONAL,
+        //          extId MAP-EXTENSION .&extensionId ( {
+        //          ,
+        //          ...} ) ,
+        //          extType MAP-EXTENSION .&ExtensionType ( {
+        //          ,
+        //          ...} { @extId } ) OPTIONAL} OPTIONAL,
         // pcs-Extensions [1] IMPLICIT SEQUENCE {
         // ... } OPTIONAL,
         // ... } OPTIONAL,
@@ -162,10 +170,25 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
 
         // extType
         if (ansIS.available() > 0) {
-            this.data = new byte[ansIS.available()];
-            ansIS.read(this.data);
-        } else
+
+            if (Arrays.equals(NOKIA_OID, this.oId)){
+                extensionType = new ExtensionTypeImpl();
+                int tag2 = ansIS.readTag();
+/*
+                AsnInputStream localAis2 = ansIS.readSequenceStream();
+                localAis2.readTag();
+*/
+                //TODO Validate TAG
+                ((ExtensionTypeImpl) extensionType).decodeAll(ansIS);
+
+            } else {
+                this.data = new byte[ansIS.available()];
+                ansIS.read(this.data);
+            }
+
+        } else {
             this.data = null;
+        }
     }
 
     public void encodeAll(AsnOutputStream asnOs) throws MAPException {
@@ -192,6 +215,12 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
 
         try {
             asnOs.writeObjectIdentifier(this.oId);
+
+            // extType
+            if (Arrays.equals(NOKIA_OID, this.oId) && extensionType!=null){
+                ((ExtensionTypeImpl) this.extensionType).encodeAll(asnOs);
+            }
+
             if (this.data != null)
                 asnOs.write(this.data);
         } catch (IOException e) {
@@ -210,9 +239,14 @@ public class MAPPrivateExtensionImpl implements MAPPrivateExtension, MAPAsnPrimi
             sb.append("Oid=");
             sb.append(this.ArrayToString(this.oId));
         }
+        if (extensionType!=null){
+            sb.append(", \nextensionType=");
+            sb.append(this.extensionType);
+
+        }
 
         if (this.data != null) {
-            sb.append(", data=");
+            sb.append(",  \ndata=");
             sb.append(this.ArrayToString(this.data));
         }
 

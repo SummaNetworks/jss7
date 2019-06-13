@@ -59,9 +59,10 @@ public class LocationInfoWithLMSITest {
     }
 
     private byte[] getEncodedDataFull() {
-        return new byte[] { (byte) 160, 67, (byte) 129, 6, (byte) 168, 33, 67, 101, (byte) 135, 9, 4, 4, 4, 3, 2, 1, 48, 39, (byte) 160, 32, 48, 10, 6, 3, 42,
-                3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42, 3, 6, 48, 11, 6, 3, 42, 3, 5, 21, 22, 23, 24, 25, 26, (byte) 161, 3, 31, 32, 33, (byte) 133, 0,
-                (byte) 166, 8, (byte) 129, 6, (byte) 185, (byte) 137, 103, 69, 35, (byte) 241 };
+        return new byte[] {
+                -96, 67, -127, 6, -88, 33, 67, 101, -121, 9, 4, 4, 4, 3, 2, 1, 48, 39, -96, 32, 48, 10, 6, 3, 42,
+                3, 4, 11, 12, 13, 14, 15, 48, 5, 6, 3, 42, 3, 6, 48, 11, 6, 3, 42, 3, 5, 21, 22, 23, 24, 25, 26,
+                -95, 3, 31, 32, 33, -123, 0, -90, 8, -127, 6, -71, -119, 103, 69, 35, -15, };
     }
 
     @Test(groups = { "functional.decode", "service.sms" })
@@ -71,7 +72,7 @@ public class LocationInfoWithLMSITest {
         AsnInputStream asn = new AsnInputStream(rawData);
 
         int tag = asn.readTag();
-        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl();
+        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl(3);
         liw.decodeAll(asn);
 
         assertEquals(tag, 0);
@@ -89,7 +90,7 @@ public class LocationInfoWithLMSITest {
         asn = new AsnInputStream(rawData);
 
         tag = asn.readTag();
-        liw = new LocationInfoWithLMSIImpl();
+        liw = new LocationInfoWithLMSIImpl(3);
         liw.decodeAll(asn);
 
         assertEquals(tag, 0);
@@ -113,7 +114,7 @@ public class LocationInfoWithLMSITest {
 
         ISDNAddressString nnm = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "79033700222");
         LMSIImpl lmsi = new LMSIImpl(new byte[] { 0, 3, 98, 49 });
-        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl(nnm, lmsi, null, false, null);
+        LocationInfoWithLMSIImpl liw = new LocationInfoWithLMSIImpl(3, nnm, lmsi, null, false, null);
 
         AsnOutputStream asnOS = new AsnOutputStream();
         liw.encodeAll(asnOS, Tag.CLASS_CONTEXT_SPECIFIC, 0);
@@ -127,7 +128,7 @@ public class LocationInfoWithLMSITest {
                 "987654321");
         lmsi = new LMSIImpl(new byte[] { 4, 3, 2, 1 });
         AdditionalNumber an = new AdditionalNumberImpl(sgsnAn, false);
-        liw = new LocationInfoWithLMSIImpl(nnm, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), true, an);
+        liw = new LocationInfoWithLMSIImpl(3, nnm, lmsi, MAPExtensionContainerTest.GetTestExtensionContainer(), true, an);
 
         asnOS.reset();
         liw.encodeAll(asnOS, Tag.CLASS_CONTEXT_SPECIFIC, 0);
@@ -142,7 +143,7 @@ public class LocationInfoWithLMSITest {
     public void testSerialization() throws Exception {
         ISDNAddressString nnm = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, "79033700222");
         LMSIImpl lmsi = new LMSIImpl(new byte[] { 0, 3, 98, 49 });
-        LocationInfoWithLMSIImpl original = new LocationInfoWithLMSIImpl(nnm, lmsi, null, true, null);
+        LocationInfoWithLMSIImpl original = new LocationInfoWithLMSIImpl(3, nnm, lmsi, null, true, null);
 
         // serialize
         ByteArrayOutputStream out = new ByteArrayOutputStream();
