@@ -24,15 +24,14 @@ package org.mobicents.protocols.ss7.tcap;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -217,7 +216,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             return false;
     }
 
-    private synchronized Long getAvailableTxId() throws TCAPException {
+    private Long getAvailableTxId() throws TCAPException {
         if (this.dialogs.size() >= this.stack.getMaxDialogs())
             throw new TCAPException("Current dialog count exceeds its maximum value");
 
@@ -322,26 +321,26 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                 id = this.getAvailableTxId();
             } else {
                 if (!checkAvailableTxId(id)) {
-                    //throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
+
                     logger.warn("Suggested local TransactionId is already present in system: " + id);
                     throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
                 }
             }
-            if (structured) {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-
-                this.dialogs.put(id, di);
-                if (this.stack.getStatisticsEnabled()) {
-                    this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
-                    this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
-                }
-
-                return di;
-            } else {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-                return di;
-            }
+            //if (structured) {
+            // TODO: 3/06/19 by Ajimenez - Disabled for performance. Moved creation out of synchronized block.
+            // this.dialogs.put(id, di);
+            // if (this.stack.getStatisticsEnabled()) {
+            // this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
+            // this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
+            // }
+            //}
         }
+
+        DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
+        if(structured) {
+            this.dialogs.put(id, di);
+        }
+        return di;
     }
 
     protected long getCurrentDialogsCount() {
