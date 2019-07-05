@@ -1006,23 +1006,25 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
 
                             // for MAP version >= 2 - accepts only if only ERROR
                             // & REJECT components are present
-                            boolean notOnlyErrorReject = false;
-                            for (Component c : tcEndIndication.getComponents()) {
-                                if (c.getType() != ComponentType.ReturnError && c.getType() != ComponentType.Reject) {
-                                    notOnlyErrorReject = true;
-                                    break;
+                            if(tcEndIndication.getComponents() != null) {
+                                boolean notOnlyErrorReject = false;
+                                for (Component c : tcEndIndication.getComponents()) {
+                                    if (c.getType() != ComponentType.ReturnError && c.getType() != ComponentType.Reject) {
+                                        notOnlyErrorReject = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (notOnlyErrorReject) {
-                                loger.error(String.format(
-                                        "Received first TC-END for MAPDialog=%s. But no application-context-name included",
-                                        mapDialogImpl));
+                                if (notOnlyErrorReject) {
+                                    loger.error(String.format(
+                                            "Received first TC-END for MAPDialog=%s. But no application-context-name included",
+                                            mapDialogImpl));
 
-                                this.deliverDialogProviderAbort(mapDialogImpl, MAPAbortProviderReason.AbnormalMAPDialogueLocal,
-                                        MAPAbortSource.MAPProblem, null);
-                                mapDialogImpl.setState(MAPDialogState.EXPUNGED);
+                                    this.deliverDialogProviderAbort(mapDialogImpl, MAPAbortProviderReason.AbnormalMAPDialogueLocal,
+                                            MAPAbortSource.MAPProblem, null);
+                                    mapDialogImpl.setState(MAPDialogState.EXPUNGED);
 
-                                return;
+                                    return;
+                                }
                             }
                         }
                     } else {
