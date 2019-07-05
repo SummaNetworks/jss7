@@ -88,8 +88,7 @@ public class ExtensionTypeImpl extends AbstractMAPAsnPrimitive implements Extens
                     }
                     break;
                 default:
-                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ": bad choice tag",
-                            MAPParsingComponentExceptionReason.MistypedParameter);
+                    break; //TODO other info will be lost
             }
         } else {
             throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName + ": bad choice tagClass",
