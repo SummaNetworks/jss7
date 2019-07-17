@@ -36,6 +36,7 @@ public class Mtp3TransferPrimitive {
     protected final int dpc;
     protected final int sls;
     protected final byte[] data;
+    private long creationTime;
 
     private final RoutingLabelFormat pointCodeFormat;
 
@@ -50,6 +51,7 @@ public class Mtp3TransferPrimitive {
         this.data = data;
 
         this.pointCodeFormat = pointCodeFormat;
+        this.creationTime = System.currentTimeMillis();
     }
 
     public int getSi() {
@@ -78,6 +80,10 @@ public class Mtp3TransferPrimitive {
 
     public byte[] getData() {
         return this.data;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
     }
 
     public byte[] encodeMtp3() {

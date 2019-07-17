@@ -273,6 +273,11 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         @Override
         public void run() {
+
+            // TODO: 17/07/19 by Ajimenez - Pasar el tiempo a property.
+            if( (System.currentTimeMillis() - this.msg.getCreationTime()) > 200){
+                return;
+            }
             if (isStarted) {
                 try {
                     for (Mtp3UserPartListener lsn : userListeners) {
