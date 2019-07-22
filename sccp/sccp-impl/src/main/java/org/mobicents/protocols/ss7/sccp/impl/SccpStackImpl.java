@@ -741,6 +741,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
             int mt = in.readUnsignedByte();
             msg = ((MessageFactoryImpl) sccpProvider.getMessageFactory()).createMessage(mt, mtp3Msg.getOpc(), mtp3Msg.getDpc(), mtp3Msg.getSls(), in,
                     this.sccpProtocolVersion, networkId);
+            msg.setReceivedTimeStamp(mtp3Msg.getCreationTime());
 
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Rx : SCCP message from MTP %s", msg));

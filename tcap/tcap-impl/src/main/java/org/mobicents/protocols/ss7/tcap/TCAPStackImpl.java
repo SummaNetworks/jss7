@@ -143,6 +143,10 @@ public class TCAPStackImpl implements TCAPStack {
         return this.ssn;
     }
 
+    public void setFastDroppingTime(long maxTimeMilliseconds ){
+        this.tcapProvider.setMaxAgeForBeginMessageMilliseconds(maxTimeMilliseconds);
+    }
+
     public void setPersistDir(String persistDir) {
         this.persistDir = persistDir;
         this.setPersistFile();
