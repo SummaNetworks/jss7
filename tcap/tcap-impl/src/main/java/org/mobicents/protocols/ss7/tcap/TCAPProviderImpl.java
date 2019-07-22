@@ -158,6 +158,11 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         return maxAgeForBeginMessageMilliseconds;
     }
 
+    /**
+     * Configure the time for drop begin-messages which are older than given, when are processed.
+     * Default 200ms
+     * @param maxAgeForBeginMessageMilliseconds
+     */
     public void setMaxAgeForBeginMessageMilliseconds(long maxAgeForBeginMessageMilliseconds) {
         this.maxAgeForBeginMessageMilliseconds = maxAgeForBeginMessageMilliseconds;
     }
