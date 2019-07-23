@@ -119,7 +119,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private int minSls = 0;
     private int maxSls = 256;
 
-    private long maxAgeForBeginMessageMilliseconds = 200;
+    private TimeFilterImpl timeFilter = new TimeFilterImpl(0);
 
 
     /**
@@ -153,18 +153,18 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         return this.stack.getPreviewMode();
     }
 
-
-    public long getMaxAgeForBeginMessageMilliseconds() {
-        return maxAgeForBeginMessageMilliseconds;
-    }
-
     /**
      * Configure the time for drop begin-messages which are older than given, when are processed.
      * Default 200ms
      * @param maxAgeForBeginMessageMilliseconds
      */
     public void setMaxAgeForBeginMessageMilliseconds(long maxAgeForBeginMessageMilliseconds) {
-        this.maxAgeForBeginMessageMilliseconds = maxAgeForBeginMessageMilliseconds;
+        timeFilter.setMaxAgeForBeginMessageMilliseconds(maxAgeForBeginMessageMilliseconds);
+    }
+
+    public void setRampTimeFilter(int rampDurationInSeconds, int rampMessageIncrementBySecond){
+        timeFilter.setRampDurationInSeconds(rampDurationInSeconds);
+        timeFilter.setRampMessagesIncrementBySecond(rampMessageIncrementBySecond);
     }
 
     /*
@@ -694,9 +694,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
             case TCBeginMessage._TAG:
                 TCBeginMessage tcb = null;
                 //If message is to old and BEGIN, then is dropped.
-                long diff;
-                if( (diff = (System.currentTimeMillis() - message.getReceivedTimeStamp())) > maxAgeForBeginMessageMilliseconds){
-                    logger.debug(String.format("Dropping message, age: %d ms > %d ms", diff, maxAgeForBeginMessageMilliseconds));
+                if(!timeFilter.isInTime(message)){
                     return;
                 }
                 try {

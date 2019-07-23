@@ -147,6 +147,10 @@ public class TCAPStackImpl implements TCAPStack {
         this.tcapProvider.setMaxAgeForBeginMessageMilliseconds(maxTimeMilliseconds);
     }
 
+    public void setRampConfiguration(int rampDurationInSeconds, int rampMessageIncrementBySecond){
+        this.tcapProvider.setRampTimeFilter(rampDurationInSeconds, rampMessageIncrementBySecond);
+    }
+
     public void setPersistDir(String persistDir) {
         this.persistDir = persistDir;
         this.setPersistFile();
