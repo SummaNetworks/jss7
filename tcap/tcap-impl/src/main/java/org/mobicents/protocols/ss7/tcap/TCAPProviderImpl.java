@@ -179,8 +179,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         }
     }
 
-
-
     /*
      * (non-Javadoc)
      *
@@ -213,7 +211,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     }
 
     // get next Seq Control value available
-    private synchronized int getNextSeqControl() {
+    protected synchronized int getNextSeqControl() {
         seqControl++;
         if (seqControl > maxSls) {
             seqControl = minSls;
