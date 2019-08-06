@@ -305,22 +305,22 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
                 }
             }
-            if (structured) {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-
-                this.dialogs.put(id, di);
-                if (this.stack.getStatisticsEnabled()) {
-                    this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
-                    this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
-                }
-
-                return di;
-            } else {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-                return di;
-            }
+            //if (structured) {
+            // TODO: 3/06/19 by Ajimenez - Disabled for performance. Moved creation out of synchronized block.
+            // this.dialogs.put(id, di);
+//                if (this.stack.getStatisticsEnabled()) {
+//                    this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
+//                    this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
+//                }
+            //}
         }
-    }
+
+        DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
+        if(structured) {
+            this.dialogs.put(id, di);
+        }
+            return di;
+        }
 
     protected long getCurrentDialogsCount() {
         return this.dialogs.size();
@@ -684,6 +684,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     this.sendProviderAbort(PAbortCauseType.UnrecognizedTxID, tcm.getOriginatingTransactionId(), remoteAddress, localAddress, message.getSls(),
                             message.getNetworkId());
                 } else {
+                    di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processContinue(tcm, localAddress, remoteAddress);
                 }
 
@@ -751,7 +752,9 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     this.stack.getCounterProviderImpl().updateAllEstablishedDialogsCount();
                 }
                 di.setNetworkId(message.getNetworkId());
+                di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                 di.processBegin(tcb, localAddress, remoteAddress);
+
 
                 if (this.stack.getPreviewMode()) {
                     di.getPrevewDialogData().setLastACN(di.getApplicationContextName());
@@ -782,6 +785,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
                 } else {
+                    di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processEnd(teb, localAddress, remoteAddress);
 
                     if (this.stack.getPreviewMode()) {
