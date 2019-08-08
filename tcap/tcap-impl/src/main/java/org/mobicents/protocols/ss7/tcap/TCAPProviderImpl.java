@@ -305,21 +305,21 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
                 }
             }
-            if (structured) {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-
-                this.dialogs.put(id, di);
-                if (this.stack.getStatisticsEnabled()) {
-                    this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
-                    this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
-                }
-
-                return di;
-            } else {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-                return di;
-            }
+            //if (structured) {
+            // TODO: 3/06/19 by Ajimenez - Disabled for performance. Moved creation out of synchronized block.
+            // this.dialogs.put(id, di);
+            // if (this.stack.getStatisticsEnabled()) {
+            // this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
+            // this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
+            // }
+            //}
         }
+
+        DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
+            if (structured) {
+                this.dialogs.put(id, di);
+                }
+                return di;
     }
 
     protected long getCurrentDialogsCount() {
