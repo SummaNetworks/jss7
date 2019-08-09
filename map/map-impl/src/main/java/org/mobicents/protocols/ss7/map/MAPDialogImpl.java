@@ -178,35 +178,6 @@ public abstract class MAPDialogImpl implements MAPDialog {
         this.extContainer = extContainer;
     }
 
-    /**
-     * Adding the new incoming invokeId into incomingInvokeList list
-     *
-     * @param invokeId
-     * @return false: failure - this invokeId already present in the list
-     */
-    // public boolean addIncomingInvokeId(Long invokeId) {
-    // synchronized (this.incomingInvokeList) {
-    // if (this.incomingInvokeList.contains(invokeId))
-    // return false;
-    // else {
-    // this.incomingInvokeList.add(invokeId);
-    // return true;
-    // }
-    // }
-    // }
-    //
-    // public void removeIncomingInvokeId(Long invokeId) {
-    // synchronized (this.incomingInvokeList) {
-    // this.incomingInvokeList.remove(invokeId);
-    // }
-    // }
-    //
-    // public Boolean checkIncomingInvokeIdExists(Long invokeId) {
-    // synchronized (this.incomingInvokeList) {
-    // return this.incomingInvokeList.contains(invokeId);
-    // }
-    // }
-
     public AddressString getReceivedOrigReference() {
         return receivedOrigReference;
     }

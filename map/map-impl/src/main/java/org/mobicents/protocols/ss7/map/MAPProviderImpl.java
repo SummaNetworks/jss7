@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;

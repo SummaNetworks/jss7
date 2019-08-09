@@ -183,6 +183,7 @@ public class DialogImpl implements Dialog {
         return invokeIDTable;
     }
 
+    private long lastMessageReceivedTime = -1;
 
     private static int getIndexFromInvokeId(Long l) {
         int tmp = l.intValue();
@@ -2198,11 +2199,24 @@ public class DialogImpl implements Dialog {
         return this.prevewDialogData;
     }
 
+    public long getStartDialogTime() {
+        return startDialogTime;
+    }
+
+    @Override
+    public long getLastMessageReceivedTime() {
+        return lastMessageReceivedTime;
+    }
+
+    protected void setLastMessageReceivedTime(long lastMessageReceivedTime) {
+        this.lastMessageReceivedTime = lastMessageReceivedTime;
+    }
+
     /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
+                 * (non-Javadoc)
+                 *
+                 * @see java.lang.Object#toString()
+                 */
     @Override
     public String toString() {
 

@@ -24,14 +24,15 @@ package org.mobicents.protocols.ss7.tcap;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastMap;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -683,6 +684,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     this.sendProviderAbort(PAbortCauseType.UnrecognizedTxID, tcm.getOriginatingTransactionId(), remoteAddress, localAddress, message.getSls(),
                             message.getNetworkId());
                 } else {
+                    di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processContinue(tcm, localAddress, remoteAddress);
                 }
 
@@ -750,6 +752,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     this.stack.getCounterProviderImpl().updateAllEstablishedDialogsCount();
                 }
                 di.setNetworkId(message.getNetworkId());
+                di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                 di.processBegin(tcb, localAddress, remoteAddress);
 
                 if (this.stack.getPreviewMode()) {
@@ -781,6 +784,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
                 } else {
+                    di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processEnd(teb, localAddress, remoteAddress);
 
                     if (this.stack.getPreviewMode()) {
