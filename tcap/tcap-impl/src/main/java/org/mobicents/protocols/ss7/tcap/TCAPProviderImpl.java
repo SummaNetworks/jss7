@@ -24,15 +24,14 @@ package org.mobicents.protocols.ss7.tcap;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -316,10 +315,10 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         }
 
         DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-            if (structured) {
-                this.dialogs.put(id, di);
-                }
-                return di;
+        if (structured) {
+            this.dialogs.put(id, di);
+        }
+        return di;
     }
 
     protected long getCurrentDialogsCount() {
