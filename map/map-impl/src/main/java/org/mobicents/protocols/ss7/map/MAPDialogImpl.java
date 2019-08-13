@@ -93,6 +93,7 @@ public abstract class MAPDialogImpl implements MAPDialog {
     protected MessageType tcapMessageType;
     protected DelayedAreaState delayedAreaState;
 
+
     protected MAPDialogImpl(MAPApplicationContext appCntx, Dialog tcapDialog, MAPProviderImpl mapProviderImpl,
             MAPServiceBase mapService, AddressString origReference, AddressString destReference) {
         this.appCntx = appCntx;

@@ -262,10 +262,14 @@ public class RuleImpl implements Rule, Serializable {
                         translatedDigits);
             } else {
                 if (primaryGt instanceof GlobalTitle0100){
-                    logger.debug("translate is using WILD CARD TT so using the one given by the address");
                     //check if the TT is WILD_CARD (-1)
                     boolean isWildCardTT = (((GlobalTitle0100)primaryGt).getTranslationType() < 0);
-                    int newTT = ((GlobalTitle0100)address.getGlobalTitle()).getTranslationType();
+
+                    int newTT = ((GlobalTitle0100) primaryGt).getTranslationType();
+                    if (isWildCardTT) {
+                        newTT = ((GlobalTitle0100) address.getGlobalTitle()).getTranslationType();
+                    }
+
                     GlobalTitle0100 newGt = new GlobalTitle0100Impl(address.getGlobalTitle().getDigits(), newTT,
                             ((GlobalTitle0100)address.getGlobalTitle()).getEncodingScheme(),
                             ((GlobalTitle0100)address.getGlobalTitle()).getNumberingPlan(),
