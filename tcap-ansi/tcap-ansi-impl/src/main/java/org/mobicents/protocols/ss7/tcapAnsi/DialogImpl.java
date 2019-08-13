@@ -1820,7 +1820,8 @@ public class DialogImpl implements Dialog {
                 }
 
             } finally {
-                d.idleTimerInvoked = false;
+                if(d != null)
+                    d.idleTimerInvoked = false;
                 dialogLock.unlock();
             }
         }

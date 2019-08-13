@@ -109,7 +109,10 @@ public class ManagementMessageHandler extends MessageHandler {
                         fsm.setAttribute(AsImpl.ATTRIBUTE_ASP, aspImpl);
                         fsm.signal(TransitionState.getTransition(notify));
                     } catch (UnknownTransitionException e) {
-                        logger.error(e.getMessage(), e);
+                        logger.error(e.getMessage());
+                        if(logger.isDebugEnabled()){
+                            logger.debug("UnknownTransitionException stack: ",e);
+                        }
                     }
                 }// end of for
             }// if (rc == null) {

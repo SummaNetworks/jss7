@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.sgw</groupId>
 		<artifactId>restcomm-sgw</artifactId>
-		<version>7.0.0-SUMMA-2.1.18-SNAPSHOT</version>
+		<version>7.0.0-SUMMA-1.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>boot</artifactId>

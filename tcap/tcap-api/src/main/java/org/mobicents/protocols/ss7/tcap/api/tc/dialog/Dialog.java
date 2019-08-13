@@ -307,4 +307,5 @@ public interface Dialog extends Serializable {
      */
     ReentrantLock getDialogLock();
 
+    long getLastMessageReceivedTime();
 }

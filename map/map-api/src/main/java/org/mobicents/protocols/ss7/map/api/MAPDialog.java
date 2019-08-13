@@ -229,7 +229,7 @@ public interface MAPDialog extends Serializable {
     /**
      * This is equivalent to MAP User issuing the MAP_U_ABORT Service Request.
      *
-     * @param userReason
+     * @param mapUserAbortChoice
      */
     void abort(MAPUserAbortChoice mapUserAbortChoice) throws MAPException;
 

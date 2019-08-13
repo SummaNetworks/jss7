@@ -119,6 +119,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     private int minSls = 0;
     private int maxSls = 256;
 
+    private TimeFilterImpl timeFilter = new TimeFilterImpl(0);
+
 
     /**
      *
@@ -151,20 +153,31 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         return this.stack.getPreviewMode();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.mobicents.protocols.ss7.tcap.api.TCAPStack#addTCListener(org.mobicents .protocols.ss7.tcap.api.TCListener)
+    /**
+     * Configure the time for drop begin-messages which are older than given, when are processed.
+     * Default 200ms
+     * @param maxAgeForBeginMessageMilliseconds
      */
+    public void setMaxAgeForBeginMessageMilliseconds(long maxAgeForBeginMessageMilliseconds) {
+        timeFilter.setMaxAgeForBeginMessageMilliseconds(maxAgeForBeginMessageMilliseconds);
+    }
 
+    public void setRampTimeFilter(int rampDurationInSeconds, int rampMessageIncrementBySecond){
+        timeFilter.setRampDurationInSeconds(rampDurationInSeconds);
+        timeFilter.setRampMessagesIncrementBySecond(rampMessageIncrementBySecond);
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see org.mobicents.protocols.ss7.tcap.api.TCAPStack#addTCListener(org.mobicents .protocols.ss7.tcap.api.TCListener)
+         */
     public void addTCListener(TCListener lst) {
         if (this.tcListeners.contains(lst)) {
         } else {
             this.tcListeners.add(lst);
         }
     }
-
-
 
     /*
      * (non-Javadoc)
@@ -198,7 +211,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
     }
 
     // get next Seq Control value available
-    private synchronized int getNextSeqControl() {
+    protected synchronized int getNextSeqControl() {
         seqControl++;
         if (seqControl > maxSls) {
             seqControl = minSls;
@@ -292,21 +305,21 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     throw new TCAPException("Suggested local TransactionId is already present in system: " + id);
                 }
             }
-            if (structured) {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-
-                this.dialogs.put(id, di);
-                if (this.stack.getStatisticsEnabled()) {
-                    this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
-                    this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
-                }
-
-                return di;
-            } else {
-                DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
-                return di;
-            }
+            //if (structured) {
+            // TODO: 3/06/19 by Ajimenez - Disabled for performance. Moved creation out of synchronized block.
+            // this.dialogs.put(id, di);
+            // if (this.stack.getStatisticsEnabled()) {
+            // this.stack.getCounterProviderImpl().updateMinDialogsCount(this.dialogs.size());
+            // this.stack.getCounterProviderImpl().updateMaxDialogsCount(this.dialogs.size());
+            // }
+            //}
         }
+
+        DialogImpl di = new DialogImpl(localAddress, remoteAddress, id, structured, this._EXECUTOR, this, seqControl, this.stack.getPreviewMode());
+        if (structured) {
+            this.dialogs.put(id, di);
+        }
+        return di;
     }
 
     protected long getCurrentDialogsCount() {
@@ -671,6 +684,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     this.sendProviderAbort(PAbortCauseType.UnrecognizedTxID, tcm.getOriginatingTransactionId(), remoteAddress, localAddress, message.getSls(),
                             message.getNetworkId());
                 } else {
+                    di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processContinue(tcm, localAddress, remoteAddress);
                 }
 
@@ -678,6 +692,10 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
 
             case TCBeginMessage._TAG:
                 TCBeginMessage tcb = null;
+                //If message is to old and BEGIN, then is dropped.
+                if(!timeFilter.isInTime(message)){
+                    return;
+                }
                 try {
                     tcb = TcapFactory.createTCBeginMessage(ais);
                 } catch (ParseException e) {
@@ -734,6 +752,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     this.stack.getCounterProviderImpl().updateAllEstablishedDialogsCount();
                 }
                 di.setNetworkId(message.getNetworkId());
+                di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                 di.processBegin(tcb, localAddress, remoteAddress);
 
                 if (this.stack.getPreviewMode()) {
@@ -765,6 +784,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
                 } else {
+                    di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processEnd(teb, localAddress, remoteAddress);
 
                     if (this.stack.getPreviewMode()) {
