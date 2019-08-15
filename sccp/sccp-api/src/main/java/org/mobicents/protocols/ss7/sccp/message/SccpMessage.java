@@ -72,6 +72,8 @@ public interface SccpMessage {
 
     int getOriginLocalSsn();
 
+    long getReceivedTimeStamp();
+
     int getSls();
 
     int getIncomingOpc();

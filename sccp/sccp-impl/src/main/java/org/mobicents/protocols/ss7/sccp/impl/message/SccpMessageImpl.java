@@ -53,6 +53,8 @@ public abstract class SccpMessageImpl implements SccpMessage {
     protected int outgoingDpc = -1;
     protected int networkId;
 
+    private long receivedTimeStamp;
+
     protected SccpMessageImpl(int maxDataLen, int type, int sls, int localSsn) {
         this.isMtpOriginated = false;
         this.type = type;
@@ -71,6 +73,15 @@ public abstract class SccpMessageImpl implements SccpMessage {
         this.sls = incomingSls;
         this.maxDataLen = maxDataLen;
         this.networkId = networkId;
+    }
+
+    @Override
+    public long getReceivedTimeStamp() {
+        return receivedTimeStamp;
+    }
+
+    public void setReceivedTimeStamp(long receivedTimeStamp) {
+        this.receivedTimeStamp = receivedTimeStamp;
     }
 
     public int getSls() {

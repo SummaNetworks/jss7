@@ -31,8 +31,9 @@ import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.EventType;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Component;
 
 /**
- * @author baranowb
+ * The type Dialog indication.
  *
+ * @author baranowb
  */
 public abstract class DialogIndicationImpl implements DialogIndication {
 
@@ -41,6 +42,11 @@ public abstract class DialogIndicationImpl implements DialogIndication {
     private Byte qos;
     private EventType type;
 
+    /**
+     * Instantiates a new Dialog indication.
+     *
+     * @param type the type
+     */
     protected DialogIndicationImpl(EventType type) {
         super();
         this.type = type;
@@ -54,6 +60,8 @@ public abstract class DialogIndicationImpl implements DialogIndication {
     }
 
     /**
+     * Sets components.
+     *
      * @param components the components to set
      */
     public void setComponents(Component[] components) {
@@ -68,6 +76,8 @@ public abstract class DialogIndicationImpl implements DialogIndication {
     }
 
     /**
+     * Sets dialog.
+     *
      * @param dialog the dialog to set
      */
     public void setDialog(Dialog dialog) {
@@ -89,6 +99,8 @@ public abstract class DialogIndicationImpl implements DialogIndication {
     }
 
     /**
+     * Sets qos.
+     *
      * @param qos the qos to set
      */
     public void setQos(Byte qos) {

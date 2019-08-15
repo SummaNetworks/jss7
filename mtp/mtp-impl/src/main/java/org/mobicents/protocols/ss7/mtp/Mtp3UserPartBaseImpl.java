@@ -227,6 +227,12 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     AtomicInteger roundRobbing = new AtomicInteger(0);
     protected void sendTransferMessageToLocalUser(Mtp3TransferPrimitive msg, int seqControl) {
         if (this.isStarted) {
+            if(logger.isTraceEnabled()) {
+                long msAgo = System.currentTimeMillis() - msg.getCreationTime();
+                if (msAgo > 5)
+                    logger.trace(String.format("Adding to executor message created [%d]ms ago", msAgo));
+            }
+
             MsgTransferDeliveryHandler hdl = new MsgTransferDeliveryHandler(msg); // FIXME: 5/11/18 Ver si se puede evitar crear un thread cada vez.
             //Positive position lower than length.
             int executorPos = (roundRobbing.getAndIncrement() % msgDeliveryExecutors.length + msgDeliveryExecutors.length) % msgDeliveryExecutors.length;
@@ -288,6 +294,11 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
         @Override
         public void run() {
             if (isStarted) {
+                if(logger.isTraceEnabled()) {
+                    long msAgo = System.currentTimeMillis() - msg.getCreationTime();
+                    if(msAgo > 5)
+                        logger.trace(String.format("Processing message received [%d]ms ago.", msAgo));
+                }
                 try {
                     for (Mtp3UserPartListener lsn : userListeners) {
                         lsn.onMtp3TransferMessage(this.msg);
