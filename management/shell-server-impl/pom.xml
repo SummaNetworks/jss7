@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.management</groupId>
 		<artifactId>management</artifactId>
-		<version>7.0.0-SUMMA-1.1.17-PERFORMANCE-SNAPSHOT</version>
+		<version>7.0.0-SUMMA-1.1.19-PERFORMANCE-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>shell-server-impl</artifactId>
