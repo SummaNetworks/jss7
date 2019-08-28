@@ -471,5 +471,4 @@ public class TCAPStackImpl implements TCAPStack {
              "Error while re-creating Linksets from persisted file", ex);
         }
     }
-
 }
