@@ -21,6 +21,8 @@
  */
 package org.mobicents.protocols.ss7.m3ua.impl;
 
+import java.util.Arrays;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
@@ -58,6 +60,10 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
     public void handleDestinationUnavailable(DestinationUnavailable duna) {
 
         RoutingContext rcObj = duna.getRoutingContexts();
+
+        if(duna.getAffectedPointCodes() != null) {
+            logger.warn(String.format("DUNA received for pointCodes %s", Arrays.toString(duna.getAffectedPointCodes().getPointCodes())));
+        }
 
         if (aspFactoryImpl.getFunctionality() == Functionality.AS) {
 
@@ -152,6 +158,9 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
     public void handleDestinationAvailable(DestinationAvailable dava) {
         RoutingContext rcObj = dava.getRoutingContexts();
 
+        if(dava.getAffectedPointCodes() != null) {
+            logger.warn(String.format("DAVA received for pointCodes %s", Arrays.toString(dava.getAffectedPointCodes().getPointCodes())));
+        }
         if (aspFactoryImpl.getFunctionality() == Functionality.AS) {
 
             if (rcObj == null) {
