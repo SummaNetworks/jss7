@@ -206,16 +206,16 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
 
     private Long getAvailableTxId() throws TCAPException {
         long range = this.stack.getDialogIdRangeEnd() - this.stack.getDialogIdRangeStart();
-        Long result = Math.abs((curDialogId.getAndIncrement() % range) + this.stack.getDialogIdRangeStart());
         curDialogId.compareAndSet(Long.MAX_VALUE, 0L);
+        Long result = Math.abs((curDialogId.getAndIncrement() % range) + this.stack.getDialogIdRangeStart());
         return result;
     }
 
     // get next Seq Control value available
     protected int getNextSeqControl() {
         int range = this.maxSls - this.minSls;
-        int result = Math.abs((seqControl.getAndIncrement() % range) + this.minSls);
         seqControl.compareAndSet(Integer.MAX_VALUE, 0);
+        int result = Math.abs((seqControl.getAndIncrement() % range) + this.minSls);
         return result;
     }
 
