@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.protocols.ss7.oam.common</groupId>
 		<artifactId>restcomm-ss7-oam-common</artifactId>
-		<version>7.0.0-SUMMA-1.1.19-PERFORMANCE</version>
+		<version>7.0.0-SUMMA-2.1.19-PERFORMANCE-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>sccp-oam</artifactId>
