@@ -847,8 +847,10 @@ public class DialogImpl implements Dialog {
                 if (this.provider.getStack().getStatisticsEnabled()) {
                     this.provider.getStack().getCounterProviderImpl().updateTcEndSentCount();
                 }
+//                this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError(),
+//                        (state == TRPseudoState.Active));
                 this.provider.send(this, aos.toByteArray(), event.getReturnMessageOnError(),
-                        (state == TRPseudoState.Active));
+                        false); //Is end, is not necessary replicate.
 //                this.provider.send(aos.toByteArray(), event.getReturnMessageOnError(), this.remoteAddress, this.localAddress,
 //                        this.seqControl, this.networkId);
 
