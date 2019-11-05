@@ -719,7 +719,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     PrevewDialogDataKey ky2 = new PrevewDialogDataKey(message.getIncomingOpc(),
                             (message.getCallingPartyAddress().getGlobalTitle() != null ? message.getCallingPartyAddress().getGlobalTitle().getDigits() : null),
                             message.getCallingPartyAddress().getSubsystemNumber(), dId);
-                    di = (DialogImpl) this.getPreviewDialog(ky1, ky2, localAddress, remoteAddress, seqControl);
+                    di = (DialogImpl) this.getPreviewDialog(ky1, ky2, localAddress, remoteAddress, getNextSeqControl());
                 } else {
                     di = this.dialogs.get(dialogId);
                     if(di == null && dialogReplicator != null){
@@ -829,7 +829,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     PrevewDialogDataKey ky = new PrevewDialogDataKey(message.getIncomingDpc(),
                             (message.getCalledPartyAddress().getGlobalTitle() != null ? message.getCalledPartyAddress().getGlobalTitle().getDigits() : null),
                             message.getCalledPartyAddress().getSubsystemNumber(), dialogId);
-                    di = (DialogImpl) this.getPreviewDialog(ky, null, localAddress, remoteAddress, seqControl);
+                    di = (DialogImpl) this.getPreviewDialog(ky, null, localAddress, remoteAddress, getNextSeqControl());
                 } else {
                     di = this.dialogs.get(dialogId);
                     if(di == null && dialogReplicator != null){
@@ -868,7 +868,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     PrevewDialogDataKey ky = new PrevewDialogDataKey(message.getIncomingDpc(),
                             (message.getCalledPartyAddress().getGlobalTitle() != null ? message.getCalledPartyAddress().getGlobalTitle().getDigits() : null),
                             message.getCalledPartyAddress().getSubsystemNumber(), dId);
-                    di = (DialogImpl) this.getPreviewDialog(ky, null, localAddress, remoteAddress, seqControl);
+                    di = (DialogImpl) this.getPreviewDialog(ky, null, localAddress, remoteAddress, getNextSeqControl());
                 } else {
                     di = this.dialogs.get(dialogId);
                     if(di == null && dialogReplicator != null){
