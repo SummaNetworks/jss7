@@ -646,4 +646,23 @@ public class RuleTest {
 
         assertTrue(rule.matches(address, null, false, 0));
     }
+
+    @Test(groups = { "router", "functional.translate" })
+    public void testTranslateNumberingPlan() throws Exception {
+
+        // Match digits starting with 447797706077 and add PC and SSN.
+        SccpAddress pattern = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, factory.createGlobalTitle( "917797706077/*",0,
+                NumberingPlan.UNKNOWN, null, NatureOfAddress.INTERNATIONAL), 0, 8);
+        SccpAddress primaryAddress = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, factory.createGlobalTitle( "917797706077/-",105, NumberingPlan.ISDN_TELEPHONY, null, NatureOfAddress.INTERNATIONAL), 792,
+                8);
+
+        RuleImpl rule = new RuleImpl(RuleType.SOLITARY, LoadSharingAlgorithm.Undefined, OriginationType.ALL, pattern, "K/R", 0, null);
+        rule.setPrimaryAddressId(1);
+
+        SccpAddress address = factory.createSccpAddress(RoutingIndicator.ROUTING_BASED_ON_GLOBAL_TITLE, factory.createGlobalTitle("917797706077",0,
+                NumberingPlan.ISDN_MOBILE, null, NatureOfAddress.INTERNATIONAL), 0, 8);
+
+        SccpAddress translatedAddress = rule.translate(address, primaryAddress);
+        assertTrue(((GlobalTitle0100)translatedAddress.getGlobalTitle()).getTranslationType() == ((GlobalTitle0100)primaryAddress.getGlobalTitle()).getTranslationType());
+    }
 }
