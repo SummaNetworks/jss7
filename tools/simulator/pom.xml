@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>tools</artifactId>
 		<groupId>org.mobicents.protocols.ss7</groupId>
-		<version>7.0.0-SUMMA-1.2.3-PERFORMANCE-SNAPSHOT</version>
+		<version>7.0.0-SUMMA-1.2.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>simulator-parent</artifactId>
