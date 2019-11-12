@@ -700,11 +700,11 @@ public class SccpRoutingControl {
                 if (remoteSpc.isRemoteSpcProhibited()) {
                     if (logger.isEnabledFor(Level.WARN)) {
                         logger.warn(String.format(
-                                "Received SccpMessage=%s for routing but Remote Signaling Pointcode = %d is prohibited", msg,
-                                dpc));
+                                "Received SccpMessage=%s for routing but Remote Signaling Pointcode = %d is prohibited, but message is sent.", msg, dpc));
                     }
-                    this.sendSccpError(msg, ReturnCauseValue.MTP_FAILURE);
-                    return;
+                    // FIXME: 12/11/19 by Ajimenez - Revisar si hacer de otra manera en lugar de ignorarlo.
+//                    this.sendSccpError(msg, ReturnCauseValue.MTP_FAILURE);
+//                    return;
                 }
 
                 if (ssn > 1) { // was: ssn > 1 ???
