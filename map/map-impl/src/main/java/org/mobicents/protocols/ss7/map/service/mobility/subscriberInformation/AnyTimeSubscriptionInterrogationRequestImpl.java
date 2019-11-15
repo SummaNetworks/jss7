@@ -222,7 +222,7 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
                 ais.advanceElement();
             }
         }
-        if (this.subscriberIdentity == null || this.requestedSubscriptionInfo == null || this.gsmSCFAddress == null) {
+        if (this.subscriberIdentity == null /*|| this.requestedSubscriptionInfo == null || this.gsmSCFAddress == null*/) {
             throw new MAPParsingComponentException(
                     "Error while decoding " + _PrimitiveName + ": subscriberIdentity, requestedSubscriptionInfo " +
                             "and gsmSCFAddress parameters are mandatory but some of them are not found",
@@ -266,7 +266,7 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
         if (this.subscriberIdentity == null) {
             throw new MAPException("Error while encoding " + _PrimitiveName
                     + " the mandatory parameter subscriberIdentity is not defined");
-        }
+        }/*
         if (this.requestedSubscriptionInfo == null) {
             throw new MAPException("Error while encoding " + _PrimitiveName
                     + " the mandatory parameter requestedSubscriptionInfo is not defined");
@@ -274,7 +274,7 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
         if (this.gsmSCFAddress == null) {
             throw new MAPException("Error while encoding " + _PrimitiveName
                     + " the mandatory parameter gsmSCF-Address is not defined");
-        }
+        }*/
 
         try {
             asnOs.writeTag(Tag.CLASS_CONTEXT_SPECIFIC, false, _TAG_SUBSCRIBER_IDENTITY);
@@ -285,9 +285,14 @@ public class AnyTimeSubscriptionInterrogationRequestImpl extends MobilityMessage
             throw new MAPException("AsnException while encoding parameter targetMS [1] SubscriberIdentity");
         }
 
-        ((RequestedSubscriptionInfoImpl) this.requestedSubscriptionInfo).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
+        if (this.requestedSubscriptionInfo!=null) {
+            ((RequestedSubscriptionInfoImpl) this.requestedSubscriptionInfo).encodeAll(
+                    asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_REQUESTED_SUBSCRIPTION_INFO);
+        }
 
-        ((ISDNAddressStringImpl) this.gsmSCFAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GSM_SCF_ADDRESS);
+        if (gsmSCFAddress!=null) {
+            ((ISDNAddressStringImpl) this.gsmSCFAddress).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_GSM_SCF_ADDRESS);
+        }
 
         if (this.extensionContainer != null) {
             ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_EXTENSION_CONTAINER);
