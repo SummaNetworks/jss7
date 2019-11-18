@@ -56,6 +56,7 @@ public class AspStateMaintenanceHandler extends MessageHandler {
     }
 
     protected void handleAspUp(ASPUp aspUp) {
+        logger.info("handleAspUp using ASPIdentifier " + aspUp.getASPIdentifier().getAspId());
 
         if (aspFactoryImpl.getFunctionality() == Functionality.SGW
                 || (aspFactoryImpl.getFunctionality() == Functionality.AS && aspFactoryImpl.getExchangeType() == ExchangeType.DE)
@@ -68,6 +69,7 @@ public class AspStateMaintenanceHandler extends MessageHandler {
 
             ASPIdentifier aspId = aspUp.getASPIdentifier();
             aspUpAck.setASPIdentifier(aspId);
+            logger.info("handleAspUp is sending ASP_UP_ACK using aspId " + aspUp.getASPIdentifier().getAspId());
             this.aspFactoryImpl.write(aspUpAck);
 
             // If an ASP Up message is received and, internally, the remote ASP
@@ -92,6 +94,7 @@ public class AspStateMaintenanceHandler extends MessageHandler {
                 }
 
                 if (AspState.getState(aspPeerFSM.getState().getName()) == AspState.ACTIVE) {
+                    logger.info("handleAspUp aspPeerFSM is in ACTIVE STATE, sending error " + aspUp.getASPIdentifier().getAspId());
                     // Check if ASP is in ACTIVE, its error state
 
                     ErrorCode errorCodeObj = this.aspFactoryImpl.parameterFactory.createErrorCode(ErrorCode.Unexpected_Message);
@@ -103,18 +106,21 @@ public class AspStateMaintenanceHandler extends MessageHandler {
                 try {
                     // Signal ASP about state change
                     aspPeerFSM.setAttribute(FSM.ATTRIBUTE_MESSAGE, aspUp);
+                    logger.info("handleAspUp is signaling ASP_UP to aspPeerFSM " + aspUp.getASPIdentifier().getAspId());
                     aspPeerFSM.signal(TransitionState.ASP_UP);
 
                     // Signal corresponding AS about ASP's state transition
                     FSM asLocalFSM = ((AsImpl) aspImpl.getAs()).getLocalFSM();
 
                     asLocalFSM.setAttribute(AsImpl.ATTRIBUTE_ASP, aspImpl);
+                    logger.info("handleAspUp is signaling ASP_UP to asLocalFSM " + aspUp.getASPIdentifier().getAspId());
                     asLocalFSM.signal(TransitionState.ASP_UP);
                 } catch (UnknownTransitionException e) {
                     logger.error(e.getMessage(), e);
                 }
             }
         } else {
+            logger.info("handleAspUp is dropping silently ASP_UP_ACK for aspId " + aspUp.getASPIdentifier().getAspId());
             // TODO : Should we silently drop ASPUP_ACK?
 
             // ASPUP_ACK is unexpected in this state
@@ -125,6 +131,7 @@ public class AspStateMaintenanceHandler extends MessageHandler {
     }
 
     protected void handleAspUpAck(ASPUpAck aspUpAck) {
+        logger.info("handleAspUpAck using ASPIdentifier " + aspUpAck.getASPIdentifier().getAspId());
 
         if (!this.aspFactoryImpl.started) {
             // If management stopped this ASP, ignore ASPUpAck
@@ -136,6 +143,8 @@ public class AspStateMaintenanceHandler extends MessageHandler {
                 || (aspFactoryImpl.getFunctionality() == Functionality.IPSP && aspFactoryImpl.getExchangeType() == ExchangeType.DE)
                 || (aspFactoryImpl.getFunctionality() == Functionality.IPSP
                         && aspFactoryImpl.getExchangeType() == ExchangeType.SE && aspFactoryImpl.getIpspType() == IPSPType.CLIENT)) {
+            logger.info("handleAspUpAck we are functionality  " + aspFactoryImpl.getFunctionality().name()
+                    + " and ExchangeType " + aspFactoryImpl.getExchangeType() + " IpspType " + aspFactoryImpl.getIpspType());
 
             for (FastList.Node<Asp> n = this.aspFactoryImpl.aspList.head(), end = this.aspFactoryImpl.aspList.tail(); (n = n
                     .getNext()) != end;) {
@@ -148,9 +157,12 @@ public class AspStateMaintenanceHandler extends MessageHandler {
                     return;
                 }
 
+                logger.info("handleAspAck , transiting to ACTIVE aspImpl" + aspImpl.getName());
                 boolean transToActive = this.activate(aspImpl);
 
                 if (!transToActive) {
+                    logger.info("handleAspUpAck has transited to INACTIVE ");
+
                     // Transition to INACTIVE
                     try {
                         aspLocalFSM.signal(TransitionState.ASP_INACTIVE);
@@ -158,6 +170,7 @@ public class AspStateMaintenanceHandler extends MessageHandler {
                         logger.error(e.getMessage(), e);
                     }
                 } else {
+                    logger.info("handleAspUpAck has transited to ACTIVE_SENT ");
                     // Transition to ACTIVE_SENT
                     try {
                         aspLocalFSM.signal(TransitionState.ASP_ACTIVE_SENT);
@@ -165,6 +178,9 @@ public class AspStateMaintenanceHandler extends MessageHandler {
                         if (aspFactoryImpl.getFunctionality() == Functionality.IPSP) {
                             // If its IPSP, we know NTFY will not be received,
                             // so transition AS FSM here
+                            logger.info("handleAspUpAck has transited to ACTIVE_SENT, as we are not going to RECEIVE "
+                                    + "NTFY we will change state here of asPeerFSM " + aspImpl.getPeerFSM().toString());
+
                             AsImpl asImpl = (AsImpl) aspImpl.getAs();
                             FSM asPeerFSM = asImpl.getPeerFSM();
 

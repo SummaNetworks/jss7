@@ -489,7 +489,8 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
                     case MessageClass.ASP_STATE_MAINTENANCE:
                     case MessageClass.MANAGEMENT:
                     case MessageClass.ROUTING_KEY_MANAGEMENT:
-                        payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, true,
+                        //TODO: check if unordered should be true as before, I think it should be false
+                        payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, false,
                                 SCTP_PAYLOAD_PROT_ID_M3UA, 0);
                         break;
                     case MessageClass.TRANSFER_MESSAGES:
@@ -499,7 +500,7 @@ public class AspFactoryImpl implements AssociationListener, XMLSerializable, Asp
                                 SCTP_PAYLOAD_PROT_ID_M3UA, this.slsTable[seqControl]);
                         break;
                     default: //SIGNALING_NETWORK_MANAGEMENT, ASP_TRAFFIC_MAINTENANCE
-                        payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, true,
+                        payloadData = new org.mobicents.protocols.api.PayloadData(data.length, data, true, false,
                                 SCTP_PAYLOAD_PROT_ID_M3UA, 0);
                         break;
                 }
