@@ -24,6 +24,7 @@ package org.mobicents.protocols.ss7.map.service.mobility.imei;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -48,6 +49,7 @@ import org.mobicents.protocols.ss7.map.service.mobility.MobilityMessageImpl;
  *
  */
 public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckImeiRequest {
+    private Logger logger = Logger.getLogger(CheckImeiRequestImpl.class);
 
     public static final String _PrimitiveName = "CheckImeiRequest";
 
@@ -145,6 +147,9 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
         this.extensionContainer = null;
         this.imsi = null;
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("Decoding checkImeiRequestImpl mapProtocolVersion " + mapProtocolVersion + " length " + length);
+        }
         if (mapProtocolVersion >= 3) {
             AsnInputStream ais = ansIS.readSequenceStreamData(length);
             int num = 0;
@@ -198,21 +203,71 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
                         + ": Needs at least 2 mandatory parameters, found " + num,
                         MAPParsingComponentExceptionReason.MistypedParameter);
         } else {
-            this.imei = new IMEIImpl();
-            ((IMEIImpl) this.imei).decodeData(ansIS, length);
+            AsnInputStream ais = ansIS.readSequenceStreamData(length);
+            int num = 0;
 
-            // To decode IMSI in Huawei package
-            if (ansIS.available() != 0) {
-                int tag = ansIS.readTag();
-                length = ansIS.readLength();
-                if (tag != 0 && ansIS.getTagClass() != Tag.CLASS_UNIVERSAL && !ansIS.isTagPrimitive()) {
-                    throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                            + ".imsi: bad tag or tag class or is not primitive: TagClass=" + ansIS.getTagClass() + ", tag="
-                            + tag, MAPParsingComponentExceptionReason.MistypedParameter);
+            //FIRST WE WILL HAVE THE IMEI
+            int tag = ais.readTag();
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("First thing we should decode is the IMEI");
+            }
+            if (tag != Tag.STRING_OCTET || ais.getTagClass() != Tag.CLASS_UNIVERSAL || !ais.isTagPrimitive()) {
+                throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                        + ".imei: bad tag or tag class or is not primitive: TagClass=" + ais.getTagClass()
+                        + ", tag=" + tag, MAPParsingComponentExceptionReason.MistypedParameter);
+            }
+            this.imei = new IMEIImpl();
+            ((IMEIImpl) this.imei).decodeAll(ais);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Now checking if there is any OPTIONAL fields");
+            }
+            while (true) {
+                if (ais.available() == 0) {
+                    return;
                 }
 
-                this.imsi = new IMSIImpl();
-                ((IMSIImpl) this.imsi).decodeData(ansIS, length);
+                //We should have an extension, try to identify which one
+                tag = ais.readTag();
+
+                // requestedEquipmentInfo
+                if (tag == Tag.STRING_BIT && ais.getTagClass() == Tag.CLASS_UNIVERSAL && !ais.isTagPrimitive()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Decoding requestedEquipmentInfo");
+                    }
+                    this.requestedEquipmentInfo = new RequestedEquipmentInfoImpl();
+                    ((RequestedEquipmentInfoImpl) this.requestedEquipmentInfo).decodeAll(ais);
+                } else if (tag == 1 && ais.getTagClass() == Tag.CLASS_PRIVATE && ais.isTagPrimitive()) {
+                    //IMSI
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Decoding IMSI");
+                    }
+                    this.imsi = new IMSIImpl();
+                    ((IMSIImpl) this.imsi).decodeAll(ais);
+                } else if (tag == 3 && ais.getTagClass() == Tag.CLASS_PRIVATE && ais.isTagPrimitive()) {
+                    //locationInformation
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Decoding locationInformation: NOT IMPLEMENTED YET");
+                    }
+                } else {
+                    if (tag == Tag.SEQUENCE && ais.getTagClass() == Tag.CLASS_UNIVERSAL) {
+                        if (ais.isTagPrimitive())
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter extensionContainer is primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Decoding ExtensionContainer");
+                        }
+                        this.extensionContainer = new MAPExtensionContainerImpl();
+                        ((MAPExtensionContainerImpl) this.extensionContainer).decodeAll(ais);
+                    } else {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Advance to the next element, we didn't recognize any of the extensions.");
+                        }
+                        ais.advanceElement();
+                    }
+                }
             }
         }
     }
@@ -329,5 +384,4 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
 
         return sb.toString();
     }
-
 }
