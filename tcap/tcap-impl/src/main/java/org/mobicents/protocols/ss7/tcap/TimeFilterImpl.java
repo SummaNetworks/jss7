@@ -1,9 +1,11 @@
 package org.mobicents.protocols.ss7.tcap;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.mobicents.protocols.ss7.sccp.message.SccpMessage;
+import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 
 /**
  * @author ajimenez, created on 23/07/19.
@@ -23,7 +25,6 @@ public class TimeFilterImpl {
     }
 
     public TimeFilterImpl(int rampDurationInSeconds, int rampMessagesByStep){
-        this.maxAgeForBeginMessageMilliseconds = maxAgeForBeginMessageMilliseconds;
         this.rampDurationInSeconds = rampDurationInSeconds;
         this.rampMessagesByStep = rampMessagesByStep;
         if(this.rampDurationInSeconds > 0){
@@ -31,19 +32,36 @@ public class TimeFilterImpl {
         }
     }
 
-
-    public boolean isInTime(SccpMessage message){
-        boolean result = isInTimeFastDroppig(message);
-        result &= isInTimeRampControl();
+    private ByteBuffer buffer = ByteBuffer.allocate(16);
+    private synchronized int getDialogId(byte[] bytes) {
+        //Position of otid usually is on 4ª o 5ª position of TCAP packet.
+        if(bytes[3] == 4) {
+            buffer.put(bytes, 4, 4);
+        }else if(bytes[4] == 4){
+            buffer.put(bytes, 5, 4);
+        }else{
+            return -1;
+        }
+        buffer.flip();//need flip
+        int result = buffer.getInt(); //32bits
+        buffer.clear();
         return result;
     }
 
-    private boolean isInTimeFastDroppig(SccpMessage message) {
+    public boolean isInTime(SccpDataMessage message){
+        boolean result = isInTimeFastDroppig(message);
+        result &= isInTimeRampControl(message);
+        return result;
+    }
+
+    private boolean isInTimeFastDroppig(SccpDataMessage message) {
         boolean result = true;
         if(maxAgeForBeginMessageMilliseconds > 0) {
             long diff;
             if ((diff = (System.currentTimeMillis() - message.getReceivedTimeStamp())) > maxAgeForBeginMessageMilliseconds) {
-                logger.debug(String.format("Dropping message, age: %d ms > %d ms", diff, maxAgeForBeginMessageMilliseconds));
+                if(logger.isEnabledFor(Level.WARN))
+                    logger.warn(String.format("Dropping message, age: %d ms > %d ms, otid %d", diff,
+                        maxAgeForBeginMessageMilliseconds, getDialogId(message.getData())));
                 result = false;
             }
         }
@@ -51,7 +69,7 @@ public class TimeFilterImpl {
     }
 
 
-    private boolean isInTimeRampControl(){
+    private boolean isInTimeRampControl(SccpDataMessage message){
         boolean result = true;
         if(rampMessagesByStep > 0 && rampDurationInSeconds > 0) {
             if(rampFirstMessageTimeStamp == 0){
@@ -59,10 +77,12 @@ public class TimeFilterImpl {
             }else{
                 int seconds = (int) ((System.currentTimeMillis() - rampFirstMessageTimeStamp)/1000L);
                 if(seconds < rampDurationInSeconds){
-                    int current = rampMessageReceivedInStep[seconds].get();
-                    if (rampMessagesByStep * seconds < current){
+                    int current = rampMessageReceivedInStep[seconds].getAndIncrement();
+                    if (rampMessagesByStep * (seconds + 1) < current){
                         result = false;
-                        logger.debug(String.format("Dropping message by ramp: Second %d, received %d", seconds, current));
+                        if(logger.isEnabledFor(Level.WARN))
+                            logger.warn(String.format("Dropping message by ramp: Second %d, received %d, otid %d", seconds, current,
+                                    getDialogId(message.getData())));
                     }else{
                         rampMessageReceivedInStep[seconds].getAndIncrement();
                     }
