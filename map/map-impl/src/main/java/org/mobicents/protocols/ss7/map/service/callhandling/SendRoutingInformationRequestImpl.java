@@ -738,13 +738,6 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
                     + ": Parament interrogationType is mandatory (V3) but does not found",
                     MAPParsingComponentExceptionReason.MistypedParameter);
         }
-
-        if (this.mapProtocolVersion >= 3 && this.gmscAddress == null) {
-            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
-                    + ": Parament gmscAddress is mandatory (V3) but does not found",
-                    MAPParsingComponentExceptionReason.MistypedParameter);
-        }
-
     }
 
     @Override
@@ -773,10 +766,6 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
         if (this.mapProtocolVersion >= 3 && this.interrogationType == null)
             throw new MAPException("Error while encoding " + _PrimitiveName
                     + " the mandatory parameter (V3) interrogationType is not defined");
-
-        if (this.mapProtocolVersion >= 3 && this.gmscAddress == null)
-            throw new MAPException("Error while encoding " + _PrimitiveName
-                    + " the mandatory parameter (V3) gmsc-OrGsmSCF-Address is not defined");
 
         try {
 
