@@ -32,6 +32,7 @@ import java.util.Arrays;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
+import org.mobicents.protocols.ss7.map.api.primitives.IMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.primitives.IMEIImpl;
 import org.mobicents.protocols.ss7.map.primitives.IMSIImpl;
@@ -205,4 +206,43 @@ public class CheckImeiRequestTest {
         assertTrue(Arrays.equals(rawData, encodedData));
     }
 
+    @Test(groups = { "functional.encode", "imei" })
+    public void testEncodeVdf() throws Exception {
+        // Testing version 3
+        IMEIImpl imei = new IMEIImpl("8649840464594300");
+        IMSI imsi = new IMSIImpl("547150000305893");
+        CheckImeiRequestImpl checkImei = new CheckImeiRequestImpl(2, imei, null, null);
+        checkImei.setIMSI(imsi);
+
+        AsnOutputStream asnOS = new AsnOutputStream();
+        checkImei.encodeAll(asnOS);
+
+        AsnInputStream asnIS = new AsnInputStream(asnOS.toByteArray());
+
+        CheckImeiRequestImpl checkImei2 = new CheckImeiRequestImpl(2);
+        asnIS.readTag();
+        checkImei2.decodeAll(asnIS);
+
+        assertTrue(checkImei2.getIMEI().getIMEI().equals(imei.getIMEI()));
+        assertTrue(checkImei2.getIMSI().getData().equals(imsi.getData()));
+    }
+
+    @Test(groups = { "functional.encode", "imei" })
+    public void testEncodeVdfWithoutImsi() throws Exception {
+        // Testing version 3
+        IMEIImpl imei = new IMEIImpl("8649840464594300");
+        IMSI imsi = new IMSIImpl("547150000305893");
+        CheckImeiRequestImpl checkImei = new CheckImeiRequestImpl(2, imei, null, null);
+
+        AsnOutputStream asnOS = new AsnOutputStream();
+        checkImei.encodeAll(asnOS);
+
+        AsnInputStream asnIS = new AsnInputStream(asnOS.toByteArray());
+
+        CheckImeiRequestImpl checkImei2 = new CheckImeiRequestImpl(2);
+        asnIS.readTag();
+        checkImei2.decodeAll(asnIS);
+
+        assertTrue(checkImei2.getIMEI().getIMEI().equals(imei.getIMEI()));
+    }
 }
