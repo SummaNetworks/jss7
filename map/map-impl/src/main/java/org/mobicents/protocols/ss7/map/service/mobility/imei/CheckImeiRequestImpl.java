@@ -85,7 +85,11 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
         if (this.mapProtocolVersion >= 3) {
             return Tag.SEQUENCE;
         } else {
-            return Tag.STRING_OCTET;
+            if (imsi == null) {
+                return Tag.STRING_OCTET;
+            } else {
+                return Tag.SEQUENCE;
+            }
         }
     }
 
@@ -97,9 +101,11 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
     @Override
     public boolean getIsPrimitive() {
         if (this.mapProtocolVersion >= 3) {
-            return false;
-        } else {
+            // ADD CONSTRUCTOR
             return true;
+        } else {
+            //TRUE DO NOT ADD CONSTRUCTOR AND FALSE ADD IT
+            return imsi == null;
         }
     }
 
@@ -313,11 +319,12 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
             if (this.extensionContainer != null)
                 ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs);
         } else {
-            ((IMEIImpl) this.imei).encodeData(asnOs);
+            ((IMEIImpl) this.imei).encodeAll(asnOs, Tag.CLASS_UNIVERSAL, Tag.STRING_OCTET);
             encodedLength = asnOs.size();
 
             if (imsi != null) {
-                ((IMSIImpl) this.imsi).encodeAll(asnOs, Tag.CLASS_UNIVERSAL, 0);
+                ((IMSIImpl) this.imsi).encodeAll(asnOs, Tag.CLASS_PRIVATE, Tag.CLASS_APPLICATION);
+                encodedLength = asnOs.size();
             }
         }
     }
