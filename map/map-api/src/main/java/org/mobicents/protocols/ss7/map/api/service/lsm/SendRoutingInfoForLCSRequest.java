@@ -27,21 +27,37 @@ import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.primitives.SubscriberIdentity;
 
 /**
+ * <code>
+ * MAP V3:
  *
- MAP V3:
+ * sendRoutingInfoForLCS OPERATION ::= {--Timer m
+ *      ARGUMENT
+ *          RoutingInfoForLCS-Arg
+ *      RESULT
+ *          RoutingInfoForLCS-Res
+ *      ERRORS {
+ *          systemFailure |
+ *          dataMissing |
+ *          unexpectedDataValue |
+ *          facilityNotSupported |
+ *          unknownSubscriber |
+ *          absentSubscriber |
+ *          unauthorizedRequestingNetwork }
+ * CODE local:85 }
  *
- * sendRoutingInfoForLCS OPERATION ::= { --Timer m ARGUMENT RoutingInfoForLCS-Arg RESULT RoutingInfoForLCS-Res ERRORS {
- * systemFailure | dataMissing | unexpectedDataValue | facilityNotSupported | unknownSubscriber | absentSubscriber |
- * unauthorizedRequestingNetwork } CODE local:85 }
+ * RoutingInfoForLCS-Arg ::= SEQUENCE {
+ *          mlcNumber           [0] ISDN-AddressString,
+ *          targetMS            [1] SubscriberIdentity,
+ *          extensionContainer  [2] ExtensionContainer OPTIONAL,
+ *          ...
+ * }
  *
- * RoutingInfoForLCS-Arg ::= SEQUENCE { mlcNumber [0] ISDN-AddressString, targetMS [1] SubscriberIdentity, extensionContainer
- * [2] ExtensionContainer OPTIONAL, ...}
- *
- *
+ *</code>
  * @author amit bhayani
  *
  */
 public interface SendRoutingInfoForLCSRequest extends LsmMessage {
+
     ISDNAddressString getMLCNumber();
 
     SubscriberIdentity getTargetMS();

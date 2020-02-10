@@ -22,11 +22,6 @@
 
 package org.mobicents.protocols.ss7.map.service.lsm;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.util.Arrays;
 
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -48,6 +43,11 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Trace is from Brazil Operator
@@ -194,7 +194,7 @@ public class SendRoutingInfoForLCSResponseTest {
         ISDNAddressString networkNodeNumber = this.MAPParameterFactory.createISDNAddressString(
                 AddressNature.international_number, NumberingPlan.ISDN, "55619000");
 
-        LCSLocationInfo lcsLocInfo = new LCSLocationInfoImpl(networkNodeNumber, null, null, false, null, null, null, null, null);
+        LCSLocationInfo lcsLocInfo = new LCSLocationInfoImpl(networkNodeNumber, null, null, false, null, null, null, null, null, null, null);
 
         SendRoutingInfoForLCSResponseImpl impl = new SendRoutingInfoForLCSResponseImpl(subsIdent, lcsLocInfo, null, null, null,
                 null, null);

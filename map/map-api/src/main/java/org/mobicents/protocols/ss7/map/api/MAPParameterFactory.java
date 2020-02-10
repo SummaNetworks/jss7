@@ -926,7 +926,7 @@ public interface MAPParameterFactory {
     LCSLocationInfo createLCSLocationInfo(ISDNAddressString networkNodeNumber, LMSI lmsi,
             MAPExtensionContainer extensionContainer, boolean gprsNodeIndicator, AdditionalNumber additionalNumber,
             SupportedLCSCapabilitySets supportedLCSCapabilitySets, SupportedLCSCapabilitySets additionalLCSCapabilitySets,
-            DiameterIdentity mmeName, DiameterIdentity aaaServerName);
+            DiameterIdentity mmeName, DiameterIdentity aaaServerName, DiameterIdentity sgsnName, DiameterIdentity sgsnRealm);
 
     LCSPrivacyCheck createLCSPrivacyCheck(PrivacyCheckRelatedAction callSessionUnrelated,
             PrivacyCheckRelatedAction callSessionRelated);

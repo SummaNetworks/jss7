@@ -1448,9 +1448,9 @@ public class MAPParameterFactoryImpl implements MAPParameterFactory {
     public LCSLocationInfo createLCSLocationInfo(ISDNAddressString networkNodeNumber, LMSI lmsi,
             MAPExtensionContainer extensionContainer, boolean gprsNodeIndicator, AdditionalNumber additionalNumber,
             SupportedLCSCapabilitySets supportedLCSCapabilitySets, SupportedLCSCapabilitySets additionalLCSCapabilitySets,
-            DiameterIdentity mmeName, DiameterIdentity aaaServerName) {
+            DiameterIdentity mmeName, DiameterIdentity aaaServerName, DiameterIdentity sgsnName, DiameterIdentity sgsnRealm) {
         return new LCSLocationInfoImpl(networkNodeNumber, lmsi, extensionContainer, gprsNodeIndicator, additionalNumber,
-                supportedLCSCapabilitySets, additionalLCSCapabilitySets, mmeName, aaaServerName);
+                supportedLCSCapabilitySets, additionalLCSCapabilitySets, mmeName, aaaServerName, sgsnName, sgsnRealm);
     }
 
     public LCSPrivacyCheck createLCSPrivacyCheck(PrivacyCheckRelatedAction callSessionUnrelated,

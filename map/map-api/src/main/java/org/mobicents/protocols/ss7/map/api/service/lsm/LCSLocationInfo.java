@@ -46,7 +46,8 @@ LCSLocationInfo ::= SEQUENCE {
   additional-LCS-CapabilitySets  [5] SupportedLCS-CapabilitySets OPTIONAL,
   mme-Name                       [6] DiameterIdentity OPTIONAL,
   aaa-Server-Name                [8] DiameterIdentity OPTIONAL
-}
+  sgsn-Name                      [9] DiameterIdentity OPTIONAL,
+  sgsn-Realm                     [10] DiameterIdentity OPTIONAL}
 </code>
  *
  *
@@ -74,4 +75,7 @@ public interface LCSLocationInfo extends Serializable {
 
     DiameterIdentity getAaaServerName();
 
+    DiameterIdentity getSgsnName();
+
+    DiameterIdentity getSgsnRealm();
 }

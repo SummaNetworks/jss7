@@ -150,7 +150,7 @@ public class LCSLocationInfoTest {
 
         LCSLocationInfoImpl imp = new LCSLocationInfoImpl(networkNodeNumber, lmsi,
                 MAPExtensionContainerTest.GetTestExtensionContainer(), true, additionalNumber, supportedLCSCapabilitySets,
-                additionalLCSCapabilitySets, mmeName, aaaServerName);
+                additionalLCSCapabilitySets, mmeName, aaaServerName, null, null);
         // ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer, boolean gprsNodeIndicator,
         // AdditionalNumber additionalNumber, SupportedLCSCapabilitySets supportedLCSCapabilitySets, SupportedLCSCapabilitySets
         // additionalLCSCapabilitySets,

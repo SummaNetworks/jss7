@@ -1535,7 +1535,7 @@ public class Client extends EventTestHarness {
         ISDNAddressString networkNodeNumber = this.mapParameterFactory.createISDNAddressString(
                 AddressNature.international_number, NumberingPlan.ISDN, "11113333");
         LCSLocationInfo lcsLocationInfo = this.mapParameterFactory.createLCSLocationInfo(networkNodeNumber, null, null, false,
-                null, null, null, null, null);
+                null, null, null, null, null, null, null);
 
         clientDialogLsm.addSubscriberLocationReportRequest(LCSEvent.emergencyCallOrigination, lcsClientID, lcsLocationInfo,
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, false,

@@ -60,6 +60,8 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
     private static final int _TAG_ADDITIONAL_LCS_CAPBILITY_SET = 5;
     private static final int _TAG_mme_Name = 6;
     private static final int _TAG_aaa_Server_Name = 8;
+    private static final int _TAG_sgsn_Name = 9;
+    private static final int _TAG_sgsn_Realm = 10;
 
     private ISDNAddressString networkNodeNumber;
     private LMSI lmsi;
@@ -70,6 +72,8 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
     private SupportedLCSCapabilitySets additionalLCSCapabilitySets;
     private DiameterIdentity mmeName;
     private DiameterIdentity aaaServerName;
+    private DiameterIdentity sgsnName;
+    private DiameterIdentity sgsnRealm;
 
     /**
      *
@@ -78,19 +82,10 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         super("LCSLocationInfo");
     }
 
-    /**
-     * @param networkNodeNumber
-     * @param lmsi
-     * @param extensionContainer
-     * @param gprsNodeIndicator
-     * @param additionalNumber
-     * @param supportedLCSCapabilitySets
-     * @param additionalLCSCapabilitySets
-     */
     public LCSLocationInfoImpl(ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
             boolean gprsNodeIndicator, AdditionalNumber additionalNumber,
             SupportedLCSCapabilitySets supportedLCSCapabilitySets, SupportedLCSCapabilitySets additionalLCSCapabilitySets,
-            DiameterIdentity mmeName, DiameterIdentity aaaServerName) {
+            DiameterIdentity mmeName, DiameterIdentity aaaServerName, DiameterIdentity sgsnName, DiameterIdentity sgsnRealm) {
         super("LCSLocationInfo");
 
         this.networkNodeNumber = networkNodeNumber;
@@ -102,6 +97,8 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         this.additionalLCSCapabilitySets = additionalLCSCapabilitySets;
         this.mmeName = mmeName;
         this.aaaServerName = aaaServerName;
+        this.sgsnName = sgsnName;
+        this.sgsnRealm = sgsnRealm;
     }
 
     /*
@@ -175,6 +172,14 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         return aaaServerName;
     }
 
+    public DiameterIdentity getSgsnName() {
+        return sgsnName;
+    }
+
+    public DiameterIdentity getSgsnRealm() {
+        return sgsnRealm;
+    }
+
     protected void _decode(AsnInputStream asnIS, int length) throws MAPParsingComponentException, IOException, AsnException {
 
         this.networkNodeNumber = null;
@@ -186,6 +191,8 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         this.additionalLCSCapabilitySets = null;
         this.mmeName = null;
         this.aaaServerName = null;
+        this.sgsnName = null;
+        this.sgsnRealm = null;
 
         AsnInputStream ais = asnIS.readSequenceStreamData(length);
 
@@ -295,6 +302,26 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
                         this.aaaServerName = new DiameterIdentityImpl();
                         ((DiameterIdentityImpl) this.aaaServerName).decodeAll(ais);
                         break;
+                    case _TAG_sgsn_Name:
+                        // sgsnName
+                        if (!ais.isTagPrimitive()) {
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter mmeName is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
+                        this.sgsnName = new DiameterIdentityImpl();
+                        ((DiameterIdentityImpl) this.sgsnName).decodeAll(ais);
+                        break;
+                    case _TAG_sgsn_Realm:
+                        // sgsnRealm
+                        if (!ais.isTagPrimitive()) {
+                            throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
+                                    + ": Parameter mmeName is not primitive",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
+                        this.sgsnRealm = new DiameterIdentityImpl();
+                        ((DiameterIdentityImpl) this.sgsnRealm).decodeAll(ais);
+                        break;
                     default:
                         ais.advanceElement();
                 }
@@ -374,9 +401,19 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         if (this.mmeName != null) {
             ((DiameterIdentityImpl) this.mmeName).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_mme_Name);
         }
+
         if (this.aaaServerName != null) {
             ((DiameterIdentityImpl) this.aaaServerName).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_aaa_Server_Name);
         }
+
+        if (this.sgsnName != null) {
+            ((DiameterIdentityImpl) this.sgsnName).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sgsn_Name);
+        }
+
+        if (this.sgsnName != null) {
+            ((DiameterIdentityImpl) this.sgsnName).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_sgsn_Realm);
+        }
+
     }
 
     @Override
@@ -392,6 +429,8 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         result = prime * result + ((supportedLCSCapabilitySets == null) ? 0 : supportedLCSCapabilitySets.hashCode());
         result = prime * result + ((mmeName == null) ? 0 : mmeName.hashCode());
         result = prime * result + ((aaaServerName == null) ? 0 : aaaServerName.hashCode());
+        result = prime * result + ((sgsnName == null) ? 0 : sgsnName.hashCode());
+        result = prime * result + ((sgsnRealm == null) ? 0 : sgsnRealm.hashCode());
         return result;
     }
 
@@ -447,6 +486,16 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
                 return false;
         } else if (!aaaServerName.equals(other.aaaServerName))
             return false;
+        if (sgsnName == null) {
+            if (other.sgsnName != null)
+                return false;
+        } else if (!sgsnName.equals(other.sgsnName))
+            return false;
+        if (sgsnRealm == null) {
+            if (other.sgsnRealm != null)
+                return false;
+        } else if (!sgsnRealm.equals(other.sgsnRealm))
+            return false;
         return true;
     }
 
@@ -490,6 +539,14 @@ public class LCSLocationInfoImpl extends SequenceBase implements LCSLocationInfo
         if (this.aaaServerName != null) {
             sb.append(", aaaServerName=");
             sb.append(this.aaaServerName);
+        }
+        if (this.sgsnName != null) {
+            sb.append(", sgsnName=");
+            sb.append(this.sgsnName);
+        }
+        if (this.sgsnRealm != null) {
+            sb.append(", sgsnRealm=");
+            sb.append(this.sgsnRealm);
         }
 
         sb.append("]");
