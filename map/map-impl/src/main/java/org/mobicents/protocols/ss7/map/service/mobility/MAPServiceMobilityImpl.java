@@ -89,6 +89,8 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Invoke;
 import org.mobicents.protocols.ss7.tcap.asn.comp.OperationCode;
 import org.mobicents.protocols.ss7.tcap.asn.comp.Parameter;
 
+import javax.xml.bind.DatatypeConverter;
+
 /**
  *
  * @author sergey vetyutnev
@@ -106,7 +108,7 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
      * Creating a new outgoing MAP Mobility dialog and adding it to the MAPProvider.dialog collection
      */
     public MAPDialogMobility createNewDialog(MAPApplicationContext appCntx, SccpAddress origAddress, AddressString origReference, SccpAddress destAddress,
-            AddressString destReference) throws MAPException {
+                                             AddressString destReference) throws MAPException {
         return this.createNewDialog(appCntx, origAddress, origReference, destAddress, destReference, null);
     }
 
@@ -1444,6 +1446,8 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
 
         long version = mapDialogImpl.getApplicationContext().getApplicationContextVersion().getVersion();
 
+        loger.info("processCheckImeiRequest with tag " + parameter.getTag() + " tagClass " + parameter.getTagClass() +
+                " and isPrimitive " + parameter.isPrimitive());
         if (version >= 3) {
             if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
                 throw new MAPParsingComponentException(
@@ -1451,24 +1455,30 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
                                 + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
         } else {
             if (parameter.isPrimitive()) {
-                if (parameter.getTag() != Tag.STRING_OCTET || parameter.getTagClass() != Tag.CLASS_UNIVERSAL)
+                if (parameter.getTag() != Tag.STRING_OCTET || parameter.getTagClass() != Tag.CLASS_UNIVERSAL) {
                     throw new MAPParsingComponentException(
                             "Error while decoding CheckImeiRequest V1 or V2 not primitive: Bad tag or tagClass , received tag="
                                     + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+                }
             } else {
-                if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL
-                        || parameter.isPrimitive())
+                if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL) {
                     throw new MAPParsingComponentException(
-                            "Error while decoding CheckImeiRequest V1 or V2 primitive: Bad tag or tagClass , received tag="
+                            "Error while decoding CheckImeiRequest V1 or V2 not primitive: Bad tag or tagClass , received tag="
                                     + parameter.getTag(), MAPParsingComponentExceptionReason.MistypedParameter);
+                }
             }
         }
 
         byte[] buf = parameter.getData();
+        loger.debug("processCheckImeiRequest --> " + DatatypeConverter.printHexBinary(buf));
         AsnInputStream ais = new AsnInputStream(buf);
 
         CheckImeiRequestImpl ind = new CheckImeiRequestImpl(version);
-        ind.decodeData(ais, parameter.getEncodingLength());
+        if (parameter.isPrimitive()){
+            ind.decodeData(ais, buf.length);
+        } else {
+            ind.decodeAll(ais);
+        }
 
         ind.setInvokeId(invokeId);
         ind.setMAPDialog(mapDialogImpl);
@@ -1506,7 +1516,7 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
         }
 
         byte[] buf = parameter.getData();
-        AsnInputStream ais = new AsnInputStream(buf);
+        AsnInputStream ais = new AsnInputStream(buf, parameter.getTagClass(), parameter.isPrimitive(), parameter.getTag());
 
         CheckImeiResponseImpl ind = new CheckImeiResponseImpl(version);
         ind.decodeData(ais, buf.length);
