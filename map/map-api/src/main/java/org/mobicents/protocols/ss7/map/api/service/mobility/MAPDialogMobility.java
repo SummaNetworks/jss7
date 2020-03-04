@@ -431,9 +431,6 @@ public interface MAPDialogMobility extends MAPDialog {
     Long addCheckImeiRequest_Huawei(long customInvokeTimeout, IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo,
             MAPExtensionContainer extensionContainer, IMSI imsi) throws MAPException;
 
-    Long addCheckImeiRequest_WITHOUT_CONSTRUCTOR(long customInvokeTimeout, IMEI imei, RequestedEquipmentInfo requestedEquipmentInfo,
-                                    MAPExtensionContainer extensionContainer, IMSI imsi) throws MAPException;
-
     // -- OAM service: activateTraceMode operation can be present in networkLocUpContext and gprsLocationUpdateContext application contexts
     Long addActivateTraceModeRequest(IMSI imsi, TraceReference traceReference, TraceType traceType, AddressString omcId,
             MAPExtensionContainer extensionContainer, TraceReference2 traceReference2, TraceDepthList traceDepthList, TraceNETypeList traceNeTypeList,
