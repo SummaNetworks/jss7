@@ -240,5 +240,4 @@ public class ParameterImpl implements Parameter {
             throw new EncodeException(e);
         }
     }
-
 }

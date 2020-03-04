@@ -158,7 +158,6 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
             logger.debug("Decoding checkImeiRequestImpl mapProtocolVersion " + mapProtocolVersion + " length " + length);
         }
 
-        logger.info("CheckImeiRequest using mapProtocolVersion " + mapProtocolVersion);
         if (mapProtocolVersion >= 3) {
             AsnInputStream ais = ansIS.readSequenceStreamData(length);
             int num = 0;
@@ -212,27 +211,31 @@ public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckIm
                         + ": Needs at least 2 mandatory parameters, found " + num,
                         MAPParsingComponentExceptionReason.MistypedParameter);
         } else {
-
-            //FIRST WE WILL HAVE THE IMEI, mandatory parameter
-            this.imei = new IMEIImpl();
-            ((IMEIImpl) this.imei).decodeData(ansIS, length);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Now checking if there is an IMSI after the IMEI");
-            }
-            if (ansIS.available() != 0) {
-                //We should have an extension, try to identify which one
-                int tag = ansIS.readTag();
-
-                if (tag == Tag.CLASS_APPLICATION) {
-                    //IMSI
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Decoding IMSI");
+                //FIRST WE WILL HAVE THE IMEI
+                this.imei = new IMEIImpl();
+                ((IMEIImpl) this.imei).decodeData(ansIS, length);
+                if (logger.isDebugEnabled()){
+                    if (this.imei != null) {
+                        logger.debug("The decoded IMEI is " + this.imei.getIMEI());
                     }
-                    this.imsi = new IMSIImpl();
-                    ((IMSIImpl) this.imsi).decodeAll(ansIS);
                 }
-            }
+
+                if (ansIS.available() != 0) {
+                    //We should have an extension, try to identify which one
+                    int tag = ansIS.readTag();
+
+                    if (tag == Tag.CLASS_APPLICATION) {
+                        //IMSI
+                        this.imsi = new IMSIImpl();
+                        ((IMSIImpl) this.imsi).decodeAll(ansIS);
+
+                        if (logger.isDebugEnabled()) {
+                            if (this.imsi != null) {
+                                logger.debug("IMSI decoded " + this.imsi.getData());
+                            }
+                        }
+                    }
+                }
         }
     }
 

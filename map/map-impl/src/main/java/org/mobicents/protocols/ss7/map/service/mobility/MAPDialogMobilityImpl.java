@@ -1123,7 +1123,9 @@ public class MAPDialogMobilityImpl extends MAPDialogImpl implements MAPDialogMob
 
         CheckImeiRequestImpl req = new CheckImeiRequestImpl(this.appCntx.getApplicationContextVersion().getVersion(), imei,
                 requestedEquipmentInfo, extensionContainer);
-        req.setIMSI(imsi);
+        if (imsi != null) {
+            req.setIMSI(imsi);
+        }
         AsnOutputStream aos = new AsnOutputStream();
         req.encodeAll(aos);
 

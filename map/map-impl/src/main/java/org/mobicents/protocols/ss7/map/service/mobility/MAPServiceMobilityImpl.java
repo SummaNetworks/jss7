@@ -1446,8 +1446,10 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
 
         long version = mapDialogImpl.getApplicationContext().getApplicationContextVersion().getVersion();
 
-        loger.info("processCheckImeiRequest with tag " + parameter.getTag() + " tagClass " + parameter.getTagClass() +
-                " and isPrimitive " + parameter.isPrimitive());
+        if (loger.isDebugEnabled()) {
+            loger.debug("processCheckImeiRequest with tag " + parameter.getTag() + " tagClass " + parameter.getTagClass() +
+                    " and isPrimitive " + parameter.isPrimitive() + " encodingLength " + parameter.getEncodingLength());
+        }
         if (version >= 3) {
             if (parameter.getTag() != Tag.SEQUENCE || parameter.getTagClass() != Tag.CLASS_UNIVERSAL || parameter.isPrimitive())
                 throw new MAPParsingComponentException(
@@ -1470,14 +1472,34 @@ public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPSer
         }
 
         byte[] buf = parameter.getData();
-        loger.debug("processCheckImeiRequest --> " + DatatypeConverter.printHexBinary(buf));
+        if (loger.isDebugEnabled()) {
+            loger.debug("processCheckImeiRequest --> " + DatatypeConverter.printHexBinary(buf));
+        }
         AsnInputStream ais = new AsnInputStream(buf);
 
         CheckImeiRequestImpl ind = new CheckImeiRequestImpl(version);
-        if (parameter.isPrimitive()){
-            ind.decodeData(ais, buf.length);
+        if (version >= 3){
+            ind.decodeData(ais, parameter.getEncodingLength());
         } else {
-            ind.decodeAll(ais);
+            if (parameter.isPrimitive()) {
+                ind.decodeData(ais, parameter.getEncodingLength());
+            } else {
+                //we are handling a CONSTRUCTOR structure, the getEncodingLength is the total length of the following parameters
+                //we know that the first one is the IMEI, then we can have more objects or not, so let's give to the decode
+                //the length of the IMEI and let's the CheckImeiRequest object to try to decode the rest, if any
+                try {
+                    int tag = ais.readTag();
+                    int length = ais.readLength();
+                    if (loger.isDebugEnabled()){
+                        loger.debug("processCheckImeiRequest with CONSTRUCTOR read tag " + tag + " length " + length
+                                + " for IMEI");
+                    }
+                    ind.decodeData(ais, length);
+                } catch (Exception e) {
+                    throw new MAPParsingComponentException("Error while reading tag and length for the IMEI in a CONSTRUCTOR"
+                            + " structure.", MAPParsingComponentExceptionReason.MistypedParameter);
+                }
+            }
         }
 
         ind.setInvokeId(invokeId);
