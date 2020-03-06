@@ -195,10 +195,11 @@ public class AuthenticationQuintupletImpl implements AuthenticationQuintuplet, M
                                 + ".autn: Parameter 4 bad tag or tag class or is not primitive",
                                 MAPParsingComponentExceptionReason.MistypedParameter);
                     this.autn = ais.readOctetString();
-                    if (this.autn.length != 16)
+                    if (this.autn.length != 16 && this.autn.length != 24 && this.autn.length != 40)
                         throw new MAPParsingComponentException("Error while decoding " + _PrimitiveName
                                 + ".autn: Bad field length: 16 is needed, found: " + this.autn.length,
                                 MAPParsingComponentExceptionReason.MistypedParameter);
+
                     break;
             }
 
@@ -241,7 +242,7 @@ public class AuthenticationQuintupletImpl implements AuthenticationQuintuplet, M
             throw new MAPException("Wrong ck field length: must be 16, found " + this.ck.length);
         if (this.ik.length != 16)
             throw new MAPException("Wrong ik field length: must be 16, found " + this.ik.length);
-        if (this.autn.length != 16)
+        if (this.autn.length != 16 && this.autn.length != 24 && this.autn.length != 40)
             throw new MAPException("Wrong autn field length: must be 16, found " + this.autn.length);
 
         try {
