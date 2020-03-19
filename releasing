@@ -22,5 +22,5 @@ Ej:
 </settings>
 
 #If repeat:
-#Delete gat just created:
+#Delete tag just created:
 >git tag -d TagName && git push origin :TagName

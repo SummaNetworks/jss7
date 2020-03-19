@@ -69,7 +69,8 @@
 		<module>sgw</module>
 
 		<module>tools</module>
-	</modules>
+        <module>topic</module>
+    </modules>
 
 	<!-- declare our babies -->
 	<dependencyManagement>
