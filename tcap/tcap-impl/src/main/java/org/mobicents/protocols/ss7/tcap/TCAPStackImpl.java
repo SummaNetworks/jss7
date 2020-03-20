@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+import com.summanetworks.topic.TopicController;
 import javolution.text.TextBuilder;
 import javolution.xml.XMLBinding;
 import javolution.xml.XMLObjectReader;
@@ -103,6 +104,8 @@ public class TCAPStackImpl implements TCAPStack {
 
     private int ssn = -1;
 
+    private TopicController tc;
+
     public TCAPStackImpl(String name) {
         super();
         this.name = name;
@@ -111,6 +114,9 @@ public class TCAPStackImpl implements TCAPStack {
         binding.setClassAttribute(CLASS_ATTRIBUTE);
 
         setPersistFile();
+
+        tc = new TopicController();
+
     }
 
     public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn, int minSls, int maxSls) {
@@ -119,6 +125,7 @@ public class TCAPStackImpl implements TCAPStack {
         this.tcapProvider = new TCAPProviderImpl(sccpProvider, this, ssn, minSls, maxSls);
         this.tcapCounterProvider = new TCAPCounterProviderImpl(this.tcapProvider);
         this.ssn = ssn;
+        tc.registerListener(this.tcapProvider);
     }
     public TCAPStackImpl(String name, SccpProvider sccpProvider, int ssn) {
         this(name);
@@ -126,6 +133,7 @@ public class TCAPStackImpl implements TCAPStack {
         this.tcapProvider = new TCAPProviderImpl(sccpProvider, this, ssn);
         this.tcapCounterProvider = new TCAPCounterProviderImpl(this.tcapProvider);
         this.ssn = ssn;
+        tc.registerListener(this.tcapProvider);
     }
 
     @Override

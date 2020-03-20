@@ -1,6 +1,7 @@
 package com.summanetworks.topic;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -62,6 +63,21 @@ public class TopicServer {
         //.childOption(ChannelOption.SO_KEEPALIVE, true)
         ;
 
+
+        // Bind and start to accept incoming connections.
+        ChannelFuture channelFuture = null;
+        channelFuture = b.bind("0.0.0.0",
+                7500).sync();
+
+        NioServerSocketChannel tcpChannel = (NioServerSocketChannel) channelFuture.channel();
+
+        //If secondary IP is indicated then second connection is configured.
+        //if (PeerConfiguration.getInstance().getSecondaryHost() != null) {
+            //tcpChannel.bindAddress(InetAddress.getByName(PeerConfiguration.getInstance().getSecondaryHost())).sync();
+        //}
+
+        logger.info(String.format("[TCPClientListener] Server started: Active? %s, open %s ",
+                tcpChannel.isActive(), tcpChannel.isOpen()));
 
     }
 

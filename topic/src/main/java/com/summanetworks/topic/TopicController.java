@@ -15,38 +15,54 @@ public class TopicController {
 
     private static final Logger logger = Logger.getLogger(TopicController.class);
 
-    // FIXME: 15/3/20 by Ajimenez -
-    // 1 - Cuando sea instanciado leer la configuracion usando al TopicConfig
-    // 2 - Iniciar el TopicServer
-    // 3 - Iniciar el TopicClient e intentar conectar.
-
-
-    //Ver como gestionar la conexion cruzada.
-    //Conectar el client al recibir conexiones en el server? ¿Qué pasa si no se puede conectar en el otro sentido?
-    //¿Enviar por el Client y escuhar por el server?
-    //¿Usar una sola conexion?
-
-
+    long localId = 100;
+    TopicListener listener;
     TopicClient client;
     TopicServer server;
-
-
-
     //PeerId as KEY.
     Map<String, TopicHandler> handlerRegister = new HashMap<>();
+    Map<String, TopicHandler> hostHandlerMap = new HashMap<>();
 
     public void init(){
-        // 1 - Cuando sea instanciado leer la configuracion usando al TopicConfig
-        // 2 - Iniciar el TopicServer
-        // 3 - Iniciar el TopicClient e intentar conectar los que no están conectados aun y están configurados.
-        // 3.1 Iniciar proceso de reconexion.
+        try {
+            // 1 - Cuando sea instanciado leer la configuracion usando al TopicConfig
 
+            // 2 - Iniciar el TopicServer
+            server = new TopicServer();
+            server.start(this);
+
+            // 3 - Iniciar el TopicClient e intentar conectar los que no están conectados aun y están configurados.
+            connectToPeers();
+
+            // 3.1 Iniciar proceso de reconexion.
+        }catch(Exception e){
+            logger.error("Unexpected error starting TOPIC",e);
+        }
+    }
+
+    private void connectToPeers(){
+        String topicPeer = System.getProperty("topicPeer");
+        if(topicPeer != null){
+            client = new TopicClient();
+            client.initConnection(topicPeer, 5500, this);
+        }
     }
 
 
-    protected TopicHandler registerHandler(int peerId, TopicHandler handler){
+    protected void channelActive(TopicHandler handler){
+        //Validate host.
+        //Validate that is configured.
+        //Validate that is not yet register (by client 4 example).
+        hostHandlerMap.put(handler.getRemoteAddress(), handler);
+    }
 
+
+    protected TopicHandler registerHandler(long peerId, TopicHandler handler){
+        hostHandlerMap.put(String.valueOf(peerId), handler);
         return handler;
+    }
+    protected void channelInvalid(TopicHandler handler){
+        hostHandlerMap.remove(handler.getRemoteAddress());
     }
 
     //Custom message, should be in user part.
@@ -71,14 +87,23 @@ public class TopicController {
         }
     }
 
-    public void registerListener(int peerId){
+    public void onMessage(long peerId, TopicSccpMessage message){
+        //Validate message?
 
+        //Call listener.
+        if(listener != null){
+            listener.onMessage(peerId, message.id, message.localAddress, message.remoteAddress, message.data);
+        }else{
+            // FIXME: 20/3/20 by Ajimenez - Return error? Ignore?
+        }
+    }
+
+    public void registerListener(TopicListener listener){
+        this.listener = listener;
     }
 
     public interface TopicListener {
-
-        void onMessage(int dialogId, SccpAddress localAddress, SccpAddress remoteAddress);
-
+        void onMessage(long peerId, long dialogId, SccpAddress localAddress, SccpAddress remoteAddress, byte [] data);
     }
 
 

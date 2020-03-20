@@ -31,8 +31,8 @@ public class TopicSccpMessage extends TopicMessage {
     protected byte [] data;
 
     //Estos serian los mensajes necesarios para procesar el continue, quizas haya que usar el SccpDataMessage completo...
-    private SccpAddress localAddress;
-    private SccpAddress remoteAddress;
+    protected SccpAddress localAddress;
+    protected SccpAddress remoteAddress;
 
 
     public TopicSccpMessage(){}
@@ -44,6 +44,12 @@ public class TopicSccpMessage extends TopicMessage {
         this.data = impl.getData();
     }
 
+    public boolean isInitialMessage(){
+        boolean result = false;
+        if(data == null)
+            result = true;
+        return result;
+    }
 
     /**
      * Parse message received and build a TopicMessage

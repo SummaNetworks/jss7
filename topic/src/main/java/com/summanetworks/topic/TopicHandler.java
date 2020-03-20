@@ -8,21 +8,33 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+import org.apache.log4j.Logger;
 
 /**
  * @author ajimenez, created on 16/3/20.
  */
 public class TopicHandler extends ChannelInboundHandlerAdapter implements WritableConnection{
 
+    private static final Logger logger = Logger.getLogger(TopicHandler.class);
+
     private TopicController controller;
     private String remoteAddress;
     private boolean registered = false;
     private ChannelHandlerContext ctx;
+    private boolean asClient = false;
+    private long peerId;
 
-    public TopicHandler(TopicController controller){
-        this.controller = controller;
+    public String getRemoteAddress(){
+        return remoteAddress;
     }
 
+    public TopicHandler(TopicController controller){
+        this(controller, false);
+    }
+    public TopicHandler(TopicController controller, boolean asClient){
+        this.asClient = asClient;
+        this.controller = controller;
+    }
 
     @Override
     public void write(ByteBuffer message, boolean statusMessage) {
@@ -41,9 +53,6 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         ctx.close();
     }
 
-
-
-
     /**
      * Calls {@link ChannelHandlerContext#fireChannelActive()} to forward
      * to the next {@link ChannelInboundHandler} in the {@link ChannelPipeline}.
@@ -55,7 +64,10 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         InetSocketAddress socket = (InetSocketAddress) ctx.channel().remoteAddress();
         remoteAddress = socket.getAddress().getHostAddress();
         this.ctx = ctx;
-
+        controller.channelActive(this);
+        if(asClient){
+            // FIXME: 19/3/20 by Ajimenez - Send first message.
+        }
     }
 
     /**
@@ -95,9 +107,7 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
                 bb.get(bytes);
                 bb = ByteBuffer.wrap(bytes);
             }
-
-            // FIXME: 16/3/20 by Ajimenez - PARSE MESSAGE
-            //diameterHandler.parse(bb);
+            parseMessage(bb);
         } finally {
             ReferenceCountUtil.release(msg);
         }
@@ -105,7 +115,24 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
 
 
     private void parseMessage(ByteBuffer bb){
-
+            byte[] message = bb.array();
+            TopicSccpMessage tsm = TopicSccpMessage.fromByte(message);
+            if(!registered){
+                if(tsm.isInitialMessage()){
+                    this.peerId = tsm.id;
+                    controller.registerHandler(tsm.id, this);
+                    registered = true;
+                    if(!asClient){
+                        // FIXME: 19/3/20 by Ajimenez - Send first message.
+                    }
+                }else{
+                    logger.warn("Invalid message. Host not registered yet. Closing.");
+                    controller.channelInvalid(this);
+                    this.close();
+                }
+            } else {
+                controller.onMessage(this.peerId, tsm);
+            }
     }
 
 }

@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.summanetworks.topic.TopicController;
 import javolution.util.FastMap;
 
 import org.apache.log4j.Level;
@@ -92,7 +93,7 @@ import org.mobicents.protocols.ss7.tcap.tc.dialog.events.TCUserAbortIndicationIm
  * @author sergey vetyutnev
  *
  */
-public class TCAPProviderImpl implements TCAPProvider, SccpListener {
+public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicController.TopicListener {
 
     private static final Logger logger = Logger.getLogger(TCAPProviderImpl.class); // listenres
 
@@ -193,6 +194,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
         this.seqControl = new AtomicInteger(minSls);
         this.curDialogId = new AtomicLong(stack.getDialogIdRangeStart());
     }
+
 
     public boolean getPreviewMode() {
         return this.stack.getPreviewMode();
@@ -581,6 +583,9 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
 
         this.sccpProvider.registerSccpListener(ssn, this);
         logger.info("Registered SCCP listener with address " + ssn);
+
+
+
     }
 
     void stop() {
@@ -662,8 +667,46 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
 
     }
 
-    public void onMessage(SccpDataMessage message) {
+    private ConcurrentHashMap<Long, Long> pendingRedirect = new ConcurrentHashMap<>();
+    @Override
+    public void onMessage(long peerId, long dialogId, SccpAddress localAddress, SccpAddress remoteAddress, byte[] data) {
+        // FIXME: 20/3/20 by Ajimenez - Encauzar.
+        // Si hay dialogo para encauzarlo y no es un tipo END, se guarda el peer-dialogId para el envio de la respuesta.
+        // asnData - it should pass
+        logger.debug("Handling topic message.");
+        try {
+            AsnInputStream ais = new AsnInputStream(data);
 
+            // this should have TC message tag :)
+            int tag = ais.readTag();
+
+            TCContinueMessage tcm = null;
+            DialogImpl di = this.dialogs.get(dialogId);
+            if(di != null) {
+                switch (tag) {
+                    // continue first, usually we will get more of those. small perf
+                    // boost
+                    case TCContinueMessage._TAG:
+                        tcm = TcapFactory.createTCContinueMessage(ais);
+                        pendingRedirect.put(dialogId, peerId);
+                        di.processContinue(tcm, localAddress, remoteAddress);
+                        break;
+                    case TCEndMessage._TAG:
+                        TCEndMessage teb = null;
+                        TcapFactory.createTCEndMessage(ais);
+                        pendingRedirect.put(dialogId, peerId);
+                        di.processEnd(teb, localAddress, remoteAddress);
+                        break;
+                    default:
+                }
+            }
+        }catch (IOException | ParseException e){
+            logger.warn("Error processing remote message ",e);
+        }
+
+    }
+
+    public void onMessage(SccpDataMessage message) {
         try {
             byte[] data = message.getData();
             SccpAddress localAddress = message.getCalledPartyAddress();
