@@ -68,6 +68,9 @@ public interface SccpAddress extends Parameter {
      */
     int getSignalingPointCode();
 
+
+    void setSubsystemNumber(int ssn);
+
     /**
      * Gets subsystem number.
      *

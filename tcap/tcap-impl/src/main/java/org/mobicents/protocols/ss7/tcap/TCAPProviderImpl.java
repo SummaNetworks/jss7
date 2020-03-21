@@ -730,9 +730,27 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
                     }
+
+                    if(di == null){
+                        //Send to C-LINK connection.
+                        SccpAddress called  = message.getCalledPartyAddress();
+                        if(called.getSubsystemNumber() != 666) {
+                            logger.debug("onMessage(): Sending c-link dialog "+dialogId);
+                            called.setSubsystemNumber(666);
+                            sccpProvider.send(message);
+                            break;
+                        }
+                    }else{
+                        SccpAddress called  = message.getCalledPartyAddress();
+                        if(called.getSubsystemNumber() == 666) {
+                            called.setSubsystemNumber(6);
+                        }
+                    }
                 }
                 if (di == null) {
                     logger.warn("TC-CONTINUE: No dialog/transaction for id: " + dialogId);
+
+
                     this.sendProviderAbort(PAbortCauseType.UnrecognizedTxID, tcm.getOriginatingTransactionId(), remoteAddress, localAddress, message.getSls(),
                             message.getNetworkId());
                 } else {
@@ -840,6 +858,17 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
                     }
+                    if(di == null){
+                        //Send to C-LINK connection.
+                        SccpAddress called  = message.getCalledPartyAddress();
+                        if(called.getIncomingOpc() != 666) {
+                            logger.debug("onMessage(): Sending c-link dialog "+dialogId);
+                            called.setIncomingOpc(666);
+                            message.setCalledPartyAddress(called);
+                            sccpProvider.send(message);
+                            break;
+                        }
+                    }
                 }
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
@@ -878,6 +907,18 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener {
                         }
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
+                    }
+
+                    if(di == null){
+                        //Send to C-LINK connection.
+                        SccpAddress called  = message.getCalledPartyAddress();
+                        if(called.getIncomingOpc() != 666) {
+                            logger.debug("onMessage(): Sending c-link dialog "+dialogId);
+                            called.setIncomingOpc(666);
+                            message.setCalledPartyAddress(called);
+                            sccpProvider.send(message);
+                            break;
+                        }
                     }
                 }
                 if (di == null) {

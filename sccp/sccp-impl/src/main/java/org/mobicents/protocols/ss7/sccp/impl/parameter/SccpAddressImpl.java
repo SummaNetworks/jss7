@@ -94,6 +94,10 @@ public class SccpAddressImpl extends AbstractParameter implements XMLSerializabl
         return pc;
     }
 
+    public void setSubsystemNumber(int ssn) {
+        this.ssn = ssn;
+    }
+
     public int getSubsystemNumber() {
         return ssn;
     }

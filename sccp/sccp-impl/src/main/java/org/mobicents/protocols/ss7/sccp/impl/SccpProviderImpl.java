@@ -131,6 +131,8 @@ public class SccpProviderImpl implements SccpProvider, Serializable {
     }
 
     protected SccpListener getSccpListener(int ssn) {
+        if(ssn == 666)
+            ssn = 6;
         return ssnToListener.get(ssn);
     }
 
