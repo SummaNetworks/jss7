@@ -9,6 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.apache.log4j.Logger;
@@ -50,9 +51,10 @@ public class TopicServer {
                         }
                         ch.pipeline()
                                 .addLast(
-                                        //FIXME: Revisar valores de los lengths
                                         //Only propagate full messages
-                                        new LengthFieldBasedFrameDecoder(TopicConfig.getInstance().getMaxTCPFrameSize(), 1, 3, -4, 0),
+                                        new LengthFieldBasedFrameDecoder(controller.getTopicConfig().getMaxTCPFrameSize(),
+                                                0, 2, 0, 2),
+                                        new LengthFieldPrepender(2),
                                         new TopicHandler(controller)
                                 );
                     }
@@ -66,8 +68,8 @@ public class TopicServer {
 
         // Bind and start to accept incoming connections.
         ChannelFuture channelFuture = null;
-        channelFuture = b.bind("0.0.0.0",
-                7500).sync();
+        channelFuture = b.bind(controller.getTopicConfig().getLocalIp(),
+                controller.getTopicConfig().getLocalPort()).sync();
 
         NioServerSocketChannel tcpChannel = (NioServerSocketChannel) channelFuture.channel();
 
@@ -79,6 +81,26 @@ public class TopicServer {
         logger.info(String.format("[TCPClientListener] Server started: Active? %s, open %s ",
                 tcpChannel.isActive(), tcpChannel.isOpen()));
 
+    }
+
+    public void stop(){
+        //If was not init, ignore call.
+        if(workerGroup != null) {
+            logger.info("[TopicServer] Stopping server");
+            try {
+                workerGroup.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                //Ignored
+            }
+            try {
+                bossGroup.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                //Ignored
+            }
+            //DiameterController.getInstance().closeAllConnections();
+        }
+        workerGroup = null;
+        bossGroup = null;
     }
 
 

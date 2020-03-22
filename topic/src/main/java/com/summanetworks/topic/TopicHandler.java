@@ -36,19 +36,13 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         this.controller = controller;
     }
 
-    @Override
-    public void write(ByteBuffer message, boolean statusMessage) {
-        write(message);
-    }
 
-    @Override
-    public void write(ByteBuffer message) {
+    private void write(ByteBuffer message) {
         //logger.trace("write() message in channel...");
         //TODO: Review if reuse a buffer to optimize memory.
         ctx.writeAndFlush(Unpooled.wrappedBuffer(message));
     }
 
-    @Override
     public void close() {
         ctx.close();
     }
@@ -66,7 +60,10 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         this.ctx = ctx;
         controller.channelActive(this);
         if(asClient){
-            // FIXME: 19/3/20 by Ajimenez - Send first message.
+            TopicSccpMessage hello = new TopicSccpMessage();
+            hello.id = controller.getTopicConfig().getPeerId();
+            logger.debug("channelActive(): Sending hello. Local id: "+hello.id);
+            this.sendMessage(hello);
         }
     }
 
@@ -116,14 +113,17 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
 
     private void parseMessage(ByteBuffer bb){
             byte[] message = bb.array();
-            TopicSccpMessage tsm = TopicSccpMessage.fromByte(message);
+            TopicSccpMessage tsm = TopicSccpMessage.fromBytes(message);
             if(!registered){
                 if(tsm.isInitialMessage()){
                     this.peerId = tsm.id;
                     controller.registerHandler(tsm.id, this);
                     registered = true;
                     if(!asClient){
-                        // FIXME: 19/3/20 by Ajimenez - Send first message.
+                        TopicSccpMessage response = new TopicSccpMessage();
+                        response.id = controller.getTopicConfig().getPeerId();
+                        logger.debug("Acting as sever, so sending register response message with peer "+response.id);
+                        this.sendMessage(response);
                     }
                 }else{
                     logger.warn("Invalid message. Host not registered yet. Closing.");
@@ -133,6 +133,26 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
             } else {
                 controller.onMessage(this.peerId, tsm);
             }
+    }
+
+    public void sendMessage(TopicSccpMessage tsm){
+        ByteBuffer bb = ByteBuffer.wrap(prepareBytes(tsm));
+        this.write(bb);
+    }
+
+    private byte[] prepareBytes(TopicSccpMessage cm) {
+        byte [] data = cm.toBytes();
+        /* Used LengthFieldPrepender
+        byte [] dataToSend = new byte [data.length + 2];
+        short length = (short) data.length;
+        dataToSend[1] = (byte) (length & 0xff);
+        dataToSend[0] = (byte) ((length >> 8) & 0xff);
+        for(int i= 0; i < data.length; i++){
+            dataToSend[i+2] = data[i];
+        }
+        return dataToSend;
+         */
+        return data;
     }
 
 }

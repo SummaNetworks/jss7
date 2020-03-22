@@ -8,10 +8,10 @@ import java.io.ObjectOutputStream;
 
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
-import org.mobicents.protocols.ss7.sccp.impl.message.SccpDataMessageImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
 import org.mobicents.protocols.ss7.sccp.message.ParseException;
+import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
 /**
@@ -28,6 +28,7 @@ public class TopicSccpMessage extends TopicMessage {
     }
 
     protected long id;
+    protected int ssn;
     protected byte [] data;
 
     //Estos serian los mensajes necesarios para procesar el continue, quizas haya que usar el SccpDataMessage completo...
@@ -37,10 +38,12 @@ public class TopicSccpMessage extends TopicMessage {
 
     public TopicSccpMessage(){}
 
-    public TopicSccpMessage (long dialogId, SccpDataMessageImpl impl){
+    public TopicSccpMessage (long dialogId, SccpDataMessage impl){
         this.id = dialogId;
         this.localAddress = impl.getCallingPartyAddress();
         this.remoteAddress = impl.getCalledPartyAddress();
+        //this.ssn = impl.getOriginLocalSsn(); //<-- Qué es esto?
+        this.ssn = this.remoteAddress.getSubsystemNumber();
         this.data = impl.getData();
     }
 
@@ -55,18 +58,24 @@ public class TopicSccpMessage extends TopicMessage {
      * Parse message received and build a TopicMessage
      * @param data
      */
-    public static TopicSccpMessage fromByte(byte [] data){
+    public static TopicSccpMessage fromBytes(byte [] data){
         TopicSccpMessage tm = null;
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
             ObjectInputStream ois = new ObjectInputStream(bais);
             tm = new TopicSccpMessage();
+
             tm.id = ois.readLong();
+            tm.ssn = ois.readInt();
+
             tm.localAddress = readSccpAddressEncBytes(ois);
             tm.remoteAddress = readSccpAddressEncBytes(ois);
-            int size = ois.readInt();
-            tm.data = new byte [size];
-            readBytes(ois,size, tm.data);
+
+            int size = ois.readShort();
+            if(size > 0) {
+                tm.data = new byte[size];
+                readBytes(ois, size, tm.data);
+            }
         }catch(Exception e){
             logger.error("Unexpected error", e);
             throw new RuntimeException(e);
@@ -79,19 +88,25 @@ public class TopicSccpMessage extends TopicMessage {
      * Convert current message to byte buffer.
      * @return
      */
-    public byte [] toByte(){
+    public byte [] toBytes(){
         ByteArrayOutputStream baos;
         try {
             baos = new ByteArrayOutputStream();
             ObjectOutputStream oos;
             oos = new ObjectOutputStream(baos);
             oos.writeLong(this.id);
+
+            oos.writeInt(this.ssn);
+
             writeSccpAddressEncBytes(this.localAddress, oos);
             writeSccpAddressEncBytes(this.remoteAddress, oos);
             //Message data.
-            oos.writeShort(data.length);
-            oos.write(data);
-
+            if(data != null) {
+                oos.writeShort(data.length);
+                oos.write(data);
+            }else{
+                oos.writeShort(0);
+            }
             oos.close();
             return baos.toByteArray();
         }catch(Exception e){

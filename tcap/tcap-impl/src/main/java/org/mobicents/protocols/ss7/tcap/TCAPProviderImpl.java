@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.summanetworks.topic.TopicController;
+import com.summanetworks.topic.TopicListener;
 import javolution.util.FastMap;
 
 import org.apache.log4j.Level;
@@ -93,7 +94,7 @@ import org.mobicents.protocols.ss7.tcap.tc.dialog.events.TCUserAbortIndicationIm
  * @author sergey vetyutnev
  *
  */
-public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicController.TopicListener {
+public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListener {
 
     private static final Logger logger = Logger.getLogger(TCAPProviderImpl.class); // listenres
 
@@ -584,7 +585,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicContro
         this.sccpProvider.registerSccpListener(ssn, this);
         logger.info("Registered SCCP listener with address " + ssn);
 
-
+        TopicController.getInstance().registerListener(this, ssn);
+        TopicController.getInstance().init();
 
     }
 
@@ -594,6 +596,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicContro
 
         this.dialogs.clear();
         this.dialogPreviewList.clear();
+
+        TopicController.getInstance().stop();
     }
 
     protected void sendProviderAbort(PAbortCauseType pAbortCause, byte[] remoteTransactionId, SccpAddress remoteAddress,
@@ -688,15 +692,22 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicContro
                     // boost
                     case TCContinueMessage._TAG:
                         tcm = TcapFactory.createTCContinueMessage(ais);
-                        pendingRedirect.put(dialogId, peerId);
+                        // FIXME: 22/3/20 by Ajimenez - If must be returned to original...
+                        //pendingRedirect.put(dialogId, peerId);
                         di.processContinue(tcm, localAddress, remoteAddress);
                         break;
                     case TCEndMessage._TAG:
                         TCEndMessage teb = null;
                         TcapFactory.createTCEndMessage(ais);
-                        pendingRedirect.put(dialogId, peerId);
+                        // FIXME: 22/3/20 by Ajimenez - If must be returned to original...
+                        //pendingRedirect.put(dialogId, peerId);
                         di.processEnd(teb, localAddress, remoteAddress);
                         break;
+
+                    case TCAbortMessage._TAG:
+                        TCAbortMessage tub = null;
+                        tub = TcapFactory.createTCAbortMessage(ais);
+                        di.processAbort(tub, localAddress, remoteAddress);
                     default:
                 }
             }
@@ -772,6 +783,15 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicContro
                         }
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
+                    }
+                    //TOPIC WAY
+                    if(di == null){
+                        if(TopicController.getInstance().sendMessage(dialogId, message)){
+                            logger.info(String.format("Redirecting dialog %d through topic.",dialogId));
+                            break;
+                        }else{
+                            logger.info("Not found peer it topic to handle dialog: "+dialogId);
+                        }
                     }
                 }
                 if (di == null) {
@@ -883,6 +903,15 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicContro
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
                     }
+                    //TOPIC WAY
+                    if(di == null){
+                        if(TopicController.getInstance().sendMessage(dialogId, message)){
+                            logger.info(String.format("Redirecting dialog %d through topic.",dialogId));
+                            break;
+                        }else{
+                            logger.info("Not found peer it topic to handle dialog: "+dialogId);
+                        }
+                    }
                 }
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
@@ -921,6 +950,15 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicContro
                         }
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
+                    }
+                    //TOPIC WAY
+                    if(di == null){
+                        if(TopicController.getInstance().sendMessage(dialogId, message)){
+                            logger.info(String.format("Redirecting dialog %d through topic.",dialogId));
+                            break;
+                        }else{
+                            logger.info("Not found peer it topic to handle dialog: "+dialogId);
+                        }
                     }
                 }
                 if (di == null) {

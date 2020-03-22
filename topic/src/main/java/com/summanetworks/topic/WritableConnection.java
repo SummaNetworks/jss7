@@ -22,17 +22,9 @@
 
 package com.summanetworks.topic;
 
-import java.nio.ByteBuffer;
-
 /**
  * @author ajimenez, created on 1/03/17.
  */
 public interface WritableConnection {
-
-    void write(ByteBuffer message, boolean statusMessage);
-
-    void write(ByteBuffer message);
-
-    void close();
 
 }

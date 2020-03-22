@@ -8,6 +8,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
 import org.apache.log4j.Logger;
 
 /**
@@ -32,12 +34,10 @@ public class TopicClient {
         new Thread("TC-" + host) {
             @Override
             public void run() {
+                logger.info("Starting client to connect with host "+host);
                 EventLoopGroup workerGroup = new NioEventLoopGroup();
                 try {
                     //First at all check that connection to peer is not established by peer yet.
-
-
-
                     Bootstrap b = new Bootstrap();
                     b.group(workerGroup);
                     b.channel(NioSocketChannel.class);
@@ -45,23 +45,36 @@ public class TopicClient {
                     b.handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new TopicHandler(controller, true));
+                            ch.pipeline().addLast(
+                                    //Only propagate full messages
+                                    new LengthFieldBasedFrameDecoder(controller.getTopicConfig().getMaxTCPFrameSize(),
+                                            0, 2, 0, 2),
+                                    new LengthFieldPrepender(2),
+                                    new TopicHandler(controller, true));
                         }
                     });
 
                     do {
                         try {
-                            // Start the client.
-                            ChannelFuture f = b.connect(host, port).sync();
-                            beConnected = true;
-                            // Wait until the connection is closed.
-                            //f.channel().closeFuture().sync();
-                            f.channel().closeFuture().sync();
+                            logger.info("Trying to connect to host "+host+"...");
+                            if(!controller.hostHandlerMap.containsKey(host)) {
+                                // Start the client.
+                                ChannelFuture f = b.connect(host, port).sync();
+                                beConnected = true;
+                                // Wait until the connection is closed.
+                                //f.channel().closeFuture().sync();
+                                f.channel().closeFuture().sync();
+                            }else{
+                                logger.info("Host "+host+" already registered ");
+                                // FIXME: 22/3/20 by Ajimenez - Al romper el bucle tampoco intentará reconectarse luego, aunque el último que llega tiene que conectarse...
+                                break;
+                            }
                         } catch (Exception e) {
                             logger.info(String.format("Can not connect to %s with port %d", host, port));
                         }
                         try {
-                            Thread.sleep(3000);
+                            logger.debug("Waiting before try again..."); // FIXME: 22/3/20 by Ajimenez - Limite de reintentos.
+                            Thread.sleep(5000);
                         } catch (InterruptedException ignored) {
                         }
                     } while (beConnected);
