@@ -684,29 +684,30 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
             // this should have TC message tag :)
             int tag = ais.readTag();
 
-            TCContinueMessage tcm = null;
+
             DialogImpl di = this.dialogs.get(dialogId);
             if(di != null) {
                 switch (tag) {
                     // continue first, usually we will get more of those. small perf
                     // boost
                     case TCContinueMessage._TAG:
-                        tcm = TcapFactory.createTCContinueMessage(ais);
+                        TCContinueMessage tcm = TcapFactory.createTCContinueMessage(ais);
                         // FIXME: 22/3/20 by Ajimenez - If must be returned to original...
                         //pendingRedirect.put(dialogId, peerId);
+                        di.setLastMessageReceivedTime(System.currentTimeMillis());
                         di.processContinue(tcm, localAddress, remoteAddress);
                         break;
                     case TCEndMessage._TAG:
-                        TCEndMessage teb = null;
-                        TcapFactory.createTCEndMessage(ais);
+                        TCEndMessage teb = TcapFactory.createTCEndMessage(ais);
                         // FIXME: 22/3/20 by Ajimenez - If must be returned to original...
                         //pendingRedirect.put(dialogId, peerId);
+                        di.setLastMessageReceivedTime(System.currentTimeMillis());
                         di.processEnd(teb, localAddress, remoteAddress);
                         break;
 
                     case TCAbortMessage._TAG:
-                        TCAbortMessage tub = null;
-                        tub = TcapFactory.createTCAbortMessage(ais);
+                        TCAbortMessage tub = TcapFactory.createTCAbortMessage(ais);
+                        di.setLastMessageReceivedTime(System.currentTimeMillis());
                         di.processAbort(tub, localAddress, remoteAddress);
                     default:
                 }
