@@ -46,15 +46,10 @@ public class TopicController {
         try {
             if(!started) {
                 started = true;
-                // 1 - Cuando sea instanciado leer la configuracion usando al TopicConfig
                 topicConfig.loadData();
                 peerLength = String.valueOf(topicConfig.getPeerId()).length();
-
-                // 2 - Iniciar el TopicServer
                 server = new TopicServer();
                 server.start(this);
-
-                // 3 - Iniciar el TopicClient e intentar conectar los que no están conectados aun y están configurados.
                 connectToPeers();
             }
         }catch(TopicException e){
@@ -89,7 +84,7 @@ public class TopicController {
         }
     }
 
-    protected void channelActive(TopicHandler handler){
+    protected void connected(TopicHandler handler){
         logger.debug(String.format("Remote host %s active", handler.getRemoteAddress()));
         //Validate host.
         //Validate that is configured.
@@ -99,7 +94,7 @@ public class TopicController {
 
 
     protected TopicHandler registerHandler(long peerId, TopicHandler handler){
-        logger.debug(String.format("Host %s registered with peerId %d registered ",handler.getRemoteAddress(), peerId));
+        logger.info(String.format("Host %s registered with peerId %d registered ",handler.getRemoteAddress(), peerId));
         handlerRegister.put(String.valueOf(peerId), handler);
         return handler;
     }
@@ -129,17 +124,15 @@ public class TopicController {
         }
     }
 
-    public void onMessage(long peerId, TopicSccpMessage message){
-        //Validate message?
+    public void onMessage(final long peerId, final TopicSccpMessage message){
+        // TODO: 24/3/20 by Ajimenez -Validate message?
 
-
-        TopicListener listener = listenerMap.get(message.ssn);
+        final TopicListener listener = listenerMap.get(message.ssn);
         //Call listener.
         if(listener != null){
             listener.onMessage(peerId, message.id, message.localAddress, message.remoteAddress, message.data);
         }else{
-            // FIXME: 20/3/20 by Ajimenez - Return error? Ignore?
-            logger.warn("TopicListener not registered to process message for SSN: "+message.ssn);
+            logger.warn("TopicListener not registered to process message for SSN: "+message.ssn+". Ignoring message.");
         }
     }
 

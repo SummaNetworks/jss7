@@ -58,12 +58,14 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         InetSocketAddress socket = (InetSocketAddress) ctx.channel().remoteAddress();
         remoteAddress = socket.getAddress().getHostAddress();
         this.ctx = ctx;
-        controller.channelActive(this);
+        controller.connected(this);
         if(asClient){
             TopicSccpMessage hello = new TopicSccpMessage();
             hello.id = controller.getTopicConfig().getPeerId();
-            logger.debug("channelActive(): Sending hello. Local id: "+hello.id);
+            logger.debug("channelActive(): As client, sending hello. Local ID: "+hello.id);
             this.sendMessage(hello);
+        }else{
+            logger.debug("channelActive(): As server, waiting for remote hello.");
         }
     }
 
@@ -116,21 +118,26 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
             TopicSccpMessage tsm = TopicSccpMessage.fromBytes(message);
             if(!registered){
                 if(tsm.isInitialMessage()){
+                    logger.info("Register message from remote ID "+tsm.id);
                     this.peerId = tsm.id;
                     controller.registerHandler(tsm.id, this);
                     registered = true;
                     if(!asClient){
                         TopicSccpMessage response = new TopicSccpMessage();
                         response.id = controller.getTopicConfig().getPeerId();
-                        logger.debug("Acting as sever, so sending register response message with peer "+response.id);
+                        logger.info("[ServerMode] Sending register response. Local ID: "+response.id);
                         this.sendMessage(response);
                     }
                 }else{
+                    // TODO: 24/3/20 by Ajimenez - Could an alternative to send a registration request message.
                     logger.warn("Invalid message. Host not registered yet. Closing.");
                     controller.channelInvalid(this);
                     this.close();
                 }
             } else {
+                if(logger.isTraceEnabled()) {
+                    logger.trace(String.format("Message from peerId %d to handle dialog %d", peerId, tsm.id));
+                }
                 controller.onMessage(this.peerId, tsm);
             }
     }

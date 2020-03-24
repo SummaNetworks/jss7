@@ -578,16 +578,15 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
     void start() {
         logger.info("Starting TCAP Provider");
 
+        TopicController.getInstance().init();
+        TopicController.getInstance().registerListener(this, ssn);
+
         this._EXECUTOR = Executors.newScheduledThreadPool(4
                 //, new DefaultThreadFactory("Tcap-Thread")
         );
 
         this.sccpProvider.registerSccpListener(ssn, this);
         logger.info("Registered SCCP listener with address " + ssn);
-
-        TopicController.getInstance().registerListener(this, ssn);
-        TopicController.getInstance().init();
-
     }
 
     void stop() {
@@ -672,18 +671,24 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
     }
 
     private ConcurrentHashMap<Long, Long> pendingRedirect = new ConcurrentHashMap<>();
+
+    /**
+     *
+     * Topic handler.
+     * @param peerId
+     * @param dialogId
+     * @param localAddress
+     * @param remoteAddress
+     * @param data
+     */
     @Override
     public void onMessage(long peerId, long dialogId, SccpAddress localAddress, SccpAddress remoteAddress, byte[] data) {
-        // FIXME: 20/3/20 by Ajimenez - Encauzar.
-        // Si hay dialogo para encauzarlo y no es un tipo END, se guarda el peer-dialogId para el envio de la respuesta.
-        // asnData - it should pass
-        logger.debug("Handling topic message.");
+        logger.debug("Handling topic message. Dialog  "+dialogId);
         try {
             AsnInputStream ais = new AsnInputStream(data);
 
             // this should have TC message tag :)
             int tag = ais.readTag();
-
 
             DialogImpl di = this.dialogs.get(dialogId);
             if(di != null) {
@@ -691,6 +696,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     // continue first, usually we will get more of those. small perf
                     // boost
                     case TCContinueMessage._TAG:
+                        if(logger.isDebugEnabled())
+                            logger.debug("Handling CONTINUE message. Dialog  "+dialogId);
                         TCContinueMessage tcm = TcapFactory.createTCContinueMessage(ais);
                         // FIXME: 22/3/20 by Ajimenez - If must be returned to original...
                         //pendingRedirect.put(dialogId, peerId);
@@ -698,6 +705,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                         di.processContinue(tcm, localAddress, remoteAddress);
                         break;
                     case TCEndMessage._TAG:
+                        if(logger.isDebugEnabled())
+                            logger.debug("Handling END message. Dialog  "+dialogId);
                         TCEndMessage teb = TcapFactory.createTCEndMessage(ais);
                         // FIXME: 22/3/20 by Ajimenez - If must be returned to original...
                         //pendingRedirect.put(dialogId, peerId);
@@ -706,6 +715,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                         break;
 
                     case TCAbortMessage._TAG:
+                        if(logger.isDebugEnabled())
+                            logger.debug("Handling ABORT message. Dialog  "+dialogId);
                         TCAbortMessage tub = TcapFactory.createTCAbortMessage(ais);
                         di.setLastMessageReceivedTime(System.currentTimeMillis());
                         di.processAbort(tub, localAddress, remoteAddress);
@@ -788,10 +799,12 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     //TOPIC WAY
                     if(di == null){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){
-                            logger.info(String.format("Redirecting dialog %d through topic.",dialogId));
+                            if(logger.isDebugEnabled())
+                                logger.debug(String.format("Redirecting dialog %d through topic.",dialogId));
                             break;
                         }else{
-                            logger.info("Not found peer it topic to handle dialog: "+dialogId);
+                            if(logger.isDebugEnabled())
+                                logger.debug("Not found peer it topic to handle dialog: "+dialogId);
                         }
                     }
                 }
@@ -800,6 +813,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     this.sendProviderAbort(PAbortCauseType.UnrecognizedTxID, tcm.getOriginatingTransactionId(), remoteAddress, localAddress, message.getSls(),
                             message.getNetworkId());
                 } else {
+                    if(logger.isDebugEnabled())
+                        logger.debug(String.format("ContinueMessage: Time ago: %d ms ", System.currentTimeMillis() - message.getReceivedTimeStamp()));
                     di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processContinue(tcm, localAddress, remoteAddress);
                 }
@@ -868,6 +883,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                         this.stack.getCounterProviderImpl().updateAllEstablishedDialogsCount();
                     }
                     di.setNetworkId(message.getNetworkId());
+                    if(logger.isDebugEnabled())
+                        logger.debug(String.format("BeginMessage: Time ago: %d ms ", System.currentTimeMillis() - message.getReceivedTimeStamp()));
                     di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processBegin(tcb, localAddress, remoteAddress);
 
@@ -907,16 +924,20 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     //TOPIC WAY
                     if(di == null){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){
-                            logger.info(String.format("Redirecting dialog %d through topic.",dialogId));
+                            if(logger.isDebugEnabled())
+                                logger.debug(String.format("Redirecting dialog %d through topic.",dialogId));
                             break;
                         }else{
-                            logger.info("Not found peer it topic to handle dialog: "+dialogId);
+                            if(logger.isDebugEnabled())
+                                logger.debug("Not found peer it topic to handle dialog: "+dialogId);
                         }
                     }
                 }
                 if (di == null) {
                     logger.warn("TC-END: No dialog/transaction for id: " + dialogId);
                 } else {
+                    if(logger.isDebugEnabled())
+                        logger.debug(String.format("EndMessage: Time ago: %d ms ", System.currentTimeMillis() - message.getReceivedTimeStamp()));
                     di.setLastMessageReceivedTime(message.getReceivedTimeStamp());
                     di.processEnd(teb, localAddress, remoteAddress);
 
@@ -955,10 +976,12 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     //TOPIC WAY
                     if(di == null){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){
-                            logger.info(String.format("Redirecting dialog %d through topic.",dialogId));
+                            if(logger.isDebugEnabled())
+                                logger.debug(String.format("Redirecting dialog %d through topic.",dialogId));
                             break;
                         }else{
-                            logger.info("Not found peer it topic to handle dialog: "+dialogId);
+                            if(logger.isDebugEnabled())
+                                logger.debug("Not found peer it topic to handle dialog: "+dialogId);
                         }
                     }
                 }

@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public class TopicClient {
 
-    private static final Logger logger = Logger.getLogger(TopicController.class);
+    private static final Logger logger = Logger.getLogger(TopicClient.class);
 
 
     private boolean beConnected = true;
@@ -34,7 +34,7 @@ public class TopicClient {
         new Thread("TC-" + host) {
             @Override
             public void run() {
-                logger.info("Starting client to connect with host "+host);
+                logger.info("Starting client for remote host "+host);
                 EventLoopGroup workerGroup = new NioEventLoopGroup();
                 try {
                     //First at all check that connection to peer is not established by peer yet.
