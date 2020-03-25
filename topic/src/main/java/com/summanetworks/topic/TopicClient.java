@@ -56,8 +56,9 @@ public class TopicClient {
 
                     do {
                         try {
-                            logger.info("Trying to connect to host "+host+"...");
-                            if(!controller.hostHandlerMap.containsKey(host)) {
+                            if(logger.isDebugEnabled())
+                                logger.debug("Trying to connect to host "+host+"...");
+                            if(!controller.isConnected(host)) {
                                 // Start the client.
                                 ChannelFuture f = b.connect(host, port).sync();
                                 beConnected = true;
@@ -65,7 +66,7 @@ public class TopicClient {
                                 //f.channel().closeFuture().sync();
                                 f.channel().closeFuture().sync();
                             }else{
-                                logger.info("Host "+host+" already registered ");
+                                logger.info("Host "+host+" already registered.");
                                 // FIXME: 22/3/20 by Ajimenez - Al romper el bucle tampoco intentará reconectarse luego, aunque el último que llega tiene que conectarse...
                                 break;
                             }

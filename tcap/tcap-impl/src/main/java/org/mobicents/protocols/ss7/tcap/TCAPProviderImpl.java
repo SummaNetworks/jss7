@@ -33,8 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.summanetworks.topic.TopicConfig;
 import com.summanetworks.topic.TopicController;
 import com.summanetworks.topic.TopicListener;
+import com.summanetworks.topic.exception.TopicException;
 import javolution.util.FastMap;
 
 import org.apache.log4j.Level;
@@ -160,6 +162,10 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
 
     public void setDialogReplicator(DialogReplicator dialogReplicator) {
         this.dialogReplicator = dialogReplicator;
+    }
+
+    public void setTopicConfig(TopicConfig topicConfig){
+
     }
 
     /**
@@ -575,10 +581,9 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
         }
     }
 
-    void start() {
+    void start() throws TopicException {
         logger.info("Starting TCAP Provider");
 
-        TopicController.getInstance().init();
         TopicController.getInstance().registerListener(this, ssn);
 
         this._EXECUTOR = Executors.newScheduledThreadPool(4
@@ -596,7 +601,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
         this.dialogs.clear();
         this.dialogPreviewList.clear();
 
-        TopicController.getInstance().stop();
+        TopicController.getInstance().unRegisterListener(ssn);
     }
 
     protected void sendProviderAbort(PAbortCauseType pAbortCause, byte[] remoteTransactionId, SccpAddress remoteAddress,
@@ -796,6 +801,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
                     }
+                    // FIXME: 25/3/20 by Ajimenez - Revisar que pasa con el TO de la capa sscp.
                     //TOPIC WAY
                     if(di == null){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){

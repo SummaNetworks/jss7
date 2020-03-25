@@ -16,17 +16,15 @@ public class TopicController {
 
     private boolean started = false;
 
-    Map<Integer, TopicListener> listenerMap = new HashMap<>();
-    TopicClient client;
-    TopicServer server;
-    //PeerId as KEY.
-    Map<String, TopicHandler> handlerRegister = new HashMap<>();
-    Map<String, TopicHandler> hostHandlerMap = new HashMap<>();
-    TopicConfig topicConfig;
-    private int peerLength = 0;
+    private Map<Integer, TopicListener> listenerMap = new HashMap<>();
+    private TopicClient client;
+    private TopicServer server;
+
+    private Map<String, TopicHandler> handlerRegister = new HashMap<>();
+    private Map<String, TopicHandler> hostHandlerMap = new HashMap<>();
+    private TopicConfig topicConfig;
 
     private TopicController(){
-        topicConfig = new TopicConfig();
     }
 
 
@@ -37,25 +35,34 @@ public class TopicController {
     public static TopicController getInstance(){
         if(instance == null){
             instance = new TopicController();
-            instance.init();
         }
         return instance;
     }
 
-    public synchronized void init(){
-        try {
-            if(!started) {
+    public void setTopicConfig(TopicConfig topicConfig){
+        this.topicConfig = topicConfig;
+    }
+
+    public boolean isStarted(){
+        return started;
+    }
+
+    public synchronized void init() throws TopicException {
+        if (!started) {
+            if (topicConfig == null) {
+                throw new TopicException("TopicConfig was not set.");
+            }
+            if(!topicConfig.isValid()){
+                throw new TopicException("TopicConfig not valid.");
+            }
+            try {
                 started = true;
-                topicConfig.loadData();
-                peerLength = String.valueOf(topicConfig.getPeerId()).length();
                 server = new TopicServer();
                 server.start(this);
                 connectToPeers();
+            }catch(Exception e){
+                throw new TopicException("Unexpected error", e);
             }
-        }catch(TopicException e){
-            logger.warn("Error starting Topic.",e);
-        }catch(Exception e){
-            logger.error("Unexpected error starting TOPIC",e);
         }
     }
 
@@ -74,22 +81,30 @@ public class TopicController {
     }
 
     private void connectToPeers(){
-        if(topicConfig.getIps() != null) {
+        if(topicConfig.getPeerAddresses() != null) {
             client = new TopicClient();
-            for (String ip : topicConfig.getIps()) {
+            for (String ip : topicConfig.getPeerAddresses()) {
                 if(!hostHandlerMap.containsKey(ip)) {
-                    client.initConnection(ip, 5500, this);
+                    client.initConnection(ip, topicConfig.getLocalPort(), this);
                 }
             }
         }
     }
 
     protected void connected(TopicHandler handler){
-        logger.debug(String.format("Remote host %s active", handler.getRemoteAddress()));
+        logger.info(String.format("Remote host %s connected", handler.getRemoteAddress()));
         //Validate host.
         //Validate that is configured.
         //Validate that is not yet register (by client 4 example).
         hostHandlerMap.put(handler.getRemoteAddress(), handler);
+    }
+    protected void disconnected(TopicHandler handler){
+        logger.info(String.format("Remote host %s disconnected", handler.getRemoteAddress()));
+        hostHandlerMap.remove(handler.getRemoteAddress());
+    }
+
+    protected boolean isConnected(String host){
+        return hostHandlerMap.containsKey(host);
     }
 
 
@@ -105,7 +120,7 @@ public class TopicController {
     //Custom message, should be in user part.
     public boolean sendMessage(long dialogId, SccpDataMessage sccpDataMessage){
         TopicSccpMessage tm = new TopicSccpMessage(dialogId, sccpDataMessage);
-        String peerId = String.valueOf(dialogId).substring(0,peerLength);
+        String peerId = String.valueOf(dialogId).substring(0,TopicConfig.PEER_ID_LENGTH);
         return sendMessage(peerId, tm);
     }
 

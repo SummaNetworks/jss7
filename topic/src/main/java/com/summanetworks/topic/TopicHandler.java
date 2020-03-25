@@ -36,9 +36,7 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         this.controller = controller;
     }
 
-
     private void write(ByteBuffer message) {
-        //logger.trace("write() message in channel...");
         //TODO: Review if reuse a buffer to optimize memory.
         ctx.writeAndFlush(Unpooled.wrappedBuffer(message));
     }
@@ -49,7 +47,7 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
 
     /**
      * Calls {@link ChannelHandlerContext#fireChannelActive()} to forward
-     * to the next {@link ChannelInboundHandler} in the {@link ChannelPipeline}.
+     * to the next {@link io.netty.channel.ChannelInboundHandler} in the {@link io.netty.channel.ChannelPipeline}.
      *
      * Sub-classes may override this method to change behavior.
      */
@@ -61,33 +59,32 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
         controller.connected(this);
         if(asClient){
             TopicSccpMessage hello = new TopicSccpMessage();
-            hello.id = controller.getTopicConfig().getPeerId();
+            hello.id = controller.getTopicConfig().getLocalPeerId();
             logger.debug("channelActive(): As client, sending hello. Local ID: "+hello.id);
             this.sendMessage(hello);
         }else{
             logger.debug("channelActive(): As server, waiting for remote hello.");
         }
+        ctx.fireChannelActive();
     }
 
     /**
      * Calls {@link ChannelHandlerContext#fireChannelInactive()} to forward
-     * to the next {@link ChannelInboundHandler} in the {@link ChannelPipeline}.
+     * to the next {@link io.netty.channel.ChannelInboundHandler} in the {@link io.netty.channel.ChannelPipeline}.
      * <p>
      * Sub-classes may override this method to change behavior.
      *
      * @param ctx
      */
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
+    public void channelInactive(ChannelHandlerContext ctx) {
+        controller.disconnected(this);
+        ctx.fireChannelInactive();
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        //super.channelRead(ctx, msg);
-
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
-            //logger.trace("channelRead()...");
             ByteBuf byteBuf = (ByteBuf) msg;
 
 //            //Remove to no alter
@@ -124,7 +121,7 @@ public class TopicHandler extends ChannelInboundHandlerAdapter implements Writab
                     registered = true;
                     if(!asClient){
                         TopicSccpMessage response = new TopicSccpMessage();
-                        response.id = controller.getTopicConfig().getPeerId();
+                        response.id = controller.getTopicConfig().getLocalPeerId();
                         logger.info("[ServerMode] Sending register response. Local ID: "+response.id);
                         this.sendMessage(response);
                     }
