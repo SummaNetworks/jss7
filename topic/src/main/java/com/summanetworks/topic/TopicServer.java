@@ -12,6 +12,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.log4j.Logger;
 
 /**
@@ -55,6 +56,7 @@ public class TopicServer {
                                         new LengthFieldBasedFrameDecoder(controller.getTopicConfig().getMaxTCPFrameSize(),
                                                 0, 2, 0, 2),
                                         new LengthFieldPrepender(2),
+                                        new IdleStateHandler(10, 5, 0),
                                         new TopicHandler(controller)
                                 );
                     }

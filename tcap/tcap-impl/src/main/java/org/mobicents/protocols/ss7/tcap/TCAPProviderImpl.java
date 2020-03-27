@@ -601,7 +601,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
         this.dialogs.clear();
         this.dialogPreviewList.clear();
 
-        TopicController.getInstance().unRegisterListener(ssn);
+        TopicController.getInstance().unregisterListener(ssn);
     }
 
     protected void sendProviderAbort(PAbortCauseType pAbortCause, byte[] remoteTransactionId, SccpAddress remoteAddress,
