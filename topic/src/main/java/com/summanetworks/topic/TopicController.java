@@ -195,7 +195,7 @@ public class TopicController {
             lostMessagesMap.put(peerId, ai);
         }
         int current = ai.get();
-        if(current > 20){
+        if(current > topicConfig.getUnknownByPeerLimit()){
             logger.warn("Received several message from unregistered peer.");
             if(eventListener != null){
                 new Thread("UnknownPeer-"+peerId){
