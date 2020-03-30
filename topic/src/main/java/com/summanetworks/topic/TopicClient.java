@@ -2,6 +2,7 @@ package com.summanetworks.topic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -39,43 +40,49 @@ public class TopicClient {
         new Thread("TC-" + host) {
             @Override
             public void run() {
-                logger.info("Starting client for remote host "+host);
+                logger.info("Starting client for remote host " + host);
                 EventLoopGroup workerGroup = new NioEventLoopGroup();
                 workers.add(workerGroup);
                 try {
                     //First at all check that connection to peer is not established by peer yet.
+                    Random random = new Random();
                     Bootstrap b;
                     b = buildBootstrap(workerGroup, controller);
                     do {
-                        try {
-                            if(logger.isDebugEnabled())
-                                logger.debug("Trying to connect to host "+host+"...");
-                            if(!controller.isConnected(host)) {
-                                ChannelFuture f = b.connect(host, port).sync();
-                                beConnected = true;
-                                f.channel().closeFuture().sync();
-                                //Channel closed. Rebuild before try again.
-                                b = buildBootstrap(workerGroup, controller);
-                            }else{
-                                logger.info("Host "+host+" already registered.");
-                                // FIXME: 22/3/20 by Ajimenez - Al romper el bucle tampoco intentará reconectarse luego, aunque el último que llega tiene que conectarse...
-                                break;
+                        if (!workerGroup.isShuttingDown() && !workerGroup.isShutdown()) {
+                            try {
+                                if (logger.isDebugEnabled())
+                                    logger.debug("Trying to connect to host " + host + "...");
+                                if (!controller.isConnected(host)) {
+                                    ChannelFuture f = b.connect(host, port).sync();
+                                    beConnected = true;
+                                    f.channel().closeFuture().sync();
+                                    //Channel closed. Rebuild before try again.
+                                    b = buildBootstrap(workerGroup, controller);
+                                } else {
+                                    logger.info("Host " + host + " already registered.");
+                                    break;
+                                }
+                            } catch (Exception e) {
+                                logger.info(String.format("Can not connect to %s with port %d. Cause: %s", host, port, e.getMessage()));
+                                if (logger.isTraceEnabled()) {
+                                    logger.trace(String.format("Can not connect to %s with port %d", host, port), e);
+                                }
                             }
-                        } catch (Exception e) {
-                            if(logger.isDebugEnabled())
-                                logger.debug(String.format("Can not connect to %s with port %d", host, port));
-                        }
-                        try {
-                            logger.debug("Waiting before try again..."); // FIXME: 22/3/20 by Ajimenez - Limite de reintentos.
-                            Thread.sleep(5000);
-                        } catch (InterruptedException ignored) {
+                            try {
+                                logger.trace("Waiting before try again...");
+                                Thread.sleep(3000 + random.nextInt(2000));
+                            } catch (InterruptedException ignored) {
+                            }
+                        } else {
+                            logger.trace("Shutting down. Stopping client.");
+                            beConnected = false;
                         }
                     } while (beConnected);
                 } finally {
-                    if(!workerGroup.isShuttingDown())
+                    if (!workerGroup.isShuttingDown())
                         workerGroup.shutdownGracefully();
                 }
-
             }
         }.start();
     }
@@ -94,7 +101,7 @@ public class TopicClient {
                         new LengthFieldBasedFrameDecoder(controller.getTopicConfig().getMaxTCPFrameSize(),
                                 0, 2, 0, 2),
                         new LengthFieldPrepender(2),
-                        new IdleStateHandler(10, 5, 0),
+                        new IdleStateHandler(5, 0, 0),
                         new TopicHandler(controller, true));
             }
         });

@@ -2,6 +2,9 @@ package com.summanetworks.topic;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.summanetworks.topic.exception.TopicException;
@@ -25,6 +28,8 @@ public class TopicController {
     private HashMap<String, TopicHandler> hostHandlerMap = new HashMap<>();
     private HashMap<Integer, TopicHandler> handlerRegisterMap = new HashMap<>();
     private ConcurrentHashMap<Integer, AtomicInteger> lostMessagesMap = new ConcurrentHashMap<>();
+
+    ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 
     private TopicController(){
     }
@@ -121,6 +126,7 @@ public class TopicController {
 
     protected synchronized TopicHandler registerHandler(Integer peerId, TopicHandler handler){
         logger.info(String.format("Host %s with peerId %d registered.",handler.getRemoteAddress(), peerId));
+        lostMessagesMap.remove(peerId);
         return handlerRegisterMap.put(peerId, handler);
     }
     protected void unregisterHandler(TopicHandler handler){
@@ -132,10 +138,6 @@ public class TopicController {
         }else {
             logger.debug(String.format("unregisterHandler(): Handler with peerId %d not found in register.", handler.getRemotePeerId()));
         }
-    }
-
-    protected void channelInvalid(TopicHandler handler){
-        hostHandlerMap.remove(handler.getRemoteAddress());
     }
 
     //Custom message, should be in user part.
@@ -186,29 +188,41 @@ public class TopicController {
     }
 
     //Handle messages from an unknow peer, if number of messages are bigger than a limited, call listener.
-    private synchronized void handleMessageForPeerNotRegistered(final Integer peerId){
-        // Si recibo X mensajes mando 1 alerta, que se anota. Si se reinicia la conexión,
-        // o finalmente se conecta el peer, se resetea la alerta.
-        AtomicInteger ai = lostMessagesMap.get(peerId);
-        if(ai == null){
-            ai = new AtomicInteger(1);
-            lostMessagesMap.put(peerId, ai);
-        }
-        int current = ai.get();
-        if(current > topicConfig.getUnknownByPeerLimit()){
-            logger.warn("Received several message from unregistered peer.");
-            if(eventListener != null){
-                new Thread("UnknownPeer-"+peerId){
-                    @Override
-                    public void run() {
-                        eventListener.onMessagesFromNotRegisteredPeer(peerId);
+    private synchronized void handleMessageForPeerNotRegistered(final Integer peerId) {
+        AtomicInteger lostCounter = lostMessagesMap.get(peerId);
+        if (lostCounter != null) {
+            lostCounter.incrementAndGet();
+        } else {
+            lostCounter = new AtomicInteger(1);
+            lostMessagesMap.put(peerId, lostCounter);
+            //Schedule check in some seconds...
+            executor.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    AtomicInteger lostCounter = lostMessagesMap.get(peerId);
+                    if (lostCounter != null) {
+                        int lostMessagesInt = lostCounter.get();
+                        if (lostMessagesInt > topicConfig.getMaxPeerMsgLostByWindows()) {
+                            logger.warn(String.format("Detected several messages lost [%d], addresses to peerId %d",
+                                    lostCounter.get(), peerId));
+                            if(eventListener != null){
+                                //¿Usando el executor necesito otro hilo?
+                                new Thread("UnknownPeer-"+peerId){
+                                    @Override
+                                    public void run() {
+                                        eventListener.onMessagesFromNotRegisteredPeer(peerId);
+                                    }
+                                }.start();
+                            }
+                        } else {
+                            logger.debug(String.format("Several message [%d] can not be sent to peerId %d but not reach the limit of %d," +
+                                            " reset counter without notify.", lostMessagesInt,
+                                    peerId, topicConfig.getMaxPeerMsgLostByWindows()));
+                        }
+                        lostMessagesMap.remove(peerId);
                     }
-                }.start();
-            }
-            //Message called. Set to 0 to avoid more calls.
-            ai.set(0);
-        }else if(current > 0){
-            ai.incrementAndGet();
+                }
+            }, topicConfig.getPeerMsgLostWindowSeconds(), TimeUnit.SECONDS);
         }
     }
 

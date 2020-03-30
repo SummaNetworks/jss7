@@ -63,6 +63,7 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
         remoteAddress = socket.getAddress().getHostAddress();
         this.ctx = ctx;
 
+        logger.info("Connected Host: "+remoteAddress);
         //Check that other handler doesn't start the connection.
         if(controller.connected(this) != null){
             //Previous connection found
@@ -73,24 +74,22 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
 
         if(asClient){
             TopicSccpMessage hello =TopicSccpMessage.createRegisterMessage(controller.getTopicConfig().getLocalPeerId());
-            logger.debug("channelActive(): As client, sending hello. Local Id: "+hello.id+".");
+            logger.info("[As-Client] Sending HELLO. Local Id: "+hello.id);
             this.sendMessage(hello);
         }else{
-            logger.debug("channelActive(): As server, waiting for remote hello.");
+            logger.debug("channelActive(): [As-Server] waiting for remote hello.");
         }
         ctx.fireChannelActive();
     }
 
+    //Evento manual.
     public void close () {
         logger.info("Channel closed with peer "+ remotePeerId);
         ctx.close();
-        controller.unregisterHandler(this);
-        controller.disconnected(this);
-        registered = false;
-        heartBeatLost = 0;
     }
 
     /**
+     * Evento automático cuando se cierra el cliente.
      * Calls {@link ChannelHandlerContext#fireChannelInactive()} to forward
      * to the next {@link io.netty.channel.ChannelInboundHandler} in the {@link io.netty.channel.ChannelPipeline}.
      * <p>
@@ -100,7 +99,11 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        logger.info("Channel inactive with peer "+ remotePeerId +".");
+        logger.info("Channel inactive with peer "+remotePeerId);
+        controller.unregisterHandler(this);
+        controller.disconnected(this);
+        registered = false;
+        heartBeatLost = 0;
         ctx.fireChannelInactive();
     }
 
@@ -126,6 +129,8 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
                 bb = ByteBuffer.wrap(bytes);
             }
             parseMessage(bb);
+        }catch(Exception e){
+            logger.error("Unexpected error ",e);
         } finally {
             ReferenceCountUtil.release(msg);
         }
@@ -138,50 +143,53 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
                 if(tsm.messageType == TopicSccpMessage.TYPE_REGISTER){
                     processRegistration(tsm);
                 } else if( tsm.messageType == TopicSccpMessage.TYPE_HEARTBEAT ) {
-                    logger.debug("Sending heartbeat ack.");
+                    logger.debug("Sending heartbeat ack to no registered peer");
                     this.sendMessage(TopicSccpMessage.createHeartbeatAck());
                 } else if( tsm.messageType == TopicSccpMessage.TYPE_HEARTBEAT_ACK ) {
-                    logger.debug("Heartbeat ack received.");
+                    logger.debug("Heartbeat ack received from no registered peer.");
                     heartBeatLost = 0;
                 } else {
                     // TODO: 24/3/20 by Ajimenez - Could an alternative to send a registration request message.
                     logger.warn("Invalid message. Host not registered yet. Closing.");
-                    controller.channelInvalid(this);
                     this.close();
                 }
             } else {
                 if( tsm.messageType == TopicSccpMessage.TYPE_DATA ) {
                     if (logger.isTraceEnabled()) {
-                        logger.trace(String.format("parseMessage(): Message from peerId %d to handle dialog %d.", remotePeerId, tsm.id));
+                        logger.trace(String.format("parseMessage(): Message from peer %d to handle dialog %d.", remotePeerId, tsm.id));
                     }
                     controller.onMessage(this.remotePeerId, tsm);
                 } else if( tsm.messageType == TopicSccpMessage.TYPE_HEARTBEAT ) {
-                    logger.debug("Received heartbeat, sending ack.");
+                    logger.debug("Received heartbeat, sending ack to peer "+this.remotePeerId);
                     this.sendMessage(TopicSccpMessage.createHeartbeatAck());
                 } else if( tsm.messageType == TopicSccpMessage.TYPE_HEARTBEAT_ACK ) {
-                    logger.debug("Heartbeat ack received.");
+                    logger.debug("Heartbeat ack received from peer "+this.remotePeerId);
                     heartBeatLost = 0;
                 }
             }
     }
 
     private void processRegistration(TopicSccpMessage tsm) {
-        logger.info("Register message from remote ID "+tsm.id+".");
-        this.remotePeerId = (int) tsm.id;
+        String prefix = "[As-Server] ";
+        if(asClient)
+            prefix = "[As-Client] ";
 
+        logger.info(prefix+"Handling register message from peer "+tsm.id);
+        this.remotePeerId = (int) tsm.id;
         if(controller.getHandlerRegistered(this.remotePeerId) != null){
-            logger.debug("processRegistration(): Peer %d already registered with different handler. Ignoring registration and closing.");
+            logger.debug(prefix+"processRegistration(): Peer %d already registered with different handler. Ignoring registration and closing.");
             ctx.close();
             controller.disconnected(this);
             return;
         }
-        controller.registerHandler(this.remotePeerId, this);
         registered = true;
-        if(!asClient){
+        controller.registerHandler(this.remotePeerId, this);
+        if(!asClient){ //Server mode, response hello.
             TopicSccpMessage response = TopicSccpMessage.createRegisterMessage(controller.getTopicConfig().getLocalPeerId());
-            logger.info("processRegistration(): [ServerMode] Sending register response. Local ID: "+response.id+".");
+            logger.info(prefix+"Sending HELLO response. Local ID: "+response.id);
             this.sendMessage(response);
         }
+        logger.info(prefix+"Handling register message from peer "+tsm.id+" done.");
     }
 
     public void sendMessage(TopicSccpMessage tsm){
@@ -195,7 +203,7 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             if (e.state() == IdleState.READER_IDLE) {
-                logger.debug("Reader-Idle detected.");
+                logger.debug("Reader-Idle detected with peer "+remotePeerId);
                 if(registered) {
                     if (heartBeatLost++ < 2) {
                         logger.debug("Sending heart beat to peer " + remotePeerId);
@@ -210,9 +218,8 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
                     this.sendMessage(hello);
                 }
             } else if (e.state() == IdleState.WRITER_IDLE) {
-                logger.debug("Write-Idle detected.");
+                logger.trace("Write-Idle detected.");
                 //Nothing to do.
-                //this.sendMessage(TopicSccpMessage.createHeartbeat());
             }
         }
     }

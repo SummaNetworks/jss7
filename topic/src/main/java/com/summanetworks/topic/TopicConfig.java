@@ -22,7 +22,8 @@ public class TopicConfig {
     private String localIp = null;
     private int localPort = 5500;
     private List<String> peerAddresses;
-    private int unknownByPeerLimit = 20;
+    private int maxPeerMsgLostByWindows = 100;
+    private int peerMsgLostWindowSeconds = 5;
 
 
     // FIXME: 21/3/20 by Ajimenez - Determinar el tamaño usado para parsear el mensaje por el handler.
@@ -44,7 +45,7 @@ public class TopicConfig {
 
     public void setLocalPeerId(int localPeerId) throws TopicException {
         if(localPeerId < LOCAL_PEER_ID_MIN || localPeerId > LOCAL_PEER_ID_MAX ){
-            throw new TopicException("Invalid peerId. Must be between 100 and 999");
+            throw new TopicException("Invalid peerId. Must be between "+LOCAL_PEER_ID_MIN+" and "+LOCAL_PEER_ID_MAX);
         }
         this.localPeerId = localPeerId;
     }
@@ -83,7 +84,6 @@ public class TopicConfig {
         }
     }
 
-
     public int getLocalPeerId() {
         return localPeerId;
     }
@@ -103,12 +103,25 @@ public class TopicConfig {
         return maxTCPFrameSize;
     }
 
-
-    public int getUnknownByPeerLimit() {
-        return unknownByPeerLimit;
+    public void setMaxTCPFrameSize(int maxTCPFrameSize) {
+        this.maxTCPFrameSize = maxTCPFrameSize;
     }
 
-    public void setUnknownByPeerLimit(int unknownByPeerLimit) {
-        this.unknownByPeerLimit = unknownByPeerLimit;
+    public int getMaxPeerMsgLostByWindows() {
+        return maxPeerMsgLostByWindows;
     }
+
+    public void setMaxPeerMsgLostByWindows(int maxPeerMsgLostByWindows) {
+        this.maxPeerMsgLostByWindows = maxPeerMsgLostByWindows;
+    }
+
+    public int getPeerMsgLostWindowSeconds() {
+        return peerMsgLostWindowSeconds;
+    }
+
+    public void setPeerMsgLostWindowSeconds(int peerMsgLostWindowSeconds) {
+        this.peerMsgLostWindowSeconds = peerMsgLostWindowSeconds;
+    }
+
+
 }
