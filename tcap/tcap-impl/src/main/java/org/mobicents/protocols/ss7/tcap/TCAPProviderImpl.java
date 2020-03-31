@@ -688,13 +688,10 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
      */
     @Override
     public void onMessage(long peerId, long dialogId, SccpAddress localAddress, SccpAddress remoteAddress, byte[] data) {
-        logger.debug("Handling topic message. Dialog  "+dialogId);
         try {
             AsnInputStream ais = new AsnInputStream(data);
-
             // this should have TC message tag :)
             int tag = ais.readTag();
-
             DialogImpl di = this.dialogs.get(dialogId);
             if(di != null) {
                 switch (tag) {
@@ -726,12 +723,16 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                         di.setLastMessageReceivedTime(System.currentTimeMillis());
                         di.processAbort(tub, localAddress, remoteAddress);
                     default:
+                        if(logger.isDebugEnabled())
+                            logger.debug("Handling Unexpected message tag ["+tag+"] for dialog: "+dialogId);
                 }
+            } else {
+                if(logger.isDebugEnabled())
+                    logger.debug("Handling topic message but dialog  "+dialogId+" not found.");
             }
         }catch (IOException | ParseException e){
             logger.warn("Error processing remote message ",e);
         }
-
     }
 
     public void onMessage(SccpDataMessage message) {

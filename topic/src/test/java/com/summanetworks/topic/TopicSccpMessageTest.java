@@ -1,10 +1,8 @@
 package com.summanetworks.topic;
 
-import com.summanetworks.topic.TopicSccpMessage;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.GlobalTitle0010Impl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
-import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
