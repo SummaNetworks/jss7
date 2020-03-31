@@ -24,6 +24,7 @@ public class TopicConfig {
     private List<String> peerAddresses;
     private int maxPeerMsgLostByWindows = 100;
     private int peerMsgLostWindowSeconds = 5;
+    private int hartBeatInterval = 5;
 
 
     // FIXME: 21/3/20 by Ajimenez - Determinar el tamaño usado para parsear el mensaje por el handler.
@@ -123,5 +124,11 @@ public class TopicConfig {
         this.peerMsgLostWindowSeconds = peerMsgLostWindowSeconds;
     }
 
+    public int getHartBeatInterval() {
+        return hartBeatInterval;
+    }
 
+    public void setHartBeatInterval(int hartBeatInterval) {
+        this.hartBeatInterval = hartBeatInterval;
+    }
 }

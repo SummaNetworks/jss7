@@ -101,7 +101,7 @@ public class TopicClient {
                         new LengthFieldBasedFrameDecoder(controller.getTopicConfig().getMaxTCPFrameSize(),
                                 0, 2, 0, 2),
                         new LengthFieldPrepender(2),
-                        new IdleStateHandler(5, 0, 0),
+                        new IdleStateHandler(controller.getTopicConfig().getHartBeatInterval(), 0, 0),
                         new TopicHandler(controller, true));
             }
         });
