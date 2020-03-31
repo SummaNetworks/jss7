@@ -24,12 +24,12 @@ package org.mobicents.protocols.ss7.tcap;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -38,7 +38,6 @@ import com.summanetworks.topic.TopicController;
 import com.summanetworks.topic.TopicListener;
 import com.summanetworks.topic.exception.TopicException;
 import javolution.util.FastMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
@@ -802,9 +801,8 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     }else if(dialogReplicator != null){
                         dialogReplicator.refreshDialog(di);
                     }
-                    // FIXME: 25/3/20 by Ajimenez - Revisar que pasa con el TO de la capa sscp.
                     //TOPIC WAY
-                    if(di == null){
+                    if(di == null && TopicController.getInstance().isStarted()){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){
                             if(logger.isDebugEnabled())
                                 logger.debug(String.format("Redirecting dialog %d through topic.",dialogId));
@@ -929,7 +927,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                         dialogReplicator.refreshDialog(di);
                     }
                     //TOPIC WAY
-                    if(di == null){
+                    if(di == null && TopicController.getInstance().isStarted()){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){
                             if(logger.isDebugEnabled())
                                 logger.debug(String.format("Redirecting dialog %d through topic.",dialogId));
@@ -981,7 +979,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                         dialogReplicator.refreshDialog(di);
                     }
                     //TOPIC WAY
-                    if(di == null){
+                    if(di == null && TopicController.getInstance().isStarted()){
                         if(TopicController.getInstance().sendMessage(dialogId, message)){
                             if(logger.isDebugEnabled())
                                 logger.debug(String.format("Redirecting dialog %d through topic.",dialogId));
