@@ -93,8 +93,12 @@ public class TopicController {
         if(topicConfig.getPeerAddresses() != null) {
             client = new TopicClient();
             for (String ip : topicConfig.getPeerAddresses()) {
-                if(!hostHandlerMap.containsKey(ip)) {
-                    client.initConnection(ip, topicConfig.getLocalPort(), this);
+                if(!topicConfig.getLocalIp().equals(ip) && !"127.0.0.1".equals(ip) && !"0.0.0.0".equals(ip)) {
+                    if (!hostHandlerMap.containsKey(ip)) {
+                        client.initConnection(ip, topicConfig.getLocalPort(), this);
+                    }
+                } else {
+                    logger.debug("connectToPeer(): Ignoring "+ip);
                 }
             }
         }
@@ -107,6 +111,7 @@ public class TopicController {
         //Validate that is not yet register (by client 4 example).
         return hostHandlerMap.put(handler.getRemoteAddress(), handler);
     }
+
     protected void disconnected(TopicHandler handler){
         if(hostHandlerMap.get(handler.getRemoteAddress()) == handler) {
             logger.info(String.format("Remote host %s disconnected.", handler.getRemoteAddress()));
@@ -129,6 +134,7 @@ public class TopicController {
         lostMessagesMap.remove(peerId);
         return handlerRegisterMap.put(peerId, handler);
     }
+
     protected void unregisterHandler(TopicHandler handler){
         if(handlerRegisterMap.get(handler.getRemotePeerId()) == handler ) {
             logger.info(String.format("Unregistering handler with peerId %d...", handler.getRemotePeerId()));
