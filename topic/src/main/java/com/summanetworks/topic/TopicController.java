@@ -92,14 +92,18 @@ public class TopicController {
     private void connectToPeers(){
         if(topicConfig.getPeerAddresses() != null) {
             client = new TopicClient();
-            for (String ip : topicConfig.getPeerAddresses()) {
-                if(!topicConfig.getLocalIp().equals(ip) && !"127.0.0.1".equals(ip) && !"0.0.0.0".equals(ip)) {
-                    if (!hostHandlerMap.containsKey(ip)) {
-                        client.initConnection(ip, topicConfig.getLocalPort(), this);
+            if(topicConfig.getPeerAddresses() != null && !topicConfig.getPeerAddresses().equals("")) {
+                for (String ip : topicConfig.getPeerAddresses()) {
+                    if (!topicConfig.getLocalIp().equals(ip) && !"127.0.0.1".equals(ip) && !"0.0.0.0".equals(ip)) {
+                        if (!hostHandlerMap.containsKey(ip)) {
+                            client.initConnection(ip, topicConfig.getLocalPort(), this);
+                        }
+                    } else {
+                        logger.debug("connectToPeer(): Ignoring " + ip);
                     }
-                } else {
-                    logger.debug("connectToPeer(): Ignoring "+ip);
                 }
+            } else {
+                logger.warn("No peers address configured.");
             }
         }
     }

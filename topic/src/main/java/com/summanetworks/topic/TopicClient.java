@@ -37,54 +37,56 @@ public class TopicClient {
      * @param controller
      */
     public void initConnection(final String host, final int port, final TopicController controller) {
-        new Thread("TC-" + host) {
-            @Override
-            public void run() {
-                logger.info("Starting client for remote host " + host);
-                EventLoopGroup workerGroup = new NioEventLoopGroup();
-                workers.add(workerGroup);
-                try {
-                    //First at all check that connection to peer is not established by peer yet.
-                    Random random = new Random();
-                    Bootstrap b;
-                    b = buildBootstrap(workerGroup, controller);
-                    do {
-                        if (!workerGroup.isShuttingDown() && !workerGroup.isShutdown()) {
-                            try {
-                                if (logger.isDebugEnabled())
-                                    logger.debug("Trying to connect to host " + host + "...");
-                                if (!controller.isConnected(host)) {
-                                    ChannelFuture f = b.connect(host, port).sync();
-                                    beConnected = true;
-                                    f.channel().closeFuture().sync();
-                                    //Channel closed. Rebuild before try again.
-                                    b = buildBootstrap(workerGroup, controller);
-                                } else {
-                                    logger.info("Host " + host + " already registered.");
-                                    break;
+        if(host != null && !"".equals(host.trim())) {
+            new Thread("TC-" + host) {
+                @Override
+                public void run() {
+                    logger.info("Starting client for remote host [" + host+"]");
+                    EventLoopGroup workerGroup = new NioEventLoopGroup();
+                    workers.add(workerGroup);
+                    try {
+                        //First at all check that connection to peer is not established by peer yet.
+                        Random random = new Random();
+                        Bootstrap b;
+                        b = buildBootstrap(workerGroup, controller);
+                        do {
+                            if (!workerGroup.isShuttingDown() && !workerGroup.isShutdown()) {
+                                try {
+                                    if (logger.isDebugEnabled())
+                                        logger.debug("Trying to connect to host [" + host + "]...");
+                                    if (!controller.isConnected(host)) {
+                                        ChannelFuture f = b.connect(host, port).sync();
+                                        beConnected = true;
+                                        f.channel().closeFuture().sync();
+                                        //Channel closed. Rebuild before try again.
+                                        b = buildBootstrap(workerGroup, controller);
+                                    } else {
+                                        logger.info("Host [" + host + "] already registered.");
+                                        break;
+                                    }
+                                } catch (Exception e) {
+                                    logger.info(String.format("Can not connect to %s with port %d. Cause: %s", host, port, e.getMessage()));
+                                    if (logger.isTraceEnabled()) {
+                                        logger.trace(String.format("Can not connect to %s with port %d", host, port), e);
+                                    }
                                 }
-                            } catch (Exception e) {
-                                logger.info(String.format("Can not connect to %s with port %d. Cause: %s", host, port, e.getMessage()));
-                                if (logger.isTraceEnabled()) {
-                                    logger.trace(String.format("Can not connect to %s with port %d", host, port), e);
+                                try {
+                                    logger.trace("Waiting before try again...");
+                                    Thread.sleep(3000 + random.nextInt(2000));
+                                } catch (InterruptedException ignored) {
                                 }
+                            } else {
+                                logger.trace("Shutting down. Stopping client.");
+                                beConnected = false;
                             }
-                            try {
-                                logger.trace("Waiting before try again...");
-                                Thread.sleep(3000 + random.nextInt(2000));
-                            } catch (InterruptedException ignored) {
-                            }
-                        } else {
-                            logger.trace("Shutting down. Stopping client.");
-                            beConnected = false;
-                        }
-                    } while (beConnected);
-                } finally {
-                    if (!workerGroup.isShuttingDown())
-                        workerGroup.shutdownGracefully();
+                        } while (beConnected);
+                    } finally {
+                        if (!workerGroup.isShuttingDown())
+                            workerGroup.shutdownGracefully();
+                    }
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
 
     private Bootstrap buildBootstrap(EventLoopGroup workerGroup, final TopicController controller) {

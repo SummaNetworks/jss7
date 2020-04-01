@@ -34,12 +34,12 @@ public class TopicConfig {
         if(localPeerId == 0){
             return false;
         }
-        if(localIp == null){
+        if(localIp == null || localIp.isEmpty()){
             localIp = "0.0.0.0";
             logger.warn("Local IP not given. Using "+localIp);
         }
         if(peerAddresses.isEmpty()){
-            logger.warn("No peers IP found. Acting as server.");
+            logger.warn("No peers IP found. Acting only as server.");
         }
         return true;
     }
