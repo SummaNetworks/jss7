@@ -95,6 +95,7 @@ import org.mobicents.protocols.ss7.map.api.service.lsm.LCSQoS;
 import org.mobicents.protocols.ss7.map.api.service.lsm.LCSRequestorID;
 import org.mobicents.protocols.ss7.map.api.service.lsm.LocationEstimateType;
 import org.mobicents.protocols.ss7.map.api.service.lsm.LocationType;
+import org.mobicents.protocols.ss7.map.api.service.lsm.NetworkNodeDiameterAddress;
 import org.mobicents.protocols.ss7.map.api.service.lsm.OccurrenceInfo;
 import org.mobicents.protocols.ss7.map.api.service.lsm.PeriodicLDRInfo;
 import org.mobicents.protocols.ss7.map.api.service.lsm.PositioningDataInformation;
@@ -878,6 +879,14 @@ public class MAPParameterFactoryImpl implements MAPParameterFactory {
     public LocationInfoWithLMSI createLocationInfoWithLMSI(long mapProtocolVersion, ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
             boolean gprsNodeIndicator, AdditionalNumber additionalNumber) {
         return new LocationInfoWithLMSIImpl(mapProtocolVersion, networkNodeNumber, lmsi, extensionContainer, gprsNodeIndicator, additionalNumber);
+    }
+
+    public LocationInfoWithLMSI createLocationInfoWithLMSI(long mapProtocolVersion, ISDNAddressString networkNodeNumber, LMSI lmsi, MAPExtensionContainer extensionContainer,
+            boolean gprsNodeIndicator, AdditionalNumber additionalNumber, NetworkNodeDiameterAddress networkNodeDiameterAddress,
+                                                           NetworkNodeDiameterAddress additionalNetworkNodeDiameterAddress, AdditionalNumber thirdNumber,
+                                                           NetworkNodeDiameterAddress thirdNetworkNodeDiameterAddress, boolean imsNodeIndicator) {
+        return new LocationInfoWithLMSIImpl(mapProtocolVersion, networkNodeNumber, lmsi, extensionContainer, gprsNodeIndicator, additionalNumber,
+                networkNodeDiameterAddress, additionalNetworkNodeDiameterAddress, thirdNumber, thirdNetworkNodeDiameterAddress, imsNodeIndicator);
     }
 
     public Problem createProblemGeneral(GeneralProblemType prob) {

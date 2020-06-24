@@ -28,6 +28,7 @@ import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.LMSI;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 import org.mobicents.protocols.ss7.map.api.service.lsm.AdditionalNumber;
+import org.mobicents.protocols.ss7.map.api.service.lsm.NetworkNodeDiameterAddress;
 
 /**
  *
@@ -101,4 +102,13 @@ public interface LocationInfoWithLMSI extends Serializable {
 
     AdditionalNumber getAdditionalNumber();
 
+    NetworkNodeDiameterAddress getNetworkNodeDiameterAddress();
+
+    NetworkNodeDiameterAddress getAdditionalNetworkNodeDiameterAddress();
+
+    AdditionalNumber getThirdNumber();
+
+    NetworkNodeDiameterAddress getThirdNetworkNodeDiameterAddress();
+
+    boolean getImsNodeIndicator();
 }
