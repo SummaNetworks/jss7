@@ -38,6 +38,8 @@ public interface Mtp3ServiceAccessPoint {
 
     int getNetworkId();
 
+    int getDpc();
+
     Mtp3Destination getMtp3Destination(int destId);
 
     Map<Integer, Mtp3Destination> getMtp3Destinations();

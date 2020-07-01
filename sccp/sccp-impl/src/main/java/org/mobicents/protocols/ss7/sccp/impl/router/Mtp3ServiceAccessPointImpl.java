@@ -43,6 +43,7 @@ import org.mobicents.protocols.ss7.sccp.impl.oam.SccpOAMMessage;
 public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSerializable {
     private static final String MTP3_ID = "mtp3Id";
     private static final String OPC = "opc";
+    private static final String DPC = "dpc";
     private static final String NI = "ni";
     private static final String NETWORK_ID = "networkId";
 
@@ -51,6 +52,7 @@ public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSe
     private int ni;
     private String stackName;
     private int networkId;
+    private int dpc;
 
     private Mtp3DestinationMap<Integer, Mtp3Destination> dpcList = new Mtp3DestinationMap<Integer, Mtp3Destination>();
 
@@ -60,6 +62,7 @@ public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSe
     public Mtp3ServiceAccessPointImpl(int mtp3Id, int opc, int ni, String stackName, int networkId) {
         this.mtp3Id = mtp3Id;
         this.opc = opc;
+        this.dpc = dpc;
         this.ni = ni;
         this.stackName = stackName;
         this.networkId = networkId;
@@ -86,6 +89,10 @@ public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSe
 
     public int getNetworkId() {
         return networkId;
+    }
+
+    public int getDpc() {
+        return dpc;
     }
 
     public Mtp3Destination getMtp3Destination(int destId) {
@@ -165,7 +172,7 @@ public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSe
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("mtp3Id=").append(this.mtp3Id).append(", opc=").append(this.opc).append(", ni=").append(this.ni).append(", networkId=")
-                .append(this.networkId).append(", dpcList=[");
+                .append(this.networkId).append(", dpc=").append(this.dpc).append(", dpcList=[");
 
         boolean isFirst = true;
         for (FastMap.Entry<Integer, Mtp3Destination> e = this.dpcList.head(), end = this.dpcList.tail(); (e = e.getNext()) != end;) {
@@ -192,6 +199,9 @@ public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSe
         public void write(Mtp3ServiceAccessPointImpl sap, OutputElement xml) throws XMLStreamException {
             xml.setAttribute(MTP3_ID, sap.mtp3Id);
             xml.setAttribute(OPC, sap.opc);
+            if (sap.dpc != -1) {
+                xml.setAttribute(DPC, sap.dpc);
+            }
             xml.setAttribute(NI, sap.ni);
             xml.setAttribute(NETWORK_ID, sap.networkId);
 
@@ -201,6 +211,12 @@ public class Mtp3ServiceAccessPointImpl implements Mtp3ServiceAccessPoint, XMLSe
         public void read(InputElement xml, Mtp3ServiceAccessPointImpl sap) throws XMLStreamException {
             sap.mtp3Id = xml.getAttribute(MTP3_ID).toInt();
             sap.opc = xml.getAttribute(OPC).toInt();
+            if (xml.getAttribute(DPC) != null) {
+                sap.dpc = xml.getAttribute(DPC).toInt();
+            } else {
+                sap.dpc = -1;
+            }
+
             sap.ni = xml.getAttribute(NI).toInt();
             sap.networkId = xml.getAttribute(NETWORK_ID, 0);
 

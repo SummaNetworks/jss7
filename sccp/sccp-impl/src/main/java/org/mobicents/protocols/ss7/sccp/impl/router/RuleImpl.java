@@ -22,12 +22,9 @@
 
 package org.mobicents.protocols.ss7.sccp.impl.router;
 
-import java.io.Serializable;
-
 import javolution.text.CharArray;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -50,6 +47,8 @@ import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0010;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0011;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0100;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+
+import java.io.Serializable;
 
 /**
  * @author amit bhayani

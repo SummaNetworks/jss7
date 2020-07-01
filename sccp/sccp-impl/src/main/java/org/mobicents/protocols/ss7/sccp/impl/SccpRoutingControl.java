@@ -22,11 +22,7 @@
 
 package org.mobicents.protocols.ss7.sccp.impl;
 
-import java.io.IOException;
-import java.util.Map;
-
 import javolution.util.FastMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -57,6 +53,9 @@ import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.ReturnCause;
 import org.mobicents.protocols.ss7.sccp.parameter.ReturnCauseValue;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  *
@@ -174,6 +173,10 @@ public class SccpRoutingControl {
                 break;
             case ROUTING_BASED_ON_GLOBAL_TITLE:
                 this.translationFunction(msg);
+
+                logger.debug("routeMssgFromMtp: CallingPartyAddress --> " + msg.getCallingPartyAddress());
+                logger.debug("routeMssgFromMtp: CalledPartyAddress --> " + msg.getCalledPartyAddress());
+
                 break;
             default:
                 // This can never happen
@@ -205,6 +208,17 @@ public class SccpRoutingControl {
             return ReturnCauseValue.SCCP_FAILURE;
         }
 
+        int opc = sap.getOpc();
+        if (sap.getDpc() != -1){
+            logger.debug("SccpMessage will use as OPC for M3UA the one given on the SAP configuration " + sap.getOpc());
+            dpc = sap.getDpc();
+        }
+
+        if(SccpStackImpl.getPeerPointCode() != null || !SccpStackImpl.getPeerPointCode().equals(dpc)){
+            logger.debug("SccpMessage will change the setPeerPointCode using DPC " + dpc);
+            SccpStackImpl.setPeerPointCode(dpc);
+        }
+
         Mtp3UserPart mup = this.sccpStackImpl.getMtp3UserPart(sap.getMtp3Id());
         if (mup == null) {
             if (logger.isEnabledFor(Level.WARN)) {
@@ -218,15 +232,19 @@ public class SccpRoutingControl {
         LongMessageRuleType lmrt = LongMessageRuleType.LONG_MESSAGE_FORBBIDEN;
         if (lmr != null)
             lmrt = lmr.getLongMessageRuleType();
+
+        logger.debug("SccpMessage will be send using " + this.sccpStackImpl.getSccpProtocolVersion());
+
         EncodingResultData erd = message.encode(sccpStackImpl, lmrt, mup.getMaxUserDataLength(dpc), logger, this.sccpStackImpl.isRemoveSpc(),
                 this.sccpStackImpl.getSccpProtocolVersion());
+
         switch (erd.getEncodingResult()) {
             case Success:
                 Mtp3TransferPrimitiveFactory factory = mup.getMtp3TransferPrimitiveFactory();
                 if (erd.getSolidData() != null) {
                     // nonsegmented data
                     Mtp3TransferPrimitive msg = factory.createMtp3TransferPrimitive(Mtp3._SI_SERVICE_SCCP, sap.getNi(), 0,
-                            sap.getOpc(), dpc, sls, erd.getSolidData());
+                            opc, dpc, sls, erd.getSolidData());
                     mup.sendMessage(msg);
                 } else {
                     // segmented data
@@ -410,6 +428,9 @@ public class SccpRoutingControl {
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
         SccpAddress callingPartyAddress = msg.getCallingPartyAddress();
 
+        logger.debug("translationFunction: CallingPartyAddress --> " + callingPartyAddress);
+        logger.debug("translationFunction: CalledPartyAddress --> " + calledPartyAddress);
+
         Rule rule = this.sccpStackImpl.router.findRule(calledPartyAddress, callingPartyAddress, msg.getIsMtpOriginated(), msg.getNetworkId());
         if (rule == null) {
             if (logger.isEnabledFor(Level.WARN)) {
@@ -544,6 +565,10 @@ public class SccpRoutingControl {
         msg.getCallingPartyAddress().setIncomingOpc(msg.getIncomingOpc());
 
         // routing procedures then continue's
+
+        logger.debug("translationFunction: CallingPartyAddress before route --> " + callingPartyAddress);
+        logger.debug("translationFunction: CalledPartyAddress before route --> " + calledPartyAddress);
+
         this.route(msg);
 
         if (translationAddress2 != null) {
@@ -682,7 +707,6 @@ public class SccpRoutingControl {
                     logger.error(String.format("Received SCCPMessage=%s for routing, but neither SSN nor GT present", msg));
                     this.sendSccpError(msg, ReturnCauseValue.NO_TRANSLATION_FOR_NATURE);
                 }
-
             } else {
                 // DPC present but its not local pointcode. This message should be Tx to MTP
 
@@ -697,6 +721,7 @@ public class SccpRoutingControl {
                     this.sendSccpError(msg, ReturnCauseValue.SCCP_FAILURE);
                     return;
                 }
+
                 if (remoteSpc.isRemoteSpcProhibited()) {
                     if (logger.isEnabledFor(Level.WARN)) {
                         logger.warn(String.format(
@@ -742,6 +767,10 @@ public class SccpRoutingControl {
                     if (logger.isDebugEnabled()) {
                         logger.debug(String.format("Tx : SCCP Message=%s", msg.toString()));
                     }
+
+                    logger.debug("route: CallingPartyAddress --> " + msg.getCallingPartyAddress());
+                    logger.debug("route: CalledPartyAddress --> " + msg.getCalledPartyAddress());
+
                     this.sendMessageToMtp(msg);
                 } else if (gt != null) {
 
@@ -797,12 +826,17 @@ public class SccpRoutingControl {
     }
 
     protected void sendMessageToMtp(SccpAddressedMessageImpl msg) throws Exception {
-
+        logger.debug("message has configured outgoingPointCode " + msg.getOutgoingDpc());
+        logger.debug("message has configured incomingPointCode " + msg.getIncomingDpc());
         msg.setOutgoingDpc(msg.getCalledPartyAddress().getSignalingPointCode());
+        logger.debug("message has changed outgoingPointCode " + msg.getOutgoingDpc());
 
         // if (msg.getSccpCreatesSls()) {
         // msg.setSls(this.sccpStackImpl.newSls());
         // }
+
+        logger.debug("translationFunction: CallingPartyAddress --> " + msg.getCallingPartyAddress());
+        logger.debug("translationFunction: CalledPartyAddress --> " + msg.getCalledPartyAddress());
 
         ReturnCauseValue er = this.send(msg);
         if (er != null) {

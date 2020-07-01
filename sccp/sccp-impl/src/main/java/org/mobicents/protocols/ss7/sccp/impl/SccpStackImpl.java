@@ -552,6 +552,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
             return 0;
         }
         Mtp3UserPart mup = this.getMtp3UserPart(sap.getMtp3Id());
+
         if (mup == null) {
             return 0;
         }
@@ -703,6 +704,15 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
                     }
                     return;
                 }
+
+                if (sap.getDpc() != -1){
+                    logger.debug("Incoming Mtp3 message changeing DPC with SAP.DPC " + sap.getDpc());
+                    dpc = sap.getDpc();
+                }
+
+                //If no is local, save destination to determine ITU/ANSI encoding.
+                SccpStackImpl.setPeerPointCode(dpc);
+
                 Mtp3UserPart mup = this.getMtp3UserPart(sap.getMtp3Id());
                 if (mup == null) {
                     if (logger.isEnabledFor(Level.WARN)) {
