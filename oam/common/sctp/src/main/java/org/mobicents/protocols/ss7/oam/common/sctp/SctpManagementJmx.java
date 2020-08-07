@@ -29,7 +29,6 @@ import java.util.Map;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
-
 import org.mobicents.protocols.api.Association;
 import org.mobicents.protocols.api.CongestionListener;
 import org.mobicents.protocols.api.IpChannelType;
@@ -325,6 +324,11 @@ public class SctpManagementJmx implements SctpManagementJmxMBean, ManagementEven
     @Override
     public void setWorkerThreads(int workerThreads) throws Exception {
         this.wrappedSctpManagement.setWorkerThreads(workerThreads);
+    }
+
+    @Override
+    public void setBossThreads(int bossThreads) throws Exception {
+        this.wrappedSctpManagement.setBossThreads(bossThreads);
     }
 
     @Override

@@ -21,6 +21,7 @@
  */
 package org.mobicents.protocols.ss7.oam.common.sccp;
 
+import java.util.List;
 import java.util.Map;
 
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
@@ -203,4 +204,13 @@ public class SccpManagementJmx implements SccpManagementJmxMBean {
         return this.wrappedSccpStack.getSccpProtocolVersion();
     }
 
+    /**
+     * Point codes of remotes peers that need messages configured with other way (ANSI/ITU)
+     *
+     * @param peerPointCodes
+     */
+    @Override
+    public void setPeerPointCodesForContraryProtocolVersion(List<Integer> peerPointCodes) {
+            this.wrappedSccpStack.setPeerPointCodesForContraryProtocolVersion(peerPointCodes);
+    }
 }

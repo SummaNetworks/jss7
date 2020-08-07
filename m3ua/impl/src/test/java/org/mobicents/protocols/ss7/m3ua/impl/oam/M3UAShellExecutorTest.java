@@ -21,15 +21,11 @@
  */
 package org.mobicents.protocols.ss7.m3ua.impl.oam;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-
 import java.util.List;
 import java.util.Map;
 
 import io.netty.buffer.ByteBufAllocator;
 import javolution.util.FastMap;
-
 import org.mobicents.protocols.api.Association;
 import org.mobicents.protocols.api.AssociationListener;
 import org.mobicents.protocols.api.AssociationType;
@@ -47,6 +43,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * 
@@ -595,6 +594,11 @@ public class M3UAShellExecutorTest {
         public void setWorkerThreads(int arg0) {
             // TODO Auto-generated method stub
 
+        }
+
+        @Override
+        public void setBossThreads(int i) throws Exception {
+            // TODO Auto-generated method stub
         }
 
         @Override

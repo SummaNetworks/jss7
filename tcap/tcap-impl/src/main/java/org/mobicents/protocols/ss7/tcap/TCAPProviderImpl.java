@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.summanetworks.topic.TopicConfig;
 import com.summanetworks.topic.TopicController;
 import com.summanetworks.topic.TopicListener;
 import com.summanetworks.topic.exception.TopicException;
@@ -163,10 +162,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
         this.dialogReplicator = dialogReplicator;
     }
 
-    public void setTopicConfig(TopicConfig topicConfig){
-
-    }
-
     /**
      *
      * @param sccpProvider
@@ -270,7 +265,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
      * @seeorg.mobicents.protocols.ss7.tcap.api.TCAPProvider# getComopnentPrimitiveFactory()
      */
     public ComponentPrimitiveFactory getComponentPrimitiveFactory() {
-
         return this.componentPrimitiveFactory;
     }
 
@@ -280,7 +274,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
      * @see org.mobicents.protocols.ss7.tcap.api.TCAPProvider#getDialogPrimitiveFactory ()
      */
     public DialogPrimitiveFactory getDialogPrimitiveFactory() {
-
         return this.dialogPrimitiveFactory;
     }
 
@@ -586,7 +579,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
         TopicController.getInstance().registerListener(this, ssn);
 
         this._EXECUTOR = Executors.newScheduledThreadPool(4
-                //, new DefaultThreadFactory("Tcap-Thread")
+                //, new DefaultThreadFactory("Tcap-ThPool")
         );
 
         this.sccpProvider.registerSccpListener(ssn, this);
