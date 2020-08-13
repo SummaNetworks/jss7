@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.summanetworks.topic.TopicConfig;
 import com.summanetworks.topic.TopicController;
 import com.summanetworks.topic.TopicListener;
 import com.summanetworks.topic.exception.TopicException;
@@ -107,6 +106,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
     private transient ComponentPrimitiveFactory componentPrimitiveFactory;
     private transient DialogPrimitiveFactory dialogPrimitiveFactory;
     private transient SccpProvider sccpProvider;
+    private transient SccpProvider sccpProviderExtra;
 
     private transient MessageFactory messageFactory;
     private transient ParameterFactory parameterFactory;
@@ -161,10 +161,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
 
     public void setDialogReplicator(DialogReplicator dialogReplicator) {
         this.dialogReplicator = dialogReplicator;
-    }
-
-    public void setTopicConfig(TopicConfig topicConfig){
-
     }
 
     /**
@@ -270,7 +266,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
      * @seeorg.mobicents.protocols.ss7.tcap.api.TCAPProvider# getComopnentPrimitiveFactory()
      */
     public ComponentPrimitiveFactory getComponentPrimitiveFactory() {
-
         return this.componentPrimitiveFactory;
     }
 
@@ -280,7 +275,6 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
      * @see org.mobicents.protocols.ss7.tcap.api.TCAPProvider#getDialogPrimitiveFactory ()
      */
     public DialogPrimitiveFactory getDialogPrimitiveFactory() {
-
         return this.dialogPrimitiveFactory;
     }
 

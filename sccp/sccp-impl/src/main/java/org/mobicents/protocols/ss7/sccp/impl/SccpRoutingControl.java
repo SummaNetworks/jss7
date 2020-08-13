@@ -190,7 +190,6 @@ public class SccpRoutingControl {
             // we drop off local originated message in pereviewMode
             return;
         }
-
         this.route(msg);
     }
 
@@ -625,6 +624,7 @@ public class SccpRoutingControl {
 
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
 
+
         int dpc = calledPartyAddress.getSignalingPointCode();
         int ssn = calledPartyAddress.getSubsystemNumber();
         GlobalTitle gt = calledPartyAddress.getGlobalTitle();
@@ -709,7 +709,9 @@ public class SccpRoutingControl {
                 }
             } else {
                 // DPC present but its not local pointcode. This message should be Tx to MTP
-
+                if(SccpStackImpl.getPeerPointCode() == null){
+                    SccpStackImpl.setPeerPointCode(dpc);
+                }
                 // Check if the DPC is not prohibited
                 RemoteSignalingPointCode remoteSpc = this.sccpStackImpl.getSccpResource().getRemoteSpcByPC(dpc);
                 if (remoteSpc == null) {
