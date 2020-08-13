@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javolution.text.TextBuilder;
 import javolution.util.FastMap;
@@ -79,6 +80,7 @@ import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculat
 import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData;
 import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData2;
 import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateUdtFieldsLengthWithoutData;
+
 /**
  *
  * @author amit bhayani
@@ -165,6 +167,24 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     private volatile int segmentationLocalRef = 0;
     private volatile int slsCounter = 0;
     private volatile int selectorCounter = 0;
+
+    private String noRemovablePCExpresion = null;
+    private Pattern noRemovablePCPattern = null;
+
+    private static final Logger logger2 = Logger.getLogger(SccpStackImpl.class);
+    public static void setPeerPointCode(int pc){
+        if(logger2.isDebugEnabled()){
+            logger2.debug("setPeerPointCode() PC: "+pc);
+        }
+        peerPointCodeTL.set(pc);
+    }
+    public static Integer getPeerPointCode(){
+        Integer result = peerPointCodeTL.get();
+        if(logger2.isDebugEnabled()){
+            logger2.debug("getPeerPointCode() PC: "+result);
+        }
+        return result;
+    }
 
     public SccpStackImpl(String name) {
 
