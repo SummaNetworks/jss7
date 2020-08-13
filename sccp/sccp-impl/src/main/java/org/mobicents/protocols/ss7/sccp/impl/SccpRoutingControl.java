@@ -235,7 +235,7 @@ public class SccpRoutingControl {
 
         logger.debug("SccpMessage will be send using " + this.sccpStackImpl.getSccpProtocolVersion());
 
-        EncodingResultData erd = message.encode(sccpStackImpl, lmrt, mup.getMaxUserDataLength(dpc), logger, this.sccpStackImpl.isRemoveSpc(),
+        EncodingResultData erd = message.encode(sccpStackImpl, lmrt, mup.getMaxUserDataLength(dpc), logger, this.sccpStackImpl.isRemoveSpc(dpc),
                 this.sccpStackImpl.getSccpProtocolVersion());
 
         switch (erd.getEncodingResult()) {
@@ -291,7 +291,7 @@ public class SccpRoutingControl {
         }
 
         LongMessageRuleType lmrt = LongMessageRuleType.LONG_MESSAGE_FORBBIDEN;
-        EncodingResultData erd = message.encode(sccpStackImpl, lmrt, mup.getMaxUserDataLength(dpc), logger, this.sccpStackImpl.isRemoveSpc(),
+        EncodingResultData erd = message.encode(sccpStackImpl, lmrt, mup.getMaxUserDataLength(dpc), logger, this.sccpStackImpl.isRemoveSpc(dpc),
                 this.sccpStackImpl.getSccpProtocolVersion());
         switch (erd.getEncodingResult()) {
             case Success:

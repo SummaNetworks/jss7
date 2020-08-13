@@ -516,6 +516,16 @@ public class RouterTest {
         }
 
         @Override
+        public void setPeerPointCodesForContraryProtocolVersion(List<Integer> peerPointCodes) {
+
+        }
+
+        @Override
+        public void setNoRemovablePC(String expresion) {
+
+        }
+
+        @Override
         public void start() throws IllegalStateException {
             // TODO Auto-generated method stub
 

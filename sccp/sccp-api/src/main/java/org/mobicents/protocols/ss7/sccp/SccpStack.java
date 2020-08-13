@@ -86,6 +86,12 @@ public interface SccpStack {
     void setRemoveSpc(boolean removeSpc);
 
     /**
+     * If is setted, PC that match the expresion given will not be removed even the "removeSpc" is true.
+     * @param expresion
+     */
+     void setNoRemovablePC(String expresion);
+
+    /**
      * Get the remove signaling point code flag
      *
      * @return

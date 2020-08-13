@@ -579,8 +579,8 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
 
         try {
             int fieldsLen = 0;
-            byte[] cdp = ((SccpAddressImpl) calledPartyAddress).encode(isRemoveSpc(), this.getSccpProtocolVersion());
-            byte[] cnp = ((SccpAddressImpl) callingPartyAddress).encode(isRemoveSpc(), this.getSccpProtocolVersion());
+            byte[] cdp = ((SccpAddressImpl) calledPartyAddress).encode(isRemoveSpc(calledPartyAddress.getSignalingPointCode()), this.getSccpProtocolVersion());
+            byte[] cnp = ((SccpAddressImpl) callingPartyAddress).encode(isRemoveSpc(callingPartyAddress.getSignalingPointCode()), this.getSccpProtocolVersion());
             switch (lmrt) {
                 case LONG_MESSAGE_FORBBIDEN:
                     fieldsLen = calculateUdtFieldsLengthWithoutData(cdp.length, cnp.length);
