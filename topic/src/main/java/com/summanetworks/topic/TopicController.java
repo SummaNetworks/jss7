@@ -183,7 +183,8 @@ public class TopicController {
         final TopicListener listener = listenerMap.get(message.ssn);
         //Call listener.
         if(listener != null){
-            listener.onMessage(peerId, message.id, message.localAddress, message.remoteAddress, message.data);
+            //Remote and local addresses are expected interchanged.
+            listener.onMessage(peerId, message.id, message.remoteAddress, message.localAddress, message.data);
         }else{
             logger.warn("TopicListener not registered to process message for SSN: "+message.ssn+". Ignoring message.");
         }
