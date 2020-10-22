@@ -71,6 +71,8 @@ public interface TCAPProvider extends Serializable {
 
     DialogPrimitiveFactory getDialogPrimitiveFactory();
 
+    void setDropListener(DropListener dropListener);
+
     ComponentPrimitiveFactory getComponentPrimitiveFactory();
 
     // /////////////
