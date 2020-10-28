@@ -23,11 +23,11 @@
 package org.mobicents.protocols.ss7.mtp;
 
 
-
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -59,7 +59,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
     private CopyOnWriteArrayList<Mtp3UserPartListener> userListeners = new CopyOnWriteArrayList<Mtp3UserPartListener>();
     // a thread pool for delivering Mtp3TransferMessage messages
-    private ExecutorService[] msgDeliveryExecutors;
+    private ExecutorService msgDeliveryExecutor;
     // a thread for delivering PAUSE, RESUME and STATUS messages
     private ExecutorService msgDeliveryExecutorSystem;
     private int[] slsTable = null;
@@ -179,25 +179,18 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.createSLSTable(this.deliveryTransferMessageThreadCount);
 
-        this.msgDeliveryExecutors = new ExecutorService[this.deliveryTransferMessageThreadCount];
-        for (int i = 0; i < this.deliveryTransferMessageThreadCount; i++) {
-            final int executorIdx = i;
-            this.msgDeliveryExecutors[i] = Executors.newFixedThreadPool(1
-                    //, new ("Mtp3-DeliveryExecutor-" + i)
-                    , new ThreadFactory() {
-                        private int idx = 0;
-                        @Override
-                        public Thread newThread(Runnable r) {
-                            Thread t = new Thread(r, "Mtp3DeliveryExecutor-"+executorIdx+"-th-" + idx++);
-                            if (t.isDaemon())
-                                t.setDaemon(false);
-                            if (t.getPriority() != Thread.NORM_PRIORITY)
-                                t.setPriority(Thread.NORM_PRIORITY);
-                            return t;
-                        }
+        final ForkJoinPool.ForkJoinWorkerThreadFactory factory =
+                new ForkJoinPool.ForkJoinWorkerThreadFactory() {
+                    @Override
+                    public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
+                        final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                        worker.setName("Mtp3DeliveryExecutor-" + worker.getPoolIndex());
+                        return worker;
                     }
-                );
-        }
+        };
+        this. msgDeliveryExecutor = new ForkJoinPool(deliveryTransferMessageThreadCount,
+                factory, null, true);
+
         this.msgDeliveryExecutorSystem = Executors.newSingleThreadScheduledExecutor(
                 //new DefaultThreadFactory("Mtp3-DeliveryExecutorSystem")
                 );
@@ -212,9 +205,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.isStarted = false;
 
-        for (ExecutorService es : this.msgDeliveryExecutors) {
-            es.shutdown();
-        }
+        this.msgDeliveryExecutor.shutdown();
         this.msgDeliveryExecutorSystem.shutdown();
     }
 
@@ -232,11 +223,8 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 if (msAgo > 5)
                     logger.trace(String.format("Adding to executor message created [%d]ms ago", msAgo));
             }
-
-            MsgTransferDeliveryHandler hdl = new MsgTransferDeliveryHandler(msg); // FIXME: 5/11/18 Ver si se puede evitar crear un thread cada vez.
-            //Positive position lower than length.
-            int executorPos = (roundRobbing.getAndIncrement() % msgDeliveryExecutors.length + msgDeliveryExecutors.length) % msgDeliveryExecutors.length;
-            this.msgDeliveryExecutors[executorPos].execute(hdl);
+            MsgTransferDeliveryHandler hdl = new MsgTransferDeliveryHandler(msg);
+            this.msgDeliveryExecutor.execute(hdl);
         } else {
             logger.error(String.format(
                     "Received Mtp3TransferPrimitive=%s but Mtp3UserPart is not started. Message will be dropped", msg));
@@ -305,6 +293,8 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                     }
                 } catch (Exception e) {
                     logger.error("Exception while delivering a system messages to the MTP3-user: " + e.getMessage(), e);
+                } catch (Throwable e){
+                    logger.error("Throwable while delivering a system messages to the MTP3-user: " + e.getMessage(), e);
                 }
             } else {
                 logger.error(String.format(
