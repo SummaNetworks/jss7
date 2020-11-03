@@ -26,7 +26,6 @@ import javax.xml.bind.DatatypeConverter;
 
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
-
 import org.mobicents.protocols.ss7.map.api.primitives.DiameterIdentity;
 
 /**
@@ -41,11 +40,11 @@ public class DiameterIdentityImpl extends OctetStringBase implements DiameterIde
     private static final String DEFAULT_VALUE = null;
 
     public DiameterIdentityImpl() {
-        super(9, 55, "DiameterIdentity");
+        super(9, 255, "DiameterIdentity");
     }
 
     public DiameterIdentityImpl(byte[] data) {
-        super(9, 55, "DiameterIdentity", data);
+        super(9, 255, "DiameterIdentity", data);
     }
 
     public byte[] getData() {
