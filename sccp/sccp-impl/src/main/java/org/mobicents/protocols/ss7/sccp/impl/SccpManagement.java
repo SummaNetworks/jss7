@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -453,7 +452,7 @@ public class SccpManagement {
     }
 
     private void prohibitRsp(int affectedPc, boolean spcChanging, RemoteSccpStatus remoteSccpStatus) {
-
+        logger.info("prohibitRsp: affectedPc: "+affectedPc+" scpChanging: "+spcChanging+" RemoteSccpStatus: "+remoteSccpStatus);
         RemoteSignalingPointCodeImpl remoteSpc = (RemoteSignalingPointCodeImpl) this.sccpStackImpl.getSccpResource()
                 .getRemoteSpcByPC(affectedPc);
         if (remoteSpc != null) {
@@ -499,7 +498,7 @@ public class SccpManagement {
     }
 
     private void allowRsp(int affectedPc, boolean spcChanging, RemoteSccpStatus remoteSccpStatus) {
-
+        logger.info("allowRsp affectedPc: "+affectedPc+" scpChanging: "+spcChanging+" RemoteSccpStatus: "+remoteSccpStatus);
         RemoteSignalingPointCodeImpl remoteSpc = (RemoteSignalingPointCodeImpl) this.sccpStackImpl.getSccpResource()
                 .getRemoteSpcByPC(affectedPc);
         if (remoteSpc != null) {

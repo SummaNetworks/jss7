@@ -41,7 +41,6 @@ import javolution.xml.XMLBinding;
 import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 import javolution.xml.stream.XMLStreamException;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -75,10 +74,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.ReturnCauseValue;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateLudtFieldsLengthWithoutData;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData2;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateUdtFieldsLengthWithoutData;
+import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.*;
 /**
  *
  * @author amit bhayani
@@ -655,7 +651,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     }
 
     public void onMtp3StatusMessage(Mtp3StatusPrimitive msg) {
-        logger.warn(String.format("Rx : %s", msg));
+        logger.warn(String.format("Mtp3StatusMessage: Rx : %s", msg));
         if (this.state != State.RUNNING) {
             logger.error("Cannot consume MTP3 STATUS message as SCCP stack is not RUNNING");
             return;

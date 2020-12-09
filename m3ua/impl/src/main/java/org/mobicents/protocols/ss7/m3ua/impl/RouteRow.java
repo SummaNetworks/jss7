@@ -22,7 +22,6 @@
 package org.mobicents.protocols.ss7.m3ua.impl;
 
 import javolution.util.FastSet;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.State;
 import org.mobicents.protocols.ss7.mtp.Mtp3PausePrimitive;
@@ -81,10 +80,13 @@ public class RouteRow implements AsStateListener {
     public void onAsActive(AsImpl asImpl) {
         // We only send MTP3 RESUME to MTP3 user if its not already sent for
         // this DPC
+        logger.info("onAsActive()");
         if (this.mtp3Status != Mtp3Primitive.RESUME) {
             this.mtp3Status = Mtp3Primitive.RESUME;
             Mtp3ResumePrimitive mtp3ResumePrimitive = new Mtp3ResumePrimitive(this.dpc);
             this.m3uaManagement.sendResumeMessageToLocalUser(mtp3ResumePrimitive);
+        }else{
+            logger.info("onAsActive() RouteRow is not in RESUME state. Is number: "+this.mtp3Status);
         }
     }
 

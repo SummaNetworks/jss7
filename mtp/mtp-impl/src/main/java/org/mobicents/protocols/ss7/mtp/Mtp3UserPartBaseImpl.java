@@ -242,10 +242,13 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     }
 
     protected void sendResumeMessageToLocalUser(Mtp3ResumePrimitive msg) {
+        logger.info("sendResumeMessageToLocalUser()");
         if (this.isStarted) {
+            logger.info("sendResumeMessageToLocalUser() isStarted");
             MsgSystemDeliveryHandler hdl = new MsgSystemDeliveryHandler(msg);
             this.msgDeliveryExecutorSystem.execute(hdl);
         } else {
+            logger.info("sendResumeMessageToLocalUser() no Started");
             logger.error(String.format(
                     "Received Mtp3ResumePrimitive=%s but MTP3 is not started. Message will be dropped", msg));
         }
@@ -313,6 +316,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         @Override
         public void run() {
+            logger.info("MsgSystemDeliveryHandler() Handling: "+msg.toString());
             if (isStarted) {
                 try {
                     for (Mtp3UserPartListener lsn : userListeners) {

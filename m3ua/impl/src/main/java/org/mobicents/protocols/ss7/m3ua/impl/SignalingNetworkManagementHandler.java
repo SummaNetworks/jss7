@@ -263,6 +263,7 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
     }
 
     public void handleDestinationStateAudit(DestinationStateAudit daud) {
+        logger.info("DAUD: Received. Local functionality: "+ aspFactoryImpl.getFunctionality());
         try {
             //Validar el mensaje.
             if (daud.getAffectedPointCodes() == null) {
@@ -275,7 +276,7 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
                 logger.info(String.format("DAUD received for pointCodes %s", Arrays.toString(daud.getAffectedPointCodes().getPointCodes())));
             }
 
-            logger.info("DAUD:  ");
+
             RoutingContext rcObj = daud.getRoutingContexts();
             if (rcObj == null) {
                 logger.info("DAUD: No Routing context received.");

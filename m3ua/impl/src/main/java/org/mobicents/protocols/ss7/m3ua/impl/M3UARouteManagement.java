@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 import javolution.util.FastList;
 import javolution.util.FastSet;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.impl.oam.M3UAOAMMessages;
@@ -199,6 +198,7 @@ public class M3UARouteManagement {
         }
 
         if (asImpl == null) {
+            logger.warn(String.format(M3UAOAMMessages.NO_AS_FOUND, asName));
             throw new Exception(String.format(M3UAOAMMessages.NO_AS_FOUND, asName));
         }
 
