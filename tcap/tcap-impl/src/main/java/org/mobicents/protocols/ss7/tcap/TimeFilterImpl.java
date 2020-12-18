@@ -49,12 +49,12 @@ public class TimeFilterImpl {
     }
 
     public boolean isInTime(SccpDataMessage message){
-        boolean result = isInTimeFastDroppig(message);
+        boolean result = isInTimeFastDropping(message);
         result &= isInTimeRampControl(message);
         return result;
     }
 
-    private boolean isInTimeFastDroppig(SccpDataMessage message) {
+    private boolean isInTimeFastDropping(SccpDataMessage message) {
         boolean result = true;
         if(maxAgeForBeginMessageMilliseconds > 0) {
             long diff;
@@ -64,6 +64,11 @@ public class TimeFilterImpl {
                         maxAgeForBeginMessageMilliseconds, getDialogId(message.getData())));
                 result = false;
             }
+        }
+        if(message.getReceivedTimeStamp() == 0){
+            logger.debug("isInTimeFastDropping(): Message without time-stamp. It should be a buckle, dropping. " +
+                    "Check destination PC. otid: "+getDialogId(message.getData()));
+            result = false;
         }
         return result;
     }
