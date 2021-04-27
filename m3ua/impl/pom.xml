@@ -83,6 +83,7 @@
                                         <compilerArgument>
                                                 -XDignore.symbol.file=true
                                         </compilerArgument>
+                                        <encoding>UTF-8</encoding>
                                 </configuration>
                         </plugin>
                 </plugins>
