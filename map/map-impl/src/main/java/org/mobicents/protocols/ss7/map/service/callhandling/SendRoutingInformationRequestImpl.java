@@ -355,7 +355,7 @@ public class SendRoutingInformationRequestImpl extends CallHandlingMessageImpl i
 
     @Override
     public MAPMessageType getMessageType() {
-        return MAPMessageType.sendRoutingInfo_Response;
+        return MAPMessageType.sendRoutingInfo_Request;
     }
 
     @Override
