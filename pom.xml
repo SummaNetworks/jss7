@@ -482,6 +482,7 @@
 					<source>${compile.source}</source>
 					<target>${compile.source}</target>
 					<debug>${compile.debug}</debug>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
             <plugin>
