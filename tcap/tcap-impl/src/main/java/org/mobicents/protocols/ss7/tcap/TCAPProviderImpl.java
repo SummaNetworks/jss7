@@ -53,6 +53,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.api.ComponentPrimitiveFactory;
 import org.mobicents.protocols.ss7.tcap.api.DialogPrimitiveFactory;
+import org.mobicents.protocols.ss7.tcap.api.DropListener;
 import org.mobicents.protocols.ss7.tcap.api.TCAPException;
 import org.mobicents.protocols.ss7.tcap.api.TCAPProvider;
 import org.mobicents.protocols.ss7.tcap.api.TCListener;
@@ -128,6 +129,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
     private TimeFilterImpl timeFilter = new TimeFilterImpl(0);
 
     private DialogReplicator dialogReplicator;
+    private DropListener dropListener;
 
     /**
      * TODO: Colocar en su sitio (modulo api junto a TCAPProvider ?)
@@ -236,6 +238,15 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
      */
     public void removeTCListener(TCListener lst) {
         this.tcListeners.remove(lst);
+    }
+
+    public DropListener getDropListener() {
+        return dropListener;
+    }
+
+    @Override
+    public void setDropListener(DropListener dropListener) {
+        this.dropListener = dropListener;
     }
 
     private boolean checkAvailableTxId(Long id) {
@@ -580,7 +591,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
         TopicController.getInstance().registerListener(this, ssn);
 
         this._EXECUTOR = Executors.newScheduledThreadPool(4
-                //, new DefaultThreadFactory("Tcap-Thread")
+                //, new DefaultThreadFactory("Tcap-ThPool")
         );
 
         this.sccpProvider.registerSccpListener(ssn, this);
@@ -775,7 +786,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     }
 
                 long dialogId = Utils.decodeTransactionId(tcm.getDestinationTransactionId());
-                DialogImpl di;
+                DialogImpl di = null;
                 if (this.stack.getPreviewMode()) {
                     PrevewDialogDataKey ky1 = new PrevewDialogDataKey(message.getIncomingDpc(),
                             (message.getCalledPartyAddress().getGlobalTitle() != null ? message.getCalledPartyAddress().getGlobalTitle().getDigits() : null),
@@ -824,6 +835,9 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                     TCBeginMessage tcb = null;
                     //If message is to old and BEGIN, then is dropped.
                     if (!timeFilter.isInTime(message)) {
+                        if(dropListener != null) {
+                            dropListener.droppedMessage();
+                        }
                         return;
                     }
                     try {

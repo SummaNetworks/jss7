@@ -23,7 +23,6 @@ package org.mobicents.protocols.ss7.m3ua.impl;
 
 import javolution.util.FastList;
 import javolution.util.FastSet;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.ExchangeType;
@@ -57,6 +56,7 @@ public class THLocalAsInactToAct implements TransitionHandler {
     }
 
     public boolean process(FSMState state) {
+        logger.info("process(): "+state);
         try {
 
             if (this.asImpl.getTrafficModeType().getMode() == TrafficModeType.Broadcast) {

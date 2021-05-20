@@ -92,7 +92,7 @@ public class TopicController {
     private void connectToPeers(){
         if(topicConfig.getPeerAddresses() != null) {
             client = new TopicClient();
-            if(topicConfig.getPeerAddresses() != null && !topicConfig.getPeerAddresses().equals("")) {
+            if(topicConfig.getPeerAddresses() != null && !topicConfig.getPeerAddresses().isEmpty()) {
                 for (String ip : topicConfig.getPeerAddresses()) {
                     if (!topicConfig.getLocalIp().equals(ip) && !"127.0.0.1".equals(ip) && !"0.0.0.0".equals(ip)) {
                         if (!hostHandlerMap.containsKey(ip)) {
@@ -183,7 +183,8 @@ public class TopicController {
         final TopicListener listener = listenerMap.get(message.ssn);
         //Call listener.
         if(listener != null){
-            listener.onMessage(peerId, message.id, message.localAddress, message.remoteAddress, message.data);
+            //Remote and local addresses are expected interchanged.
+            listener.onMessage(peerId, message.id, message.remoteAddress, message.localAddress, message.data);
         }else{
             logger.warn("TopicListener not registered to process message for SSN: "+message.ssn+". Ignoring message.");
         }

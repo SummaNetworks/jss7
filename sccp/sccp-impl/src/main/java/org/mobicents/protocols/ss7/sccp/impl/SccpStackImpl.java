@@ -726,7 +726,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     }
 
     public void onMtp3StatusMessage(Mtp3StatusPrimitive msg) {
-        logger.warn(String.format("Rx : %s", msg));
+        logger.warn(String.format("Mtp3StatusMessage: Rx : %s", msg));
         if (this.state != State.RUNNING) {
             logger.error("Cannot consume MTP3 STATUS message as SCCP stack is not RUNNING");
             return;

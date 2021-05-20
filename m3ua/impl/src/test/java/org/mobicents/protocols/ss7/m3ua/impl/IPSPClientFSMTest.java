@@ -21,11 +21,6 @@
  */
 package org.mobicents.protocols.ss7.m3ua.impl;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBufAllocator;
 import javolution.util.FastMap;
-
 import org.mobicents.protocols.api.Association;
 import org.mobicents.protocols.api.AssociationListener;
 import org.mobicents.protocols.api.AssociationType;
@@ -73,6 +67,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.*;
 
 /**
  * Tests for FSM of IPSP acting as CLIENT
@@ -990,6 +986,11 @@ public class IPSPClientFSMTest {
         public void setWorkerThreads(int arg0) {
             // TODO Auto-generated method stub
 
+        }
+
+        @Override
+        public void setBossThreads(int i) throws Exception {
+            // TODO Auto-generated method stub
         }
 
         @Override

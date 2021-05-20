@@ -1,6 +1,6 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * TeleStax, Open Source Cloud Communications  Copyright 2012.
+ * and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -24,19 +24,21 @@ package org.mobicents.protocols.ss7.map.api.service.lsm;
 
 import java.io.Serializable;
 
+import org.mobicents.protocols.ss7.map.api.primitives.DiameterIdentity;
+
 /**
- * Area ::= SEQUENCE {
- *      areaType [0] AreaType,
- *      areaIdentification [1] AreaIdentification,
- *      ...}
- *
- * @author amit bhayani
- * @author sergey vetyutnev
+ * <code>
+ *  NetworkNodeDiameterAddress::= SEQUENCE {
+ *          diameter-Name [0] DiameterIdentity,
+ *          diameter-Realm [1] DiameterIdentity
+ *  }
+ *  </code>
  *
  */
-public interface Area extends Serializable {
+public interface NetworkNodeDiameterAddress extends Serializable {
 
-    AreaType getAreaType();
+    DiameterIdentity getDiameterName();
 
-    AreaIdentification getAreaIdentification();
+    DiameterIdentity getDiameterRealm();
+
 }

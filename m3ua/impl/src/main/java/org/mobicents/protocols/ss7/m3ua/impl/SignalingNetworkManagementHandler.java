@@ -21,12 +21,20 @@
  */
 package org.mobicents.protocols.ss7.m3ua.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
+import org.mobicents.protocols.ss7.m3ua.RouteAs;
 import org.mobicents.protocols.ss7.m3ua.impl.fsm.FSM;
+import org.mobicents.protocols.ss7.m3ua.impl.message.ssnm.DestinationAvailableImpl;
+import org.mobicents.protocols.ss7.m3ua.message.MessageClass;
+import org.mobicents.protocols.ss7.m3ua.message.MessageType;
 import org.mobicents.protocols.ss7.m3ua.message.ssnm.DestinationAvailable;
 import org.mobicents.protocols.ss7.m3ua.message.ssnm.DestinationRestricted;
 import org.mobicents.protocols.ss7.m3ua.message.ssnm.DestinationStateAudit;
@@ -65,7 +73,8 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
             logger.warn(String.format("DUNA received for pointCodes %s", Arrays.toString(duna.getAffectedPointCodes().getPointCodes())));
         }
 
-        if (aspFactoryImpl.getFunctionality() == Functionality.AS) {
+        // FIXME: 24/11/20 by Ajimenez - Por qué no se tenia en cuenta en IPSP?
+        if (aspFactoryImpl.getFunctionality() == Functionality.AS || aspFactoryImpl.getFunctionality() == Functionality.IPSP) {
 
             if (rcObj == null) {
                 AspImpl aspImpl = this.getAspForNullRc();
@@ -161,7 +170,9 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
         if(dava.getAffectedPointCodes() != null) {
             logger.warn(String.format("DAVA received for pointCodes %s", Arrays.toString(dava.getAffectedPointCodes().getPointCodes())));
         }
-        if (aspFactoryImpl.getFunctionality() == Functionality.AS) {
+
+        // FIXME: 24/11/20 by Ajimenez - Por qué no se tenia en cuenta en IPSP?
+        if (aspFactoryImpl.getFunctionality() == Functionality.AS || aspFactoryImpl.getFunctionality() == Functionality.IPSP) {
 
             if (rcObj == null) {
                 AspImpl aspImpl = this.getAspForNullRc();
@@ -252,19 +263,123 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
     }
 
     public void handleDestinationStateAudit(DestinationStateAudit daud) {
-        RoutingContext rcObj = daud.getRoutingContexts();
-        if (aspFactoryImpl.getFunctionality() == Functionality.SGW) {
-            logger.warn(String.format("Received DAUD=%s. Handling of DAUD message is not yet implemented", daud));
-        } else {
-            // TODO : Should we silently drop DUNA?
+        logger.info("DAUD: Received. Local functionality: "+ aspFactoryImpl.getFunctionality());
+        try {
+            //Validar el mensaje.
+            if (daud.getAffectedPointCodes() == null) {
+                logger.info("DAUD received without pointCodes! " +
+                        (daud.getInfoString() != null ? "Info: " + daud.getInfoString() : ""));
+                ErrorCode errorCodeObj = this.aspFactoryImpl.parameterFactory.createErrorCode(ErrorCode.Missing_Parameter);
+                sendError(daud.getRoutingContexts(), errorCodeObj);
+                return;
+            } else {
+                logger.info(String.format("DAUD received for pointCodes %s", Arrays.toString(daud.getAffectedPointCodes().getPointCodes())));
+            }
 
-            logger.error(String.format(
-                    "Rx : DAUD =%s But AppServer Functionality is not SGW. Sending back ErrorCode.Unexpected_Message", daud));
 
-            // ASPACTIVE_ACK is unexpected in this state
-            ErrorCode errorCodeObj = this.aspFactoryImpl.parameterFactory.createErrorCode(ErrorCode.Unexpected_Message);
-            sendError(rcObj, errorCodeObj);
+            RoutingContext rcObj = daud.getRoutingContexts();
+            if (rcObj == null) {
+                logger.info("DAUD: No Routing context received.");
+                AspImpl aspImpl = this.getAspForNullRc();
+                // FIXME: 24/11/20 by Ajimenez - Terminar este caso.
+            } else {
+                logger.info("DAUD: Routing Context received.");
+                // FIXME: 25/11/20 by Ajimenez - Asegurarse que efectivamente solo puede tener uno (un ASP solo puede estar en un AS)
+                boolean destinationFound = false;
+                logger.info("DAUD: Validating ONLY again the Association related with current ASP.");
+                As as = this.aspFactoryImpl.getAspList().get(0).getAs();
+                String asName = as.getName();
+                logger.info("DAUD: Current Association: " + asName);
+
+                //MATCH Routing Contexts given
+                List<Long> rcMatched = new ArrayList<>();
+                for(long rc : rcObj.getRoutingContexts()){
+                    for(long arc : as.getRoutingContext().getRoutingContexts()){
+                        if(rc == arc){
+                            rcMatched.add(rc);
+                        }
+                    }
+                }
+                if(rcMatched.size() == 0){
+                    logger.info("DAUD received but but no AS found for given Routing Contexts");
+                    DestinationUnavailable msg = (DestinationUnavailable) this.aspFactoryImpl.messageFactory.createMessage(
+                            MessageClass.SIGNALING_NETWORK_MANAGEMENT, MessageType.DESTINATION_UNAVAILABLE);
+                    msg.setAffectedPointCodes(daud.getAffectedPointCodes());
+                    msg.setRoutingContexts(daud.getRoutingContexts());
+                    this.aspFactoryImpl.write(msg);
+                }
+                //Validate PCs.
+                AffectedPointCode affectedPcObjs = daud.getAffectedPointCodes();
+                logger.info("DAUD: Searching AS for those point codes.");
+                int[] affectedPcs = affectedPcObjs.getPointCodes();
+                for (int i = 0; i < affectedPcs.length; i++) {
+                    logger.info("DAUD: Going over routes.");
+                    for (Map.Entry<String, RouteAs> es : this.aspFactoryImpl.getM3UAManagement().getRoute().entrySet()) {
+                        //Busco el AS (dnd está el ASP) en los routes.
+                        logger.info("DAUD: Route rule: " + es.getKey());
+                        for (As asRouted : es.getValue().getAsArray()) {
+                            //Check routes for this AS.
+                            logger.info("DAUD: Checking AS and its PC: " + asRouted.getName());
+                            if (asRouted.getName().equals(asName)) {
+                                //Check if point code is declared in route rules.
+                                String[] pcs = es.getKey().split(":");
+                                if ((Integer.valueOf(pcs[0]).intValue() == affectedPcs[i] || Integer.valueOf(pcs[1]).intValue() == affectedPcs[i])) {
+                                    //Point code asked is configured in this AS.
+                                    logger.info("DAUD: Point code found. Checking state.");
+                                    if (asRouted.isUp() && this.aspFactoryImpl.getAspList().get(0).isUp()) {
+                                        logger.info("DAUD: Active association with name " + asName + " found for the point code indicated by the DAUD.");
+                                        DestinationAvailableImpl msg = (DestinationAvailableImpl) this.aspFactoryImpl.messageFactory.createMessage(
+                                                MessageClass.SIGNALING_NETWORK_MANAGEMENT, MessageType.DESTINATION_AVAILABLE);
+                                        AffectedPointCode apc = this.aspFactoryImpl.parameterFactory.createAffectedPointCode(new int[]{affectedPcs[i]}, new short []{0});
+                                        msg.setAffectedPointCodes(apc);
+                                        //Routing Context matched.
+                                        long [] rcArray = new long [rcMatched.size()];
+                                        for(int j = 0; j < rcArray.length; j++){
+                                            rcArray[0] = rcMatched.get(j).longValue();
+                                        }
+                                        RoutingContext rc = this.aspFactoryImpl.parameterFactory.createRoutingContext(rcArray);
+                                        msg.setRoutingContexts(rc);
+                                        this.aspFactoryImpl.write(msg);
+                                        destinationFound = true;
+                                        break;
+                                    } else {
+                                        logger.info("DAUD: State no valid. AS " + asRouted.getState() + ", ASP status " + this.aspFactoryImpl.getAspList().get(0).getState());
+                                        logger.info("DAUD: Trying with next route.");
+                                    }
+                                }
+                            }
+                        }
+                        if (destinationFound)
+                            break;
+                    }
+                    if (!destinationFound) {
+                        logger.info("DAUD received but ASP/AS active for point code indicated not found.");
+                        DestinationUnavailable msg = (DestinationUnavailable) this.aspFactoryImpl.messageFactory.createMessage(
+                                MessageClass.SIGNALING_NETWORK_MANAGEMENT, MessageType.DESTINATION_UNAVAILABLE);
+                        AffectedPointCode apc = this.aspFactoryImpl.parameterFactory.createAffectedPointCode(new int[]{affectedPcs[i]}, new short []{0});
+                        msg.setAffectedPointCodes(apc);
+                        this.aspFactoryImpl.write(msg);
+                    }
+                }
+            }
+
+        } catch (Exception e){
+            logger.error("Unexpected error handling DAUD.", e);
+
         }
+//        RoutingContext rcObj = daud.getRoutingContexts();
+//        if (aspFactoryImpl.getFunctionality() == Functionality.SGW) {
+//            logger.warn(String.format("Received DAUD=%s. Handling of DAUD message is not yet implemented", daud));
+//        } else {
+//            // TODO : Should we silently drop DUNA?
+//
+//            logger.error(String.format(
+//                    "Rx : DAUD =%s But AppServer Functionality is not SGW. Sending back ErrorCode.Unexpected_Message", daud));
+//
+//            // ASPACTIVE_ACK is unexpected in this state
+//            ErrorCode errorCodeObj = this.aspFactoryImpl.parameterFactory.createErrorCode(ErrorCode.Unexpected_Message);
+//            sendError(rcObj, errorCodeObj);
+//        }
     }
 
     public void handleSignallingCongestion(SignallingCongestion scon) {

@@ -33,7 +33,6 @@ import javolution.util.FastSet;
 import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Asp;
@@ -121,7 +120,6 @@ public class AsImpl implements XMLSerializable, As {
     protected State state = AsState.DOWN;
 
     public AsImpl() {
-
     }
 
     public AsImpl(String name, RoutingContext rc, TrafficModeType trMode, int minAspActiveForLoadbalance,
@@ -139,7 +137,7 @@ public class AsImpl implements XMLSerializable, As {
     }
 
     public void init() {
-
+        logger.info("Initializing As ...");
         switch (this.functionality) {
             case IPSP:
                 if (this.exchangeType == ExchangeType.SE) {
@@ -184,7 +182,7 @@ public class AsImpl implements XMLSerializable, As {
     }
 
     /**
-     * Initialize FSM for AS side
+     * Initialize FSM for AS side  || AND IPSP
      **/
     private void initPeerFSM() {
         this.peerFSM = new FSM(this.name + "_PEER");

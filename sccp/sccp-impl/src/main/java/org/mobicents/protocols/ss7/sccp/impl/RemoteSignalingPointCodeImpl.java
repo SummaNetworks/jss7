@@ -25,7 +25,6 @@ package org.mobicents.protocols.ss7.sccp.impl;
 import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
-
 import org.mobicents.protocols.ss7.sccp.RemoteSignalingPointCode;
 
 /**
@@ -40,8 +39,8 @@ public class RemoteSignalingPointCodeImpl implements XMLSerializable, RemoteSign
     private int remoteSpc;
     private int remoteSpcFlag;
     private int mask;
-    private boolean remoteSpcProhibited = true;
-    private boolean remoteSccpProhibited = true;
+    private boolean remoteSpcProhibited = false;
+    private boolean remoteSccpProhibited = false;
 
     public RemoteSignalingPointCodeImpl() {
 

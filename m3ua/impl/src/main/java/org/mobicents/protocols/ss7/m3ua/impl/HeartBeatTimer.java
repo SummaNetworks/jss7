@@ -71,16 +71,20 @@ public class HeartBeatTimer extends M3UATask {
 
         if (this.heartBeatAckMissed > HEART_BEAT_ACK_MISSED_ALLOWED) {
             logger.warn(String
-                    .format("HEART_BEAT ACK missed %d is greater than configured %d for AspFactory %s. Underlying Association will be stopped and started again",
-                            this.heartBeatAckMissed, HEART_BEAT_ACK_MISSED_ALLOWED, this.aspFactoryImpl.getName()));
+                    .format("HEART_BEAT ACK missed %d is greater than configured %d for AspFactory %s. Underlying SCTP Association %s will be stopped and started again",
+                            this.heartBeatAckMissed, HEART_BEAT_ACK_MISSED_ALLOWED, this.aspFactoryImpl.getName(), this.aspFactoryImpl.associationName));
             try {
                 this.aspFactoryImpl.transportManagement.stopAssociation(this.aspFactoryImpl.associationName);
             } catch (Exception e) {
                 logger.warn(String.format("Error while trying to stop underlying Association for AspFactpry=%s",
                         this.aspFactoryImpl.getName()), e);
             }
-
             try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ignored) {
+            }
+            try {
+                logger.info(String.format("Starting SCTP association %s",this.aspFactoryImpl.associationName));
                 this.aspFactoryImpl.transportManagement.startAssociation(this.aspFactoryImpl.associationName);
             } catch (Exception e) {
                 logger.error(String.format("Error while trying to start underlying Association for AspFactpry=%s",

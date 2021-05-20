@@ -26,7 +26,6 @@ import java.io.IOException;
 
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
-
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -79,7 +78,7 @@ public class AnyTimeInterrogationResponseImpl extends MobilityMessageImpl implem
      * @see org.mobicents.protocols.ss7.map.api.MAPMessage#getMessageType()
      */
     public MAPMessageType getMessageType() {
-        return MAPMessageType.anyTimeInterrogation_Request;
+        return MAPMessageType.anyTimeInterrogation_Response;
     }
 
     /*

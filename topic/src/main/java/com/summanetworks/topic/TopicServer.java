@@ -30,9 +30,10 @@ public class TopicServer {
 
 
     public void start(final TopicController controller) throws Exception {
+        logger.info(String.format("[TopicServer] Starting at IP %s and port %s",controller.getTopicConfig().getLocalIp(),
+                controller.getTopicConfig().getLocalPort()));
         bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup(50);
-
+        workerGroup = new NioEventLoopGroup();
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -43,11 +44,11 @@ public class TopicServer {
                     public void initChannel(NioSocketChannel ch) throws Exception {
                         if(logger.isInfoEnabled()) {
                             if (ch.remoteAddress() != null && ch.remoteAddress().getAddress() != null) {
-                                logger.info("[TCPListener] initChannel() New connection attempt from IP " + ch.remoteAddress().getAddress().toString());
+                                logger.info("[TopicServer] initChannel() New connection attempt from IP " + ch.remoteAddress().getAddress().toString());
                             } else if (ch.remoteAddress() != null) {
-                                logger.info("[TCPListener] initChannel() New connection attempt from " + ch.remoteAddress().toString());
+                                logger.info("[TopicServer] initChannel() New connection attempt from " + ch.remoteAddress().toString());
                             } else {
-                                logger.info("[TCPListener] initChannel() New connection attempt from chanel " + ch);
+                                logger.info("[TopicServer] initChannel() New connection attempt from chanel " + ch);
                             }
                         }
                         ch.pipeline()
@@ -80,7 +81,7 @@ public class TopicServer {
             //tcpChannel.bindAddress(InetAddress.getByName(PeerConfiguration.getInstance().getSecondaryHost())).sync();
         //}
 
-        logger.info(String.format("[TCPClientListener] Server started: Active? %s, open %s ",
+        logger.info(String.format("[TopicServer] Server started: Active: %s, Open: %s ",
                 tcpChannel.isActive(), tcpChannel.isOpen()));
 
     }
