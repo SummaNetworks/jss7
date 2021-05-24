@@ -154,8 +154,12 @@ public class TopicController {
     public boolean sendMessage(long dialogId, SccpDataMessage sccpDataMessage){
         if(this.isStarted()) {
             TopicSccpMessage tm = new TopicSccpMessage(dialogId, sccpDataMessage);
-            String peerId = String.valueOf(dialogId).substring(0, TopicConfig.PEER_ID_LENGTH);
-            return sendMessage(Integer.valueOf(peerId), tm);
+            if(dialogId >= TopicConfig.LOCAL_PEER_ID_MIN) {  //At least, bigger than prefix.
+                String peerId = String.valueOf(dialogId).substring(0, TopicConfig.PEER_ID_LENGTH);
+                return sendMessage(Integer.valueOf(peerId), tm);
+            } else {
+                return false;
+            }
         }else{
             return false;
         }

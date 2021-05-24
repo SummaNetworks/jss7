@@ -14,8 +14,8 @@ public class TopicConfig {
 
     private static final Logger logger = Logger.getLogger(TopicConfig.class);
 
-    private static final int LOCAL_PEER_ID_MIN = 10;
-    private static final int LOCAL_PEER_ID_MAX = 99;
+    public static final int LOCAL_PEER_ID_MIN = 10;
+    public static final int LOCAL_PEER_ID_MAX = 99;
     static final int PEER_ID_LENGTH = 2;
 
     private int localPeerId = 0;
