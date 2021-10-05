@@ -584,7 +584,9 @@ public class MAPDialogSupplementaryImpl extends MAPDialogImpl implements MAPDial
         try {
             invokeId = this.tcapDialog.getNewInvokeId();
             invoke.setInvokeId(invokeId);
-            invoke.setLinkedId(linkedId);
+            if (linkedId != null) {
+                invoke.setLinkedId(linkedId);
+            }
         } catch (TCAPException e) {
             throw new MAPException(e.getMessage(), e);
         }
