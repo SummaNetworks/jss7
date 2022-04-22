@@ -44,10 +44,8 @@ import org.mobicents.protocols.ss7.sccp.parameter.ParameterFactory;
 import org.mobicents.protocols.ss7.sccp.parameter.ReturnCauseValue;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.sccp.parameter.Segmentation;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateLudtFieldsLengthWithoutData;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData2;
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateUdtFieldsLengthWithoutData;
+
+import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.*;
 
 /**
  * @author Oleg Kulikov
@@ -302,8 +300,8 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
             if (!this.getSecondParamaterPresent())
                 return new EncodingResultData(EncodingResult.ProtocolClassMissing, null, null, null);
 
-            byte[] cdp = ((SccpAddressImpl) super.calledParty).encode(sccpStackImpl.isRemoveSpc(), sccpStackImpl.getSccpProtocolVersion());
-            byte[] cnp = ((SccpAddressImpl) super.callingParty).encode(sccpStackImpl.isRemoveSpc(), sccpStackImpl.getSccpProtocolVersion());
+            byte[] cdp = ((SccpAddressImpl) super.calledParty).encode(sccpStackImpl.isRemoveSpc(calledParty.getSignalingPointCode()), sccpStackImpl.getSccpProtocolVersion());
+            byte[] cnp = ((SccpAddressImpl) super.callingParty).encode(sccpStackImpl.isRemoveSpc(callingParty.getSignalingPointCode()), sccpStackImpl.getSccpProtocolVersion());
 
             if (longMessageRuleType == null)
                 longMessageRuleType = LongMessageRuleType.LONG_MESSAGE_FORBBIDEN;

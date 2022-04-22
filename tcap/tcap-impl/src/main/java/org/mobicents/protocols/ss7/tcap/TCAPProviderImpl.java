@@ -107,6 +107,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
     private transient ComponentPrimitiveFactory componentPrimitiveFactory;
     private transient DialogPrimitiveFactory dialogPrimitiveFactory;
     private transient SccpProvider sccpProvider;
+    private transient SccpProvider sccpProviderExtra;
 
     private transient MessageFactory messageFactory;
     private transient ParameterFactory parameterFactory;

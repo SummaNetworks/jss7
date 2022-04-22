@@ -120,6 +120,7 @@ public class SccpManagement {
         int affectedSsn = data[1] & 0xff;
         int affectedPc;
         int subsystemMultiplicity;
+
         if (this.sccpStackImpl.getSccpProtocolVersion() == SccpProtocolVersion.ANSI) {
             affectedPc = (data[2] & 0xff) | ((data[3] & 0xff) << 8) | ((data[4] & 0xff) << 16);
             subsystemMultiplicity = data[5] & 0xff;

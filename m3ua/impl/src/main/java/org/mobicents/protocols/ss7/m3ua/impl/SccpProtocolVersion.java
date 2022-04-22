@@ -19,41 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.protocols.ss7.sccp;
 
-import java.util.Map;
+package org.mobicents.protocols.ss7.m3ua.impl;
 
 /**
  *
- * @author Amit Bhayani
+ * @author sergey vetyutnev
  *
  */
-public interface Mtp3ServiceAccessPoint {
+public enum SccpProtocolVersion {
+    ITU(1), ANSI(2);
 
-    int getMtp3Id();
+    private int value;
 
-    int getOpc();
+    private SccpProtocolVersion(int v) {
+        this.value = v;
+    }
 
-    int getNi();
+    public int getValue() {
+        return value;
+    }
 
-    int getNetworkId();
+    public static SccpProtocolVersion valueOf(int v) {
+        switch (v) {
+        case 1:
+            return ITU;
+        case 2:
+            return ANSI;
+        default:
+            return null;
+        }
 
-    int getDpc();
-
-    Mtp3Destination getMtp3Destination(int destId);
-
-    Map<Integer, Mtp3Destination> getMtp3Destinations();
-
-    void addMtp3Destination(int destId, int firstDpc, int lastDpc, int firstSls, int lastSls, int slsMask)
-            throws Exception;
-
-    void modifyMtp3Destination(int destId, int firstDpc, int lastDpc, int firstSls, int lastSls, int slsMask)
-            throws Exception;
-
-    void removeMtp3Destination(int destId) throws Exception;
-
-    boolean matches(int dpc, int sls);
-
-    boolean matches(int dpc);
+    }
 
 }

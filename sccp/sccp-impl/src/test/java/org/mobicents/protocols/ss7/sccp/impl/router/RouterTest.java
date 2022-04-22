@@ -22,16 +22,11 @@
 
 package org.mobicents.protocols.ss7.sccp.impl.router;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javolution.util.FastMap;
-
 import org.mobicents.protocols.ss7.Util;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -62,6 +57,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.*;
 
 /**
  * @author amit bhayani
@@ -513,6 +510,16 @@ public class RouterTest {
 
             mtp3UserParts.put(1, mtp3UserPartImpl1);
             mtp3UserParts.put(2, mtp3UserPartImpl2);
+        }
+
+        @Override
+        public void setPeerPointCodesForContraryProtocolVersion(List<Integer> peerPointCodes) {
+
+        }
+
+        @Override
+        public void setNoRemovablePC(String expresion) {
+
         }
 
         @Override

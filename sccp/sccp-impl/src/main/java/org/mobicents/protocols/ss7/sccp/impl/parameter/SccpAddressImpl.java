@@ -31,6 +31,7 @@ import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.AddressIndicator;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -45,6 +46,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  *
  */
 public class SccpAddressImpl extends AbstractParameter implements XMLSerializable, SccpAddress {
+    protected final Logger logger = Logger.getLogger(SccpAddressImpl.class.getCanonicalName());
 
     private static final byte ROUTE_ON_PC_FLAG = 0x40;
     private static final short REMOVE_PC_FLAG = 0xFE;
@@ -225,7 +227,6 @@ public class SccpAddressImpl extends AbstractParameter implements XMLSerializabl
             if (sccpProtocolVersion == SccpProtocolVersion.ANSI) {
                 if (removeSpc && ((aiValue & ROUTE_ON_PC_FLAG) == 0x00)) {
                     // Routing on GT so lets remove PC flag
-
                     aiValue = (byte) (aiValue & REMOVE_PC_FLAG_ANSI);
                 }
 
@@ -235,7 +236,11 @@ public class SccpAddressImpl extends AbstractParameter implements XMLSerializabl
                     os.write((byte) this.ssn);
                 }
 
+                logger.debug("encode(): aiValue --> " + aiValue);
+                logger.debug("encode(): aiValue & PC_PRESENT_FLAG_ANSI -->" + (aiValue & PC_PRESENT_FLAG_ANSI));
+
                 if ((aiValue & PC_PRESENT_FLAG_ANSI) == PC_PRESENT_FLAG_ANSI) {
+                    logger.debug("encode(): Adding the POINT CODE " + this.pc);
                     // If Point Code included in SCCP Address
                     byte b1 = (byte) this.pc;
                     byte b2 = (byte) (this.pc >> 8);

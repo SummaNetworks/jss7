@@ -74,13 +74,13 @@ public class ExtQoSSubscribedImpl extends OctetStringBase implements ExtQoSSubsc
         this.data[1] = (byte) ((deliveryOfErroneousSdus != null ? deliveryOfErroneousSdus.getCode() : 0)
                 | ((deliveryOrder != null ? deliveryOrder.getCode() : 0) << 3) | ((trafficClass != null ? trafficClass.getCode() : 0) << 5));
         this.data[2] = (byte) (maximumSduSize != null ? maximumSduSize.getSourceData() : 0);
-        this.data[3] = (byte) (maximumBitRateForUplink != null ? maximumBitRateForUplink.getSourceData() : 0);
-        this.data[4] = (byte) (maximumBitRateForDownlink != null ? maximumBitRateForDownlink.getSourceData() : 0);
+        this.data[3] = (byte) (maximumBitRateForUplink != null ? maximumBitRateForUplink.getSourceData() : -1);
+        this.data[4] = (byte) (maximumBitRateForDownlink != null ? maximumBitRateForDownlink.getSourceData() : -1);
         this.data[5] = (byte) ((sduErrorRatio != null ? sduErrorRatio.getCode() : 0) | ((residualBER != null ? residualBER.getCode() : 0) << 4));
         this.data[6] = (byte) ((trafficHandlingPriority != null ? trafficHandlingPriority.getCode() : 0) | ((transferDelay != null ? transferDelay
                 .getSourceData() : 0) << 2));
-        this.data[7] = (byte) (guaranteedBitRateForUplink != null ? guaranteedBitRateForUplink.getSourceData() : 0);
-        this.data[8] = (byte) (guaranteedBitRateForDownlink != null ? guaranteedBitRateForDownlink.getSourceData() : 0);
+        this.data[7] = (byte) (guaranteedBitRateForUplink != null ? guaranteedBitRateForUplink.getSourceData() : -1);
+        this.data[8] = (byte) (guaranteedBitRateForDownlink != null ? guaranteedBitRateForDownlink.getSourceData() : -1);
     }
 
     public byte[] getData() {

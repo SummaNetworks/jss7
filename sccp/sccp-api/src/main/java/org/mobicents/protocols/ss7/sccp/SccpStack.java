@@ -22,6 +22,7 @@
 
 package org.mobicents.protocols.ss7.sccp;
 
+import java.util.List;
 import java.util.Map;
 
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
@@ -84,6 +85,18 @@ public interface SccpStack {
      * @param removeSpc
      */
     void setRemoveSpc(boolean removeSpc);
+
+    /**
+     * Point codes of remotes peers that need messages configured with other way (ANSI/ITU)
+     * @param peerPointCodes
+     */
+    void setPeerPointCodesForContraryProtocolVersion(List<Integer> peerPointCodes);
+
+    /**
+     * If is setted, PC that match the expresion given will not be removed even the "removeSpc" is true.
+     * @param expresion
+     */
+     void setNoRemovablePC(String expresion);
 
     /**
      * Get the remove signaling point code flag

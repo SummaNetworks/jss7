@@ -29,11 +29,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javolution.text.TextBuilder;
 import javolution.util.FastMap;
@@ -74,7 +76,11 @@ import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle;
 import org.mobicents.protocols.ss7.sccp.parameter.ReturnCauseValue;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
-import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.*;
+import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateLudtFieldsLengthWithoutData;
+import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData;
+import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateXudtFieldsLengthWithoutData2;
+import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.calculateUdtFieldsLengthWithoutData;
+
 /**
  *
  * @author amit bhayani
@@ -84,6 +90,8 @@ import static org.mobicents.protocols.ss7.sccp.impl.message.MessageUtil.*;
  */
 public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     protected final Logger logger;
+
+    private static ThreadLocal<Integer> peerPointCodeTL = new ThreadLocal<>();
 
     protected static final String SCCP_MANAGEMENT_PERSIST_DIR_KEY = "sccpmanagement.persist.dir";
     protected static final String USER_DIR_KEY = "user.dir";
@@ -129,6 +137,9 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     protected double sstTimerDuration_IncreaseFactor = 1.5;
     // Which SCCP protocol version stack processes (ITU / ANSI)
     private SccpProtocolVersion sccpProtocolVersion = SccpProtocolVersion.ITU;
+    private SccpProtocolVersion contraryProtocolVersion = SccpProtocolVersion.ANSI;
+
+    private List<Integer> peerPointCodesForContraryProtocolVersion;
 
     private boolean previewMode = false;
 
@@ -161,6 +172,24 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     private volatile int segmentationLocalRef = 0;
     private volatile int slsCounter = 0;
     private volatile int selectorCounter = 0;
+
+    private String noRemovablePCExpresion = null;
+    private Pattern noRemovablePCPattern = null;
+
+    private static final Logger logger2 = Logger.getLogger(SccpStackImpl.class);
+    public static void setPeerPointCode(int pc){
+        if(logger2.isDebugEnabled()){
+            logger2.debug("setPeerPointCode() PC: "+pc);
+        }
+        peerPointCodeTL.set(pc);
+    }
+    public static Integer getPeerPointCode(){
+        Integer result = peerPointCodeTL.get();
+        if(logger2.isDebugEnabled()){
+            logger2.debug("getPeerPointCode() PC: "+result);
+        }
+        return result;
+    }
 
     public SccpStackImpl(String name) {
 
@@ -239,8 +268,16 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
 
     public void setSccpProtocolVersion(SccpProtocolVersion sccpProtocolVersion) {
         this.sccpProtocolVersion = sccpProtocolVersion;
-
+        updateContraryProtocolVersion();
         this.store();
+    }
+
+    private void updateContraryProtocolVersion(){
+        if(sccpProtocolVersion == SccpProtocolVersion.ANSI) {
+            this.contraryProtocolVersion = SccpProtocolVersion.ITU;
+        }else{
+            this.contraryProtocolVersion = SccpProtocolVersion.ANSI;
+        }
     }
 
     public void setPreviewMode(boolean previewMode) {
@@ -282,11 +319,47 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
         this.store();
     }
 
+    @Override
+    public void setPeerPointCodesForContraryProtocolVersion(List<Integer> peerPointCodes){
+        this.peerPointCodesForContraryProtocolVersion = peerPointCodes;
+    }
+
+    @Override
+    public void setNoRemovablePC(String expresion){
+        this.noRemovablePCExpresion = expresion;
+        if(this.noRemovablePCExpresion != null)
+            noRemovablePCPattern = Pattern.compile(noRemovablePCExpresion);
+        else
+            noRemovablePCPattern = null;
+
+    }
+
+    public boolean shallRemovePC(int pc){
+        if(this.removeSpc) {
+            if (noRemovablePCPattern != null) {
+                return !noRemovablePCPattern.matcher(String.valueOf(pc)).matches();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isRemoveSpc(int pc) {
+        return this.shallRemovePC(pc);
+    }
+
     public boolean isRemoveSpc() {
         return this.removeSpc;
     }
 
     public SccpProtocolVersion getSccpProtocolVersion() {
+        Integer pc = peerPointCodeTL.get();
+        if(pc != null && peerPointCodesForContraryProtocolVersion != null && peerPointCodesForContraryProtocolVersion.contains(pc)){
+            return contraryProtocolVersion;
+        }
+        if(pc == null){
+            logger.warn("Point code UNKNOWN when decoding protocol version.");
+        }
         return this.sccpProtocolVersion;
     }
 
@@ -548,14 +621,16 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
             return 0;
         }
         Mtp3UserPart mup = this.getMtp3UserPart(sap.getMtp3Id());
+
         if (mup == null) {
             return 0;
         }
 
         try {
+            SccpStackImpl.peerPointCodeTL.set(dpc);
             int fieldsLen = 0;
-            byte[] cdp = ((SccpAddressImpl) calledPartyAddress).encode(isRemoveSpc(), this.getSccpProtocolVersion());
-            byte[] cnp = ((SccpAddressImpl) callingPartyAddress).encode(isRemoveSpc(), this.getSccpProtocolVersion());
+            byte[] cdp = ((SccpAddressImpl) calledPartyAddress).encode(isRemoveSpc(calledPartyAddress.getSignalingPointCode()), this.getSccpProtocolVersion());
+            byte[] cnp = ((SccpAddressImpl) callingPartyAddress).encode(isRemoveSpc(callingPartyAddress.getSignalingPointCode()), this.getSccpProtocolVersion());
             switch (lmrt) {
                 case LONG_MESSAGE_FORBBIDEN:
                     fieldsLen = calculateUdtFieldsLengthWithoutData(cdp.length, cnp.length);
@@ -677,7 +752,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
                 int dpc = mtp3Msg.getDpc();
                 int sls = mtp3Msg.getSls();
 
-                    RemoteSignalingPointCode remoteSpc = this.getSccpResource().getRemoteSpcByPC(dpc);
+                RemoteSignalingPointCode remoteSpc = this.getSccpResource().getRemoteSpcByPC(dpc);
                 if (remoteSpc == null) {
                     if (logger.isEnabledFor(Level.WARN)) {
                         logger.warn(String.format("Incoming Mtp3 Message for nonlocal dpc=%d. But RemoteSpc is not found", dpc));
@@ -699,6 +774,15 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
                     }
                     return;
                 }
+
+                if (sap.getDpc() != -1){
+                    logger.debug("Incoming Mtp3 message changeing DPC with SAP.DPC " + sap.getDpc());
+                    dpc = sap.getDpc();
+                }
+
+                //If no is local, save destination to determine ITU/ANSI encoding.
+                SccpStackImpl.setPeerPointCode(dpc);
+
                 Mtp3UserPart mup = this.getMtp3UserPart(sap.getMtp3Id());
                 if (mup == null) {
                     if (logger.isEnabledFor(Level.WARN)) {
@@ -714,6 +798,8 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
 
             int dpc = mtp3Msg.getDpc();
             int opc = mtp3Msg.getOpc();
+            //The opc below to remote peer. Save to determine ANSI/ITU encoding.
+            SccpStackImpl.setPeerPointCode(opc);
             Mtp3ServiceAccessPoint sap = this.router.findMtp3ServiceAccessPointForIncMes(dpc, opc);
             int networkId = 0;
             if (sap == null) {
@@ -736,7 +822,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
             DataInputStream in = new DataInputStream(bais);
             int mt = in.readUnsignedByte();
             msg = ((MessageFactoryImpl) sccpProvider.getMessageFactory()).createMessage(mt, mtp3Msg.getOpc(), mtp3Msg.getDpc(), mtp3Msg.getSls(), in,
-                    this.sccpProtocolVersion, networkId);
+                    this.getSccpProtocolVersion(), networkId);
             msg.setReceivedTimeStamp(mtp3Msg.getCreationTime());
 
             if (logger.isDebugEnabled()) {
@@ -978,8 +1064,10 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
                 this.previewMode = volb;
             volb = reader.read(RESERVED_FOR_NATIONAL_USE_VALUE_ADDRESS_INDICATOR, Boolean.class);
             String s1 = reader.read(SCCP_PROTOCOL_VERSION, String.class);
-            if (s1 != null)
+            if (s1 != null) {
                 this.sccpProtocolVersion = Enum.valueOf(SccpProtocolVersion.class, s1);
+                updateContraryProtocolVersion();
+            }
 
             vali = reader.read(SST_TIMER_DURATION_MIN, Integer.class);
             if (vali != null)

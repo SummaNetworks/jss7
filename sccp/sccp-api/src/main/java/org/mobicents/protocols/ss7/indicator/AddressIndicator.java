@@ -22,11 +22,10 @@
 
 package org.mobicents.protocols.ss7.indicator;
 
-import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
-
 import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
+import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 
 /**
  * The AI is the first field within Calling Party Address (CgPA) and Called Party Address (CdPA) and is one octet in length. Its

@@ -22,25 +22,12 @@
 
 package org.mobicents.protocols.ss7.sccp.impl.router;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import javolution.text.TextBuilder;
 import javolution.util.FastMap;
 import javolution.xml.XMLBinding;
 import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 import javolution.xml.stream.XMLStreamException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.LoadSharingAlgorithm;
 import org.mobicents.protocols.ss7.sccp.LongMessageRule;
@@ -58,8 +45,19 @@ import org.mobicents.protocols.ss7.sccp.impl.parameter.GlobalTitle0011Impl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.GlobalTitle0100Impl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.NoGlobalTitle;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
-
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -716,7 +714,7 @@ public class RouterImpl implements Router {
         this.store();
     }
 
-    public void addMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId) throws Exception {
+    public void addMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int dpc, int ni, int networkId) throws Exception {
 
         if (this.getMtp3ServiceAccessPoint(id) != null) {
             throw new Exception(SccpOAMMessage.SAP_ALREADY_EXIST);
@@ -734,6 +732,11 @@ public class RouterImpl implements Router {
             this.saps = newSap;
             this.store();
         }
+    }
+
+    public void addMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId) throws Exception {
+        //As there is no DPC defined we will use -1 as it is not going to be used
+        this.addMtp3ServiceAccessPoint(id, mtp3Id, opc, -1, ni, networkId);
     }
 
     public void modifyMtp3ServiceAccessPoint(int id, int mtp3Id, int opc, int ni, int networkId) throws Exception {
