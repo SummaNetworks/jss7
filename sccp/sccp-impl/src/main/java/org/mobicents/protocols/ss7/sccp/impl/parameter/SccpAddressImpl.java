@@ -46,8 +46,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  *
  */
 public class SccpAddressImpl extends AbstractParameter implements XMLSerializable, SccpAddress {
-    protected final Logger logger = Logger.getLogger(SccpAddressImpl.class.getCanonicalName());
-
+    private static final Logger logger = Logger.getLogger(SccpAddressImpl.class);
     private static final byte ROUTE_ON_PC_FLAG = 0x40;
     private static final short REMOVE_PC_FLAG = 0xFE;
     private static final short REMOVE_PC_FLAG_ANSI = 0xFD;
@@ -236,8 +235,10 @@ public class SccpAddressImpl extends AbstractParameter implements XMLSerializabl
                     os.write((byte) this.ssn);
                 }
 
-                logger.debug("encode(): aiValue --> " + aiValue);
-                logger.debug("encode(): aiValue & PC_PRESENT_FLAG_ANSI -->" + (aiValue & PC_PRESENT_FLAG_ANSI));
+                if(logger.isDebugEnabled()) {
+                    logger.debug("encode(): aiValue --> " + aiValue);
+                    logger.debug("encode(): aiValue & PC_PRESENT_FLAG_ANSI -->" + (aiValue & PC_PRESENT_FLAG_ANSI));
+                }
 
                 if ((aiValue & PC_PRESENT_FLAG_ANSI) == PC_PRESENT_FLAG_ANSI) {
                     logger.debug("encode(): Adding the POINT CODE " + this.pc);
