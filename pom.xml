@@ -68,7 +68,7 @@
 		<module>service</module>
 		<module>sgw</module>
 
-		<module>tools</module>
+<!--		<module>tools</module> --><!-- Disabled because use not more available sun libraries. -->
         <module>topic</module>
     </modules>
 

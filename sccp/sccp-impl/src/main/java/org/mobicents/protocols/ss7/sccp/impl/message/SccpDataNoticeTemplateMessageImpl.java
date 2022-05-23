@@ -327,7 +327,8 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
                 if (bf.length > availLen) { // message is too long to encode UDT
                     if (logger.isEnabledFor(Level.WARN)) {
                         logger.warn(String.format(
-                                "Failure when sending a UDT message: message is too long. SccpMessageSegment=%s", this));
+                                "Failure when sending a UDT message: message is too long [current-length: %d, available-length: %d]. " +
+                                        "SccpMessageSegment=%s", bf.length, availLen, this));
                     }
                     return new EncodingResultData(EncodingResult.ReturnFailure, null, null, ReturnCauseValue.SEG_NOT_SUPPORTED);
                 }

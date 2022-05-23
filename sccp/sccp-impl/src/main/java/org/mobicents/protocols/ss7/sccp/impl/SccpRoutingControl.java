@@ -152,12 +152,12 @@ public class SccpRoutingControl {
                 try {
                     if (msg instanceof SccpDataMessage) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug(String.format("Local deliver : SCCP Data Message=%s", msg.toString()));
+                            logger.debug(String.format("routeMssgFromMtp(): Local deliver : SCCP Data Message=%s", msg.toString()));
                         }
                         listener.onMessage((SccpDataMessage) msg);
                     } else if (msg instanceof SccpNoticeMessage) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug(String.format("Local deliver : SCCP Notice Message=%s", msg.toString()));
+                            logger.debug(String.format("routeMssgFromMtp(): Local deliver : SCCP Notice Message=%s", msg.toString()));
                         }
                         listener.onNotice((SccpNoticeMessage) msg);
                     } else {
@@ -410,6 +410,11 @@ public class SccpRoutingControl {
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
         SccpAddress callingPartyAddress = msg.getCallingPartyAddress();
 
+        if(logger.isDebugEnabled()) {
+            logger.debug("translationFunction(): Initial CallingPartyAddress --> " + callingPartyAddress);
+            logger.debug("translationFunction(): Initial CalledPartyAddress --> " + calledPartyAddress);
+        }
+
         Rule rule = this.sccpStackImpl.router.findRule(calledPartyAddress, callingPartyAddress, msg.getIsMtpOriginated(), msg.getNetworkId());
         if (rule == null) {
             if (logger.isEnabledFor(Level.WARN)) {
@@ -420,6 +425,9 @@ public class SccpRoutingControl {
             // Translation failed return error
             this.sendSccpError(msg, ReturnCauseValue.NO_TRANSLATION_FOR_ADDRESS);
             return;
+        }
+        if(logger.isDebugEnabled()){
+            logger.debug("translationFunction(): Rule candidate found: "+rule);
         }
 
         // Check validatiosn of primary and backup address
@@ -526,7 +534,7 @@ public class SccpRoutingControl {
             if (newCallingPartyAddress != null) {
                 msg.setCallingPartyAddress(newCallingPartyAddress);
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("New CallingPartyAddress assigned after translation = %s",
+                    logger.debug(String.format("translationFunction(): New CallingPartyAddress assigned after translation = %s",
                             newCallingPartyAddress));
                 }
             }
@@ -538,12 +546,16 @@ public class SccpRoutingControl {
             msg.setCalledPartyAddress(address);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Matching rule found: [%s] CalledPartyAddress after translation = %s", rule, msg.getCalledPartyAddress()));
+            logger.debug(String.format("translationFunction(): Matching rule found: [%s]\nCalledPartyAddress after translation = %s", rule, msg.getCalledPartyAddress()));
         }
 
         msg.getCallingPartyAddress().setIncomingOpc(msg.getIncomingOpc());
 
         // routing procedures then continue's
+
+        logger.debug("translationFunction(): CallingPartyAddress before route --> " + callingPartyAddress);
+        logger.debug("ttranslationFunction(): CalledPartyAddress before route --> " + calledPartyAddress);
+
         this.route(msg);
 
         if (translationAddress2 != null) {
@@ -553,7 +565,7 @@ public class SccpRoutingControl {
             msg.clearReturnMessageOnError();
 
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("CalledPartyAddress after translation - a second broadcast address = %s", address));
+                logger.debug(String.format("translationFunction(): CalledPartyAddress after translation - a second broadcast address = %s", address));
             }
 
             // routing procedures then continue's
@@ -597,7 +609,7 @@ public class SccpRoutingControl {
     }
 
     private void route(SccpAddressedMessageImpl msg) throws Exception {
-
+        logger.debug("##### route() Init...");
         SccpAddress calledPartyAddress = msg.getCalledPartyAddress();
 
         int dpc = calledPartyAddress.getSignalingPointCode();
@@ -606,10 +618,10 @@ public class SccpRoutingControl {
 
         if (calledPartyAddress.getAddressIndicator().isPCPresent()) {
             // DPC present
-
+            logger.debug("route() DPC Present");
             if (this.sccpStackImpl.router.spcIsLocal(dpc)) {
                 // This message is for local routing
-
+                logger.debug("route() DPC ["+dpc+"] Local -> Local routing");
                 if (ssn > 0) {
                     // if a non-zero SSN is present but not the GT (case 2 a) of
                     // 2.2.2), then the message is passed based on the message
@@ -684,6 +696,7 @@ public class SccpRoutingControl {
                 }
 
             } else {
+                logger.debug("route() DPC ["+dpc+"] External -> External routing");
                 // DPC present but its not local pointcode. This message should be Tx to MTP
 
                 // Check if the DPC is not prohibited
@@ -740,7 +753,9 @@ public class SccpRoutingControl {
 
                     // send to MTP
                     if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Tx : SCCP Message=%s", msg.toString()));
+                        logger.debug(String.format("route(): Tx: [SSN] SCCP Message=%s", msg.toString()));
+                        logger.debug("route(): CallingPartyAddress --> " + msg.getCallingPartyAddress());
+                        logger.debug("route(): CalledPartyAddress --> " + msg.getCalledPartyAddress());
                     }
                     this.sendMessageToMtp(msg);
                 } else if (gt != null) {
@@ -754,7 +769,9 @@ public class SccpRoutingControl {
 
                     // send to MTP
                     if (logger.isDebugEnabled()) {
-                        logger.debug(String.format("Tx : SCCP Message=%s", msg.toString()));
+                        logger.debug(String.format("route(): Tx: [GT] SCCP Message=%s", msg.toString()));
+                        logger.debug("route():  CallingPartyAddress --> " + msg.getCallingPartyAddress());
+                        logger.debug("route():  CalledPartyAddress --> " + msg.getCalledPartyAddress());
                     }
                     this.sendMessageToMtp(msg);
                 } else {
@@ -765,7 +782,7 @@ public class SccpRoutingControl {
             }
         } else {
             // DPC not present
-
+            logger.debug("route(): DPC no present");
             // If the DPC is not present, (case 3 of 2.2.2), then a global title
             // translation is required before the message can be sent out.
             // Translation results in a DPC and possibly a new SSN or new GT or
@@ -791,18 +808,34 @@ public class SccpRoutingControl {
                 this.sendSccpError(msg, ReturnCauseValue.SCCP_FAILURE);
                 return;
             }
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("route(): Tx: [GT!=null && DPC = null]  SCCP Message=%s", msg.toString()));
+                logger.debug("route():  CallingPartyAddress --> " + msg.getCallingPartyAddress());
+                logger.debug("route():  CalledPartyAddress --> " + msg.getCalledPartyAddress());
+            }
 
             this.translationFunction(msg);
         }
     }
 
     protected void sendMessageToMtp(SccpAddressedMessageImpl msg) throws Exception {
-
+        if(logger.isDebugEnabled()) {
+            logger.debug("sendMessageToMtp(): message has configured outgoingPointCode " + msg.getOutgoingDpc());
+            logger.debug("sendMessageToMtp(): message has configured incomingPointCode " + msg.getIncomingDpc());
+        }
         msg.setOutgoingDpc(msg.getCalledPartyAddress().getSignalingPointCode());
+        if(logger.isDebugEnabled()) {
+            logger.debug("sendMessageToMtp(): message has changed outgoingPointCode " + msg.getOutgoingDpc());
+        }
 
         // if (msg.getSccpCreatesSls()) {
         // msg.setSls(this.sccpStackImpl.newSls());
         // }
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("sendMessageToMtp(): CallingPartyAddress --> " + msg.getCallingPartyAddress());
+            logger.debug("sendMessageToMtp(): CalledPartyAddress --> " + msg.getCalledPartyAddress());
+        }
 
         ReturnCauseValue er = this.send(msg);
         if (er != null) {
