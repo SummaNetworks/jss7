@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
@@ -27,9 +29,11 @@ public class TopicSccpMessage extends TopicMessage {
     public static final short TYPE_HEARTBEAT_ACK = 3;
 
     private static ParameterFactoryImpl sccpParameterFactory;
+    private static AtomicInteger hearBeatId;
 
     static {
         sccpParameterFactory = new ParameterFactoryImpl();
+        hearBeatId = new AtomicInteger(0);
     }
 
     protected short messageType;
@@ -63,6 +67,7 @@ public class TopicSccpMessage extends TopicMessage {
     public static TopicSccpMessage createHeartbeat(){
         TopicSccpMessage tsm = new TopicSccpMessage();
         tsm.messageType = TYPE_HEARTBEAT;
+        tsm.id = hearBeatId.getAndIncrement();
         return tsm;
     }
 
