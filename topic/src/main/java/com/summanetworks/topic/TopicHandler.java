@@ -226,6 +226,7 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
                     } else {
                         logger.warn("Several heartbeat lost with peer " + remotePeerId + " CLOSING CONNECTION!");
                         this.close();
+                        this.controller.onClosedByHeartbeat(this.remoteAddress, this.remotePeerId);
                     }
                 } else {
                     logger.warn("Not registered yet, sending hello again.");

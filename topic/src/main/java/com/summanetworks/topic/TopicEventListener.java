@@ -5,7 +5,13 @@ package com.summanetworks.topic;
  */
 public interface TopicEventListener {
 
-    void onPeerRegistered(int peerId);
+    void onUnableToConnect(String ip);
+
+    void onConnected(String ip, int peerId);
+
+    void onDisconnected(String ip, int peerId);
+
+    void onClosedByHeartbeat(String host, int peerId);
 
     void onMessagesFromNotRegisteredPeer(int peerId);
 

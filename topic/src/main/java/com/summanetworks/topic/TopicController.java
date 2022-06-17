@@ -108,6 +108,11 @@ public class TopicController {
         }
     }
 
+    /**
+     * Connected but not yet registered.
+     * @param handler
+     * @return
+     */
     protected TopicHandler connected(TopicHandler handler){
         logger.info(String.format("Remote host %s connected.", handler.getRemoteAddress()));
         //Validate host.
@@ -136,6 +141,7 @@ public class TopicController {
     protected synchronized TopicHandler registerHandler(Integer peerId, TopicHandler handler){
         logger.info(String.format("Host %s with peerId %d registered.",handler.getRemoteAddress(), peerId));
         lostMessagesMap.remove(peerId);
+        onRegister(handler.getRemoteAddress(), peerId);
         return handlerRegisterMap.put(peerId, handler);
     }
 
@@ -143,6 +149,7 @@ public class TopicController {
         if(handlerRegisterMap.get(handler.getRemotePeerId()) == handler ) {
             logger.info(String.format("Unregistering handler with peerId %d...", handler.getRemotePeerId()));
             handlerRegisterMap.remove(handler.getRemotePeerId());
+            onDeregister(handler.getRemoteAddress(), handler.getRemotePeerId());
         } else if(handlerRegisterMap.get(handler.getRemotePeerId()) != null) {
             logger.debug(String.format("unregisterHandler(): Other handler is register with peerId %d.", handler.getRemotePeerId()));
         }else {
@@ -243,6 +250,30 @@ public class TopicController {
                 }
             }, topicConfig.getPeerMsgLostWindowSeconds(), TimeUnit.SECONDS);
         }
+    }
+
+    //Event methods
+
+    // FIXME: podria ser un onClose genérico?
+    public void onClosedByHeartbeat(String ip, int peerId){
+        if(eventListener != null)
+            eventListener.onClosedByHeartbeat(ip, peerId);
+    }
+
+    //As client.
+    public void onUnableToConnect(String ip){
+        if(eventListener != null)
+            eventListener.onUnableToConnect(ip);
+    }
+
+    public void onRegister(String ip, int peerId){
+        if(eventListener != null)
+            eventListener.onConnected(ip, peerId);
+    }
+
+    public void onDeregister(String ip, int peerId){
+        if(eventListener != null)
+            eventListener.onDisconnected(ip, peerId);
     }
 
 }

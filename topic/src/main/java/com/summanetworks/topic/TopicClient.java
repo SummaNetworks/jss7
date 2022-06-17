@@ -71,6 +71,7 @@ public class TopicClient {
                                     }
                                 }
                                 try {
+                                    controller.onUnableToConnect(host);
                                     logger.trace("Waiting before try again...");
                                     Thread.sleep(3000 + random.nextInt(2000));
                                 } catch (InterruptedException ignored) {
