@@ -94,7 +94,7 @@ public class MAPExtensionContainerImpl extends SequenceBase implements MAPExtens
 
             int tag = ais.readTag();
             if (tag == MAPExtensionContainerImpl.PRIVATEEXTENSIONLIST_REF_TAG
-                    && ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
+                    && ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC && !ais.isTagPrimitive()) {
 
                 if (ais.isTagPrimitive())
                     throw new MAPParsingComponentException(
@@ -125,9 +125,6 @@ public class MAPExtensionContainerImpl extends SequenceBase implements MAPExtens
             } else if (tag == MAPExtensionContainerImpl.PSCEXTENSIONS_REF_TAG
                     && ais.getTagClass() == Tag.CLASS_CONTEXT_SPECIFIC) {
 
-                if (ais.isTagPrimitive())
-                    throw new MAPParsingComponentException("Error while PCS-Extensions decoding: PCS-Extensions is primitive",
-                            MAPParsingComponentExceptionReason.MistypedParameter);
                 if (this.pcsExtensions != null)
                     throw new MAPParsingComponentException(
                             "Error while PCS-Extensions decoding: More than one PCS-Extensions has found",
