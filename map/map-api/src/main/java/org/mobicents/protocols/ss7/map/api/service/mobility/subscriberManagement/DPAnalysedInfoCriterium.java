@@ -28,9 +28,12 @@ import org.mobicents.protocols.ss7.map.api.primitives.ISDNAddressString;
 import org.mobicents.protocols.ss7.map.api.primitives.MAPExtensionContainer;
 
 /**
- *
- DP-AnalysedInfoCriterium ::= SEQUENCE { dialledNumber ISDN-AddressString, serviceKey ServiceKey, gsmSCF-Address
- * ISDN-AddressString, defaultCallHandling DefaultCallHandling, extensionContainer ExtensionContainer OPTIONAL, ...}
+ * DP-AnalysedInfoCriterium ::= SEQUENCE {
+ *      dialledNumber ISDN-AddressString,
+ *      serviceKey ServiceKey,
+ *      gsmSCF-Address ISDN-AddressString,
+ *      defaultCallHandling DefaultCallHandling,
+ *      extensionContainer ExtensionContainer OPTIONAL, ...}
  *
  * ServiceKey ::= INTEGER (0..2147483647)
  *
