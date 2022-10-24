@@ -146,7 +146,8 @@ public class MAPPrivateExtensionTest {
 
     @Test(groups = { "functional.encode", "primitives" })
     public void testEncode() throws Exception {
-        byte[] data = hexStringToByteArray("ad3ea03c303a06092a863a0089613a0100a42d3003810111300381010630038101073017810109a212020101040d09010a0a088411979167764403300381010a");
+        byte[] data = hexStringToByteArray("3027a025302306092a863a0089613a0100a716300581010e8200300d81010f83085386355032713011");
+        // Nokia    byte[] data = hexStringToByteArray("a00c300a06022205e00480008100");
         AsnInputStream ais = new AsnInputStream(data);
         ais.readTag();
         MAPExtensionContainerImpl extCont = new MAPExtensionContainerImpl();
@@ -255,6 +256,26 @@ public class MAPPrivateExtensionTest {
                 .equals(extCont.getPrivateExtensionList().get(0).getOId(), new long[] { 1, 2, 826, 0, 1249, 58, 1, 0 }));
     }
 
+
+    private byte[] getTestB() {
+        return new byte[] {(byte) 0xa0,0x0c,0x30,0x0a,0x06,0x02,0x22,0x05, (byte) 0xe0,0x04, (byte) 0x80,0x00, (byte) 0x81,0x00 };
+    }
+//0000   a0 0c 30 0a 06 02 22 05 e0 04 80 00 81 00
+
+
+    @Test(groups = { "functional.decode", "primitives" })
+    public void testDecodeB() throws Exception {
+
+        byte[] data = this.getTestAS();
+        AsnInputStream ais = new AsnInputStream(data);
+        MAPExtensionContainerImpl extCont = new MAPExtensionContainerImpl();
+        extCont.decodeAll(ais);
+
+        assertEquals(extCont.getPrivateExtensionList().size(), 1);
+        assertTrue(Arrays
+                .equals(extCont.getPrivateExtensionList().get(0).getOId(), new long[] { 1, 2, 826, 0, 1249, 58, 1, 0 }));
+    }
+
     private byte[] getTestA() {
         return new byte[] { (byte) 0xAD, 0x3F, (byte) 0xa0, 0x3d, 0x30, 0x3b, 0x06, 0x09, 0x2a, (byte) 0x86, 0x3a, 0x00,
                 (byte) 0x89, 0x61, 0x3a, 0x01, 0x00, (byte) 0xa4, 0x2e, 0x30, 0x03, (byte) 0x81, 0x01, 0x11, 0x30, 0x03,
@@ -268,6 +289,15 @@ public class MAPPrivateExtensionTest {
                 0x30, 0x20, (byte) 0xa0, 0x1e, 0x30, 0x1c, 0x06, 0x09, 0x2a, (byte) 0x86, 0x3a, 0x00, (byte) 0x89, 0x61, 0x3a, 0x01,
             0x00,(byte)  0xa7, 0x0f, 0x30, 0x0d, (byte) 0x81, 0x01, 0x0f, (byte) 0x83, 0x08, 0x53, 0x35, (byte) 0x83, 0x50, 0x26, 0x72,
                 (byte) 0x81,(byte)  0x87
+        };
+    }
+
+    private byte[] getTestAS() {
+        return new byte[] {
+                //0x30, 0x27, (byte) 0xa0, 0x25,
+                0x30, 0x23, 0x06, 0x09, 0x2a, (byte) 0x86, 0x3a, 0x00, (byte) 0x89, 0x61, 0x3a, 0x01 ,
+                0x00, (byte) 0xa7, 0x16, 0x30, 0x05, (byte) 0x81, 0x01, 0x0e, (byte) 0x82, 0x00, 0x30, 0x0d, (byte) 0x81, 0x01, 0x0f, (byte) 0x83,
+                0x08, 0x53, (byte) 0x86, 0x35, 0x50, 0x32, 0x71, 0x30, 0x11
         };
     }
 
