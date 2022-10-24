@@ -23,14 +23,13 @@
 package org.mobicents.protocols.ss7.mtp;
 
 
+import org.apache.log4j.Logger;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.log4j.Logger;
 
 // lic dep 1
 
@@ -179,17 +178,31 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.createSLSTable(this.deliveryTransferMessageThreadCount);
 
-        final ForkJoinPool.ForkJoinWorkerThreadFactory factory =
-                new ForkJoinPool.ForkJoinWorkerThreadFactory() {
+        //ForkJoin version.
+        /**
+            final ForkJoinPool.ForkJoinWorkerThreadFactory factory =
+                    new ForkJoinPool.ForkJoinWorkerThreadFactory() {
+                        @Override
+                        public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
+                            final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                            worker.setName("Mtp3DeliveryExecutor-" + worker.getPoolIndex());
+                            return worker;
+                        }
+                    };
+            this.msgDeliveryExecutor = new ForkJoinPool(deliveryTransferMessageThreadCount,
+                    factory, null, true);
+            //End fork join version.
+        **/
+
+        //Fixed ThreadPool.
+        this. msgDeliveryExecutor = Executors.newFixedThreadPool(this.deliveryTransferMessageThreadCount,
+                new ThreadFactory() {
+                    private AtomicInteger idx = new AtomicInteger();
                     @Override
-                    public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
-                        final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-                        worker.setName("Mtp3DeliveryExecutor-" + worker.getPoolIndex());
-                        return worker;
+                    public Thread newThread(Runnable runnable) {
+                        return new Thread(runnable,"Mtp3DeliveryExecutor-" + idx.getAndIncrement());
                     }
-        };
-        this. msgDeliveryExecutor = new ForkJoinPool(deliveryTransferMessageThreadCount,
-                factory, null, true);
+                });
 
         this.msgDeliveryExecutorSystem = Executors.newSingleThreadScheduledExecutor(
                 //new DefaultThreadFactory("Mtp3-DeliveryExecutorSystem")
