@@ -53,6 +53,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     private static final String LICENSE_PRODUCT_NAME = "Mobicents-jSS7";
 
     //Type of Executors that can be configured by System properties.
+    public static final String MTP_3_EXECUTOR_TYPE_PROPERTY_KEY = "mtp3.executor.type";
     private static final String EXECUTOR_FORK_JOIN ="FORK_JOIN";
     private static final String EXECUTOR_FIXED ="FIXED";
     private static final String EXECUTOR_CACHED_LINKED_Q ="CACHED_LQ";
@@ -193,7 +194,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
 
         String defaultExecutorType = EXECUTOR_FIXED;
-        String executorTypeParameter = System.getProperty("mtp3.executor.type");
+        String executorTypeParameter = System.getProperty(MTP_3_EXECUTOR_TYPE_PROPERTY_KEY);
         if (executorTypeParameter == null ||
                 !Arrays.asList(EXECUTOR_FIXED, EXECUTOR_FORK_JOIN, EXECUTOR_CACHED_LINKED_Q, EXECUTOR_CACHED_SYNCHRONIZED_Q)
                         .contains(executorTypeParameter)) {
