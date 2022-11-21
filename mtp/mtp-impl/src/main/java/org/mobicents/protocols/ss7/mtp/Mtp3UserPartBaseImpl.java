@@ -228,7 +228,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 this.deliveryTransferMessageThreadCount / 2,
                 this.deliveryTransferMessageThreadCount,
                 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(),
+                new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
                 new ThreadFactory() {
                     private AtomicInteger idx = new AtomicInteger();
 
