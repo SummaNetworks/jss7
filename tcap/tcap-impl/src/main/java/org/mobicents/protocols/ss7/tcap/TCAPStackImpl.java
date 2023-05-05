@@ -32,7 +32,8 @@ import javolution.xml.XMLBinding;
 import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 import javolution.xml.stream.XMLStreamException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.SccpProvider;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 import org.mobicents.protocols.ss7.tcap.api.TCAPCounterProvider;
@@ -105,7 +106,7 @@ public class TCAPStackImpl implements TCAPStack {
     public TCAPStackImpl(String name) {
         super();
         this.name = name;
-        this.logger = Logger.getLogger(TCAPStackImpl.class.getCanonicalName() + "-" + this.name);
+        this.logger = LogManager.getLogger(TCAPStackImpl.class.getCanonicalName() + "-" + this.name);
 
         binding.setClassAttribute(CLASS_ATTRIBUTE);
 

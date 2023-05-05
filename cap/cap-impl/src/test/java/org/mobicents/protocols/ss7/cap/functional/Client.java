@@ -27,7 +27,8 @@ import static org.testng.Assert.assertNull;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.cap.CAPDialogImpl;
 import org.mobicents.protocols.ss7.cap.CAPProviderImpl;
 import org.mobicents.protocols.ss7.cap.api.CAPApplicationContext;
@@ -121,7 +122,7 @@ import org.mobicents.protocols.ss7.tcap.api.tc.dialog.events.TCBeginRequest;
  */
 public class Client extends EventTestHarness {
 
-    private static Logger logger = Logger.getLogger(Client.class);
+    private static Logger logger = LogManager.getLogger(Client.class);
 
     // private CAPFunctionalTest runningTestCase;
     private SccpAddress thisAddress;

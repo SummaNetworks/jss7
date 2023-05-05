@@ -30,7 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -169,7 +170,7 @@ public class MAPProviderImpl implements MAPProvider, TCListener {
      */
 
     public MAPProviderImpl(String name, TCAPProvider tcapProvider) {
-        this.loger = Logger.getLogger(MAPStackImpl.class.getCanonicalName() + "-" + name);
+        this.loger = LogManager.getLogger(MAPStackImpl.class.getCanonicalName() + "-" + name);
 
         this.tcapProvider = tcapProvider;
 

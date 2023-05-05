@@ -31,7 +31,8 @@ import static org.testng.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.ss7.map.MAPParameterFactoryImpl;
@@ -54,7 +55,7 @@ import org.testng.annotations.Test;
  *
  */
 public class ProvideRoamingNumberResponseTest {
-    Logger logger = Logger.getLogger(ProvideRoamingNumberResponseTest.class);
+    Logger logger = LogManager.getLogger(ProvideRoamingNumberResponseTest.class);
 
     @BeforeClass
     public static void setUpClass() throws Exception {

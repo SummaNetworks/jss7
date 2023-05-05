@@ -28,7 +28,8 @@ import java.util.Set;
 
 import javolution.util.FastMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.AddressIndicator;
 import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
 import org.mobicents.protocols.ss7.indicator.NumberingPlan;
@@ -57,7 +58,7 @@ import org.mobicents.ss7.management.console.ShellExecutor;
  */
 public class SccpExecutor implements ShellExecutor {
 
-    private static final Logger logger = Logger.getLogger(SccpExecutor.class);
+    private static final Logger logger = LogManager.getLogger(SccpExecutor.class);
 
     private FastMap<String, SccpStackImpl> sccpStacks = new FastMap<String, SccpStackImpl>();
     private SccpStackImpl sccpStack = null;

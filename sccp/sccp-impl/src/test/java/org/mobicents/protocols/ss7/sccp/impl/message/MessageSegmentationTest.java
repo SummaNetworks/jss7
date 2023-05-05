@@ -30,7 +30,8 @@ import static org.testng.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.Util;
 import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
 import org.mobicents.protocols.ss7.indicator.NumberingPlan;
@@ -80,7 +81,7 @@ public class MessageSegmentationTest {
         this.stack.setPersistDir(Util.getTmpTestDir());
         this.stack.start();
         this.messageFactory = new MessageFactoryImpl(stack);
-        this.logger = Logger.getLogger(SccpStackImpl.class.getCanonicalName());
+        this.logger = LogManager.getLogger(SccpStackImpl.class.getCanonicalName());
         stack.setMaxDataMessage(2000);
     }
 

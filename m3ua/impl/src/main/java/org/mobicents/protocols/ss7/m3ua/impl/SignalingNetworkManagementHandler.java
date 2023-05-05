@@ -26,8 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
 import org.mobicents.protocols.ss7.m3ua.RouteAs;
@@ -59,7 +59,7 @@ import org.mobicents.protocols.ss7.mtp.Mtp3StatusPrimitive;
  */
 public class SignalingNetworkManagementHandler extends MessageHandler {
 
-    private static final Logger logger = Logger.getLogger(SignalingNetworkManagementHandler.class);
+    private static final Logger logger = LogManager.getLogger(SignalingNetworkManagementHandler.class);
 
     public SignalingNetworkManagementHandler(AspFactoryImpl aspFactoryImpl) {
         super(aspFactoryImpl);
@@ -595,9 +595,8 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
     }
 
     public void handleDestinationRestricted(DestinationRestricted drst) {
-
         if (aspFactoryImpl.getFunctionality() == Functionality.AS) {
-            if (logger.isEnabledFor(Level.WARN)) {
+            if (logger.isWarnEnabled()) {
                 logger.warn(String.format("Received DRST message for AS side. Not implemented yet", drst));
             }
         } else {

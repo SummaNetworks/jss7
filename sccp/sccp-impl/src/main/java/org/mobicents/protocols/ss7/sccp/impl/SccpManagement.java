@@ -30,8 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 import javolution.util.FastList;
 import javolution.util.FastMap;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.mtp.Mtp3StatusCause;
 import org.mobicents.protocols.ss7.sccp.ConcernedSignalingPointCode;
@@ -101,7 +102,7 @@ public class SccpManagement {
 
     public SccpManagement(String name, SccpProviderImpl sccpProviderImpl, SccpStackImpl sccpStackImpl) {
         this.name = name;
-        this.logger = Logger.getLogger(SccpManagement.class.getCanonicalName() + "-" + this.name);
+        this.logger = LogManager.getLogger(SccpManagement.class.getCanonicalName() + "-" + this.name);
         this.sccpProviderImpl = sccpProviderImpl;
         this.sccpStackImpl = sccpStackImpl;
     }
@@ -147,7 +148,7 @@ public class SccpManagement {
                 }
                 break;
             case SSP:
-                if (logger.isEnabledFor(Level.WARN)) {
+                if (logger.isEnabled(Level.WARN)) {
                     logger.warn(String.format(
                             "Rx : SSP, Affected SSN=%d, Affected PC=%d, Subsystem Multiplicity Ind=%d SeqControl=%d",
                             affectedSsn, affectedPc, subsystemMultiplicity, message.getSls()));
@@ -192,17 +193,17 @@ public class SccpManagement {
 
                 break;
             case SOR:
-                if (logger.isEnabledFor(Level.WARN)) {
+                if (logger.isEnabled(Level.WARN)) {
                     logger.warn("Received SOR. SOR not yet implemented, dropping message");
                 }
                 break;
             case SOG:
-                if (logger.isEnabledFor(Level.WARN)) {
+                if (logger.isEnabled(Level.WARN)) {
                     logger.warn("Received SOG. SOG not yet implemented, dropping message");
                 }
                 break;
             case SSC:
-                if (logger.isEnabledFor(Level.WARN)) {
+                if (logger.isEnabled(Level.WARN)) {
                     logger.warn("Received SSC. SSC not yet implemented, dropping message");
                 }
                 break;
@@ -314,7 +315,6 @@ public class SccpManagement {
         // Look at Q.714 Section 5.2.2
         this.cancelAllSst(affectedPc, true);
         this.prohibitRsp(affectedPc, true, RemoteSccpStatus.INACCESIBBLE);
-
     }
 
     protected void handleMtp3Resume(int affectedPc) {
@@ -389,62 +389,26 @@ public class SccpManagement {
             RemoteSubSystemImpl remoteSsn = (RemoteSubSystemImpl) e.getValue();
             if (remoteSsn.getRemoteSpc() == affectedPc) {
                 if (!remoteSsn.isRemoteSsnProhibited()) {
-                    remoteSsn.setRemoteSsnProhibited(true);
-
                     setRemoteSsnState(remoteSsn, false);
-
-                    // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                    // .getNext()) != end1;) {
-                    // try {
-                    // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), false, 0);
-                    // } catch (Exception ee) {
-                    // logger.error("Exception while invoking onState", ee);
-                    // }
-                    // }
                 }
             }
         }
     }
 
     private void allowAllSsn(int affectedPc) {
-
         FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
         FastMap<Integer, RemoteSubSystem> remoteSsns = this.sccpStackImpl.sccpResource.remoteSsns;
         for (FastMap.Entry<Integer, RemoteSubSystem> e = remoteSsns.head(), end = remoteSsns.tail(); (e = e.getNext()) != end;) {
             RemoteSubSystemImpl remoteSsn = (RemoteSubSystemImpl) e.getValue();
             if (remoteSsn.getRemoteSpc() == affectedPc) {
-
                 if (remoteSsn.getMarkProhibitedWhenSpcResuming()) {
                     if (!remoteSsn.isRemoteSsnProhibited()) {
-                        remoteSsn.setRemoteSsnProhibited(true);
                         this.startSst(affectedPc, remoteSsn.getRemoteSsn());
-
                         setRemoteSsnState(remoteSsn, false);
-
-                        // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                        // .getNext()) != end1;) {
-                        // try {
-                        // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), false, 0);
-                        // } catch (Throwable ee) {
-                        // logger.error("Exception while invoking onState", ee);
-                        // }
-                        // }
                     }
-
                 } else {
                     if (remoteSsn.isRemoteSsnProhibited()) {
-                        remoteSsn.setRemoteSsnProhibited(false);
-
                         setRemoteSsnState(remoteSsn, true);
-
-                        // for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1
-                        // .getNext()) != end1;) {
-                        // try {
-                        // e1.getValue().onState(affectedPc, remoteSsn.getRemoteSsn(), true, 0);
-                        // } catch (Exception ee) {
-                        // logger.error("Exception while invoking onState", ee);
-                        // }
-                        // }
                     }
                 }
             }
@@ -558,7 +522,6 @@ public class SccpManagement {
         remoteSsn.setRemoteSsnProhibited(!isEnabled);
 
         FastMap<Integer, SccpListener> lstrs = this.sccpProviderImpl.getAllSccpListeners();
-
         for (FastMap.Entry<Integer, SccpListener> e1 = lstrs.head(), end1 = lstrs.tail(); (e1 = e1.getNext()) != end1;) {
             try {
                 e1.getValue().onState(remoteSsn.getRemoteSpc(), remoteSsn.getRemoteSsn(), isEnabled, 0);

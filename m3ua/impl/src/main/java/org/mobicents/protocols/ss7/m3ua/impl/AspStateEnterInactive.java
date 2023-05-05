@@ -23,7 +23,8 @@ package org.mobicents.protocols.ss7.m3ua.impl;
 
 import javolution.util.FastList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.M3UAManagementEventListener;
 import org.mobicents.protocols.ss7.m3ua.State;
 import org.mobicents.protocols.ss7.m3ua.impl.fsm.FSMState;
@@ -36,7 +37,7 @@ import org.mobicents.protocols.ss7.m3ua.impl.fsm.FSMStateEventHandler;
  */
 public class AspStateEnterInactive implements FSMStateEventHandler {
 
-    private static final Logger logger = Logger.getLogger(AspStateEnterInactive.class);
+    private static final Logger logger = LogManager.getLogger(AspStateEnterInactive.class);
 
     private final AspImpl aspImpl;
 

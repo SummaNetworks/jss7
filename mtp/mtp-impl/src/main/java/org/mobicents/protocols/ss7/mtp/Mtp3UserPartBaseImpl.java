@@ -23,7 +23,8 @@
 package org.mobicents.protocols.ss7.mtp;
 
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -48,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
-    private static final Logger logger = Logger.getLogger(Mtp3UserPartBaseImpl.class);
+    private static final Logger logger = LogManager.getLogger(Mtp3UserPartBaseImpl.class);
 
     private static final String LICENSE_PRODUCT_NAME = "Mobicents-jSS7";
 

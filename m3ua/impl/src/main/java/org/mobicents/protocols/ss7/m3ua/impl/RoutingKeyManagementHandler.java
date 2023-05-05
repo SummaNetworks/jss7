@@ -21,7 +21,8 @@
  */
 package org.mobicents.protocols.ss7.m3ua.impl;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.message.rkm.DeregistrationRequest;
 import org.mobicents.protocols.ss7.m3ua.message.rkm.DeregistrationResponse;
 import org.mobicents.protocols.ss7.m3ua.message.rkm.RegistrationRequest;
@@ -33,7 +34,7 @@ import org.mobicents.protocols.ss7.m3ua.message.rkm.RegistrationResponse;
  *
  */
 public class RoutingKeyManagementHandler extends MessageHandler {
-    private static final Logger logger = Logger.getLogger(RoutingKeyManagementHandler.class);
+    private static final Logger logger = LogManager.getLogger(RoutingKeyManagementHandler.class);
 
     public RoutingKeyManagementHandler(AspFactoryImpl aspFactoryImpl) {
         super(aspFactoryImpl);

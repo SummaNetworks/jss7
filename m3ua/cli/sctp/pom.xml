@@ -12,8 +12,6 @@
 	<name>Restcomm jSS7 :: M3UA :: CLI :: ${project.artifactId}</name>
 
 	<dependencies>
-		<!-- <dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
-			<version>${log4j.version}</version> </dependency> -->
 		<!-- MTP3 -->
 		<dependency>
 			<groupId>org.mobicents.protocols.ss7.management</groupId>

@@ -25,7 +25,8 @@ package org.mobicents.ss7.hardware.dahdi.oam;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.mtp.Mtp2;
 import org.mobicents.protocols.ss7.mtp.Mtp2Listener;
 import org.mobicents.protocols.ss7.scheduler.Scheduler;
@@ -44,7 +45,7 @@ import org.mobicents.ss7.linkset.oam.LinkState;
  */
 public class DahdiLink extends Link implements Mtp2Listener {
 
-    private static final Logger logger = Logger.getLogger(DahdiLink.class);
+    private static final Logger logger = LogManager.getLogger(DahdiLink.class);
 
     private int span = -1;
     private int channelID = -1;

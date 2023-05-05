@@ -22,14 +22,15 @@
 
 package org.mobicents.ss7.sgw;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.scheduler.Scheduler;
 
 public class SignalingGateway {
 
     public Scheduler scheduler;
 
-    private static final Logger logger = Logger.getLogger(SignalingGateway.class);
+    private static final Logger logger = LogManager.getLogger(SignalingGateway.class);
 
     private NodalInterworkingFunction nodalInterworkingFunction = null;
 

@@ -25,7 +25,7 @@ package org.mobicents.protocols.ss7.tools.simulator.tests.sms;
 import java.nio.charset.Charset;
 import java.util.Random;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextName;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextVersion;

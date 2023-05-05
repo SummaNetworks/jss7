@@ -26,7 +26,8 @@ import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.ExchangeType;
@@ -44,7 +45,7 @@ import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
  */
 public class AspImpl implements XMLSerializable, Asp {
 
-    private static final Logger logger = Logger.getLogger(AspImpl.class);
+    private static final Logger logger = LogManager.getLogger(AspImpl.class);
 
     protected static final String NAME = "name";
 

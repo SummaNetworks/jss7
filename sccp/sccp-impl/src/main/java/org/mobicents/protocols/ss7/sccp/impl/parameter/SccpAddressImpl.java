@@ -31,7 +31,8 @@ import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.AddressIndicator;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
@@ -46,7 +47,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  *
  */
 public class SccpAddressImpl extends AbstractParameter implements XMLSerializable, SccpAddress {
-    private static final Logger logger = Logger.getLogger(SccpAddressImpl.class);
+    private static final Logger logger = LogManager.getLogger(SccpAddressImpl.class);
     private static final byte ROUTE_ON_PC_FLAG = 0x40;
     private static final short REMOVE_PC_FLAG = 0xFE;
     private static final short REMOVE_PC_FLAG_ANSI = 0xFD;

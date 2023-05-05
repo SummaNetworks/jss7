@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.summanetworks.topic.exception.TopicException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 
 /**
@@ -16,7 +17,7 @@ import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
  */
 public class TopicController {
 
-    private static final Logger logger = Logger.getLogger(TopicController.class);
+    private static final Logger logger = LogManager.getLogger(TopicController.class);
 
     private boolean started = false;
 
@@ -39,7 +40,7 @@ public class TopicController {
      * Existen mas de un TCAP provider, uno por cada ssn.
      */
     private static TopicController instance;
-    public static TopicController getInstance(){
+    public static synchronized TopicController getInstance(){
         if(instance == null){
             instance = new TopicController();
         }

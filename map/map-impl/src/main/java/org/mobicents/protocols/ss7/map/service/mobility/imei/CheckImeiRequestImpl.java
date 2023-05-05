@@ -24,7 +24,8 @@ package org.mobicents.protocols.ss7.map.service.mobility.imei;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -49,7 +50,7 @@ import org.mobicents.protocols.ss7.map.service.mobility.MobilityMessageImpl;
  *
  */
 public class CheckImeiRequestImpl extends MobilityMessageImpl implements CheckImeiRequest {
-    private Logger logger = Logger.getLogger(CheckImeiRequestImpl.class);
+    private Logger logger = LogManager.getLogger(CheckImeiRequestImpl.class);
 
     public static final String _PrimitiveName = "CheckImeiRequest";
 

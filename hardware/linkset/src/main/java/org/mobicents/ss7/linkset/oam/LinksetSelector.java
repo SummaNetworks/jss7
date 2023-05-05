@@ -26,7 +26,8 @@ import java.io.IOException;
 
 import javolution.util.FastList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.stream.api.SelectorKey;
 import org.mobicents.protocols.stream.api.Stream;
 import org.mobicents.protocols.stream.api.StreamSelector;
@@ -39,7 +40,7 @@ import org.mobicents.protocols.stream.api.StreamSelector;
  */
 public class LinksetSelector implements StreamSelector {
 
-    private static final Logger logger = Logger.getLogger(LinksetSelector.class);
+    private static final Logger logger = LogManager.getLogger(LinksetSelector.class);
 
     private FastList<Stream> registered = new FastList<Stream>();
 

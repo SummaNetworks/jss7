@@ -25,7 +25,8 @@ package org.mobicents.protocols.ss7.map.service.supplementary;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.map.MessageImpl;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.datacoding.CBSDataCodingScheme;
@@ -42,7 +43,7 @@ import org.mobicents.protocols.ss7.map.primitives.USSDStringImpl;
  */
 public abstract class SupplementaryMessageImpl extends MessageImpl implements SupplementaryMessage, MAPAsnPrimitive {
 
-    private static final Logger logger = Logger.getLogger(SupplementaryMessageImpl.class);
+    private static final Logger logger = LogManager.getLogger(SupplementaryMessageImpl.class);
 
     private static final String DATA_CODING_SCHEME = "dataCodingScheme";
     private static final String STRING = "string";

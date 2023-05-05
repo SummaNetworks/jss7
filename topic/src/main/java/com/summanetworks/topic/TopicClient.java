@@ -15,14 +15,15 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author ajimenez, created on 15/3/20.
  */
 public class TopicClient {
 
-    private static final Logger logger = Logger.getLogger(TopicClient.class);
+    private static final Logger logger = LogManager.getLogger(TopicClient.class);
 
 
     private boolean beConnected = true;

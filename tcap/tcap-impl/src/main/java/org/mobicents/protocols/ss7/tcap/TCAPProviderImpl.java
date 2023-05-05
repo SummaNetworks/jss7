@@ -37,8 +37,9 @@ import com.summanetworks.topic.TopicController;
 import com.summanetworks.topic.TopicListener;
 import com.summanetworks.topic.exception.TopicException;
 import javolution.util.FastMap;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -97,7 +98,7 @@ import org.mobicents.protocols.ss7.tcap.tc.dialog.events.TCUserAbortIndicationIm
  */
 public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListener {
 
-    private static final Logger logger = Logger.getLogger(TCAPProviderImpl.class); // listenres
+    private static final Logger logger = LogManager.getLogger(TCAPProviderImpl.class); // listenres
 
     private transient List<TCListener> tcListeners = new CopyOnWriteArrayList<TCListener>();
     protected transient ScheduledExecutorService _EXECUTOR;
@@ -407,7 +408,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCBegin(msg);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -424,7 +425,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCContinue(tcContinueIndication);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -441,7 +442,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCEnd(tcEndIndication);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -457,7 +458,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCPAbort(tcAbortIndication);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -474,7 +475,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCUserAbort(tcAbortIndication);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -491,7 +492,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCUni(tcUniIndication);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -503,7 +504,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onTCNotice(tcNoticeIndication);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering data to transport layer.", e);
             }
         }
@@ -535,7 +536,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onDialogReleased(d);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering dialog release.", e);
             }
         }
@@ -554,7 +555,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onDialogTimeout(d);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering dialog release.", e);
             }
         }
@@ -578,7 +579,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
                 lst.onInvokeTimeout(tcInvokeRequestImpl);
             }
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Received exception while delivering Begin.", e);
             }
         }
@@ -624,7 +625,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
             }
             this.send(aos.toByteArray(), false, remoteAddress, localAddress, seqControl, networkId);
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Failed to send message: ", e);
             }
         }
@@ -662,7 +663,7 @@ public class TCAPProviderImpl implements TCAPProvider, SccpListener, TopicListen
             }
             this.send(aos.toByteArray(), false, remoteAddress, localAddress, seqControl, networkId);
         } catch (Exception e) {
-            if (logger.isEnabledFor(Level.ERROR)) {
+            if (logger.isEnabled(Level.ERROR)) {
                 logger.error("Failed to send message: ", e);
             }
         }

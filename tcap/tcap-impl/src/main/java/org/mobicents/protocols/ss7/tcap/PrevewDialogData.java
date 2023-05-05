@@ -27,7 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.tcap.api.TCAPStack;
 import org.mobicents.protocols.ss7.tcap.asn.ApplicationContextName;
 import org.mobicents.protocols.ss7.tcap.asn.InvokeImpl;
@@ -39,7 +40,7 @@ import org.mobicents.protocols.ss7.tcap.asn.InvokeImpl;
  */
 public class PrevewDialogData {
 
-    private static final Logger logger = Logger.getLogger(PrevewDialogData.class);
+    private static final Logger logger = LogManager.getLogger(PrevewDialogData.class);
 
     private ApplicationContextName lastACN;
     private InvokeImpl[] operationsSentA;
@@ -166,7 +167,7 @@ public class PrevewDialogData {
 
 //                provider.removePreviewDialog(pdd);
 //
-//                if (logger.isEnabledFor(Level.ERROR)) {
+//                if (logger.isEnabled(Level.ERROR)) {
 //                    StringBuilder sb = new StringBuilder();
 //                    if (this.pdd.prevewDialogDataKey1 != null) {
 //                        sb.append(", trId1=");

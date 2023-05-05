@@ -11,8 +11,8 @@
 	<name>Restcomm jSS7 :: TCAP-ANSI :: CLI :: ${project.artifactId}</name>
 
 	<dependencies>
-		<!-- <dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
-			<version>${log4j.version}</version> </dependency> -->
+		<!-- <dependency> <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-api</artifactId> </dependency> -->
 		<!-- MTP3 -->
 		<dependency>
 			<groupId>org.mobicents.protocols.ss7.management</groupId>

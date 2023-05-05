@@ -22,7 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.mobility;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.Tag;
 import org.mobicents.protocols.ss7.map.MAPDialogImpl;
@@ -98,7 +99,7 @@ import javax.xml.bind.DatatypeConverter;
  */
 public class MAPServiceMobilityImpl extends MAPServiceBaseImpl implements MAPServiceMobility {
 
-    protected Logger loger = Logger.getLogger(MAPServiceMobilityImpl.class);
+    protected Logger loger = LogManager.getLogger(MAPServiceMobilityImpl.class);
 
     public MAPServiceMobilityImpl(MAPProviderImpl mapProviderImpl) {
         super(mapProviderImpl);

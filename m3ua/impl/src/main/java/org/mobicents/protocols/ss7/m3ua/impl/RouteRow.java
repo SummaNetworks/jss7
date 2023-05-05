@@ -22,7 +22,8 @@
 package org.mobicents.protocols.ss7.m3ua.impl;
 
 import javolution.util.FastSet;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.State;
 import org.mobicents.protocols.ss7.mtp.Mtp3PausePrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3Primitive;
@@ -34,7 +35,7 @@ import org.mobicents.protocols.ss7.mtp.Mtp3ResumePrimitive;
  *
  */
 public class RouteRow implements AsStateListener {
-    private static final Logger logger = Logger.getLogger(RouteRow.class);
+    private static final Logger logger = LogManager.getLogger(RouteRow.class);
 
     private int mtp3Status = Mtp3PausePrimitive.PAUSE;
     private FastSet<AsImpl> servedByAsSet = null;

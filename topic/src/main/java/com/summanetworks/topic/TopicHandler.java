@@ -10,14 +10,15 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author ajimenez, created on 16/3/20.
  */
 public class TopicHandler extends ChannelDuplexHandler implements WritableConnection{
 
-    private static final Logger logger = Logger.getLogger(TopicHandler.class);
+    private static final Logger logger = LogManager.getLogger(TopicHandler.class);
 
     private TopicController controller;
     private String remoteAddress;

@@ -22,7 +22,8 @@
 
 package org.mobicents.protocols.ss7.cap.service.circuitSwitchedCall;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.Tag;
 import org.mobicents.protocols.ss7.cap.CAPDialogImpl;
@@ -55,7 +56,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Parameter;
  */
 public class CAPServiceCircuitSwitchedCallImpl extends CAPServiceBaseImpl implements CAPServiceCircuitSwitchedCall {
 
-    protected Logger loger = Logger.getLogger(CAPServiceCircuitSwitchedCallImpl.class);
+    protected Logger loger = LogManager.getLogger(CAPServiceCircuitSwitchedCallImpl.class);
 
     public CAPServiceCircuitSwitchedCallImpl(CAPProviderImpl capProviderImpl) {
         super(capProviderImpl);

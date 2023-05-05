@@ -22,7 +22,8 @@
 
 package org.mobicents.ss7.linkset.oam;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.ss7.management.console.ShellExecutor;
 
 /**
@@ -33,7 +34,7 @@ import org.mobicents.ss7.management.console.ShellExecutor;
  */
 public class LinksetExecutor implements ShellExecutor {
 
-    private static final Logger logger = Logger.getLogger(LinksetExecutor.class);
+    private static final Logger logger = LogManager.getLogger(LinksetExecutor.class);
 
     private LinksetManager linksetManager = null;
 
