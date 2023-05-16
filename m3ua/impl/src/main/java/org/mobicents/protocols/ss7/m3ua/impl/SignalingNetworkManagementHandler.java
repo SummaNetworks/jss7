@@ -70,12 +70,14 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
         RoutingContext rcObj = duna.getRoutingContexts();
 
         if(duna.getAffectedPointCodes() != null) {
-            logger.warn(String.format("DUNA received for pointCodes %s", Arrays.toString(duna.getAffectedPointCodes().getPointCodes())));
+            logger.warn(String.format("DUNA received for pointCodes %s and context %s",
+                    Arrays.toString(duna.getAffectedPointCodes().getPointCodes()),
+                    rcObj != null ? Arrays.toString(rcObj.getRoutingContexts()) : null
+                    ));
         }
 
         // FIXME: 24/11/20 by Ajimenez - Por qué no se tenia en cuenta en IPSP?
         if (aspFactoryImpl.getFunctionality() == Functionality.AS || aspFactoryImpl.getFunctionality() == Functionality.IPSP) {
-
             if (rcObj == null) {
                 AspImpl aspImpl = this.getAspForNullRc();
                 if (aspImpl == null) {
@@ -99,6 +101,9 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
                 AspState aspState = AspState.getState(fsm.getState().getName());
 
                 if (aspState == AspState.ACTIVE) {
+
+                    aspImpl.processDuna(duna);
+
                     AffectedPointCode affectedPcObjs = duna.getAffectedPointCodes();
                     int[] affectedPcs = affectedPcObjs.getPointCodes();
 
@@ -139,13 +144,17 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
                     AspState aspState = AspState.getState(fsm.getState().getName());
 
                     if (aspState == AspState.ACTIVE) {
+
+                        aspImpl.processDuna(duna);
+
+                        /* XXX: Disable the PAUSE or prohibited message for all the PC received in all the systems.
                         AffectedPointCode affectedPcObjs = duna.getAffectedPointCodes();
                         int[] affectedPcs = affectedPcObjs.getPointCodes();
 
                         for (int i = 0; i < affectedPcs.length; i++) {
                             Mtp3PausePrimitive mtpPausePrimi = new Mtp3PausePrimitive(affectedPcs[i]);
                             ((AsImpl) aspImpl.getAs()).getM3UAManagement().sendPauseMessageToLocalUser(mtpPausePrimi);
-                        }
+                        }*/
                     } else {
                         logger.error(String.format("Rx : DUNA for RoutingContext=%d. But ASP State=%s. Message=%s", rcs[count],
                                 aspState, duna));
@@ -197,6 +206,9 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
                 AspState aspState = AspState.getState(fsm.getState().getName());
 
                 if (aspState == AspState.ACTIVE) {
+
+                    aspImpl.processDava(dava);
+
                     AffectedPointCode affectedPcObjs = dava.getAffectedPointCodes();
                     int[] affectedPcs = affectedPcObjs.getPointCodes();
 
@@ -237,6 +249,9 @@ public class SignalingNetworkManagementHandler extends MessageHandler {
                     AspState aspState = AspState.getState(fsm.getState().getName());
 
                     if (aspState == AspState.ACTIVE) {
+
+                        aspImpl.processDava(dava);
+
                         AffectedPointCode affectedPcObjs = dava.getAffectedPointCodes();
                         int[] affectedPcs = affectedPcObjs.getPointCodes();
 
