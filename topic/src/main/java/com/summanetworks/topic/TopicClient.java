@@ -113,6 +113,7 @@ public class TopicClient {
     }
 
     public void stop() {
+        logger.info("Stop called. Stopping...");
         beConnected = false;
         for(EventLoopGroup elg : this.workers){
             if(!elg.isShuttingDown()){

@@ -2,6 +2,7 @@ package com.summanetworks.topic;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -29,6 +30,15 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
 
     private int heartBeatLost = 0;
     private boolean somethingReceived = false;
+
+    private AtomicLong messageReceived = new AtomicLong(0);
+
+    public long messagesReceivedCount() {
+        return messageReceived.get();
+    }
+    public long messagesReceivedCountAndReset() {
+        return messageReceived.getAndSet(0);
+    }
 
     public String getRemoteAddress(){
         return remoteAddress;
@@ -178,6 +188,7 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
                     heartBeatLost = 0;
                 }
             }
+            messageReceived.getAndIncrement();
     }
 
     private void processRegistration(TopicSccpMessage tsm) {
@@ -208,7 +219,6 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
         this.write(bb);
     }
 
-
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
@@ -216,12 +226,15 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
             if (e.state() == IdleState.READER_IDLE) {
                 logger.debug("Reader-Idle detected with peer " + remotePeerId+".");
                 if (registered) {
-                    //We lost less than 3 heart beat or we have received something, then, send a new heartbeat.
-                    if (heartBeatLost++ < 3 || somethingReceived) {
+                    //We lost less than 3 heart beat, or we have received something, then, send a new heartbeat.
+                    if (somethingReceived){
+                        //If there was traffic we reset the counter.
+                        heartBeatLost = 0;
+                        somethingReceived = false;
+                    } else if(heartBeatLost++ < 3 ) {
                         TopicSccpMessage heartbeat = TopicSccpMessage.createHeartbeat();
                         logger.debug("Sending heartbeat id " + heartbeat.id +" to peer " + remotePeerId+".");
                         this.sendMessage(heartbeat);
-                        somethingReceived = false;
                         if (heartBeatLost >= 2)
                             logger.warn("Lost " + heartBeatLost + " heartbeat with peer " + remotePeerId + ". Something is going bad with heartbeat!");
                     } else {

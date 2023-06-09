@@ -90,7 +90,7 @@ public class TopicServer {
     public void stop(){
         //If was not init, ignore call.
         if(workerGroup != null) {
-            logger.info("[TopicServer] Stopping server");
+            logger.info("Stop called. Stopping...");
             try {
                 workerGroup.shutdownGracefully().sync();
             } catch (InterruptedException e) {

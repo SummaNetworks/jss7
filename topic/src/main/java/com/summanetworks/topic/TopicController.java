@@ -1,6 +1,7 @@
 package com.summanetworks.topic;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,7 +31,7 @@ public class TopicController {
     private HashMap<Integer, TopicHandler> handlerRegisterMap = new HashMap<>();
     private ConcurrentHashMap<Integer, AtomicInteger> lostMessagesMap = new ConcurrentHashMap<>();
 
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+    ScheduledExecutorService executor;
 
     private TopicController(){
     }
@@ -69,6 +70,8 @@ public class TopicController {
                 server.start(this);
                 Thread.sleep(2000);
                 connectToPeers();
+                executor  = Executors.newScheduledThreadPool(2);
+                startMetricsPrinter();
             }catch(Exception e){
                 throw new TopicException("Unexpected error", e);
             }
@@ -80,6 +83,7 @@ public class TopicController {
     }
 
     public synchronized void stop(){
+        logger.info("Stop called. Stopping and cleaning resources...");
         if(started) {
             started = false;
             client.stop();
@@ -87,6 +91,9 @@ public class TopicController {
             handlerRegisterMap.clear();
             hostHandlerMap.clear();
             lostMessagesMap.clear();
+            if(executor != null && !executor.isShutdown())
+                executor.shutdown();
+            executor = null;
         }
     }
 
@@ -251,6 +258,19 @@ public class TopicController {
                 }
             }, topicConfig.getPeerMsgLostWindowSeconds(), TimeUnit.SECONDS);
         }
+    }
+
+    private void startMetricsPrinter(){
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                for(Map.Entry<Integer, TopicHandler> es : handlerRegisterMap.entrySet()){
+                    try {
+                        logger.info("Messages amount with peerId {}: {}; while the last minute.", es.getKey(), es.getValue().messagesReceivedCountAndReset());
+                    }catch(Exception ignored){}
+                }
+            }
+        }, 60, 60, TimeUnit.SECONDS);
     }
 
     //Event methods
