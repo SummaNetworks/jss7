@@ -177,7 +177,7 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
     private String noRemovablePCExpresion = null;
     private Pattern noRemovablePCPattern = null;
 
-    private static final Logger logger2 = Logger.getLogger(SccpStackImpl.class);
+    private static final Logger logger2 = LogManager.getLogger(SccpStackImpl.class);
     public static void setPeerPointCode(int pc){
         if(logger2.isDebugEnabled()){
             logger2.debug("setPeerPointCode() PC: "+pc);

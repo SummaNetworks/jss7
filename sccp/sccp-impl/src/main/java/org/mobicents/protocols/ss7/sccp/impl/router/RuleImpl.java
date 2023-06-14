@@ -27,8 +27,6 @@ import java.io.Serializable;
 import javolution.text.CharArray;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
-import org.apache.log4j.Logger;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
