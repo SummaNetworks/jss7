@@ -23,14 +23,15 @@ package org.mobicents.ss7.congestion;
 
 import javolution.util.FastList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author amit bhayani
  *
  */
 public class MemoryCongestionMonitor implements CongestionMonitor {
-    private static final Logger logger = Logger.getLogger(MemoryCongestionMonitor.class);
+    private static final Logger logger = LogManager.getLogger(MemoryCongestionMonitor.class);
 
     private static final String SOURCE = "MEMORY";
 

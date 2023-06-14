@@ -27,7 +27,8 @@ package org.mobicents.protocols.ss7.mtp;
 
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.mtp.util.MTPUtility;
 
 /**
@@ -39,7 +40,7 @@ import org.mobicents.protocols.ss7.mtp.util.MTPUtility;
  *
  */
 public class RoutingLabel {
-    private static final Logger logger = Logger.getLogger(RoutingLabel.class);
+    private static final Logger logger = LogManager.getLogger(RoutingLabel.class);
     // used for forging mtp3 message,
     private byte[] mtp3Header;
 

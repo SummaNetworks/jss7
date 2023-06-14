@@ -25,7 +25,8 @@ package org.mobicents.protocols.ss7.m3ua.impl;
 import static org.testng.Assert.assertEquals;
 import javolution.util.FastList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
 import org.mobicents.protocols.sctp.ManagementImpl;
@@ -57,7 +58,7 @@ import com.sun.nio.sctp.SctpChannel;
  */
 public class GatewayTest {
 
-    private static final Logger logger = Logger.getLogger(GatewayTest.class);
+    private static final Logger logger = LogManager.getLogger(GatewayTest.class);
 
     private static final String SERVER_NAME = "testserver";
     private static final String SERVER_HOST = "127.0.0.1";

@@ -13,14 +13,15 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author ajimenez, created on 15/3/20.
  */
 public class TopicServer {
 
-    private static final Logger logger = Logger.getLogger(TopicServer.class);
+    private static final Logger logger = LogManager.getLogger(TopicServer.class);
 
     // BossGroup: Receive and register incoming connection. (DRAs connections... so will be called 1-4 times... )
     private EventLoopGroup bossGroup = null;
@@ -89,7 +90,7 @@ public class TopicServer {
     public void stop(){
         //If was not init, ignore call.
         if(workerGroup != null) {
-            logger.info("[TopicServer] Stopping server");
+            logger.info("Stop called. Stopping...");
             try {
                 workerGroup.shutdownGracefully().sync();
             } catch (InterruptedException e) {

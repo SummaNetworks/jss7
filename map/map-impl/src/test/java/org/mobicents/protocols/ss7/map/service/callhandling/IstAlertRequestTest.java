@@ -22,7 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.callhandling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -47,7 +48,7 @@ import static org.testng.Assert.assertTrue;
  *
  */
 public class IstAlertRequestTest {
-    Logger logger = Logger.getLogger(IstAlertRequestTest.class);
+    Logger logger = LogManager.getLogger(IstAlertRequestTest.class);
 
     @BeforeClass
     public static void setUpClass() throws Exception {

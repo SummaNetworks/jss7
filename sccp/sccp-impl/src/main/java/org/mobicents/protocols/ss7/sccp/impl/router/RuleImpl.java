@@ -22,10 +22,15 @@
 
 package org.mobicents.protocols.ss7.sccp.impl.router;
 
+import java.io.Serializable;
+
 import javolution.text.CharArray;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
 import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.GlobalTitleIndicator;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.sccp.LoadSharingAlgorithm;
@@ -48,8 +53,6 @@ import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0011;
 import org.mobicents.protocols.ss7.sccp.parameter.GlobalTitle0100;
 import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
 
-import java.io.Serializable;
-
 /**
  * @author amit bhayani
  * @author sergey vetyutnev
@@ -71,7 +74,7 @@ public class RuleImpl implements Rule, Serializable {
     private static final Integer WILD_CARD_NUMBERING_PLAN = 0; // we will use UNKNOWN for allowing all types of Numbering PLAN
     private static final Integer WILD_CARD_NATURE_OF_ADDRESS = 0; // we will use UNKNOWN for allowing all types of Numbering PLAN
     private static final Integer WILD_CARD_TRANSLATION_TYPE = -1; // we will negative number as WILD_CARD
-    private static final Logger logger = Logger.getLogger(RuleImpl.class);
+    private static final Logger logger = LogManager.getLogger(RuleImpl.class);
     /**
      *
      */

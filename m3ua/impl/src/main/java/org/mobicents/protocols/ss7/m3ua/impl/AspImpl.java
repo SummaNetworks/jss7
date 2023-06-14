@@ -26,7 +26,8 @@ import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.Asp;
 import org.mobicents.protocols.ss7.m3ua.ExchangeType;
@@ -35,6 +36,8 @@ import org.mobicents.protocols.ss7.m3ua.State;
 import org.mobicents.protocols.ss7.m3ua.impl.fsm.FSM;
 import org.mobicents.protocols.ss7.m3ua.impl.message.MessageFactoryImpl;
 import org.mobicents.protocols.ss7.m3ua.message.MessageFactory;
+import org.mobicents.protocols.ss7.m3ua.message.ssnm.DestinationAvailable;
+import org.mobicents.protocols.ss7.m3ua.message.ssnm.DestinationUnavailable;
 import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
 
 /**
@@ -44,7 +47,7 @@ import org.mobicents.protocols.ss7.m3ua.parameter.ASPIdentifier;
  */
 public class AspImpl implements XMLSerializable, Asp {
 
-    private static final Logger logger = Logger.getLogger(AspImpl.class);
+    private static final Logger logger = LogManager.getLogger(AspImpl.class);
 
     protected static final String NAME = "name";
 
@@ -70,8 +73,9 @@ public class AspImpl implements XMLSerializable, Asp {
 
     protected State state = AspState.DOWN;
 
-    public AspImpl() {
+    private SsnmStateHandler ssnmStateHandler;
 
+    public AspImpl() {
     }
 
     public AspImpl(String name, AspFactoryImpl aspFactroy) {
@@ -81,7 +85,7 @@ public class AspImpl implements XMLSerializable, Asp {
     }
 
     private void init() {
-
+        ssnmStateHandler = new SsnmStateHandler(this.name);
         switch (this.aspFactoryImpl.functionality) {
             case IPSP:
                 if (this.aspFactoryImpl.exchangeType == ExchangeType.SE) {
@@ -305,6 +309,18 @@ public class AspImpl implements XMLSerializable, Asp {
                 AspState.INACTIVE.toString());
     }
 
+    public void processDuna(DestinationUnavailable duna){
+        this.ssnmStateHandler.processDuna(duna);
+    }
+    public void processDava(DestinationAvailable dava){
+        this.ssnmStateHandler.processDava(dava);
+    }
+
+    public boolean isProhibited(int pointCode){
+        return this.ssnmStateHandler.isProhibited(pointCode);
+    }
+
+    //=== GETTERS AND SETTERS ====
     public String getName() {
         return this.name;
     }

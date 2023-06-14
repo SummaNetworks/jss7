@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextName;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContextVersion;

@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.mobicents.protocols.ss7.cap.CAPProviderImpl;
 import org.mobicents.protocols.ss7.cap.CAPStackImpl;
@@ -231,7 +232,7 @@ import org.testng.annotations.Test;
  */
 public class CAPFunctionalTest extends SccpHarness {
 
-    private static Logger logger = Logger.getLogger(CAPFunctionalTest.class);
+    private static Logger logger = LogManager.getLogger(CAPFunctionalTest.class);
     private static final int _WAIT_TIMEOUT = 500;
     private static final int _TCAP_DIALOG_RELEASE_TIMEOUT = 0;
 

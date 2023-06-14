@@ -21,7 +21,8 @@
 
 package org.mobicents.protocols.ss7.oam.common.statistics;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.ComplexValue;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterCampaign;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.CounterDef;
@@ -52,7 +53,7 @@ public class StatsPrinter {
     private static final String VALUE = "value";
     private static final String SINGLE_SPACE = " ";
 
-    protected final Logger logger = Logger.getLogger(StatsPrinter.class);
+    protected final Logger logger = LogManager.getLogger(StatsPrinter.class);
 
     /**
      * Prints stats to log file as debug

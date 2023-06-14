@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.BitSetStrictLength;
@@ -348,7 +349,7 @@ import static org.testng.Assert.fail;
  */
 public class MAPFunctionalTest extends SccpHarness {
 
-    private static Logger logger = Logger.getLogger(MAPFunctionalTest.class);
+    private static Logger logger = LogManager.getLogger(MAPFunctionalTest.class);
     protected static final String USSD_STRING = "*133#";
     protected static final String USSD_MENU = "Select 1)Wallpaper 2)Ringtone 3)Games";
     protected static final String USSD_RESPONSE = "1";

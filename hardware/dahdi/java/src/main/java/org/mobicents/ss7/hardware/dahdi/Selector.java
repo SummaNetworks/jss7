@@ -26,7 +26,8 @@ import java.io.IOException;
 
 import javolution.util.FastList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.mtp.Mtp1;
 import org.mobicents.protocols.stream.api.SelectorKey;
 import org.mobicents.protocols.stream.api.Stream;
@@ -54,7 +55,7 @@ public class Selector implements StreamSelector {
 
     /** array of selected channels */
     private FastList<SelectorKey> selected = new FastList<SelectorKey>();
-    private static Logger logger = Logger.getLogger(Selector.class);
+    private static Logger logger = LogManager.getLogger(Selector.class);
 
     static {
         try {

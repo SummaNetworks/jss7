@@ -27,7 +27,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
 import org.jboss.kernel.spi.deployment.KernelDeployment;
@@ -59,7 +60,7 @@ public class MainDeployer {
     /** Root deployment directory as file object */
     private File root;
     /** Logger instance */
-    private Logger logger = Logger.getLogger(MainDeployer.class);
+    private Logger logger = LogManager.getLogger(MainDeployer.class);
 
     private static final String rLogo = " ]]]]]]]]] ";
     private static final String lLogo = " [[[[[[[[[ ";

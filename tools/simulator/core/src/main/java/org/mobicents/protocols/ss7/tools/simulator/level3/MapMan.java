@@ -22,7 +22,7 @@
 
 package org.mobicents.protocols.ss7.tools.simulator.level3;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.mobicents.protocols.ss7.map.MAPStackImpl;
 import org.mobicents.protocols.ss7.map.api.MAPProvider;
 import org.mobicents.protocols.ss7.map.api.MAPStack;

@@ -25,7 +25,8 @@ package org.mobicents.ss7.hardware.dialogic.oam;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.ss7.linkset.oam.FormatterHelp;
 import org.mobicents.ss7.linkset.oam.LinkOAMMessages;
 import org.mobicents.ss7.linkset.oam.Linkset;
@@ -42,7 +43,7 @@ import org.mobicents.ss7.linkset.oam.LinksetState;
  */
 public class DialogicLinkset extends Linkset {
 
-    private static final Logger logger = Logger.getLogger(DialogicLinkset.class);
+    private static final Logger logger = LogManager.getLogger(DialogicLinkset.class);
 
     private static final String SRC_MODULE = "srcMod";
     private static final String DEST_MODULE = "destMod";

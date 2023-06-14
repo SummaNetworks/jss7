@@ -1,6 +1,7 @@
 package com.summanetworks.topic;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -8,7 +9,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.summanetworks.topic.exception.TopicException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 
 /**
@@ -16,7 +18,7 @@ import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
  */
 public class TopicController {
 
-    private static final Logger logger = Logger.getLogger(TopicController.class);
+    private static final Logger logger = LogManager.getLogger(TopicController.class);
 
     private boolean started = false;
 
@@ -29,7 +31,7 @@ public class TopicController {
     private HashMap<Integer, TopicHandler> handlerRegisterMap = new HashMap<>();
     private ConcurrentHashMap<Integer, AtomicInteger> lostMessagesMap = new ConcurrentHashMap<>();
 
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+    ScheduledExecutorService executor;
 
     private TopicController(){
     }
@@ -39,7 +41,7 @@ public class TopicController {
      * Existen mas de un TCAP provider, uno por cada ssn.
      */
     private static TopicController instance;
-    public static TopicController getInstance(){
+    public static synchronized TopicController getInstance(){
         if(instance == null){
             instance = new TopicController();
         }
@@ -68,6 +70,8 @@ public class TopicController {
                 server.start(this);
                 Thread.sleep(2000);
                 connectToPeers();
+                executor  = Executors.newScheduledThreadPool(2);
+                startMetricsPrinter();
             }catch(Exception e){
                 throw new TopicException("Unexpected error", e);
             }
@@ -79,6 +83,7 @@ public class TopicController {
     }
 
     public synchronized void stop(){
+        logger.info("Stop called. Stopping and cleaning resources...");
         if(started) {
             started = false;
             client.stop();
@@ -86,6 +91,9 @@ public class TopicController {
             handlerRegisterMap.clear();
             hostHandlerMap.clear();
             lostMessagesMap.clear();
+            if(executor != null && !executor.isShutdown())
+                executor.shutdown();
+            executor = null;
         }
     }
 
@@ -108,6 +116,11 @@ public class TopicController {
         }
     }
 
+    /**
+     * Connected but not yet registered.
+     * @param handler
+     * @return
+     */
     protected TopicHandler connected(TopicHandler handler){
         logger.info(String.format("Remote host %s connected.", handler.getRemoteAddress()));
         //Validate host.
@@ -136,6 +149,7 @@ public class TopicController {
     protected synchronized TopicHandler registerHandler(Integer peerId, TopicHandler handler){
         logger.info(String.format("Host %s with peerId %d registered.",handler.getRemoteAddress(), peerId));
         lostMessagesMap.remove(peerId);
+        onRegister(handler.getRemoteAddress(), peerId);
         return handlerRegisterMap.put(peerId, handler);
     }
 
@@ -143,6 +157,7 @@ public class TopicController {
         if(handlerRegisterMap.get(handler.getRemotePeerId()) == handler ) {
             logger.info(String.format("Unregistering handler with peerId %d...", handler.getRemotePeerId()));
             handlerRegisterMap.remove(handler.getRemotePeerId());
+            onDeregister(handler.getRemoteAddress(), handler.getRemotePeerId());
         } else if(handlerRegisterMap.get(handler.getRemotePeerId()) != null) {
             logger.debug(String.format("unregisterHandler(): Other handler is register with peerId %d.", handler.getRemotePeerId()));
         }else {
@@ -243,6 +258,43 @@ public class TopicController {
                 }
             }, topicConfig.getPeerMsgLostWindowSeconds(), TimeUnit.SECONDS);
         }
+    }
+
+    private void startMetricsPrinter(){
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                for(Map.Entry<Integer, TopicHandler> es : handlerRegisterMap.entrySet()){
+                    try {
+                        logger.info("Messages amount with peerId {}: {}; while the last minute.", es.getKey(), es.getValue().messagesReceivedCountAndReset());
+                    }catch(Exception ignored){}
+                }
+            }
+        }, 60, 60, TimeUnit.SECONDS);
+    }
+
+    //Event methods
+
+    // FIXME: podria ser un onClose genérico?
+    public void onClosedByHeartbeat(String ip, int peerId){
+        if(eventListener != null)
+            eventListener.onClosedByHeartbeat(ip, peerId);
+    }
+
+    //As client.
+    public void onUnableToConnect(String ip){
+        if(eventListener != null)
+            eventListener.onUnableToConnect(ip);
+    }
+
+    public void onRegister(String ip, int peerId){
+        if(eventListener != null)
+            eventListener.onConnected(ip, peerId);
+    }
+
+    public void onDeregister(String ip, int peerId){
+        if(eventListener != null)
+            eventListener.onDisconnected(ip, peerId);
     }
 
 }

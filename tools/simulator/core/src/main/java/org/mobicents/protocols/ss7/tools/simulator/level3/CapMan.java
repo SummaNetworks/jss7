@@ -22,7 +22,7 @@
 
 package org.mobicents.protocols.ss7.tools.simulator.level3;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.mobicents.protocols.ss7.cap.CAPStackImpl;
 import org.mobicents.protocols.ss7.cap.api.CAPProvider;
 import org.mobicents.protocols.ss7.cap.api.CAPStack;

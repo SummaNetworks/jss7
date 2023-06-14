@@ -5,14 +5,15 @@ import java.util.List;
 
 import com.summanetworks.topic.exception.TopicException;
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author ajimenez, created on 15/3/20.
  */
 public class TopicConfig {
 
-    private static final Logger logger = Logger.getLogger(TopicConfig.class);
+    private static final Logger logger = LogManager.getLogger(TopicConfig.class);
 
     public static final int LOCAL_PEER_ID_MIN = 10;
     public static final int LOCAL_PEER_ID_MAX = 99;

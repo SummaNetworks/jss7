@@ -27,8 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.LongMessageRuleType;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 import org.mobicents.protocols.ss7.sccp.impl.SccpStackImpl;
@@ -323,9 +322,10 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
                 if (sccpProtocolVersion == SccpProtocolVersion.ANSI && availLen > 252)
                     availLen = 252;
                 if (bf.length > availLen) { // message is too long to encode UDT
-                    if (logger.isEnabledFor(Level.WARN)) {
+                    if (logger.isWarnEnabled()) {
                         logger.warn(String.format(
-                                "Failure when sending a UDT message: message is too long. SccpMessageSegment=%s", this));
+                                "Failure when sending a UDT message: message is too long [current-length: %d, available-length: %d]. " +
+                                        "SccpMessageSegment=%s", bf.length, availLen, this));
                     }
                     return new EncodingResultData(EncodingResult.ReturnFailure, null, null, ReturnCauseValue.SEG_NOT_SUPPORTED);
                 }
@@ -431,7 +431,7 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
                 } else {
                     // several segments
                     if (bf.length > availLenXSegm * 16) {
-                        if (logger.isEnabledFor(Level.WARN)) {
+                        if (logger.isWarnEnabled()) {
                             logger.warn(String.format(
                                     "Failure when segmenting a message XUDT: message is too long. SccpMessageSegment=%s", this));
                         }
@@ -450,7 +450,7 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
                         if (this.segmentation == null) {
                             // MTP3 originated message - we may make segmentation
                             // only if incoming message has a "Segmentation" field
-                            if (logger.isEnabledFor(Level.WARN)) {
+                            if (logger.isWarnEnabled()) {
                                 logger.warn(String
                                         .format("Failure when segmenting a message: message is not locally originated but \"segmentation\" field is absent. SccpMessageSegment=%s",
                                                 this));
@@ -546,7 +546,7 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
                         this.segmentation != null, this.importance != null);
                 int availLen = maxMtp3UserDataLength - fieldsLenL;
                 if (bf.length > availLen) { // message is too long to encode LUDT
-                    if (logger.isEnabledFor(Level.WARN)) {
+                    if (logger.isWarnEnabled()) {
                         logger.warn(String.format(
                                 "Failure when sending a LUDT message: message is too long. SccpMessageSegment=%s", this));
                     }
@@ -554,9 +554,7 @@ public abstract class SccpDataNoticeTemplateMessageImpl extends SccpSegmentableM
                 }
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream(fieldsLenL + bf.length);
-
                 out.write(this.type);
-
                 out.write(this.getSecondParamaterData(removeSPC, sccpProtocolVersion));
                 out.write(this.hopCounter.getValue());
 

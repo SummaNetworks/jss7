@@ -32,8 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javolution.util.FastList;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.isup.CircuitManager;
 import org.mobicents.protocols.ss7.isup.ISUPEvent;
 import org.mobicents.protocols.ss7.isup.ISUPListener;
@@ -54,7 +54,7 @@ import org.mobicents.protocols.ss7.scheduler.Scheduler;
  */
 public class ISUPProviderImpl implements ISUPProvider {
 
-    protected static final Logger logger = Logger.getLogger(ISUPProviderImpl.class);
+    protected static final Logger logger = LogManager.getLogger(ISUPProviderImpl.class);
 
     protected final List<ISUPListener> listeners = new FastList<ISUPListener>();
 
@@ -248,14 +248,14 @@ public class ISUPProviderImpl implements ISUPProvider {
     }
 
     /**
-     * @param request
+     * @param event
      */
     public void deliver(ISUPEvent event) {
         for (int index = 0; index < listeners.size(); index++) {
             try {
                 listeners.get(index).onEvent(event);
             } catch (Exception e) {
-                if (logger.isEnabledFor(Level.ERROR)) {
+                if (logger.isErrorEnabled()) {
                     logger.error("Exception thrown from listener.", e);
                 }
             }
@@ -271,7 +271,7 @@ public class ISUPProviderImpl implements ISUPProvider {
             try {
                 listeners.get(index).onTimeout(timeoutEvent);
             } catch (Exception e) {
-                if (logger.isEnabledFor(Level.ERROR)) {
+                if (logger.isErrorEnabled()) {
                     logger.error("Exception thrown from listener.", e);
                 }
             }
