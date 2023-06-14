@@ -15,6 +15,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,7 +44,7 @@ public class TopicClient {
                 @Override
                 public void run() {
                     logger.info("Starting client for remote host [" + host+"]");
-                    EventLoopGroup workerGroup = new NioEventLoopGroup();
+                    EventLoopGroup workerGroup = new NioEventLoopGroup(0,new DefaultThreadFactory("Topic-Client"));
                     workers.add(workerGroup);
                     try {
                         //First at all check that connection to peer is not established by peer yet.
