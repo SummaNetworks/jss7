@@ -168,16 +168,15 @@ public class TopicController {
     //Custom message, should be in user part.
     public boolean sendMessage(long dialogId, SccpDataMessage sccpDataMessage){
         if(this.isStarted()) {
-            TopicSccpMessage tm = new TopicSccpMessage(dialogId, sccpDataMessage);
-            if(dialogId >= TopicConfig.LOCAL_PEER_ID_MIN) {  //At least, bigger than prefix.
-                String peerId = String.valueOf(dialogId).substring(0, TopicConfig.PEER_ID_LENGTH);
-                return sendMessage(Integer.valueOf(peerId), tm);
-            } else {
-                return false;
+            if(dialogId >= TopicConfig.LOCAL_PEER_ID_MIN) {  //At least, bigger than min prefix.
+                int peerId = Integer.parseInt(String.valueOf(dialogId).substring(0, TopicConfig.PEER_ID_LENGTH));
+                if(peerId != topicConfig.getLocalPeerId()) {
+                    TopicSccpMessage tm = new TopicSccpMessage(dialogId, sccpDataMessage);
+                    return sendMessage(peerId, tm);
+                }
             }
-        }else{
-            return false;
         }
+        return false;
     }
 
     //Generic for library.
