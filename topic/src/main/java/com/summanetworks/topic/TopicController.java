@@ -37,31 +37,9 @@ public class TopicController {
 
     private ScheduledExecutorService executor;
     private ExecutorService msgDeliveryExecutor;
-    private int deliveryThreadsAmount = Runtime.getRuntime().availableProcessors() * 4;
     private boolean useExecutor;
     private TopicController(){
-
-        useExecutor = !"false".equals(System.getProperty("topic.use.executor", "true"));
-        if(useExecutor) {
-            logger.info("Using Cached executor with LinkedBlockingQueue");
-            //Cache thread pool with LinkedBlockingQueue, starting in the half of the configured thread-pool.
-            this.msgDeliveryExecutor = new ThreadPoolExecutor(
-                    this.deliveryThreadsAmount / 2,
-                    this.deliveryThreadsAmount,
-                    60L, TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
-                    new ThreadFactory() {
-                        private AtomicInteger idx = new AtomicInteger();
-
-                        @Override
-                        public Thread newThread(Runnable runnable) {
-                            return new Thread(runnable, "TopicChLBQExecutor-" + idx.getAndIncrement());
-                        }
-                    });
-        }
     }
-
-
 
     /**
      * Existen mas de un TCAP provider, uno por cada ssn.
@@ -92,15 +70,40 @@ public class TopicController {
             }
             try {
                 started = true;
+                buildDeliveryExecutor();
+
                 server = new TopicServer();
                 server.start(this);
                 Thread.sleep(2000);
+
                 connectToPeers();
+
                 executor  = Executors.newScheduledThreadPool(2);
                 startMetricsPrinter();
             }catch(Exception e){
                 throw new TopicException("Unexpected error", e);
             }
+        }
+    }
+
+    private void buildDeliveryExecutor(){
+        useExecutor = !"false".equals(System.getProperty("topic.use.executor", "true"));
+        if(useExecutor) {
+            logger.info("Using Cached executor with LinkedBlockingQueue");
+            //Cache thread pool with LinkedBlockingQueue, starting in the half of the configured thread-pool.
+            this.msgDeliveryExecutor = new ThreadPoolExecutor(
+                    this.topicConfig.getDeliveryThreadsAmount() / 2,
+                    this.topicConfig.getDeliveryThreadsAmount(),
+                    60L, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
+                    new ThreadFactory() {
+                        private AtomicInteger idx = new AtomicInteger();
+
+                        @Override
+                        public Thread newThread(Runnable runnable) {
+                            return new Thread(runnable, "TopicChLBQExecutor-" + idx.getAndIncrement());
+                        }
+                    });
         }
     }
 
@@ -114,17 +117,20 @@ public class TopicController {
             started = false;
             client.stop();
             server.stop();
-            handlerRegisterMap.clear();
-            hostHandlerMap.clear();
-            lostMessagesMap.clear();
-
-            if(executor != null && !executor.isShutdown())
-                executor.shutdown();
-            executor = null;
 
             if(msgDeliveryExecutor != null && !msgDeliveryExecutor.isShutdown())
                 msgDeliveryExecutor.shutdown();
             msgDeliveryExecutor = null;
+
+            handlerRegisterMap.clear();
+            hostHandlerMap.clear();
+            lostMessagesMap.clear();
+
+            if(executor != null && !executor.isShutdown()) {
+                executor.shutdown();
+            }
+            executor = null;
+
         }
     }
 
@@ -237,7 +243,7 @@ public class TopicController {
             if (logger.isDebugEnabled())
                 logger.debug("Receiving msg of DialogId {} from PeerId {}",  message.id, peerId);
 
-            if (useExecutor) {
+            if (msgDeliveryExecutor != null) {
                 //Delivery service.
                 msgDeliveryExecutor.submit(new Runnable() {
                     @Override
