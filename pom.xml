@@ -508,7 +508,6 @@
 				</executions>
 			</plugin>
 
-			<!--- This plugin is call by the parent, but is disabled. If remove the deployment phase will fail. -->
 		   <plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
