@@ -56,19 +56,28 @@ public class TimeFilterImpl {
 
     private boolean isInTimeFastDropping(SccpDataMessage message) {
         boolean result = true;
-        if(maxAgeForBeginMessageMilliseconds > 0) {
-            long diff;
-            if ((diff = (System.currentTimeMillis() - message.getReceivedTimeStamp())) > maxAgeForBeginMessageMilliseconds) {
-                if(logger.isWarnEnabled())
-                    logger.warn(String.format("Dropping message, age: %d ms > %d ms, otid %d", diff,
-                        maxAgeForBeginMessageMilliseconds, getDialogId(message.getData())));
-                result = false;
+        if(message.getReceivedTimeStamp() > 0) {
+            if (maxAgeForBeginMessageMilliseconds > 0) {
+                long diff;
+                if ((diff = (System.currentTimeMillis() - message.getReceivedTimeStamp())) > maxAgeForBeginMessageMilliseconds) {
+                    if (logger.isWarnEnabled())
+                        logger.warn(String.format("Dropping message, age: %d ms > %d ms, otid %d", diff,
+                                maxAgeForBeginMessageMilliseconds, getDialogId(message.getData())));
+                    result = false;
+                }
             }
         }
-        if(message.getReceivedTimeStamp() == 0){
-            logger.debug("isInTimeFastDropping(): Message without time-stamp. It should be a buckle, dropping. " +
-                    "Check destination PC. otid: "+getDialogId(message.getData()));
-            result = false;
+        if (message.getReceivedTimeStamp() == 0) {
+            logger.debug("isInTimeFastDropping(): Message without time-stamp. It could be a loop." +
+                    "Check destination PC. otid: " + getDialogId(message.getData()));
+            logger.debug("Incoming Opc:       {}", message.getIncomingOpc());
+            logger.debug("Incoming Dpc:       {}", message.getIncomingDpc());
+            logger.debug("CalledPartyAddress: {}", message.getCalledPartyAddress());
+            logger.debug("CallingPartyAddress:{}", message.getCallingPartyAddress());
+
+            // FIXME Ajimenez 12/7/23: Here or in another place the invalid loops should be controlled.
+            //logger.debug("Dropping");
+            //result = false;
         }
         return result;
     }

@@ -293,7 +293,7 @@ public class TopicController {
                                     lostCounter.get(), peerId));
                             if(eventListener != null){
                                 //¿Usando el executor necesito otro hilo?
-                                new Thread("UnknownPeer-"+peerId){
+                                new Thread("UnknownPeer-"+peerId+"-"+lostCounter.get()){
                                     @Override
                                     public void run() {
                                         eventListener.onMessagesFromNotRegisteredPeer(peerId);

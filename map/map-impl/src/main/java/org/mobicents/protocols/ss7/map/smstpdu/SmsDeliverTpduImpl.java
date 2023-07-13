@@ -22,11 +22,7 @@
 
 package org.mobicents.protocols.ss7.map.smstpdu;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-
+import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.ss7.map.api.MAPException;
 import org.mobicents.protocols.ss7.map.api.smstpdu.AbsoluteTimeStamp;
 import org.mobicents.protocols.ss7.map.api.smstpdu.AddressField;
@@ -35,6 +31,10 @@ import org.mobicents.protocols.ss7.map.api.smstpdu.ProtocolIdentifier;
 import org.mobicents.protocols.ss7.map.api.smstpdu.SmsDeliverTpdu;
 import org.mobicents.protocols.ss7.map.api.smstpdu.SmsTpduType;
 import org.mobicents.protocols.ss7.map.api.smstpdu.UserData;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  *
@@ -186,7 +186,7 @@ public class SmsDeliverTpduImpl extends SmsTpduImpl implements SmsDeliverTpdu {
         if (this.userData.getEncodedData().length > _UserDataLimit)
             throw new MAPException("User data field length may not increase " + _UserDataLimit);
 
-        ByteArrayOutputStream res = new ByteArrayOutputStream();
+        AsnOutputStream res = new AsnOutputStream();
 
         // byte 0
         res.write(SmsTpduType.SMS_DELIVER.getEncodedValue() | (!this.moreMessagesToSend ? _MASK_TP_MMS : 0)
@@ -198,12 +198,7 @@ public class SmsDeliverTpduImpl extends SmsTpduImpl implements SmsDeliverTpdu {
         res.write(this.dataCodingScheme.getCode());
         this.serviceCentreTimeStamp.encodeData(res);
         res.write(this.userDataLength);
-        try {
-            res.write(this.userData.getEncodedData());
-        } catch (IOException e) {
-            // This can not occur
-        }
-
+        res.write(this.userData.getEncodedData());
         return res.toByteArray();
     }
 

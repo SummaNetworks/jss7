@@ -53,7 +53,7 @@ public abstract class SccpMessageImpl implements SccpMessage {
     protected int outgoingDpc = -1;
     protected int networkId;
 
-    private long receivedTimeStamp;
+    private long receivedTimeStamp = System.currentTimeMillis();
 
     protected SccpMessageImpl(int maxDataLen, int type, int sls, int localSsn) {
         this.isMtpOriginated = false;
