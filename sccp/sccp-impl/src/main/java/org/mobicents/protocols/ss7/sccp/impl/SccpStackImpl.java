@@ -496,9 +496,14 @@ public class SccpStackImpl implements SccpStack, Mtp3UserPartListener {
             return;
         }
 
-        if (message.getCalledPartyAddress() == null || message.getCallingPartyAddress() == null || message.getData() == null
+        if (message.getCalledPartyAddress() == null
+                || message.getCallingPartyAddress() == null
+                || message.getData() == null
                 || message.getData().length == 0) {
-            throw new IOException("Message to send must has filled CalledPartyAddress, CallingPartyAddress and data fields");
+            throw new IOException("SccpDataMessageImpl object with empty fields: " +
+                    (message.getCalledPartyAddress() == null ? "CalledPartyAddress, ":"")+
+                    (message.getCallingPartyAddress() == null ? "CallingPartyAddress, ":"")+
+                    ((message.getData() == null || message.getData().length == 0) ? "data.":""));
         }
 
         try {
