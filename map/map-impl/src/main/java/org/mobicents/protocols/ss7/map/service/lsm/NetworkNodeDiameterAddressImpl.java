@@ -121,6 +121,16 @@ public class NetworkNodeDiameterAddressImpl extends SequenceBase implements Netw
 
         ((DiameterIdentityImpl) this.diameterName).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_diameterName);
         ((DiameterIdentityImpl) this.diameterRealm).encodeAll(asnOs, Tag.CLASS_CONTEXT_SPECIFIC, _TAG_diameterRealm);
+    }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(_PrimitiveName);
+        sb.append(" [");
+        sb.append("diameterName=").append(diameterName);
+        sb.append(", diameterRealm=").append(diameterRealm);
+        sb.append(']');
+        return sb.toString();
     }
 }
