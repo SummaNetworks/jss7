@@ -553,9 +553,10 @@ public class SccpRoutingControl {
         msg.getCallingPartyAddress().setIncomingOpc(msg.getIncomingOpc());
 
         // routing procedures then continue's
-
-        logger.debug("translationFunction(): CallingPartyAddress before route --> " + callingPartyAddress);
-        logger.debug("ttranslationFunction(): CalledPartyAddress before route --> " + calledPartyAddress);
+        if(logger.isDebugEnabled()) {
+            logger.debug("translationFunction(): CallingPartyAddress before route --> {}", callingPartyAddress);
+            logger.debug("translationFunction(): CalledPartyAddress before route --> {}", calledPartyAddress);
+        }
 
         this.route(msg);
 
