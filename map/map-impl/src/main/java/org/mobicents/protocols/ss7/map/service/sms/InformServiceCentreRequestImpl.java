@@ -54,18 +54,46 @@ public class InformServiceCentreRequestImpl extends SmsMessageImpl implements In
     private MAPExtensionContainer extensionContainer;
     private Integer absentSubscriberDiagnosticSM;
     private Integer additionalAbsentSubscriberDiagnosticSM;
+    private long mapProtocolVersion;
 
     public InformServiceCentreRequestImpl() {
+        this(3);
+    }
+
+    public InformServiceCentreRequestImpl(long mapProtocolVersion) {
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
     public InformServiceCentreRequestImpl(ISDNAddressString storedMSISDN, MWStatus mwStatus,
             MAPExtensionContainer extensionContainer, Integer absentSubscriberDiagnosticSM,
             Integer additionalAbsentSubscriberDiagnosticSM) {
+        this.mapProtocolVersion = 3;
         this.storedMSISDN = storedMSISDN;
         this.mwStatus = mwStatus;
         this.extensionContainer = extensionContainer;
         this.absentSubscriberDiagnosticSM = absentSubscriberDiagnosticSM;
         this.additionalAbsentSubscriberDiagnosticSM = additionalAbsentSubscriberDiagnosticSM;
+    }
+
+    public InformServiceCentreRequestImpl(long mapProtocolVersion, ISDNAddressString storedMSISDN, MWStatus mwStatus,
+            MAPExtensionContainer extensionContainer, Integer absentSubscriberDiagnosticSM,
+            Integer additionalAbsentSubscriberDiagnosticSM) {
+        this.mapProtocolVersion = mapProtocolVersion;
+        this.storedMSISDN = storedMSISDN;
+        this.mwStatus = mwStatus;
+        this.extensionContainer = extensionContainer;
+        if (mapProtocolVersion == 3) {
+            this.absentSubscriberDiagnosticSM = absentSubscriberDiagnosticSM;
+            this.additionalAbsentSubscriberDiagnosticSM = additionalAbsentSubscriberDiagnosticSM;
+        }
+    }
+
+    public InformServiceCentreRequestImpl(ISDNAddressString storedMSISDN, MWStatus mwStatus,
+            MAPExtensionContainer extensionContainer) {
+        this.mapProtocolVersion = 2;
+        this.storedMSISDN = storedMSISDN;
+        this.mwStatus = mwStatus;
+        this.extensionContainer = extensionContainer;
     }
 
     public MAPMessageType getMessageType() {
@@ -106,6 +134,14 @@ public class InformServiceCentreRequestImpl extends SmsMessageImpl implements In
 
     public boolean getIsPrimitive() {
         return false;
+    }
+
+    public long getMapProtocolVersion() {
+        return mapProtocolVersion;
+    }
+
+    public void setMapProtocolVersion(long mapProtocolVersion) {
+        this.mapProtocolVersion = mapProtocolVersion;
     }
 
     public void decodeAll(AsnInputStream ansIS) throws MAPParsingComponentException {
@@ -185,6 +221,12 @@ public class InformServiceCentreRequestImpl extends SmsMessageImpl implements In
 
                     case Tag.INTEGER:
                         // absentSubscriberDiagnosticSM
+                        if(mapProtocolVersion < 3) {
+                            throw new MAPParsingComponentException(
+                                    "Error while decoding informServiceCentreRequest: Parameter absentSubscriberDiagnosticSM" +
+                                            " unsupported in the incoming message version",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException(
                                     "Error while decoding informServiceCentreRequest: Parameter absentSubscriberDiagnosticSM is not primitive",
@@ -201,6 +243,12 @@ public class InformServiceCentreRequestImpl extends SmsMessageImpl implements In
                 switch (tag) {
                     case InformServiceCentreRequestImpl._TAG_AdditionalAbsentSubscriberDiagnosticSM:
                         // additionalAbsentSubscriberDiagnosticSM
+                        if(mapProtocolVersion < 3) {
+                            throw new MAPParsingComponentException(
+                                    "Error while decoding informServiceCentreRequest: Parameter additionalAbsentSubscriberDiagnosticSM" +
+                                            " unsupported in the incoming message version",
+                                    MAPParsingComponentExceptionReason.MistypedParameter);
+                        }
                         if (!ais.isTagPrimitive())
                             throw new MAPParsingComponentException(
                                     "Error while decoding informServiceCentreRequest: Parameter deliveryOutcomeIndicator is not primitive",
@@ -242,17 +290,19 @@ public class InformServiceCentreRequestImpl extends SmsMessageImpl implements In
             ((MWStatusImpl) this.mwStatus).encodeAll(asnOs);
         if (this.extensionContainer != null)
             ((MAPExtensionContainerImpl) this.extensionContainer).encodeAll(asnOs);
-        try {
-            if (this.absentSubscriberDiagnosticSM != null)
-                asnOs.writeInteger(this.absentSubscriberDiagnosticSM);
-            if (this.additionalAbsentSubscriberDiagnosticSM != null)
-                asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC,
-                        InformServiceCentreRequestImpl._TAG_AdditionalAbsentSubscriberDiagnosticSM,
-                        this.additionalAbsentSubscriberDiagnosticSM);
-        } catch (IOException e) {
-            throw new MAPException("IOException when encoding InformServiceCentreRequest: " + e.getMessage(), e);
-        } catch (AsnException e) {
-            throw new MAPException("AsnException when encoding InformServiceCentreRequest: " + e.getMessage(), e);
+        if(mapProtocolVersion == 3) {
+            try {
+                if (this.absentSubscriberDiagnosticSM != null)
+                    asnOs.writeInteger(this.absentSubscriberDiagnosticSM);
+                if (this.additionalAbsentSubscriberDiagnosticSM != null)
+                    asnOs.writeInteger(Tag.CLASS_CONTEXT_SPECIFIC,
+                            InformServiceCentreRequestImpl._TAG_AdditionalAbsentSubscriberDiagnosticSM,
+                            this.additionalAbsentSubscriberDiagnosticSM);
+            } catch (IOException e) {
+                throw new MAPException("IOException when encoding InformServiceCentreRequest: " + e.getMessage(), e);
+            } catch (AsnException e) {
+                throw new MAPException("AsnException when encoding InformServiceCentreRequest: " + e.getMessage(), e);
+            }
         }
     }
 
@@ -260,6 +310,9 @@ public class InformServiceCentreRequestImpl extends SmsMessageImpl implements In
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("InformServiceCentreRequest [");
+
+        sb.append("mapProtocolVersion=");
+        sb.append(mapProtocolVersion);
 
         if (this.getMAPDialog() != null) {
             sb.append("DialogId=").append(this.getMAPDialog().getLocalDialogId());

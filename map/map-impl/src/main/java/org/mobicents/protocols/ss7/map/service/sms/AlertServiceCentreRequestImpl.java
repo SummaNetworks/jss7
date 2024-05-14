@@ -57,6 +57,7 @@ public class AlertServiceCentreRequestImpl extends SmsMessageImpl implements Ale
     public AlertServiceCentreRequestImpl(ISDNAddressString msisdn, AddressString serviceCentreAddress) {
         this.msisdn = msisdn;
         this.serviceCentreAddress = serviceCentreAddress;
+        this.operationCode = MAPOperationCode.alertServiceCentre;
     }
 
     public MAPMessageType getMessageType() {
