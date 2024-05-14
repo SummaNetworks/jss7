@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>inap-parent</artifactId>
 		<groupId>org.mobicents.protocols.ss7.inap</groupId>
-		<version>7.0.0-SUMMA-1.3.17-LOOP-SNAPSHOT</version>
+		<version>7.0.0-SUMMA-1.3.17-LOOP-1.0.0</version>
 	</parent>
 
 	<artifactId>inap-api</artifactId>
