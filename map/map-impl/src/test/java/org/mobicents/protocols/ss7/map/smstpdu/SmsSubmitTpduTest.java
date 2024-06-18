@@ -165,8 +165,11 @@ public class SmsSubmitTpduTest {
         enc = impl.encodeData();
         assertTrue(Arrays.equals(enc, this.getData2()));
 
-        ud = new UserDataImpl("AddressFieldImpl destAddress = new AddressFieldImpl", new DataCodingSchemeImpl(4), null,
-                Charset.forName("US-ASCII"));
+        String data3String = "AddressFieldImpl destAddress = new AddressFieldImpl";
+        ud = new UserDataImpl(data3String, new DataCodingSchemeImpl(4), null,
+                //Charset.forName("US-ASCII")
+                Charset.defaultCharset()
+        );
         destAddress = new AddressFieldImpl(TypeOfNumber.AbbreviatedNumber, NumberingPlanIdentification.DataNumberingPlan, "000");
         pi = new ProtocolIdentifierImpl(2);
         ValidityEnhancedFormatDataImpl efd = new ValidityEnhancedFormatDataImpl(this.getData3B());

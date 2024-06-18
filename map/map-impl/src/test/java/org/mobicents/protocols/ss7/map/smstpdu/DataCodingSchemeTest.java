@@ -178,6 +178,10 @@ public class DataCodingSchemeTest {
         dcs = new DataCodingSchemeImpl(DataCodingGroup.GeneralGroup, null, null, null, CharacterSet.UCS2, false);
         assertEquals(dcs.getCode(), 8);
 
+        //This seems to be not used...
+        dcs = new DataCodingSchemeImpl(DataCodingGroup.GeneralGroup, null, null, null, CharacterSet.GSM8, false);
+        assertEquals(dcs.getCode(), 4);
+
         dcs = new DataCodingSchemeImpl(DataCodingGroup.GeneralGroup, DataCodingSchemaMessageClass.Class0, null, null,
                 CharacterSet.GSM8, true);
         assertEquals(dcs.getCode(), 52);
