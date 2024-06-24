@@ -159,6 +159,14 @@ public class DataCodingSchemeTest {
         assertNull(dcs.getDataCodingSchemaIndicationType());
         assertNull(dcs.getSetIndicationActive());
 
+        dcs = new DataCodingSchemeImpl(246);
+        assertEquals(dcs.getDataCodingGroup(), DataCodingGroup.DataCodingMessageClass);
+        assertEquals(dcs.getCharacterSet(), CharacterSet.GSM8);
+        assertFalse(dcs.getIsCompressed());
+        assertEquals(dcs.getMessageClass(), DataCodingSchemaMessageClass.Class2);
+        assertNull(dcs.getDataCodingSchemaIndicationType());
+        assertNull(dcs.getSetIndicationActive());
+
         dcs = new DataCodingSchemeImpl(247);
         assertEquals(dcs.getDataCodingGroup(), DataCodingGroup.DataCodingMessageClass);
         assertEquals(dcs.getCharacterSet(), CharacterSet.GSM8);
