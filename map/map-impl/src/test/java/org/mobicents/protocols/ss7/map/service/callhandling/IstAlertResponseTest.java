@@ -22,7 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.callhandling;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.asn.Tag;
@@ -48,7 +49,7 @@ public class IstAlertResponseTest {
     public static final int IST_ALERT_TIMER = 10;
     public static final boolean IST_INFORMATION_WITHDRAW = true;
     public static final CallTerminationIndicator TERMINATE_ALL_CALL_ACTIVITIES = CallTerminationIndicator.terminateAllCallActivities;
-    Logger logger = Logger.getLogger(IstAlertResponseTest.class);
+    Logger logger = LogManager.getLogger(IstAlertResponseTest.class);
 
     @BeforeClass
     public static void setUpClass() throws Exception {

@@ -37,8 +37,9 @@ import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
 import org.mobicents.protocols.ss7.sccp.SccpStack;
@@ -81,7 +82,7 @@ import org.mobicents.protocols.ss7.tools.simulator.tests.ussd.TestUssdServerMan;
  *
  */
 public class TesterHost extends NotificationBroadcasterSupport implements TesterHostMBean, Stoppable {
-    private static final Logger logger = Logger.getLogger(TesterHost.class);
+    private static final Logger logger = LogManager.getLogger(TesterHost.class);
 
     private static final String TESTER_HOST_PERSIST_DIR_KEY = "testerhost.persist.dir";
     private static final String USER_DIR_KEY = "user.dir";

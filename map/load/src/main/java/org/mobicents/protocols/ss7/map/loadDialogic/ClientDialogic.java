@@ -22,7 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.loadDialogic;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.map.MAPStackImpl;
 import org.mobicents.protocols.ss7.map.api.MAPApplicationContext;
@@ -242,7 +243,7 @@ public class ClientDialogic implements MAPDialogListener, MAPServiceSmsListener 
 
         // BasicConfigurator.configure();
 
-        logger = Logger.getLogger(ClientDialogic.class);
+        logger = LogManager.getLogger(ClientDialogic.class);
 
         logger.error("-- started");
 

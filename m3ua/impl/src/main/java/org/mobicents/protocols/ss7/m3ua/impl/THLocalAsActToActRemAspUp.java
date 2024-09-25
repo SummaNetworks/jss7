@@ -21,7 +21,8 @@
  */
 package org.mobicents.protocols.ss7.m3ua.impl;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.impl.fsm.FSM;
 import org.mobicents.protocols.ss7.m3ua.impl.fsm.FSMState;
 import org.mobicents.protocols.ss7.m3ua.impl.fsm.TransitionHandler;
@@ -37,7 +38,7 @@ import org.mobicents.protocols.ss7.m3ua.parameter.Status;
  */
 public class THLocalAsActToActRemAspUp implements TransitionHandler {
 
-    private static final Logger logger = Logger.getLogger(THLocalAsActToActRemAspUp.class);
+    private static final Logger logger = LogManager.getLogger(THLocalAsActToActRemAspUp.class);
 
     private AsImpl asImpl = null;
     private FSM fsm;

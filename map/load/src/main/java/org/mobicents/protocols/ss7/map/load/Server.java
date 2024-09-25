@@ -21,7 +21,8 @@
  */
 package org.mobicents.protocols.ss7.map.load;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.sctp.ManagementImpl;
 import org.mobicents.protocols.ss7.m3ua.As;
@@ -87,7 +88,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
  */
 public class Server extends TestHarness {
 
-    private static Logger logger = Logger.getLogger(Server.class);
+    private static Logger logger = LogManager.getLogger(Server.class);
 
     // MAP
     private MAPStackImpl mapStack;

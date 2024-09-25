@@ -24,7 +24,8 @@ package org.mobicents.protocols.ss7.tcap.asn;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnException;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
@@ -35,7 +36,7 @@ import org.mobicents.protocols.asn.AsnOutputStream;
  */
 public class TCUnidentifiedMessage implements Encodable {
 
-    private static final Logger logger = Logger.getLogger(TCUnidentifiedMessage.class);
+    private static final Logger logger = LogManager.getLogger(TCUnidentifiedMessage.class);
 
     public static final int _TAG_OTX = 0x08;
 

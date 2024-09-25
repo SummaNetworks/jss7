@@ -23,7 +23,8 @@ package org.mobicents.protocols.ss7.map.load;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.sctp.ManagementImpl;
 import org.mobicents.protocols.ss7.m3ua.Asp;
@@ -90,7 +91,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Problem;
  */
 public class Client extends TestHarness {
 
-    private static Logger logger = Logger.getLogger(Client.class);
+    private static Logger logger = LogManager.getLogger(Client.class);
 
     // TCAP
     private TCAPStack tcapStack;

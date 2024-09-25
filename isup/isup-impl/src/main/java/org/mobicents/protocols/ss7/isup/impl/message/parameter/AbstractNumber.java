@@ -29,7 +29,8 @@ import java.io.IOException;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.isup.ParameterException;
 import org.mobicents.protocols.ss7.isup.message.parameter.Number;
 
@@ -64,7 +65,7 @@ public abstract class AbstractNumber extends AbstractISUPParameter implements Nu
 
     private static final String DEFAULT_ADDRESS = "";
 
-    protected Logger logger = Logger.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(this.getClass());
     /**
      * Holds odd flag, it can have either value: 10000000(x80) or 00000000. For each it takes value 1 and 0;
      */

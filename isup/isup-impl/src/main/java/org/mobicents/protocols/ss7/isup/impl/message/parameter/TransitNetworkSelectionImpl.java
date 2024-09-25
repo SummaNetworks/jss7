@@ -34,7 +34,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.isup.ParameterException;
 import org.mobicents.protocols.ss7.isup.message.parameter.TransitNetworkSelection;
 
@@ -46,7 +47,7 @@ import org.mobicents.protocols.ss7.isup.message.parameter.TransitNetworkSelectio
  */
 public class TransitNetworkSelectionImpl extends AbstractISUPParameter implements TransitNetworkSelection {
 
-    protected static final Logger logger = Logger.getLogger(TransitNetworkSelectionImpl.class);
+    protected static final Logger logger = LogManager.getLogger(TransitNetworkSelectionImpl.class);
 
     // FIXME: Oleg is this correct?
     private String address;

@@ -22,7 +22,8 @@
 
 package org.mobicents.protocols.ss7.map.service.supplementary;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.Tag;
 import org.mobicents.protocols.ss7.map.MAPDialogImpl;
@@ -62,7 +63,7 @@ import org.mobicents.protocols.ss7.tcap.asn.comp.Parameter;
  */
 public class MAPServiceSupplementaryImpl extends MAPServiceBaseImpl implements MAPServiceSupplementary {
 
-    private static final Logger loger = Logger.getLogger(MAPServiceSmsImpl.class);
+    private static final Logger loger = LogManager.getLogger(MAPServiceSmsImpl.class);
 
     public MAPServiceSupplementaryImpl(MAPProviderImpl mapProviderImpl) {
         super(mapProviderImpl);

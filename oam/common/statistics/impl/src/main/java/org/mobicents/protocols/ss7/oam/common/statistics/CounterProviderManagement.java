@@ -37,7 +37,8 @@ import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.oam.common.jmx.MBeanHost;
 import org.mobicents.protocols.ss7.oam.common.jmx.MBeanType;
 import org.mobicents.protocols.ss7.oam.common.statistics.api.ComplexValue;
@@ -97,7 +98,7 @@ public class CounterProviderManagement implements CounterProviderManagementMBean
         binding.setAlias(CounterCampaignImpl.class, COUNTER_CAMPAIGN);
         binding.setAlias(String.class, "String");
 
-        this.logger = Logger.getLogger(CounterProviderManagement.class.getCanonicalName() + "-" + this.name);
+        this.logger = LogManager.getLogger(CounterProviderManagement.class.getCanonicalName() + "-" + this.name);
 
         this.statsPrinter = new StatsPrinter();
     }

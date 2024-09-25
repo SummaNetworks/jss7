@@ -27,7 +27,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Implements scheduler with multi-level priority queue.
@@ -86,7 +87,7 @@ public class Scheduler {
     // flag indicating state of the scheduler
     private boolean isActive;
 
-    private Logger logger = Logger.getLogger(Scheduler.class);
+    private Logger logger = LogManager.getLogger(Scheduler.class);
 
     /**
      * Creates new instance of scheduler.

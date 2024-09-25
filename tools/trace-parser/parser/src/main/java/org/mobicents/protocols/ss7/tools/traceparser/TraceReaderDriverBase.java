@@ -24,7 +24,8 @@ package org.mobicents.protocols.ss7.tools.traceparser;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class TraceReaderDriverBase implements TraceReaderDriver {
 
-    protected Logger loger = Logger.getLogger(TraceReaderDriverBase.class);
+    protected Logger loger = LogManager.getLogger(TraceReaderDriverBase.class);
 
     protected ArrayList<TraceReaderListener> listeners = new ArrayList<TraceReaderListener>();
     protected boolean isStarted = false;

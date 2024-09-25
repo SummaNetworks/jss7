@@ -5,8 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.SccpProtocolVersion;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.sccp.impl.parameter.SccpAddressImpl;
@@ -19,7 +21,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  */
 public class TopicSccpMessage extends TopicMessage {
 
-    private static final Logger logger = Logger.getLogger(TopicMessage.class);
+    private static final Logger logger = LogManager.getLogger(TopicMessage.class);
 
     public static final short TYPE_DATA = 0;
     public static final short TYPE_REGISTER = 1;
@@ -27,9 +29,11 @@ public class TopicSccpMessage extends TopicMessage {
     public static final short TYPE_HEARTBEAT_ACK = 3;
 
     private static ParameterFactoryImpl sccpParameterFactory;
+    private static AtomicInteger hearBeatId;
 
     static {
         sccpParameterFactory = new ParameterFactoryImpl();
+        hearBeatId = new AtomicInteger(0);
     }
 
     protected short messageType;
@@ -63,6 +67,7 @@ public class TopicSccpMessage extends TopicMessage {
     public static TopicSccpMessage createHeartbeat(){
         TopicSccpMessage tsm = new TopicSccpMessage();
         tsm.messageType = TYPE_HEARTBEAT;
+        tsm.id = hearBeatId.getAndIncrement();
         return tsm;
     }
 

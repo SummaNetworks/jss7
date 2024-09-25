@@ -116,9 +116,12 @@
 			<version>${concurrent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javolution</groupId>
@@ -431,8 +434,8 @@
 											</destFileName>
 										</artifactItem>
 										<artifactItem>
-											<groupId>log4j</groupId>
-											<artifactId>log4j</artifactId>
+											<groupId>org.apache.logging.log4j</groupId>
+											<artifactId>log4j-api</artifactId>
 											<type>jar</type>
 											<overWrite>true</overWrite>
 											<outputDirectory>

@@ -3,15 +3,15 @@ package org.mobicents.protocols.ss7.tcap;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.message.SccpDataMessage;
 
 /**
  * @author ajimenez, created on 23/07/19.
  */
 public class TimeFilterImpl {
-    private static final Logger logger = Logger.getLogger(TimeFilterImpl.class);
+    private static final Logger logger = LogManager.getLogger(TimeFilterImpl.class);
 
 
     private long maxAgeForBeginMessageMilliseconds;
@@ -59,7 +59,7 @@ public class TimeFilterImpl {
         if(maxAgeForBeginMessageMilliseconds > 0) {
             long diff;
             if ((diff = (System.currentTimeMillis() - message.getReceivedTimeStamp())) > maxAgeForBeginMessageMilliseconds) {
-                if(logger.isEnabledFor(Level.WARN))
+                if(logger.isWarnEnabled())
                     logger.warn(String.format("Dropping message, age: %d ms > %d ms, otid %d", diff,
                         maxAgeForBeginMessageMilliseconds, getDialogId(message.getData())));
                 result = false;
@@ -85,7 +85,7 @@ public class TimeFilterImpl {
                     int current = rampMessageReceivedInStep[seconds].getAndIncrement();
                     if (rampMessagesByStep * (seconds + 1) < current){
                         result = false;
-                        if(logger.isEnabledFor(Level.WARN))
+                        if(logger.isWarnEnabled())
                             logger.warn(String.format("Dropping message by ramp: Second %d, received %d, otid %d", seconds, current,
                                     getDialogId(message.getData())));
                     }else{

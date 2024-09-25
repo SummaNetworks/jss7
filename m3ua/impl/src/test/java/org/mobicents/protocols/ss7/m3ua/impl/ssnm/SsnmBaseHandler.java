@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 
 import com.sun.nio.sctp.SctpChannel;
 import javolution.util.FastList;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.api.IpChannelType;
 import org.mobicents.protocols.api.Management;
 import org.mobicents.protocols.api.PayloadData;
@@ -47,7 +48,7 @@ import static org.testng.Assert.assertEquals;
  */
 public abstract class SsnmBaseHandler {
 
-    static final Logger logger = Logger.getLogger(SsnmBaseHandler.class);
+    static final Logger logger = LogManager.getLogger(SsnmBaseHandler.class);
 
     static final String SERVER_NAME = "TestServer";
     static final String SERVER_HOST = "127.0.0.1";

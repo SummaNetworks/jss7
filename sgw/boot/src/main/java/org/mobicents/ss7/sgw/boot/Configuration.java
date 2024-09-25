@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -52,7 +53,7 @@ public class Configuration {
     private boolean isDirectory;
     private long lastModified;
 
-    private Logger logger = Logger.getLogger(Configuration.class);
+    private Logger logger = LogManager.getLogger(Configuration.class);
 
     public Configuration(String s, File directory) {
         this.directory = directory;

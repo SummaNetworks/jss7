@@ -36,7 +36,7 @@ import org.mobicents.protocols.ss7.isup.message.parameter.ISUPParameter;
  */
 public abstract class AbstractISUPParameter implements ISUPParameter,Encodable {
 
-    // protected Logger logger = Logger.getLogger(this.getClass().getName());
+    // protected Logger logger = LogManager.getLogger(this.getClass().getName());
 
     public int encode(ByteArrayOutputStream bos) throws ParameterException {
         // FIXME: this has to be removed, we should not create separate arrays?

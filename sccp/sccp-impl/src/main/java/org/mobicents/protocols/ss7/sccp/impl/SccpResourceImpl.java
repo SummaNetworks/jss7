@@ -40,7 +40,8 @@ import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 import javolution.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.sccp.ConcernedSignalingPointCode;
 import org.mobicents.protocols.ss7.sccp.RemoteSignalingPointCode;
 import org.mobicents.protocols.ss7.sccp.RemoteSubSystem;
@@ -53,7 +54,7 @@ import org.mobicents.protocols.ss7.sccp.impl.oam.SccpOAMMessage;
  *
  */
 public class SccpResourceImpl implements SccpResource {
-    private static final Logger logger = Logger.getLogger(SccpResourceImpl.class);
+    private static final Logger logger = LogManager.getLogger(SccpResourceImpl.class);
 
     private static final String SCCP_RESOURCE_PERSIST_DIR_KEY = "sccpresource.persist.dir";
     private static final String USER_DIR_KEY = "user.dir";

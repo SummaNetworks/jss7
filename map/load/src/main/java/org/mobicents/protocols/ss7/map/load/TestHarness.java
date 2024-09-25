@@ -21,16 +21,16 @@
  */
 package org.mobicents.protocols.ss7.map.load;
 
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.SimpleLayout;
 import org.mobicents.protocols.ss7.indicator.RoutingIndicator;
 import org.mobicents.protocols.ss7.m3ua.impl.parameter.ParameterFactoryImpl;
 import org.mobicents.protocols.ss7.map.api.MAPDialogListener;
@@ -44,7 +44,7 @@ import org.mobicents.protocols.ss7.sccp.parameter.SccpAddress;
  */
 public abstract class TestHarness implements MAPDialogListener, MAPServiceSupplementaryListener {
 
-    private static final Logger logger = Logger.getLogger("map.test");
+    private static final Logger logger = LogManager.getLogger("map.test");
 
     protected static final String LOG_FILE_NAME = "log.file.name";
     protected static String logFileName = "maplog.txt";
@@ -115,11 +115,11 @@ public abstract class TestHarness implements MAPDialogListener, MAPServiceSupple
             }
 
             // If already created a print writer then just use it.
-            try {
+            //TODO: Enable for log4j2...
+            /*try {
                 logger.addAppender(new FileAppender(new SimpleLayout(), logFileName));
             } catch (FileNotFoundException fnfe) {
-
-            }
+            }*/
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex);

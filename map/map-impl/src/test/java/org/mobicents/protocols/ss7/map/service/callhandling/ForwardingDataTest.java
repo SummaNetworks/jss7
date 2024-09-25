@@ -28,7 +28,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.asn.AsnInputStream;
 import org.mobicents.protocols.asn.AsnOutputStream;
 import org.mobicents.protocols.ss7.map.api.primitives.AddressNature;
@@ -50,7 +51,7 @@ import org.testng.annotations.Test;
  *
  */
 public class ForwardingDataTest {
-    Logger logger = Logger.getLogger(ForwardingDataTest.class);
+    Logger logger = LogManager.getLogger(ForwardingDataTest.class);
 
     @BeforeClass
     public static void setUpClass() throws Exception {

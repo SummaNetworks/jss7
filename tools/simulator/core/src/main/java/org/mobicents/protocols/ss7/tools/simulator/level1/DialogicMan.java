@@ -22,7 +22,7 @@
 
 package org.mobicents.protocols.ss7.tools.simulator.level1;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
 import org.mobicents.protocols.ss7.tools.simulator.Stoppable;
 import org.mobicents.protocols.ss7.tools.simulator.management.TesterHost;

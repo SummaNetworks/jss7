@@ -23,14 +23,21 @@
 package org.mobicents.protocols.ss7.mtp;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.log4j.Logger;
 
 // lic dep 1
 
@@ -42,9 +49,16 @@ import org.apache.log4j.Logger;
  */
 public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
-    private static final Logger logger = Logger.getLogger(Mtp3UserPartBaseImpl.class);
+    private static final Logger logger = LogManager.getLogger(Mtp3UserPartBaseImpl.class);
 
     private static final String LICENSE_PRODUCT_NAME = "Mobicents-jSS7";
+
+    //Type of Executors that can be configured by System properties.
+    public static final String MTP_3_EXECUTOR_TYPE_PROPERTY_KEY = "mtp3.executor.type";
+    private static final String EXECUTOR_FORK_JOIN ="FORK_JOIN";
+    private static final String EXECUTOR_FIXED ="FIXED";
+    private static final String EXECUTOR_CACHED_LINKED_Q ="CACHED_LQ";
+    private static final String EXECUTOR_CACHED_SYNCHRONIZED_Q ="CACHED_SQ";
 
     private int maxSls = 32;
     private int slsFilter = 0x1F;
@@ -179,23 +193,97 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
         this.createSLSTable(this.deliveryTransferMessageThreadCount);
 
-        final ForkJoinPool.ForkJoinWorkerThreadFactory factory =
-                new ForkJoinPool.ForkJoinWorkerThreadFactory() {
-                    @Override
-                    public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
-                        final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-                        worker.setName("Mtp3DeliveryExecutor-" + worker.getPoolIndex());
-                        return worker;
-                    }
-        };
-        this. msgDeliveryExecutor = new ForkJoinPool(deliveryTransferMessageThreadCount,
-                factory, null, true);
+
+        String defaultExecutorType = EXECUTOR_FIXED;
+        String executorTypeParameter = System.getProperty(MTP_3_EXECUTOR_TYPE_PROPERTY_KEY);
+        if (executorTypeParameter == null ||
+                !Arrays.asList(EXECUTOR_FIXED, EXECUTOR_FORK_JOIN, EXECUTOR_CACHED_LINKED_Q, EXECUTOR_CACHED_SYNCHRONIZED_Q)
+                        .contains(executorTypeParameter)) {
+            executorTypeParameter = defaultExecutorType;
+        }
+
+        if (EXECUTOR_FIXED.equals(executorTypeParameter)) {
+            buildFixedExecutor();
+        } else if (EXECUTOR_FORK_JOIN.equals(executorTypeParameter)) {
+            buildForkJoinExecutor();
+        } else if (EXECUTOR_CACHED_SYNCHRONIZED_Q.equals(executorTypeParameter)) {
+            buildCachedSQExecutor();
+        } else if (EXECUTOR_CACHED_LINKED_Q.equals(executorTypeParameter)) {
+            buildCachedLQExecutor();
+        }else{
+            logger.error("Invalid executor determined!! Choosing default one.");
+            buildFixedExecutor();
+        }
 
         this.msgDeliveryExecutorSystem = Executors.newSingleThreadScheduledExecutor(
                 //new DefaultThreadFactory("Mtp3-DeliveryExecutorSystem")
                 );
 
         this.isStarted = true;
+    }
+
+    private void buildCachedLQExecutor() {
+        logger.info("Using Cached executor with LinkedBlockingQueue");
+        //Cache thread pool with LinkedBlockingQueue, starting in the half of the configured thread-pool.
+        this.msgDeliveryExecutor = new ThreadPoolExecutor(
+                this.deliveryTransferMessageThreadCount / 2,
+                this.deliveryTransferMessageThreadCount,
+                60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
+                new ThreadFactory() {
+                    private AtomicInteger idx = new AtomicInteger();
+
+                    @Override
+                    public Thread newThread(Runnable runnable) {
+                        return new Thread(runnable, "Mtp3ChLBQExecutor-" + idx.getAndIncrement());
+                    }
+                });
+    }
+
+    private void buildCachedSQExecutor() {
+        logger.info("Using Cached executor with SynchronousQueue");
+        //Cache thread pool with SynchronousQueue, starting in the half of the configured thread-pool.
+        this.msgDeliveryExecutor = new ThreadPoolExecutor(
+                this.deliveryTransferMessageThreadCount / 2,
+                this.deliveryTransferMessageThreadCount,
+                60L, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(),
+                new ThreadFactory() {
+                    private AtomicInteger idx = new AtomicInteger();
+
+                    @Override
+                    public Thread newThread(Runnable runnable) {
+                        return new Thread(runnable, "Mtp3ChSQExecutor-" + idx.getAndIncrement());
+                    }
+                });
+    }
+
+    private void buildForkJoinExecutor() {
+        logger.info("Using ForkJoinPool executor");
+        final ForkJoinPool.ForkJoinWorkerThreadFactory factory =
+                new ForkJoinPool.ForkJoinWorkerThreadFactory() {
+                    @Override
+                    public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
+                        final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                        worker.setName("Mtp3FJExecutor-" + worker.getPoolIndex());
+                        return worker;
+                    }
+                };
+        this.msgDeliveryExecutor = new ForkJoinPool(deliveryTransferMessageThreadCount,
+                factory, null, true);
+    }
+
+    private void buildFixedExecutor() {
+        logger.info("Using FixedThreadPool executor");
+        this.msgDeliveryExecutor = Executors.newFixedThreadPool(this.deliveryTransferMessageThreadCount,
+                new ThreadFactory() {
+                    private AtomicInteger idx = new AtomicInteger();
+
+                    @Override
+                    public Thread newThread(Runnable runnable) {
+                        return new Thread(runnable, "Mtp3FxExecutor-" + idx.getAndIncrement());
+                    }
+                });
     }
 
     public void stop() throws Exception {

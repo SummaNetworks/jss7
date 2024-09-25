@@ -28,7 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javolution.util.FastList;
 import javolution.util.FastMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.M3UAManagement;
 import org.mobicents.protocols.ss7.m3ua.impl.M3UAManagementImpl;
 import org.mobicents.protocols.ss7.mtp.Mtp3PausePrimitive;
@@ -50,7 +51,7 @@ import org.mobicents.ss7.linkset.oam.LinksetStream;
 /** */
 public class NodalInterworkingFunction extends Task implements Layer4, Mtp3UserPartListener {
 
-    private static Logger logger = Logger.getLogger(NodalInterworkingFunction.class);
+    private static Logger logger = LogManager.getLogger(NodalInterworkingFunction.class);
 
     private LinksetSelector linkSetSelector = new LinksetSelector();
     private LinksetStream linksetStream = null;

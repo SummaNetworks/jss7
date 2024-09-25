@@ -6,7 +6,8 @@ import java.util.Map;
 
 import javolution.util.FastMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.api.Association;
 import org.mobicents.protocols.api.AssociationType;
 import org.mobicents.protocols.api.IpChannelType;
@@ -16,7 +17,7 @@ import org.mobicents.ss7.management.console.ShellExecutor;
 
 public class SCTPShellExecutor implements ShellExecutor {
 
-    private static final Logger logger = Logger.getLogger(SCTPShellExecutor.class);
+    private static final Logger logger = LogManager.getLogger(SCTPShellExecutor.class);
 
     private FastMap<String, Management> sctpManagements = new FastMap<String, Management>();
 

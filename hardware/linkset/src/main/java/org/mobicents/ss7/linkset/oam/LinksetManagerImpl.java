@@ -33,7 +33,8 @@ import javolution.xml.XMLBinding;
 import javolution.xml.XMLObjectReader;
 import javolution.xml.XMLObjectWriter;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.scheduler.Scheduler;
 
 /**
@@ -69,7 +70,7 @@ import org.mobicents.protocols.ss7.scheduler.Scheduler;
  */
 public class LinksetManagerImpl implements LinksetManager {
 
-    private static final Logger logger = Logger.getLogger(LinksetManagerImpl.class);
+    private static final Logger logger = LogManager.getLogger(LinksetManagerImpl.class);
 
     private static final String LINKSET = "linkset";
     private static final String LINK = "link";
