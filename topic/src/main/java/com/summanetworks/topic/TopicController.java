@@ -3,8 +3,12 @@ package com.summanetworks.topic;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,11 +35,11 @@ public class TopicController {
     private HashMap<Integer, TopicHandler> handlerRegisterMap = new HashMap<>();
     private ConcurrentHashMap<Integer, AtomicInteger> lostMessagesMap = new ConcurrentHashMap<>();
 
-    ScheduledExecutorService executor;
-
+    private ScheduledExecutorService executor;
+    private ExecutorService msgDeliveryExecutor;
+    private boolean useExecutor;
     private TopicController(){
     }
-
 
     /**
      * Existen mas de un TCAP provider, uno por cada ssn.
@@ -66,15 +70,40 @@ public class TopicController {
             }
             try {
                 started = true;
+                buildDeliveryExecutor();
+
                 server = new TopicServer();
                 server.start(this);
                 Thread.sleep(2000);
+
                 connectToPeers();
+
                 executor  = Executors.newScheduledThreadPool(2);
                 startMetricsPrinter();
             }catch(Exception e){
                 throw new TopicException("Unexpected error", e);
             }
+        }
+    }
+
+    private void buildDeliveryExecutor(){
+        useExecutor = !"false".equals(System.getProperty("topic.use.executor", "true"));
+        if(useExecutor) {
+            logger.info("Using Cached executor with LinkedBlockingQueue");
+            //Cache thread pool with LinkedBlockingQueue, starting in the half of the configured thread-pool.
+            this.msgDeliveryExecutor = new ThreadPoolExecutor(
+                    this.topicConfig.getDeliveryThreadsAmount() / 2,
+                    this.topicConfig.getDeliveryThreadsAmount(),
+                    60L, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
+                    new ThreadFactory() {
+                        private AtomicInteger idx = new AtomicInteger();
+
+                        @Override
+                        public Thread newThread(Runnable runnable) {
+                            return new Thread(runnable, "TopicChLBQExecutor-" + idx.getAndIncrement());
+                        }
+                    });
         }
     }
 
@@ -88,12 +117,20 @@ public class TopicController {
             started = false;
             client.stop();
             server.stop();
+
+            if(msgDeliveryExecutor != null && !msgDeliveryExecutor.isShutdown())
+                msgDeliveryExecutor.shutdown();
+            msgDeliveryExecutor = null;
+
             handlerRegisterMap.clear();
             hostHandlerMap.clear();
             lostMessagesMap.clear();
-            if(executor != null && !executor.isShutdown())
+
+            if(executor != null && !executor.isShutdown()) {
                 executor.shutdown();
+            }
             executor = null;
+
         }
     }
 
@@ -168,16 +205,17 @@ public class TopicController {
     //Custom message, should be in user part.
     public boolean sendMessage(long dialogId, SccpDataMessage sccpDataMessage){
         if(this.isStarted()) {
-            TopicSccpMessage tm = new TopicSccpMessage(dialogId, sccpDataMessage);
-            if(dialogId >= TopicConfig.LOCAL_PEER_ID_MIN) {  //At least, bigger than prefix.
-                String peerId = String.valueOf(dialogId).substring(0, TopicConfig.PEER_ID_LENGTH);
-                return sendMessage(Integer.valueOf(peerId), tm);
-            } else {
-                return false;
+            if(dialogId >= TopicConfig.LOCAL_PEER_ID_MIN) {  //At least, bigger than min prefix.
+                int peerId = Integer.parseInt(String.valueOf(dialogId).substring(0, TopicConfig.PEER_ID_LENGTH));
+                if(peerId != topicConfig.getLocalPeerId()) {
+                    TopicSccpMessage tm = new TopicSccpMessage(dialogId, sccpDataMessage);
+                    if(logger.isDebugEnabled())
+                        logger.debug("Sending msg of DialogId {} to PeerId {}", dialogId, peerId);
+                    return sendMessage(peerId, tm);
+                }
             }
-        }else{
-            return false;
         }
+        return false;
     }
 
     //Generic for library.
@@ -196,16 +234,30 @@ public class TopicController {
         }
     }
 
-    public void onMessage(final int peerId, final TopicSccpMessage message){
+    public void onMessage(final int peerId, final TopicSccpMessage message) {
         // TODO: 24/3/20 by Ajimenez -Validate message?
 
         final TopicListener listener = listenerMap.get(message.ssn);
         //Call listener.
-        if(listener != null){
-            //Remote and local addresses are expected interchanged.
-            listener.onMessage(peerId, message.id, message.remoteAddress, message.localAddress, message.data);
-        }else{
-            logger.warn("TopicListener not registered to process message for SSN: "+message.ssn+". Ignoring message.");
+        if (listener != null) {
+            if (logger.isDebugEnabled())
+                logger.debug("Receiving msg of DialogId {} from PeerId {}",  message.id, peerId);
+
+            if (msgDeliveryExecutor != null) {
+                //Delivery service.
+                msgDeliveryExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Remote and local addresses are expected interchanged.
+                        logger.debug("Handling msg of DialogId {} from PeerId {}",  message.id, peerId);
+                        listener.onMessage(peerId, message.id, message.remoteAddress, message.localAddress, message.data);
+                    }
+                });
+            } else {
+                listener.onMessage(peerId, message.id, message.remoteAddress, message.localAddress, message.data);
+            }
+        } else {
+            logger.warn("TopicListener not registered to process message for SSN: " + message.ssn + ". Ignoring message.");
         }
     }
 

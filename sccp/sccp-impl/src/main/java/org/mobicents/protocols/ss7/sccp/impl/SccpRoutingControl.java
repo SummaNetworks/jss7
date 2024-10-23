@@ -489,6 +489,14 @@ public class SccpRoutingControl {
 
         SccpAddress translationAddress = null;
         SccpAddress translationAddress2 = null;
+        //If Originated, then it is used instead of a primary or secondary address.
+        SccpAddress org =  msg.getCalledPartyAddress();
+        if((rule.getRuleType() == RuleType.ORIGINATED || rule.getRuleType() == RuleType.ORIGINATED_PRIMARY)
+                && org.getIncomingOpc() > 0){
+            SccpAddress sccpAddress = new SccpAddressImpl(org.getAddressIndicator().getRoutingIndicator(),
+                    org.getGlobalTitle(), org.getIncomingOpc(), org.getSubsystemNumber());
+            msg.setCalledPartyAddress(sccpAddress);
+        }else
         //If only one is avaiable used it.
         if (resPri == TranslationAddressCheckingResult.destinationAvailable
                 && resSec != TranslationAddressCheckingResult.destinationAvailable) {
@@ -504,6 +512,10 @@ public class SccpRoutingControl {
                     translationAddress = translationAddressPri;
                     break;
 
+                case ORIGINATED_PRIMARY: //With incomingOpc <= 0, then the primary is used always.
+                    translationAddress = translationAddressPri;
+                    break;
+                case ORIGINATED:
                 case LOADSHARED:
                     // loadsharing case and both destinations are available
                     if (msg.getSccpCreatesSls()) {
@@ -523,29 +535,6 @@ public class SccpRoutingControl {
                     // Broadcast case and both destinations are available
                     translationAddress = translationAddressPri;
                     translationAddress2 = translationAddressSec;
-                    break;
-
-                case ORIGINATED:
-                    //Used origin PC.
-                    SccpAddress org =  msg.getCalledPartyAddress();
-                    if(org.getIncomingOpc() > 0) {
-                        SccpAddress sccpAddress = new SccpAddressImpl(org.getAddressIndicator().getRoutingIndicator(),
-                                org.getGlobalTitle(), org.getIncomingOpc(), org.getSubsystemNumber());
-                        msg.setCalledPartyAddress(sccpAddress);
-                    }else{
-                        //Used load shared.
-                        if (msg.getSccpCreatesSls()) {
-                            if (this.sccpStackImpl.newSelector())
-                                translationAddress = translationAddressPri;
-                            else
-                                translationAddress = translationAddressSec;
-                        } else {
-                            if (this.selectLoadSharingRoute(rule.getLoadSharingAlgorithm(), msg))
-                                translationAddress = translationAddressPri;
-                            else
-                                translationAddress = translationAddressSec;
-                        }
-                    }
                     break;
             }
         }

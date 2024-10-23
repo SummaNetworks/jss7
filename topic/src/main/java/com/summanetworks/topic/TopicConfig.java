@@ -15,9 +15,10 @@ public class TopicConfig {
 
     private static final Logger logger = LogManager.getLogger(TopicConfig.class);
 
-    public static final int LOCAL_PEER_ID_MIN = 10;
-    public static final int LOCAL_PEER_ID_MAX = 99;
+    static final int LOCAL_PEER_ID_MIN = 10;
+    static final int LOCAL_PEER_ID_MAX = 99;
     static final int PEER_ID_LENGTH = 2;
+    private static int defaultDeliveryThreadsAmount = Runtime.getRuntime().availableProcessors() * 4;
 
     private int localPeerId = 0;
     private String localIp = null;
@@ -26,6 +27,7 @@ public class TopicConfig {
     private int maxPeerMsgLostByWindows = 100;
     private int peerMsgLostWindowSeconds = 5;
     private int hartBeatInterval = 5;
+    private int deliveryThreadsAmount = defaultDeliveryThreadsAmount;
 
 
     // FIXME: 21/3/20 by Ajimenez - Determinar el tamaño usado para parsear el mensaje por el handler.
@@ -41,6 +43,12 @@ public class TopicConfig {
         }
         if(peerAddresses.isEmpty()){
             logger.warn("No peers IP found. Acting only as server.");
+        }
+        if(deliveryThreadsAmount <=0){
+            logger.warn("Invalid number of threads {} configured. Using default number {}.",
+                    deliveryThreadsAmount,
+                    defaultDeliveryThreadsAmount);
+            deliveryThreadsAmount = defaultDeliveryThreadsAmount;
         }
         return true;
     }
@@ -131,5 +139,16 @@ public class TopicConfig {
 
     public void setHartBeatInterval(int hartBeatInterval) {
         this.hartBeatInterval = hartBeatInterval;
+    }
+
+    public int getDeliveryThreadsAmount() {
+        if(deliveryThreadsAmount <=0){
+            deliveryThreadsAmount = defaultDeliveryThreadsAmount;
+        }
+        return deliveryThreadsAmount;
+    }
+
+    public void setDeliveryThreadsAmount(int deliveryThreadsAmount) {
+        this.deliveryThreadsAmount = deliveryThreadsAmount;
     }
 }

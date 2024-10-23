@@ -9,7 +9,7 @@
 
 	<artifactId>ss7-parent</artifactId>
 	<groupId>org.mobicents.protocols.ss7</groupId>
-	<version>7.0.0-SUMMA-ANSI-ITU-1.3.9-SNAPSHOT</version>
+    <version>7.0.0-SUMMA-ANSI-ITU-1.3.17-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -502,22 +502,43 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.2</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>restcomm-releases-repository</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>deploy-to-sonatype</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<linksource>true</linksource>
+							<minmemory>128m</minmemory>
+							<maxmemory>512</maxmemory>
+							<failOnError>false</failOnError>
+							<skip>true</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		   <plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.2</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>restcomm-releases-repository</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+				</configuration>
+				<executions>
+					<execution>
+						<id>deploy-to-sonatype</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
 <!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

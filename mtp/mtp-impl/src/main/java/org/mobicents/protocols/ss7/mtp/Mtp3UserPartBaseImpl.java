@@ -82,7 +82,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
     private Mtp3TransferPrimitiveFactory mtp3TransferPrimitiveFactory = null;
 
-    private boolean useLsbForLinksetSelection = false;
+    private boolean useLsbForLinksetSelection = true;
 
     private final String productName;
 

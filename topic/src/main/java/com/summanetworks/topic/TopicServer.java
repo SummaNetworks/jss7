@@ -13,6 +13,7 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,12 +30,11 @@ public class TopicServer {
     private EventLoopGroup workerGroup = null;
 
 
-
     public void start(final TopicController controller) throws Exception {
         logger.info(String.format("[TopicServer] Starting at IP %s and port %s",controller.getTopicConfig().getLocalIp(),
                 controller.getTopicConfig().getLocalPort()));
-        bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("Topic-BossGroup"));
+        workerGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("Topic-Server"));
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)

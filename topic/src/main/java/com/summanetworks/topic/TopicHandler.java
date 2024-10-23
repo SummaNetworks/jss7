@@ -224,7 +224,7 @@ public class TopicHandler extends ChannelDuplexHandler implements WritableConnec
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             if (e.state() == IdleState.READER_IDLE) {
-                logger.debug("Reader-Idle detected with peer " + remotePeerId+".");
+                logger.debug((asClient ? "[As-Client]": "[As-Server]" )+" Reader-Idle detected with peer " + remotePeerId+".");
                 if (registered) {
                     //We lost less than 3 heart beat, or we have received something, then, send a new heartbeat.
                     if (somethingReceived){
