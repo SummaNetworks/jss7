@@ -33,12 +33,12 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<echo>
 											${jboss.home}server/default/deploy
 										</echo>
 										<copy file="${project.build.directory}/jss7-management-console.war" todir="${jboss.home}/server/${node}/deploy" />
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 							<execution>
@@ -48,9 +48,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<delete failonerror="false" file="${jboss.home}/server/${node}/deploy/jss7-management-console.war" />
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 						</executions>

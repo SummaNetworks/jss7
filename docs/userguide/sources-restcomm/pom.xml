@@ -76,11 +76,11 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>
+							<target>
 								<delete failonerror="false" includeemptydirs="true">
 									<fileset dir="${basedir}/src" />
 								</delete>
-							</tasks>
+							</target>
 						</configuration>
 					</execution>
 				</executions>

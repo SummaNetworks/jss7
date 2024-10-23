@@ -29,7 +29,7 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<copy overwrite="true" todir="${basedir}/${release.name}">
 											<fileset dir="${basedir}/../sccp-impl/target">
 												<include name="**.jar" />
@@ -47,7 +47,7 @@
 											</fileset>
 										</copy>
 										
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 							<execution>
@@ -57,10 +57,10 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<delete dir="${basedir}/${release.name}">
 										</delete>										
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 						</executions>

@@ -94,7 +94,7 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<tasks>
+									<target>
 										<copy todir="${jboss.home}/bin">
 											<fileset dir="${project.build.directory}/restcomm-cli/bin" />
 										</copy>
@@ -102,12 +102,12 @@
 										<copy todir="${jboss.home}/lib">
 											<fileset dir="${project.build.directory}/restcomm-cli/lib" />
 										</copy>
-									</tasks>
+									</target>
 								</configuration>
 							</execution>
 
 							<!-- TODO : Add cleaning <execution> <id>undeploy</id> <phase>clean</phase> 
-								<goals> <goal>run</goal> </goals> <configuration> <tasks> <delete failonerror="false" includeemptydirs="true"> <fileset dir="${jboss.home}/server/${node}/deploy/restcomm-ss7-service" /> </delete> </tasks> </configuration> </execution> -->
+								<goals> <goal>run</goal> </goals> <configuration> <target> <delete failonerror="false" includeemptydirs="true"> <fileset dir="${jboss.home}/server/${node}/deploy/restcomm-ss7-service" /> </delete> </target> </configuration> </execution> -->
 						</executions>
 					</plugin>
 				</plugins>

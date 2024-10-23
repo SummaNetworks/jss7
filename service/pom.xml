@@ -270,12 +270,12 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>
+							<target>
 								<copy todir="${jboss.home}/server/${node}/deploy/restcomm-ss7-service">
 									<fileset dir="${project.build.directory}/restcomm-ss7-service">
 									</fileset>
 								</copy>
-							</tasks>
+							</target>
 						</configuration>
 					</execution>
 					<execution>
@@ -285,11 +285,11 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>
+							<target>
 								<delete failonerror="false" includeemptydirs="true">
 									<fileset dir="${jboss.home}/server/${node}/deploy/restcomm-ss7-service" />
 								</delete>
-							</tasks>
+							</target>
 						</configuration>
 					</execution>
 				</executions>
