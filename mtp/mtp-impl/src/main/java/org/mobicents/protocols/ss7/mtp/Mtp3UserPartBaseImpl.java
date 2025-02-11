@@ -73,7 +73,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
     private CopyOnWriteArrayList<Mtp3UserPartListener> userListeners = new CopyOnWriteArrayList<Mtp3UserPartListener>();
     // a thread pool for delivering Mtp3TransferMessage messages
-    private ExecutorService msgDeliveryExecutor;
+    public ExecutorService msgDeliveryExecutor;
     // a thread for delivering PAUSE, RESUME and STATUS messages
     private ExecutorService msgDeliveryExecutorSystem;
     private int[] slsTable = null;
@@ -229,7 +229,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 this.deliveryTransferMessageThreadCount / 2,
                 this.deliveryTransferMessageThreadCount,
                 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
+                new LinkedBlockingQueue<Runnable>(500), //Set 2^20; Default value Integer.MAX_VALUE
                 new ThreadFactory() {
                     private AtomicInteger idx = new AtomicInteger();
 
