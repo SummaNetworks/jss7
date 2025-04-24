@@ -24,6 +24,7 @@ package org.mobicents.ss7.hardware.dahdi;
 
 import java.io.IOException;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.mobicents.protocols.ss7.mtp.Mtp3TransferPrimitive;
 import org.mobicents.protocols.ss7.mtp.Mtp3TransferPrimitiveFactory;
 import org.mobicents.protocols.ss7.mtp.Mtp3UserPart;
@@ -99,6 +100,12 @@ public class DahdiMtp3UserPart implements Mtp3UserPart {
     public boolean isUseLsbForLinksetSelection() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public void enableMetrics(MeterRegistry registry) {
+        // Do nothing as we don't want to expose metrics for DahdiUserPart
+        // as it is not a real user part.
     }
 
     @Override

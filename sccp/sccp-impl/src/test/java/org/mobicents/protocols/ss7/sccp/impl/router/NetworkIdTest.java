@@ -26,6 +26,7 @@ import static org.testng.Assert.*;
 
 import java.io.IOException;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.indicator.NatureOfAddress;
@@ -312,6 +313,11 @@ public class NetworkIdTest implements SccpListener {
         public boolean isUseLsbForLinksetSelection() {
             // TODO Auto-generated method stub
             return false;
+        }
+
+        @Override
+        public void enableMetrics(MeterRegistry registry) {
+            // TODO Auto-generated method stub
         }
     }
 
