@@ -22,6 +22,8 @@
 
 package org.mobicents.protocols.ss7.mtp;
 
+import io.micrometer.core.instrument.MeterRegistry;
+
 import java.io.IOException;
 
 /**
@@ -95,5 +97,11 @@ public interface Mtp3UserPart {
      * @return
      */
     boolean isUseLsbForLinksetSelection();
+
+    /**
+     * Enable metrics collection for this Mtp3UserPart instance.
+     * @param registry
+     */
+    void enableMetrics(MeterRegistry registry);
 
 }

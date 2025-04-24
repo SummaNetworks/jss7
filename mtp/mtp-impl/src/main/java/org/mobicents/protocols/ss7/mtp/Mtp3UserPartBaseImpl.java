@@ -23,6 +23,9 @@
 package org.mobicents.protocols.ss7.mtp;
 
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -73,7 +76,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
 
     private CopyOnWriteArrayList<Mtp3UserPartListener> userListeners = new CopyOnWriteArrayList<Mtp3UserPartListener>();
     // a thread pool for delivering Mtp3TransferMessage messages
-    public ExecutorService msgDeliveryExecutor;
+    private ExecutorService msgDeliveryExecutor;
     // a thread for delivering PAUSE, RESUME and STATUS messages
     private ExecutorService msgDeliveryExecutorSystem;
     private int[] slsTable = null;
@@ -229,7 +232,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 this.deliveryTransferMessageThreadCount / 2,
                 this.deliveryTransferMessageThreadCount,
                 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(500), //Set 2^20; Default value Integer.MAX_VALUE
+                new LinkedBlockingQueue<Runnable>(1000), //Set 2^20; Default value Integer.MAX_VALUE
                 new ThreadFactory() {
                     private AtomicInteger idx = new AtomicInteger();
 
@@ -424,4 +427,11 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             }
         }
     }
+
+    @Override
+    public void enableMetrics(MeterRegistry registry) {
+        msgDeliveryExecutor = ExecutorServiceMetrics.monitor(registry, msgDeliveryExecutor, "map_msg_pool",
+                "map_msg_pool", Tags.empty());
+    }
+
 }

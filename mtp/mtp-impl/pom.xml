@@ -56,6 +56,16 @@
 			<artifactId>mtp-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+			<version>1.7.7</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<version>1.7.7</version>
+		</dependency>
 	</dependencies>
 
 </project>
