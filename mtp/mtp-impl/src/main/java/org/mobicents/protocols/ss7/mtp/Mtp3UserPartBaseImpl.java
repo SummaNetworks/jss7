@@ -431,7 +431,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
     @Override
     public void enableMetrics(MeterRegistry registry) {
         msgDeliveryExecutor = ExecutorServiceMetrics.monitor(registry, msgDeliveryExecutor, "map_msg_pool",
-                "map_msg_pool", Tags.empty());
+                 Tags.empty());
     }
 
 }
