@@ -55,9 +55,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<target>
+									<tasks>
 										<copy todir="${jboss.home}/lib" file="${project.build.directory}/${project.build.finalName}.jar" />
-									</target>
+									</tasks>
 								</configuration>
 							</execution>
 							<execution>
@@ -67,9 +67,9 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<target>
+									<tasks>
 										<delete failonerror="fals" file="${jboss.home}/lib/${project.build.finalName}.jar" />
-									</target>
+									</tasks>
 								</configuration>
 							</execution>
 						</executions>
