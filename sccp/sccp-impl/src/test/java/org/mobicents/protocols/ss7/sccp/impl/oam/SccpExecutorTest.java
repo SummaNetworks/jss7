@@ -29,6 +29,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import javolution.util.FastMap;
 
 import org.mobicents.protocols.ss7.Util;
@@ -938,6 +939,11 @@ public class SccpExecutorTest {
         @Override
         public boolean isUseLsbForLinksetSelection() {
             return false;
+        }
+
+        @Override
+        public void enableMetrics(MeterRegistry registry) {
+            // TODO Auto-generated method stub
         }
 
         @Override

@@ -30,6 +30,7 @@ import static org.testng.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Map;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import javolution.util.FastMap;
 
 import org.mobicents.protocols.ss7.Util;
@@ -719,6 +720,11 @@ public class RouterTest {
         public boolean isUseLsbForLinksetSelection() {
             // TODO Auto-generated method stub
             return false;
+        }
+
+        @Override
+        public void enableMetrics(MeterRegistry registry) {
+            // TODO Auto-generated method stub
         }
 
         @Override

@@ -23,6 +23,9 @@
 package org.mobicents.protocols.ss7.mtp;
 
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -229,7 +232,7 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
                 this.deliveryTransferMessageThreadCount / 2,
                 this.deliveryTransferMessageThreadCount,
                 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(1_048_576), //Set 2^20; Default value Integer.MAX_VALUE
+                new LinkedBlockingQueue<Runnable>(1000), //Set 2^20; Default value Integer.MAX_VALUE
                 new ThreadFactory() {
                     private AtomicInteger idx = new AtomicInteger();
 
@@ -424,4 +427,11 @@ public abstract class Mtp3UserPartBaseImpl implements Mtp3UserPart {
             }
         }
     }
+
+    @Override
+    public void enableMetrics(MeterRegistry registry) {
+        msgDeliveryExecutor = ExecutorServiceMetrics.monitor(registry, msgDeliveryExecutor, "map_msg_pool",
+                 Tags.empty());
+    }
+
 }
