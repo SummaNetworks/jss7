@@ -305,7 +305,7 @@ public class M3UARouteManagement {
         if (routeAs == null) {
             return null;
         }
-
+        logger.trace("RouteAs for key={} is {}", key, routeAs);
         int count = (sls & this.asSelectionMask);
         count = (count >> this.asSlsShiftPlaces);
 

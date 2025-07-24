@@ -25,6 +25,8 @@ import javolution.xml.XMLFormat;
 import javolution.xml.XMLSerializable;
 import javolution.xml.stream.XMLStreamException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mobicents.protocols.ss7.m3ua.As;
 import org.mobicents.protocols.ss7.m3ua.ExchangeType;
 import org.mobicents.protocols.ss7.m3ua.Functionality;
@@ -39,6 +41,8 @@ import org.mobicents.protocols.ss7.m3ua.parameter.TrafficModeType;
  *
  */
 public class RouteAsImpl implements XMLSerializable, RouteAs {
+
+    private static final Logger logger = LogManager.getLogger(RouteAsImpl.class);
 
     private static final String TRAFFIC_MODE_TYPE = "trafficModeType";
     private static final String AS_ARRAY = "as";
@@ -154,13 +158,16 @@ public class RouteAsImpl implements XMLSerializable, RouteAs {
                     || (asImpl.getFunctionality() == Functionality.IPSP && asImpl.getExchangeType() == ExchangeType.SE && asImpl
                             .getIpspType() == IPSPType.CLIENT)) {
                 fsm = asImpl.getPeerFSM();
+                logger.trace("isAsActive: evaluation PeerFSM fsm={}", fsm);
             } else {
                 fsm = asImpl.getLocalFSM();
+                logger.trace("isAsActive: evaluation LocalFSM fsm={}", fsm);
             }
 
             AsState asState = AsState.getState(fsm.getState().getName());
-
-            return (asState == AsState.ACTIVE);
+            boolean active = (asState == AsState.ACTIVE);
+            logger.trace("isAsActive: asState={} active={}", asState, active);
+            return active;
         }// if (as != null)
         return false;
     }
