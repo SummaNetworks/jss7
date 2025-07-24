@@ -216,6 +216,25 @@ public class SsnmStateHandlerTest {
     }
 
 
+    // FIXME 23/7/25 by Ajimenez: Test DUNA over non existing PC, then DAVA over the same, and then DUNA again to se the effect.
+    @Test
+    public void given_DavaDunaWithBadPC_WHEN_checkNumberOfDuna_THEN_one() {
 
+        SsnmStateHandler ssnmStateHandler = new SsnmStateHandler("Test7");
+
+        int[] pointCodes = { 0b1001 }; short[] masks = {0};
+
+        //This enables a not disabled one, so is ignored.
+        AffectedPointCode afpcDava = paramFactory.createAffectedPointCode(new int[]{0b1001}, new short[]{0});
+        DestinationAvailable dava = new DestinationAvailableImpl();
+        dava.setAffectedPointCodes(afpcDava);
+        ssnmStateHandler.processDava(dava);
+
+        AffectedPointCode afpc = paramFactory.createAffectedPointCode(pointCodes, masks);
+        DestinationUnavailable duna = new DestinationUnavailableImpl();
+        duna.setAffectedPointCodes(afpc);
+        ssnmStateHandler.processDuna(duna);
+        assertEquals(1, ssnmStateHandler.activeDunasCount());
+    }
 
 }
