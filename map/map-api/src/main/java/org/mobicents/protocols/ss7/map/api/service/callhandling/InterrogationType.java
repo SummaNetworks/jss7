@@ -29,7 +29,7 @@ package org.mobicents.protocols.ss7.map.api.service.callhandling;
  *
  */
 public enum InterrogationType {
-    basicCall(0), forwarding(1);
+    basicCall(0), forwarding(1), unkown(2);
 
     private int code;
 
@@ -47,6 +47,9 @@ public enum InterrogationType {
                 return basicCall;
             case 1:
                 return forwarding;
+            case 2:
+                //Ericsson needs to use value 2
+                return unkown;
             default:
                 return null;
         }
