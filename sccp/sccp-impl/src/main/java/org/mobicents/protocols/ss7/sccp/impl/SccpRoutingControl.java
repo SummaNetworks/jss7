@@ -127,6 +127,8 @@ public class SccpRoutingControl {
         RoutingIndicator ri = calledPartyAddress.getAddressIndicator().getRoutingIndicator();
         switch (ri) {
             case ROUTING_BASED_ON_DPC_AND_SSN:
+                msg.getCallingPartyAddress().setIncomingOpc(msg.getIncomingOpc());
+
                 int ssn = msg.getCalledPartyAddress().getSubsystemNumber();
                 if (ssn == 1) {
                     // This is for management
